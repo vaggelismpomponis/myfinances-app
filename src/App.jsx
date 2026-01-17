@@ -162,7 +162,7 @@ export default function App() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 selection:bg-indigo-100 dark:selection:bg-indigo-900 flex justify-center transition-colors duration-300">
 
             {/* Mobile Container Simulator */}
-            <div className="w-full max-w-md bg-white dark:bg-gray-900 min-h-screen shadow-2xl relative flex flex-col transition-colors duration-300">
+            <div className="w-full max-w-md bg-white dark:bg-gray-900 h-screen overflow-hidden shadow-2xl relative flex flex-col transition-colors duration-300">
 
                 {/* Main Content Area */}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden p-5">
@@ -215,7 +215,7 @@ export default function App() {
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
                     <button
                         onClick={() => setShowAddModal(true)}
-                        className="bg-gray-900 hover:bg-black text-white p-4 rounded-full shadow-xl shadow-indigo-200 transition-transform active:scale-90 flex items-center justify-center"
+                        className="bg-gray-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white p-4 rounded-full shadow-xl shadow-indigo-200 dark:shadow-indigo-900/50 transition-transform active:scale-90 flex items-center justify-center"
                     >
                         <Plus size={28} />
                     </button>
