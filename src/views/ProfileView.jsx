@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     User,
     Settings,
@@ -7,7 +7,8 @@ import {
     Cloud,
     Shield,
     Trash2,
-    ArrowLeft
+    ArrowLeft,
+    Moon
 } from 'lucide-react';
 
 const ProfileView = ({ user, onBack, onSignOut }) => {
