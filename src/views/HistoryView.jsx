@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import TransactionItem from '../components/TransactionItem';
 import { Search, Filter, X } from 'lucide-react';
 
-const HistoryView = ({ transactions, onDelete }) => {
+const HistoryView = ({ transactions, onDelete, onEdit }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all'); // 'all', 'income', 'expense'
 
@@ -72,8 +72,8 @@ const HistoryView = ({ transactions, onDelete }) => {
                     <button
                         onClick={() => setFilterType('all')}
                         className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${filterType === 'all'
-                                ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg'
-                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg'
+                            : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }`}
                     >
                         Όλα
@@ -81,8 +81,8 @@ const HistoryView = ({ transactions, onDelete }) => {
                     <button
                         onClick={() => setFilterType('income')}
                         className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${filterType === 'income'
-                                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200 dark:shadow-none'
-                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200 dark:shadow-none'
+                            : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }`}
                     >
                         Έσοδα
@@ -90,8 +90,8 @@ const HistoryView = ({ transactions, onDelete }) => {
                     <button
                         onClick={() => setFilterType('expense')}
                         className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${filterType === 'expense'
-                                ? 'bg-red-500 text-white shadow-lg shadow-red-200 dark:shadow-none'
-                                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            ? 'bg-red-500 text-white shadow-lg shadow-red-200 dark:shadow-none'
+                            : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }`}
                     >
                         Έξοδα
@@ -112,7 +112,7 @@ const HistoryView = ({ transactions, onDelete }) => {
                             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">{date}</h3>
                             <div className="space-y-3">
                                 {txs.map(t => (
-                                    <TransactionItem key={t.id} transaction={t} onDelete={onDelete} />
+                                    <TransactionItem key={t.id} transaction={t} onDelete={onDelete} onEdit={onEdit} />
                                 ))}
                             </div>
                         </div>

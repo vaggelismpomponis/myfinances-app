@@ -2,7 +2,7 @@ import React from 'react';
 import { Cloud, TrendingUp, TrendingDown, Wallet, CreditCard, MoreHorizontal, Target } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 
-const HomeView = ({ balance, totalIncome, totalExpense, transactions, onDelete, setActiveTab }) => (
+const HomeView = ({ balance, totalIncome, totalExpense, transactions, onDelete, onEdit, setActiveTab }) => (
     <div className="space-y-6 pb-24 animate-fade-in">
         {/* Header / Balance Card */}
         <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl p-6 text-white shadow-xl">
@@ -79,7 +79,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, onDelete, 
                     </div>
                 ) : (
                     transactions.slice(0, 5).map(t => (
-                        <TransactionItem key={t.id} transaction={t} onDelete={onDelete} />
+                        <TransactionItem key={t.id} transaction={t} onDelete={onDelete} onEdit={onEdit} />
                     ))
                 )}
             </div>

@@ -28,7 +28,7 @@ import { auth, db, appId } from './firebase';
 
 // Context
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
-import { ToastProvider } from './contexts/ToastContext';
+import { ToastProvider, useToast } from './contexts/ToastContext';
 import { trackSession } from './utils/session';
 
 // Components
@@ -52,10 +52,12 @@ import ConfirmationModal from './components/ConfirmationModal';
 
 function MainContent() {
     const { isLocked, theme, toggleTheme } = useSettings();
+    const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState('home');
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
+    const [editingTransaction, setEditingTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -86,7 +88,7 @@ function MainContent() {
             await signInWithPopup(auth, provider);
         } catch (error) {
             console.error("Google Auth error:", error);
-            alert("Η σύνδεση με Google απέτυχε: " + error.message);
+            showToast("Η σύνδεση με Google απέτυχε.", 'error');
         }
     };
 
@@ -95,17 +97,30 @@ function MainContent() {
             await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
             console.error("Login error:", error);
-            alert("Αποτυχία σύνδεσης: " + error.message);
-            throw error;
+            let msg = "Αποτυχία σύνδεσης.";
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                msg = "Λάθος email ή κωδικός πρόσβασης.";
+            } else if (error.code === 'auth/too-many-requests') {
+                msg = "Πολλές αποτυχημένες προσπάθειες. Δοκιμάστε αργότερα.";
+            }
+            showToast(msg, 'error');
+            throw error; // Rethrow to let LoginView know
         }
     };
 
     const handleRegister = async (email, password) => {
         try {
             await createUserWithEmailAndPassword(auth, email, password);
+            showToast("Ο λογαριασμός δημιουργήθηκε!", 'success');
         } catch (error) {
             console.error("Register error:", error);
-            alert("Αποτυχία εγγραφής: " + error.message);
+            let msg = "Αποτυχία εγγραφής.";
+            if (error.code === 'auth/email-already-in-use') {
+                msg = "Το email χρησιμοποιείται ήδη.";
+            } else if (error.code === 'auth/weak-password') {
+                msg = "Ο κωδικός είναι πολύ αδύναμος.";
+            }
+            showToast(msg, 'error');
             throw error;
         }
     };
@@ -212,15 +227,24 @@ function MainContent() {
     // Handlers
     const addTransaction = async (transaction) => {
         if (!user) return;
+
         try {
-            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'transactions'), {
-                ...transaction,
-                date: new Date().toISOString()
-            });
+            if (editingTransaction) {
+                // Update existing
+                const txRef = doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', editingTransaction.id);
+                await updateDoc(txRef, transaction);
+                setEditingTransaction(null);
+            } else {
+                // Add new
+                await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'transactions'), {
+                    ...transaction,
+                    date: new Date().toISOString()
+                });
+            }
             setShowAddModal(false);
         } catch (e) {
-            console.error("Error adding document: ", e);
-            alert("Σφάλμα αποθήκευσης. Προσπάθησε ξανά.");
+            console.error("Error saving document: ", e);
+            showToast("Σφάλμα αποθήκευσης. Προσπάθησε ξανά.", 'error');
         }
     };
 
@@ -238,6 +262,11 @@ function MainContent() {
         } catch (e) {
             console.error("Error deleting:", e);
         }
+    };
+
+    const handleEdit = (transaction) => {
+        setEditingTransaction(transaction);
+        setShowAddModal(true);
     };
 
     const handleSignOut = () => {
@@ -316,11 +345,12 @@ function MainContent() {
                             totalExpense={totalExpense}
                             transactions={transactions}
                             onDelete={deleteTransaction}
+                            onEdit={handleEdit}
                             setActiveTab={setActiveTab}
                         />
                     )}
                     {activeTab === 'stats' && <StatsView transactions={transactions} />}
-                    {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} />}
+                    {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
                     {activeTab === 'wallet' && <WalletView onBack={() => setActiveTab('home')} user={user} />}
                     {activeTab === 'cards' && <CardsView onBack={() => setActiveTab('home')} />}
                     {activeTab === 'goals' && <GoalsView user={user} onBack={() => setActiveTab('home')} />}
@@ -375,7 +405,7 @@ function MainContent() {
                 {/* Floating Add Button (Center) */}
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => { setEditingTransaction(null); setShowAddModal(true); }}
                         className="bg-gray-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white p-5 rounded-full shadow-xl shadow-indigo-200 dark:shadow-indigo-900/50 transition-transform active:scale-90 flex items-center justify-center"
                     >
                         <Plus size={32} />
@@ -386,7 +416,13 @@ function MainContent() {
                 <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
                 {/* Modals */}
-                {showAddModal && <AddModal onClose={() => setShowAddModal(false)} onAdd={addTransaction} />}
+                {showAddModal && (
+                    <AddModal
+                        onClose={() => { setShowAddModal(false); setEditingTransaction(null); }}
+                        onAdd={addTransaction}
+                        initialData={editingTransaction}
+                    />
+                )}
 
                 <ConfirmationModal
                     isOpen={showDeleteModal}
