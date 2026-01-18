@@ -24,18 +24,25 @@ import {
 } from 'firebase/firestore';
 import { auth, db, appId } from './firebase';
 
+// Context
+import { SettingsProvider, useSettings } from './contexts/SettingsContext';
+
 // Components
 import LoadingView from './views/LoadingView';
 import LoginView from './views/LoginView';
 import ProfileView from './views/ProfileView';
 import RecurringView from './views/RecurringView';
+import GeneralSettingsView from './views/GeneralSettingsView';
+import SecuritySettingsView from './views/SecuritySettingsView';
+import LockScreen from './views/LockScreen';
 import HomeView from './views/HomeView';
 import StatsView from './views/StatsView';
 import HistoryView from './views/HistoryView';
 import AddModal from './components/AddModal';
 import Navbar from './components/Navbar';
 
-export default function App() {
+function MainContent() {
+    const { isLocked } = useSettings();
     const [activeTab, setActiveTab] = useState('home');
     const [showAddModal, setShowAddModal] = useState(false);
     const [transactions, setTransactions] = useState([]);
@@ -215,6 +222,16 @@ export default function App() {
     // --- Layout Render ---
 
     if (loading) return <LoadingView />;
+
+    // Show Lock Screen if locked (only if accessed, but standard behavior is to block everything)
+    // We check !user because LockScreen is usually for when you are ALREADY logged in locally.
+    // If not logged in, LoginView takes precedence? Or LockScreen first?
+    // Let's say LockScreen protects the session.
+
+    if (user && isLocked) {
+        return <LockScreen />;
+    }
+
     if (!user && !loading) return (
         <LoginView
             onGoogleLogin={handleGoogleLogin}
@@ -235,14 +252,14 @@ export default function App() {
                     {/* Top Bar */}
                     <div className="flex justify-between items-center mb-6 pt-2">
                         <div>
-                            <p className="text-gray-500 text-xs font-medium tracking-wider">Γεια σου,</p>
-                            <h2 className="text-xl font-bold text-gray-900">
+                            <p className="text-gray-500 dark:text-gray-400 text-xs font-medium tracking-wider">Γεια σου,</p>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                                 {user?.displayName || user?.email?.split('@')[0] || 'User'}!
                             </h2>
                         </div>
                         <button
                             onClick={() => setActiveTab('profile')}
-                            className="w-10 h-10 bg-indigo-50 hover:bg-indigo-100 transition-colors rounded-full flex items-center justify-center text-indigo-700 font-bold border border-indigo-200"
+                            className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 transition-colors rounded-full flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-500/30"
                             title="Προφίλ"
                         >
                             <User size={20} />
@@ -267,20 +284,42 @@ export default function App() {
 
                 {/* Profile View Overlay */}
                 {activeTab === 'profile' && (
-                    <div className="absolute inset-0 z-50 bg-white">
+                    <div className="absolute inset-0 z-50 bg-white dark:bg-gray-900">
                         <ProfileView
                             user={user}
                             onBack={() => setActiveTab('home')}
                             onSignOut={handleSignOut}
                             onRecurring={() => setActiveTab('recurring')}
+                            onGeneral={() => setActiveTab('general')}
+                            onSecurity={() => setActiveTab('security')}
                         />
                     </div>
                 )}
 
                 {/* Recurring View Overlay */}
                 {activeTab === 'recurring' && (
-                    <div className="absolute inset-0 z-50 bg-white">
+                    <div className="absolute inset-0 z-50 bg-white dark:bg-gray-900">
                         <RecurringView
+                            user={user}
+                            onBack={() => setActiveTab('profile')}
+                        />
+                    </div>
+                )}
+
+                {/* General Settings Overlay */}
+                {activeTab === 'general' && (
+                    <div className="absolute inset-0 z-50 bg-white dark:bg-gray-900">
+                        <GeneralSettingsView
+                            user={user}
+                            onBack={() => setActiveTab('profile')}
+                        />
+                    </div>
+                )}
+
+                {/* Security Settings Overlay */}
+                {activeTab === 'security' && (
+                    <div className="absolute inset-0 z-50 bg-white dark:bg-gray-900">
+                        <SecuritySettingsView
                             user={user}
                             onBack={() => setActiveTab('profile')}
                         />
@@ -304,5 +343,13 @@ export default function App() {
                 {showAddModal && <AddModal onClose={() => setShowAddModal(false)} onAdd={addTransaction} />}
             </div>
         </div>
+    );
+}
+
+export default function App() {
+    return (
+        <SettingsProvider>
+            <MainContent />
+        </SettingsProvider>
     );
 }

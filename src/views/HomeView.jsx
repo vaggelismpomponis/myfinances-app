@@ -5,7 +5,7 @@ import TransactionItem from '../components/TransactionItem';
 const HomeView = ({ balance, totalIncome, totalExpense, transactions, onDelete, setActiveTab }) => (
     <div className="space-y-6 pb-24 animate-fade-in">
         {/* Header / Balance Card */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl p-6 text-white shadow-xl shadow-indigo-200">
+        <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl p-6 text-white shadow-xl">
             <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-white opacity-10 rounded-full blur-2xl"></div>
             <div className="absolute bottom-0 left-0 -ml-4 -mb-4 w-32 h-32 bg-indigo-400 opacity-20 rounded-full blur-2xl"></div>
 
@@ -53,10 +53,10 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, onDelete, 
                 { icon: MoreHorizontal, label: 'Περισ.' }
             ].map((item, idx) => (
                 <div key={idx} className="flex flex-col items-center gap-2">
-                    <button className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:scale-105 transition-all shadow-sm border border-gray-100">
+                    <button className="w-14 h-14 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:scale-105 transition-all shadow-sm border border-gray-100 dark:border-slate-700">
                         <item.icon size={22} />
                     </button>
-                    <span className="text-xs text-gray-500 font-medium">{item.label}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">{item.label}</span>
                 </div>
             ))}
         </div>
@@ -64,14 +64,14 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, onDelete, 
         {/* Recent Transactions */}
         <div>
             <div className="flex justify-between items-center mb-4 px-1">
-                <h2 className="text-lg font-bold text-gray-800">Πρόσφατα</h2>
-                <button onClick={() => setActiveTab('history')} className="text-sm text-indigo-600 font-semibold">Όλα</button>
+                <h2 className="text-lg font-bold text-gray-800 dark:text-white">Πρόσφατα</h2>
+                <button onClick={() => setActiveTab('history')} className="text-sm text-indigo-600 dark:text-indigo-400 font-semibold">Όλα</button>
             </div>
 
             <div className="space-y-3">
                 {transactions.length === 0 ? (
-                    <div className="text-center py-10 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                        <p className="text-gray-400">Δεν υπάρχουν συναλλαγές ακόμη.</p>
+                    <div className="text-center py-10 bg-gray-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-slate-700">
+                        <p className="text-gray-400 dark:text-gray-500">Δεν υπάρχουν συναλλαγές ακόμη.</p>
                     </div>
                 ) : (
                     transactions.slice(0, 5).map(t => (

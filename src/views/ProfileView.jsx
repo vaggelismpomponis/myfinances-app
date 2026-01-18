@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 
-const ProfileView = ({ user, onBack, onSignOut, onRecurring }) => {
+const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecurity }) => {
     const [isDark, setIsDark] = useState(() => {
         if (localStorage.getItem('theme') === 'dark' ||
             (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -92,14 +92,20 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring }) => {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer">
+                    <div
+                        onClick={onGeneral}
+                        className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                    >
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Settings size={18} /></div>
                             <span className="font-medium text-gray-700 dark:text-gray-200">Γενικά</span>
                         </div>
                         <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
                     </div>
-                    <div className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer">
+                    <div
+                        onClick={onSecurity}
+                        className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                    >
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Shield size={18} /></div>
                             <span className="font-medium text-gray-700 dark:text-gray-200">Ασφάλεια</span>

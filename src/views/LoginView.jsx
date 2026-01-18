@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Wallet, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Wallet, Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const LoginView = ({ onGoogleLogin, onEmailLogin, onRegister }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -39,7 +40,7 @@ const LoginView = ({ onGoogleLogin, onEmailLogin, onRegister }) => {
                 {/* Email/Password Form */}
                 <form onSubmit={handleSubmit} className="space-y-4 mb-6">
                     <div>
-                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase ml-1">Email</label>
+                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 ml-1">Email</label>
                         <div className="relative mt-1">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                             <input
@@ -54,24 +55,31 @@ const LoginView = ({ onGoogleLogin, onEmailLogin, onRegister }) => {
                     </div>
 
                     <div>
-                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase ml-1">Kwδικός</label>
+                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 ml-1">Κωδικός</label>
                         <div className="relative mt-1">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                             <input
-                                type="password"
+                                type={showPassword ? 'text' : 'password'}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl py-3 pl-10 pr-4 text-gray-800 dark:text-white focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-gray-700 transition-all font-medium"
+                                className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl py-3 pl-10 pr-12 text-gray-800 dark:text-white focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-gray-700 transition-all font-medium"
                                 placeholder="••••••••"
                                 required
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
                         </div>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 active:scale-95 transition-all mt-2"
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all mt-2"
                     >
                         {isLoading ? (
                             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

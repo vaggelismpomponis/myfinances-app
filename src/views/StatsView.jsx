@@ -17,7 +17,7 @@ const StatsView = ({ transactions }) => {
 
     return (
         <div className="pb-24 animate-fade-in">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Ανάλυση Εξόδων</h2>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Ανάλυση Εξόδων</h2>
 
             {/* Total Expense Card */}
             <Card className="mb-8 bg-gray-900 text-white border-gray-800">
@@ -34,11 +34,11 @@ const StatsView = ({ transactions }) => {
                             <div className="flex justify-between items-end mb-2">
                                 <div className="flex items-center gap-2">
                                     <CategoryIcon category={cat} type="expense" />
-                                    <span className="font-semibold text-gray-700">{cat}</span>
+                                    <span className="font-semibold text-gray-700 dark:text-gray-300">{cat}</span>
                                 </div>
-                                <span className="font-bold text-gray-900">{amount.toFixed(2)}€</span>
+                                <span className="font-bold text-gray-900 dark:text-white">{amount.toFixed(2)}€</span>
                             </div>
-                            <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-3 w-full bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-indigo-500 rounded-full"
                                     style={{ width: `${(amount / maxExpense) * 100}%` }}
