@@ -18,9 +18,13 @@ export const SettingsProvider = ({ children }) => {
     const [appPin, setAppPin] = useState(() => localStorage.getItem('appPin') || null);
     const [isLocked, setIsLocked] = useState(() => {
         // Start locked if either PIN or Biometrics is enabled
+        // AND validation passes (e.g., PIN actually exists)
         const pinEnabled = localStorage.getItem('isPinEnabled') === 'true';
+        const storedPin = localStorage.getItem('appPin');
         const bioEnabled = localStorage.getItem('isBiometricsEnabled') === 'true';
-        return pinEnabled || bioEnabled;
+
+        // Only lock if Bio is enabled OR (Pin is enabled AND Pin exists)
+        return bioEnabled || (pinEnabled && storedPin !== null);
     });
 
     // Persistence Effects

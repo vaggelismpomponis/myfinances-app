@@ -7,7 +7,8 @@ import {
     KeyRound,
     X,
     Laptop,
-    Monitor
+    Monitor,
+    Lock
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
@@ -15,7 +16,7 @@ import { db, appId, auth } from '../firebase';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 
 const SecuritySettingsView = ({ user, onBack }) => {
-    const { isBiometricsEnabled, toggleBiometrics } = useSettings();
+    const { isBiometricsEnabled, toggleBiometrics, isPinEnabled, setPin, removePin } = useSettings();
     const [sessions, setSessions] = useState([]);
     const [currentSessionId, setCurrentSessionId] = useState(null);
 
@@ -27,6 +28,10 @@ const SecuritySettingsView = ({ user, onBack }) => {
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // PIN State
+    const [showPinModal, setShowPinModal] = useState(false);
+    const [pinInput, setPinInput] = useState('');
 
     useEffect(() => {
         // Get current session ID
@@ -58,7 +63,6 @@ const SecuritySettingsView = ({ user, onBack }) => {
                     alert("Δεν βρέθηκε ρυθμισμένη βιομετρική μέθοδος.");
                     return;
                 }
-                // Dummy create to trigger prompt
                 const challenge = new Uint8Array(32);
                 window.crypto.getRandomValues(challenge);
                 await navigator.credentials.create({
@@ -84,6 +88,23 @@ const SecuritySettingsView = ({ user, onBack }) => {
         }
     };
 
+    const handleTogglePin = () => {
+        if (isPinEnabled) {
+            removePin();
+        } else {
+            setPinInput('');
+            setShowPinModal(true);
+        }
+    };
+
+    const handleSavePin = (e) => {
+        e.preventDefault();
+        if (pinInput.length === 4) {
+            setPin(pinInput);
+            setShowPinModal(false);
+        }
+    };
+
     const handleChangePassword = async (e) => {
         e.preventDefault();
         setPasswordError('');
@@ -103,13 +124,9 @@ const SecuritySettingsView = ({ user, onBack }) => {
         }
 
         try {
-            // 1. Re-authenticate
             const credential = EmailAuthProvider.credential(user.email, currentPassword);
             await reauthenticateWithCredential(user, credential);
-
-            // 2. Update Password
             await updatePassword(user, newPassword);
-
             setPasswordSuccess("Ο κωδικός άλλαξε επιτυχώς!");
             setCurrentPassword('');
             setNewPassword('');
@@ -171,6 +188,23 @@ const SecuritySettingsView = ({ user, onBack }) => {
                             <ChevronRight size={16} className="text-gray-300 dark:text-gray-600" />
                         </button>
 
+                        {/* PIN Toggle */}
+                        <div className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg"><Lock size={18} /></div>
+                                <div>
+                                    <span className="block font-medium text-gray-700 dark:text-gray-200">PIN Εφαρμογής</span>
+                                    <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">Κλείδωμα οθόνης</span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={handleTogglePin}
+                                className={`w-11 h-6 rounded-full flex items-center transition-colors p-1 ${isPinEnabled ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-600'}`}
+                            >
+                                <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform ${isPinEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                            </button>
+                        </div>
+
                         {/* Biometrics Toggle */}
                         <div className="flex items-center justify-between p-4">
                             <div className="flex items-center gap-3">
@@ -195,7 +229,6 @@ const SecuritySettingsView = ({ user, onBack }) => {
                 <div>
                     <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">Ενεργες Συνεδριες</h3>
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden text-sm">
-
                         {sessions.length === 0 ? (
                             <div className="p-4 text-center text-gray-500">Φόρτωση συνεδριών...</div>
                         ) : (
@@ -204,7 +237,6 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                 const dateStr = new Date(session.lastActive).toLocaleString('el-GR', {
                                     month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                                 });
-
                                 return (
                                     <div key={session.id} className={`p-4 flex items-center justify-between ${index !== sessions.length - 1 ? 'border-b border-gray-50 dark:border-gray-700' : ''}`}>
                                         <div className="flex items-center gap-3">
@@ -225,10 +257,8 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                 );
                             })
                         )}
-
                     </div>
                 </div>
-
             </div>
 
             {/* Change Password Modal */}
@@ -242,7 +272,6 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                 <X size={20} />
                             </button>
                         </div>
-
                         {passwordSuccess ? (
                             <div className="text-center py-6">
                                 <KeyRound size={48} className="mx-auto text-emerald-500 mb-3" />
@@ -257,44 +286,49 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                 )}
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Τρέχων Κωδικός</label>
-                                    <input
-                                        type="password"
-                                        value={currentPassword}
-                                        onChange={(e) => setCurrentPassword(e.target.value)}
-                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
-                                        required
-                                    />
+                                    <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white" required />
                                 </div>
                                 <div className="border-t border-gray-100 dark:border-gray-700 my-2"></div>
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Νέος Κωδικός</label>
-                                    <input
-                                        type="password"
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
-                                        required
-                                    />
+                                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white" required />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Επιβεβαίωση Νέου Κωδικού</label>
-                                    <input
-                                        type="password"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
-                                        required
-                                    />
+                                    <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white" required />
                                 </div>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-colors disabled:opacity-50"
-                                >
-                                    {loading ? 'Ενημέρωση...' : 'Αλλαγή Κωδικού'}
-                                </button>
+                                <button type="submit" disabled={loading} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-colors disabled:opacity-50">{loading ? 'Ενημέρωση...' : 'Αλλαγή Κωδικού'}</button>
                             </form>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* PIN Setup Modal */}
+            {showPinModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowPinModal(false)} />
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700 text-center">
+                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Lock size={24} className="text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Ορισμός PIN</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Εισάγετε τον 4-ψήφιο κωδικό για κλείδωμα της εφαρμογής.</p>
+
+                        <form onSubmit={handleSavePin}>
+                            <input
+                                type="tel"
+                                maxLength="4"
+                                value={pinInput}
+                                onChange={(e) => setPinInput(e.target.value)}
+                                className="w-40 text-center text-3xl font-bold tracking-widest p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl mb-6 focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                                autoFocus
+                            />
+                            <div className="flex gap-3">
+                                <button type="button" onClick={() => setShowPinModal(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl">Ακύρωση</button>
+                                <button type="submit" disabled={pinInput.length !== 4} className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl disabled:opacity-50">Αποθήκευση</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
