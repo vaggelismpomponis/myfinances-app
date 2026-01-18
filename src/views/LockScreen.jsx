@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, Delete, Fingerprint, ScanFace } from 'lucide-react'; // Changed ScanFace for better visual
+import { Wallet, Delete, Fingerprint, ScanFace, LogOut } from 'lucide-react'; // Changed ScanFace for better visual
 import { useSettings } from '../contexts/SettingsContext';
 
-const LockScreen = () => {
+const LockScreen = ({ onSignOut }) => {
     const { appPin, unlockApp, isBiometricsEnabled } = useSettings();
     const [pin, setPin] = useState('');
     const [error, setError] = useState(false);
@@ -113,8 +113,8 @@ const LockScreen = () => {
                         <button
                             onClick={handleBiometricAuth}
                             className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${isScanning
-                                    ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 animate-pulse'
-                                    : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800'
+                                ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 animate-pulse'
+                                : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800'
                                 }`}
                         >
                             <ScanFace size={32} />
@@ -143,6 +143,15 @@ const LockScreen = () => {
                     Αναγνώριση προσώπου...
                 </p>
             )}
+
+            {/* Logout Option (Escape Hatch) */}
+            <button
+                onClick={onSignOut}
+                className="absolute bottom-8 text-gray-400 hover:text-red-500 transition-colors flex items-center gap-2 text-sm font-medium"
+            >
+                <LogOut size={16} />
+                <span>Αποσύνδεση</span>
+            </button>
         </div>
     );
 };

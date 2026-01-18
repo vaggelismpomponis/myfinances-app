@@ -252,7 +252,7 @@ function MainContent() {
     // Let's say LockScreen protects the session.
 
     if (user && isLocked) {
-        return <LockScreen />;
+        return <LockScreen onSignOut={handleSignOut} />;
     }
 
     if (!user && !loading) return (
