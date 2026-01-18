@@ -144,8 +144,8 @@ const LockScreen = ({ onSignOut, user }) => {
                         <button
                             onClick={handleBiometricAuth}
                             className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${isScanning
-                                    ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 animate-pulse'
-                                    : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800'
+                                ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 animate-pulse'
+                                : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800'
                                 }`}
                         >
                             <ScanFace size={32} />
@@ -174,7 +174,7 @@ const LockScreen = ({ onSignOut, user }) => {
                     onClick={() => setShowForgotModal(true)}
                     className="text-indigo-600 dark:text-indigo-400 text-sm font-bold hover:underline"
                 >
-                    Ξέχασα το PIN / Μπλοκαρίστηκα
+                    Ξέχασα το PIN μου
                 </button>
 
                 <button
