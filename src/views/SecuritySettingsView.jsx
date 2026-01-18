@@ -200,7 +200,7 @@ const SecuritySettingsView = ({ user, onBack }) => {
                         {/* PIN Toggle */}
                         <div className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg"><Lock size={18} /></div>
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Lock size={18} /></div>
                                 <div>
                                     <span className="block font-medium text-gray-700 dark:text-gray-200">PIN Εφαρμογής</span>
                                     <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">Κλείδωμα οθόνης</span>
@@ -217,7 +217,7 @@ const SecuritySettingsView = ({ user, onBack }) => {
                         {/* Biometrics Toggle */}
                         <div className="flex items-center justify-between p-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg"><Smartphone size={18} /></div>
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Smartphone size={18} /></div>
                                 <div>
                                     <span className="block font-medium text-gray-700 dark:text-gray-200">FaceID / TouchID</span>
                                     <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">Απαίτηση κατά το άνοιγμα</span>

@@ -168,7 +168,7 @@ const GeneralSettingsView = ({ user, onBack }) => {
                         {/* Language */}
                         <div className="flex items-center justify-between p-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg"><Globe size={18} /></div>
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Globe size={18} /></div>
                                 <span className="font-medium text-gray-700 dark:text-gray-200">Γλώσσα</span>
                             </div>
                             <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
@@ -202,8 +202,8 @@ const GeneralSettingsView = ({ user, onBack }) => {
                             className="w-full flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
-                                    {isExporting ? <div className="animate-spin w-[18px] h-[18px] border-2 border-green-600 border-t-transparent rounded-full" /> : <Download size={18} />}
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
+                                    {isExporting ? <div className="animate-spin w-[18px] h-[18px] border-2 border-indigo-600 border-t-transparent rounded-full" /> : <Download size={18} />}
                                 </div>
                                 <span className="font-medium text-gray-700 dark:text-gray-200">Εξαγωγή Δεδομένων</span>
                             </div>
@@ -212,22 +212,22 @@ const GeneralSettingsView = ({ user, onBack }) => {
                         {/* Clear Data */}
                         <button
                             onClick={() => setShowClearDataModal(true)}
-                            className="w-full flex items-center justify-between p-4 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-left group"
+                            className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left group"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 rounded-lg group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors"><Trash2 size={18} /></div>
-                                <span className="font-medium text-red-600 dark:text-red-400">Διαγραφή Όλων</span>
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/40 transition-colors"><Trash2 size={18} /></div>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">Διαγραφή Όλων</span>
                             </div>
                         </button>
 
                         {/* Delete Account */}
                         <button
                             onClick={() => setShowDeleteModal(true)}
-                            className="w-full flex items-center justify-between p-4 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-left group border-t border-gray-50 dark:border-gray-700"
+                            className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left group border-t border-gray-50 dark:border-gray-700"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 rounded-lg group-hover:bg-red-200 dark:group-hover:bg-red-900/60 transition-colors"><Trash2 size={18} /></div>
-                                <span className="font-bold text-red-700 dark:text-red-400">Διαγραφή Λογαριασμού</span>
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/40 transition-colors"><Trash2 size={18} /></div>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">Διαγραφή Λογαριασμού</span>
                             </div>
                         </button>
 

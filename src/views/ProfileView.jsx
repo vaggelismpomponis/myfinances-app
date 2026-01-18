@@ -153,7 +153,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                             className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg"><Moon size={18} /></div>
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Moon size={18} /></div>
                                 <span className="font-medium text-gray-700 dark:text-gray-200">Σκοτεινό Θέμα</span>
                             </div>
                             <div className={`w-11 h-6 rounded-full flex items-center transition-colors p-1 ${isDark ? 'bg-indigo-600' : 'bg-gray-200'}`}>
@@ -162,38 +162,42 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
 
                         </div>
 
+
                         {/* Recurring Transactions */}
                         <div
                             onClick={onRecurring}
                             className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg"><Repeat size={18} /></div>
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Repeat size={18} /></div>
                                 <span className="font-medium text-gray-700 dark:text-gray-200">Επαναλαμβανόμενες Συναλλαγές</span>
                             </div>
                             <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
                         </div>
-                    </div>
 
-                    <div
-                        onClick={onGeneral}
-                        className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Settings size={18} /></div>
-                            <span className="font-medium text-gray-700 dark:text-gray-200">Γενικά</span>
+                        {/* General */}
+                        <div
+                            onClick={onGeneral}
+                            className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Settings size={18} /></div>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">Γενικά</span>
+                            </div>
+                            <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
                         </div>
-                        <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
-                    </div>
-                    <div
-                        onClick={onSecurity}
-                        className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Shield size={18} /></div>
-                            <span className="font-medium text-gray-700 dark:text-gray-200">Ασφάλεια</span>
+
+                        {/* Security */}
+                        <div
+                            onClick={onSecurity}
+                            className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Shield size={18} /></div>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">Ασφάλεια</span>
+                            </div>
+                            <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
                         </div>
-                        <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
                     </div>
                 </div>
             </div>
@@ -207,7 +211,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                         className="w-full flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 rounded-lg"><LogOut size={18} /></div>
+                            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><LogOut size={18} /></div>
                             <span className="font-medium text-gray-700 dark:text-gray-200">Αποσύνδεση</span>
                         </div>
                     </button>
