@@ -55,6 +55,12 @@ function MainContent() {
     const [transactions, setTransactions] = useState([]);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [imgError, setImgError] = useState(false);
+
+    // Reset image error when user photo changes
+    useEffect(() => {
+        setImgError(false);
+    }, [user?.photoURL]);
 
     // 1. Initialize Auth
     useEffect(() => {
@@ -274,8 +280,13 @@ function MainContent() {
                             className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 transition-colors rounded-full flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-500/30 overflow-hidden"
                             title="Προφίλ"
                         >
-                            {user?.photoURL ? (
-                                <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                            {user?.photoURL && !imgError ? (
+                                <img
+                                    src={user.photoURL}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                    onError={() => setImgError(true)}
+                                />
                             ) : (
                                 <User size={20} />
                             )}

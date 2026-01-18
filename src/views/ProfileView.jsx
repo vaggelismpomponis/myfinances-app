@@ -15,6 +15,8 @@ import {
     X
 } from 'lucide-react';
 import { updateProfile } from 'firebase/auth';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { storage } from '../firebase';
 import ConfirmationModal from '../components/ConfirmationModal';
 import PhotoUploadModal from '../components/PhotoUploadModal';
 import { useToast } from '../contexts/ToastContext';
@@ -30,6 +32,12 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
     const { showToast } = useToast();
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [imgError, setImgError] = useState(false);
+
+    useEffect(() => {
+        setImgError(false);
+    }, [user.photoURL]);
+
 
     useEffect(() => {
         if (isDark) {
@@ -57,12 +65,12 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
 
                     <div className="relative group">
                         <div className="w-24 h-24 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-4 shadow-inner overflow-hidden border-4 border-white dark:border-gray-800">
-                            {user.photoURL ? (
+                            {user.photoURL && !imgError ? (
                                 <img
                                     src={user.photoURL}
                                     alt="Profile"
                                     className="w-full h-full object-cover"
-                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                    onError={() => setImgError(true)}
                                 />
                             ) : (
                                 <User size={48} strokeWidth={1.5} />
@@ -103,12 +111,32 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                             onClose={() => setShowUploadModal(false)}
                             onUpload={async (base64Image) => {
                                 try {
-                                    await updateProfile(user, { photoURL: base64Image });
+                                    // 1. Create a reference
+                                    const storageRef = ref(storage, `users/${user.uid}/profile.jpg`);
+
+                                    // 2. Upload the base64 string
+                                    // Data URL format: "data:image/jpeg;base64,..."
+                                    await uploadString(storageRef, base64Image, 'data_url');
+
+                                    // 3. Get the download URL
+                                    const url = await getDownloadURL(storageRef);
+
+                                    // Append timestamp to bust cache
+                                    const photoURL = `${url}&v=${Date.now()}`;
+
+                                    // 4. Update Profile
+                                    await updateProfile(user, { photoURL });
+
+                                    // 5. Force refresh of local user object
+                                    await user.reload();
+                                    console.log("Photo updated to:", photoURL);
+
                                     showToast('Η φωτογραφία ενημερώθηκε επιτυχώς', 'success');
                                     setShowUploadModal(false);
+                                    setTimeout(() => window.location.reload(), 500);
                                 } catch (e) {
                                     console.error("Error updating photo", e);
-                                    showToast('Αποτυχία ενημέρωσης φωτογραφίας', 'error');
+                                    showToast('Αποτυχία ενημέρωσης φωτογραφίας: ' + e.message, 'error');
                                 }
                             }}
                         />

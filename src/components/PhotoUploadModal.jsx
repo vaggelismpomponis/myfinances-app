@@ -6,9 +6,10 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
     const [zoom, setZoom] = useState(1);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    // dragStart is no longer needed in state as it's captured in the closure of the effect event handler if we used that, 
+    // but here we use the event handler closure.
+
     const imgRef = useRef(null);
-    const canvasRef = useRef(null);
 
     if (!isOpen) return null;
 
@@ -25,22 +26,41 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
     };
 
     const handleMouseDown = (e) => {
+        e.preventDefault();
+        const startX = e.clientX || e.touches?.[0].clientX;
+        const startY = e.clientY || e.touches?.[0].clientY;
+        const initialOffsetX = offset.x;
+        const initialOffsetY = offset.y;
+
         setIsDragging(true);
-        setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
-    };
 
-    const handleMouseMove = (e) => {
-        if (isDragging) {
-            e.preventDefault();
+        const handleMove = (moveEvent) => {
+            const clientX = moveEvent.clientX || moveEvent.touches?.[0].clientX;
+            const clientY = moveEvent.clientY || moveEvent.touches?.[0].clientY;
+
+            if (clientX === undefined || clientY === undefined) return;
+
+            const deltaX = clientX - startX;
+            const deltaY = clientY - startY;
+
             setOffset({
-                x: e.clientX - dragStart.x,
-                y: e.clientY - dragStart.y
+                x: initialOffsetX + deltaX,
+                y: initialOffsetY + deltaY
             });
-        }
-    };
+        };
 
-    const handleMouseUp = () => {
-        setIsDragging(false);
+        const handleUp = () => {
+            setIsDragging(false);
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleUp);
+            window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('touchend', handleUp);
+        };
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleUp);
+        window.addEventListener('touchmove', handleMove, { passive: false });
+        window.addEventListener('touchend', handleUp);
     };
 
     const handleSave = () => {
@@ -72,7 +92,11 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
         // 3. Apply Zoom
         ctx.scale(zoom, zoom);
         // 4. Draw Image Centered
-        ctx.drawImage(imgRef.current, -imgRef.current.width / 2, -imgRef.current.height / 2);
+        ctx.drawImage(
+            imgRef.current,
+            -imgRef.current.naturalWidth / 2,
+            -imgRef.current.naturalHeight / 2
+        );
 
         ctx.restore();
 
@@ -122,14 +146,12 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
                                 <div
                                     className="w-full h-full flex items-center justify-center"
                                     onMouseDown={handleMouseDown}
-                                    onMouseMove={handleMouseMove}
-                                    onMouseUp={handleMouseUp}
-                                    onMouseLeave={handleMouseUp}
+                                    onTouchStart={handleMouseDown}
                                 >
                                     <img
                                         ref={imgRef}
                                         src={image}
-                                        className="max-w-none transition-transform duration-75 ease-linear pointer-events-none select-none"
+                                        className={`max-w-none pointer-events-none select-none ${isDragging ? '' : 'transition-transform duration-75 ease-linear'}`}
                                         style={{
                                             transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`
                                         }}
@@ -139,7 +161,7 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
                                 </div>
 
                                 {/* Overlay Hint */}
-                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity bg-black/20 text-white">
+                                <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity bg-black/20 text-white ${isDragging ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'}`}>
                                     <Move size={24} />
                                 </div>
                             </div>
