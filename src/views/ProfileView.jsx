@@ -6,11 +6,12 @@ import {
     ChevronRight,
     Cloud,
     Shield,
-    Trash2,
     ArrowLeft,
     Moon,
-    Repeat
+    Repeat,
+    Trash2
 } from 'lucide-react';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 const ProfileView = ({ user, onBack, onSignOut, onRecurring }) => {
     const [isDark, setIsDark] = useState(() => {
@@ -20,6 +21,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring }) => {
         }
         return false;
     });
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     useEffect(() => {
         if (isDark) {
@@ -112,7 +114,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring }) => {
                 <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">Λογαριασμος</h3>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
                     <button
-                        onClick={onSignOut}
+                        onClick={() => setShowLogoutModal(true)}
                         className="w-full flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
                     >
                         <div className="flex items-center gap-3">
@@ -135,6 +137,17 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring }) => {
             <div className="text-center pt-4">
                 <p className="text-xs text-gray-400">Έκδοση 1.0.0 • Build 2024</p>
             </div>
+
+            {/* Logout Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={showLogoutModal}
+                onClose={() => setShowLogoutModal(false)}
+                onConfirm={onSignOut}
+                title="Αποσύνδεση"
+                message="Είσαι σίγουρος ότι θέλεις να αποσυνδεθείς από την εφαρμογή;"
+                confirmText="Αποσύνδεση"
+                type="danger"
+            />
 
         </div>
     );

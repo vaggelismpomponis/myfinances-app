@@ -209,9 +209,7 @@ export default function App() {
     };
 
     const handleSignOut = () => {
-        if (window.confirm("Θέλεις να αποσυνδεθείς;")) {
-            signOut(auth);
-        }
+        signOut(auth);
     };
 
     // --- Layout Render ---
