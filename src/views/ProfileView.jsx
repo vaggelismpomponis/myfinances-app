@@ -9,8 +9,12 @@ import {
     ArrowLeft,
     Moon,
     Repeat,
-    Trash2
+    Trash2,
+    Camera,
+    Upload,
+    X
 } from 'lucide-react';
+import { updateProfile } from 'firebase/auth';
 import ConfirmationModal from '../components/ConfirmationModal';
 
 const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecurity }) => {
@@ -46,8 +50,72 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                 </button>
 
                 <div className="flex flex-col items-center">
-                    <div className="w-24 h-24 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-4 shadow-inner">
-                        <User size={48} strokeWidth={1.5} />
+
+                    <div className="relative group">
+                        <div className="w-24 h-24 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-4 shadow-inner overflow-hidden border-4 border-white dark:border-gray-800">
+                            {user.photoURL ? (
+                                <img
+                                    src={user.photoURL}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                />
+                            ) : (
+                                <User size={48} strokeWidth={1.5} />
+                            )}
+                        </div>
+                        <button
+                            onClick={() => document.getElementById('photo-upload').click()}
+                            className="absolute bottom-4 right-0 p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg transition-transform hover:scale-110 active:scale-95 z-10"
+                            title="Αλλαγή φωτογραφίας"
+                        >
+                            <Camera size={16} />
+                        </button>
+                        {user.photoURL && (
+                            <button
+                                onClick={async () => {
+                                    if (window.confirm('Θέλεις να αφαιρέσεις τη φωτογραφία προφίλ;')) {
+                                        try {
+                                            await updateProfile(user, { photoURL: '' });
+                                            window.location.reload(); // Simple reload to reflect changes if state doesn't update auto
+                                        } catch (e) {
+                                            console.error("Error removing photo", e);
+                                        }
+                                    }
+                                }}
+                                className="absolute top-0 right-0 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-md transition-transform hover:scale-110 active:scale-95 z-10"
+                                title="Αφαίρεση φωτογραφίας"
+                            >
+                                <X size={14} />
+                            </button>
+                        )}
+                        <input
+                            type="file"
+                            id="photo-upload"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    if (file.size > 1048487) { // 1MB limit check roughly
+                                        // Just a warning, not blocking the attempt but usually base64 is heavy
+                                        // alert("Η εικόνα είναι πολύ μεγάλη για αποθήκευση χωρίς Storage Server.");
+                                    }
+                                    const reader = new FileReader();
+                                    reader.onloadend = async () => {
+                                        try {
+                                            // Try to save base64 (limit is small on firebase auth profile usually)
+                                            await updateProfile(user, { photoURL: reader.result });
+                                            window.location.reload();
+                                        } catch (e) {
+                                            console.error("Error updating photo", e);
+                                            alert("Αποτυχία ενημέρωσης: Η εικόνα είναι πιθανώς πολύ μεγάλη.");
+                                        }
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            }}
+                        />
                     </div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user.email || 'Ανώνυμος Χρήστης'}</h2>
                     <div className="flex items-center gap-2 mt-2 px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium border border-green-100 dark:border-green-800">
