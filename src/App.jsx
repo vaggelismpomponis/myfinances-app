@@ -17,7 +17,10 @@ import {
     deleteDoc,
     doc,
     onSnapshot,
-    query
+    query,
+    where,
+    getDocs,
+    updateDoc
 } from 'firebase/firestore';
 import { auth, db, appId } from './firebase';
 
@@ -25,6 +28,7 @@ import { auth, db, appId } from './firebase';
 import LoadingView from './views/LoadingView';
 import LoginView from './views/LoginView';
 import ProfileView from './views/ProfileView';
+import RecurringView from './views/RecurringView';
 import HomeView from './views/HomeView';
 import StatsView from './views/StatsView';
 import HistoryView from './views/HistoryView';
@@ -106,6 +110,69 @@ export default function App() {
 
         return () => unsubscribe();
     }, [user]);
+
+    // 3. Process Recurring Transactions
+    useEffect(() => {
+        if (!user) return;
+
+        const checkRecurring = async () => {
+            const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'recurring_transactions'));
+            const snapshot = await getDocs(q);
+            const today = new Date(); // Current date
+
+            snapshot.forEach(async (docSnap) => {
+                const rule = { id: docSnap.id, ...docSnap.data() };
+                const ruleDay = rule.day;
+
+                // Determine if we should run it today
+                // Simple logic: If it hasn't run this month (or ever), and today >= ruleDay
+                const lastRun = rule.lastProcessed ? new Date(rule.lastProcessed) : null;
+                const currentMonth = today.getMonth();
+                const currentYear = today.getFullYear();
+
+                let shouldRun = false;
+
+                if (!lastRun) {
+                    // Never run before. Run if today >= ruleDay
+                    if (today.getDate() >= ruleDay) shouldRun = true;
+                } else {
+                    // Has run before. check if it ran this month
+                    const lastRunMonth = lastRun.getMonth();
+                    const lastRunYear = lastRun.getFullYear();
+
+                    if (lastRunYear < currentYear || (lastRunYear === currentYear && lastRunMonth < currentMonth)) {
+                        // Hasn't run this month
+                        if (today.getDate() >= ruleDay) shouldRun = true;
+                    }
+                }
+
+                if (shouldRun) {
+                    // Add Transaction
+                    try {
+                        await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'transactions'), {
+                            note: rule.title + ' (Αυτόματο)',
+                            amount: rule.amount,
+                            type: rule.type,
+                            category: 'bills', // Default or add to rule
+                            date: new Date().toISOString()
+                        });
+
+                        // Update Rule
+                        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'recurring_transactions', rule.id), {
+                            lastProcessed: new Date().toISOString()
+                        });
+
+                        // Notify user (optional, simple alert for now if they are looking)
+                        console.log(`Auto-added ${rule.title}`);
+                    } catch (e) {
+                        console.error("Auto-add failed", e);
+                    }
+                }
+            });
+        };
+
+        checkRecurring();
+    }, [user]); // Runs once on user load/change
 
     // Derived State
     const balance = useMemo(() => {
@@ -207,17 +274,28 @@ export default function App() {
                             user={user}
                             onBack={() => setActiveTab('home')}
                             onSignOut={handleSignOut}
+                            onRecurring={() => setActiveTab('recurring')}
+                        />
+                    </div>
+                )}
+
+                {/* Recurring View Overlay */}
+                {activeTab === 'recurring' && (
+                    <div className="absolute inset-0 z-50 bg-white">
+                        <RecurringView
+                            user={user}
+                            onBack={() => setActiveTab('profile')}
                         />
                     </div>
                 )}
 
                 {/* Floating Add Button (Center) */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+                <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20">
                     <button
                         onClick={() => setShowAddModal(true)}
-                        className="bg-gray-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white p-4 rounded-full shadow-xl shadow-indigo-200 dark:shadow-indigo-900/50 transition-transform active:scale-90 flex items-center justify-center"
+                        className="bg-gray-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white p-5 rounded-full shadow-xl shadow-indigo-200 dark:shadow-indigo-900/50 transition-transform active:scale-90 flex items-center justify-center"
                     >
-                        <Plus size={28} />
+                        <Plus size={32} />
                     </button>
                 </div>
 
