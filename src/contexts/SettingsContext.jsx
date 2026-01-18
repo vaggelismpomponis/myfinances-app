@@ -17,8 +17,10 @@ export const SettingsProvider = ({ children }) => {
     const [isPinEnabled, setIsPinEnabled] = useState(() => localStorage.getItem('isPinEnabled') === 'true');
     const [appPin, setAppPin] = useState(() => localStorage.getItem('appPin') || null);
     const [isLocked, setIsLocked] = useState(() => {
-        // If PIN is enabled, start locked
-        return localStorage.getItem('isPinEnabled') === 'true';
+        // Start locked if either PIN or Biometrics is enabled
+        const pinEnabled = localStorage.getItem('isPinEnabled') === 'true';
+        const bioEnabled = localStorage.getItem('isBiometricsEnabled') === 'true';
+        return pinEnabled || bioEnabled;
     });
 
     // Persistence Effects
@@ -70,7 +72,7 @@ export const SettingsProvider = ({ children }) => {
     };
 
     const lockApp = () => {
-        if (isPinEnabled) {
+        if (isPinEnabled || isBiometricsEnabled) {
             setIsLocked(true);
         }
     };
