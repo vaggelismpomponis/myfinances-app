@@ -7,15 +7,23 @@ import {
     Trash2,
     Check
 } from 'lucide-react';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { db, appId } from '../firebase';
+import { collection, getDocs, deleteDoc, doc, writeBatch } from 'firebase/firestore';
+import { deleteUser, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider, reauthenticateWithPopup } from 'firebase/auth';
+import { db, appId, auth } from '../firebase';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { useSettings } from '../contexts/SettingsContext';
+import { useToast } from '../contexts/ToastContext';
 
 const GeneralSettingsView = ({ user, onBack }) => {
     const { currency, updateCurrency, language, updateLanguage } = useSettings();
+    const { showToast } = useToast();
     const [showClearDataModal, setShowClearDataModal] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
+
+    // Delete Account State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deletePassword, setDeletePassword] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleExportData = async () => {
         setIsExporting(true);
@@ -50,10 +58,66 @@ const GeneralSettingsView = ({ user, onBack }) => {
             const querySnapshot = await getDocs(collection(db, 'artifacts', appId, 'users', user.uid, 'transactions'));
             const deletePromises = querySnapshot.docs.map(d => deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', d.id)));
             await Promise.all(deletePromises);
-            alert("Όλα τα δεδομένα διαγράφηκαν επιτυχώς.");
+            showToast("Όλα τα δεδομένα διαγράφηκαν επιτυχώς.", 'success');
         } catch (error) {
             console.error("Clear data error:", error);
-            alert("Σφάλμα κατά τη διαγραφή.");
+            showToast("Σφάλμα κατά τη διαγραφή.", 'error');
+        }
+    };
+
+    const handleDeleteAccount = async (e) => {
+        e.preventDefault();
+        setIsDeleting(true);
+        try {
+            // 1. Re-authenticate
+            const isPasswordUser = user.providerData.some(p => p.providerId === 'password');
+
+            if (isPasswordUser) {
+                const credential = EmailAuthProvider.credential(user.email, deletePassword);
+                await reauthenticateWithCredential(user, credential);
+            } else {
+                const provider = new GoogleAuthProvider();
+                await reauthenticateWithPopup(user, provider);
+            }
+
+            // 2. Delete User Data (Subcollections)
+            const subcollections = ['transactions', 'recurring_transactions', 'goals', 'budgets', 'sessions'];
+
+            for (const subcol of subcollections) {
+                const q = collection(db, 'artifacts', appId, 'users', user.uid, subcol);
+                const snapshot = await getDocs(q);
+
+                const batch = writeBatch(db);
+                let count = 0;
+
+                snapshot.docs.forEach((doc) => {
+                    batch.delete(doc.ref);
+                    count++;
+                });
+
+                if (count > 0) {
+                    await batch.commit();
+                }
+            }
+
+            // 3. Delete Auth Account
+            await deleteUser(user);
+
+            showToast('Ο λογαριασμός διαγράφηκε επιτυχώς.', 'success');
+
+        } catch (error) {
+            console.error("Delete account error:", error);
+            if (error.code === 'auth/wrong-password') {
+                showToast('Λάθος κωδικός πρόσβασης.', 'error');
+            } else if (error.code === 'auth/requires-recent-login') {
+                showToast('Απαιτείται πρόσφατη σύνδεση. Παρακαλώ συνδεθείτε ξανά.', 'error');
+            } else if (error.code === 'auth/popup-closed-by-user') {
+                showToast('Η επαλήθευση ακυρώθηκε.', 'info');
+            } else {
+                showToast('Σφάλμα διαγραφής: ' + error.message, 'error');
+            }
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -156,6 +220,17 @@ const GeneralSettingsView = ({ user, onBack }) => {
                             </div>
                         </button>
 
+                        {/* Delete Account */}
+                        <button
+                            onClick={() => setShowDeleteModal(true)}
+                            className="w-full flex items-center justify-between p-4 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-left group border-t border-gray-50 dark:border-gray-700"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 rounded-lg group-hover:bg-red-200 dark:group-hover:bg-red-900/60 transition-colors"><Trash2 size={18} /></div>
+                                <span className="font-bold text-red-700 dark:text-red-400">Διαγραφή Λογαριασμού</span>
+                            </div>
+                        </button>
+
                     </div>
                     <p className="text-xs text-gray-400 mt-2 ml-2">
                         Η διαγραφή δεδομένων είναι μη αναστρέψιμη ενέργεια.
@@ -173,6 +248,64 @@ const GeneralSettingsView = ({ user, onBack }) => {
                 confirmText="Οριστική Διαγραφή"
                 type="danger"
             />
+
+            {/* Delete Account Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fade-in">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowDeleteModal(false)} />
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                        <div className="flex flex-col items-center mb-6 text-center">
+                            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 dark:text-red-400 mb-4">
+                                <Trash2 size={32} />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Διαγραφή Λογαριασμού</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Αυτή η ενέργεια είναι <strong>μη αναστρέψιμη</strong>. Όλα τα δεδομένα σας (συναλλαγές, στόχοι, ρυθμίσεις) θα χαθούν οριστικά.
+                            </p>
+                        </div>
+
+                        <form onSubmit={handleDeleteAccount} className="space-y-4">
+                            {user.providerData.some(p => p.providerId === 'password') ? (
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                        Επιβεβαίωση με τον κωδικό σας
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={deletePassword}
+                                        onChange={(e) => setDeletePassword(e.target.value)}
+                                        placeholder="Ο κωδικός σας..."
+                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 dark:text-white"
+                                        required
+                                    />
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
+                                    Θα σας ζητηθεί να συνδεθείτε ξανά με τον Google λογαριασμό σας για επιβεβαίωση.
+                                </p>
+                            )}
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowDeleteModal(false)}
+                                    className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl"
+                                    disabled={isDeleting}
+                                >
+                                    Ακύρωση
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-200 dark:shadow-none transition-colors"
+                                    disabled={isDeleting}
+                                >
+                                    {isDeleting ? 'Διαγραφή...' : 'Οριστική Διαγραφή'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
