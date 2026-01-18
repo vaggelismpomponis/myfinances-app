@@ -48,7 +48,9 @@ import GoalsView from './views/GoalsView';
 import BudgetsView from './views/BudgetsView';
 import AddModal from './components/AddModal';
 import Navbar from './components/Navbar';
+
 import ConfirmationModal from './components/ConfirmationModal';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function MainContent() {
     const { isLocked, theme, toggleTheme } = useSettings();
@@ -474,7 +476,9 @@ export default function App() {
     return (
         <SettingsProvider>
             <ToastProvider>
-                <MainContent />
+                <ErrorBoundary>
+                    <MainContent />
+                </ErrorBoundary>
             </ToastProvider>
         </SettingsProvider>
     );
