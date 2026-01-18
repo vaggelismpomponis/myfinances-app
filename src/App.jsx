@@ -27,6 +27,7 @@ import { auth, db, appId } from './firebase';
 // Context
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { trackSession } from './utils/session';
 
 // Components
 import LoadingView from './views/LoadingView';
@@ -69,6 +70,9 @@ function MainContent() {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             setLoading(false);
+            if (currentUser) {
+                trackSession(currentUser);
+            }
         });
 
         return () => unsubscribe();

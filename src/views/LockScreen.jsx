@@ -1,11 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Delete } from 'lucide-react';
+import { Lock, Delete, Fingerprint } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 
 const LockScreen = () => {
-    const { appPin, unlockApp } = useSettings();
+    const { appPin, unlockApp, isBiometricsEnabled } = useSettings();
     const [pin, setPin] = useState('');
     const [error, setError] = useState(false);
+
+    const handleBiometricAuth = async () => {
+        try {
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
+
+            await navigator.credentials.get({
+                publicKey: {
+                    challenge,
+                    timeout: 60000,
+                    userVerification: "required"
+                }
+            });
+
+            // If successful
+            unlockApp();
+            setPin('');
+        } catch (error) {
+            console.error("Biometric auth failed or cancelled", error);
+        }
+    };
+
+    useEffect(() => {
+        if (isBiometricsEnabled) {
+            // Small delay to ensure render
+            setTimeout(() => {
+                handleBiometricAuth();
+            }, 500);
+        }
+    }, [isBiometricsEnabled]);
 
     const handleNumberClick = (num) => {
         if (pin.length < 4) {
@@ -50,10 +80,10 @@ const LockScreen = () => {
                     <div
                         key={i}
                         className={`w-4 h-4 rounded-full transition-all duration-300 ${pin.length > i
-                                ? 'bg-indigo-500 scale-110'
-                                : error
-                                    ? 'bg-red-500 animate-shake'
-                                    : 'bg-gray-700'
+                            ? 'bg-indigo-500 scale-110'
+                            : error
+                                ? 'bg-red-500 animate-shake'
+                                : 'bg-gray-700'
                             }`}
                     />
                 ))}
@@ -88,6 +118,17 @@ const LockScreen = () => {
                     <Delete size={24} />
                 </button>
             </div>
+
+            {/* Biometric Trigger Button */}
+            {isBiometricsEnabled && (
+                <button
+                    onClick={handleBiometricAuth}
+                    className="mt-8 flex items-center gap-2 text-indigo-400 font-medium hover:text-indigo-300 transition-colors"
+                >
+                    <Fingerprint size={20} />
+                    <span>Είσοδος με Biometrics</span>
+                </button>
+            )}
         </div>
     );
 };

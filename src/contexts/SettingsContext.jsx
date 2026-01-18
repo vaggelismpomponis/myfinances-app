@@ -44,6 +44,13 @@ export const SettingsProvider = ({ children }) => {
         }
     }, [appPin]);
 
+    // 4. Biometrics
+    const [isBiometricsEnabled, setIsBiometricsEnabled] = useState(() => localStorage.getItem('isBiometricsEnabled') === 'true');
+
+    useEffect(() => {
+        localStorage.setItem('isBiometricsEnabled', isBiometricsEnabled);
+    }, [isBiometricsEnabled]);
+
     // Actions
     const updateCurrency = (newCurrency) => setCurrency(newCurrency);
     const updateLanguage = (newLang) => setLanguage(newLang);
@@ -79,7 +86,9 @@ export const SettingsProvider = ({ children }) => {
         setPin,
         removePin,
         unlockApp,
-        lockApp
+        lockApp,
+        isBiometricsEnabled,
+        toggleBiometrics: (value) => setIsBiometricsEnabled(value)
     };
 
     return (
