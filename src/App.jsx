@@ -373,7 +373,7 @@ function MainContent() {
                 )}
 
                 {/* Floating Add Button (Center) */}
-                <div className="absolute bottom-14 left-1/2 -translate-x-1/2 z-20">
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
                     <button
                         onClick={() => setShowAddModal(true)}
                         className="bg-gray-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white p-5 rounded-full shadow-xl shadow-indigo-200 dark:shadow-indigo-900/50 transition-transform active:scale-90 flex items-center justify-center"

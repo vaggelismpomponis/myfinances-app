@@ -4,7 +4,7 @@ import IconButton from './IconButton';
 
 const Navbar = ({ activeTab, setActiveTab }) => {
     return (
-        <div className="bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-800 px-6 pb-8 pt-3 z-10 sticky bottom-0 transition-colors duration-300">
+        <div className="bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-800 px-6 pb-2 pt-3 z-10 sticky bottom-0 transition-colors duration-300">
             <div className="flex justify-between items-end relative">
                 <div className="flex-1 flex justify-around mr-4">
                     <IconButton icon={Home} label="Αρχική" active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
