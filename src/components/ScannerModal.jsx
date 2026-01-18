@@ -8,6 +8,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
     const [progress, setProgress] = useState(0);
     const [status, setStatus] = useState('Waiting for image...');
     const fileInputRef = useRef(null);
+    const cameraInputRef = useRef(null);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -169,7 +170,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                     ) : (
                         <div className="grid grid-cols-2 gap-4 mb-6">
                             <button
-                                onClick={() => fileInputRef.current?.click()}
+                                onClick={() => cameraInputRef.current?.click()}
                                 className="flex flex-col items-center justify-center p-8 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-2xl transition-colors border-2 border-indigo-100 dark:border-indigo-800"
                             >
                                 <Camera size={32} className="text-indigo-600 dark:text-indigo-400 mb-3" />
@@ -186,11 +187,21 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                         </div>
                     )}
 
+                    {/* Input for File Selection */}
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleImageUpload}
+                        className="hidden"
+                    />
+
+                    {/* Input for Camera Capture */}
                     <input
                         type="file"
                         accept="image/*"
                         capture="environment"
-                        ref={fileInputRef}
+                        ref={cameraInputRef}
                         onChange={handleImageUpload}
                         className="hidden"
                     />
