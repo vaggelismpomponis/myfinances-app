@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
-import { Wallet, Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Wallet, Mail, Lock, User, ArrowRight, Eye, EyeOff, X, Check } from 'lucide-react';
+import { auth } from '../firebase';
+import {
+    sendPasswordResetEmail,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence
+} from 'firebase/auth';
 
 const LoginView = ({ onGoogleLogin, onEmailLogin, onRegister }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+
+    // Forgot Password State
+    const [showForgotModal, setShowForgotModal] = useState(false);
+    const [resetEmail, setResetEmail] = useState('');
+    const [resetStatus, setResetStatus] = useState({ loading: false, success: false, error: '' });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -15,6 +28,8 @@ const LoginView = ({ onGoogleLogin, onEmailLogin, onRegister }) => {
         setIsLoading(true);
         try {
             if (isLogin) {
+                // Set Persistence based on "Remember Me"
+                await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
                 await onEmailLogin(email, password);
             } else {
                 await onRegister(email, password);
@@ -22,6 +37,27 @@ const LoginView = ({ onGoogleLogin, onEmailLogin, onRegister }) => {
         } catch (error) {
             // Error is handled in App.jsx but we stop loading here if it throws back
             setIsLoading(false);
+        }
+    };
+
+    const handleForgotPassword = async (e) => {
+        e.preventDefault();
+        if (!resetEmail) return;
+
+        setResetStatus({ loading: true, success: false, error: '' });
+        try {
+            await sendPasswordResetEmail(auth, resetEmail);
+            setResetStatus({ loading: false, success: true, error: '' });
+            setTimeout(() => {
+                setShowForgotModal(false);
+                setResetStatus({ loading: false, success: false, error: '' });
+                setResetEmail('');
+            }, 3000);
+        } catch (error) {
+            console.error("Reset password error:", error);
+            let msg = "Σφάλμα αποστολής email.";
+            if (error.code === 'auth/user-not-found') msg = "Δεν υπάρχει χρήστης με αυτό το email.";
+            setResetStatus({ loading: false, success: false, error: msg });
         }
     };
 
@@ -76,6 +112,28 @@ const LoginView = ({ onGoogleLogin, onEmailLogin, onRegister }) => {
                         </div>
                     </div>
 
+                    {isLogin && (
+                        <div className="flex items-center justify-between text-sm">
+                            <label className="flex items-center gap-2 cursor-pointer text-gray-600 dark:text-gray-400">
+                                <input
+                                    type="checkbox"
+                                    checked={rememberMe}
+                                    onChange={(e) => setRememberMe(e.target.checked)}
+                                    className="rounded text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                />
+                                <span className="text-xs font-medium">Να με θυμάσαι</span>
+                            </label>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowForgotModal(true)}
+                                className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
+                            >
+                                Ξέχασα τον κωδικό μου;
+                            </button>
+                        </div>
+                    )}
+
                     <button
                         type="submit"
                         disabled={isLoading}
@@ -121,6 +179,66 @@ const LoginView = ({ onGoogleLogin, onEmailLogin, onRegister }) => {
                     </button>
                 </p>
             </div>
+
+            {/* Forgot Password Modal */}
+            {showForgotModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowForgotModal(false)} />
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Επαναφορά Κωδικού</h3>
+                            <button onClick={() => setShowForgotModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {resetStatus.success ? (
+                            <div className="text-center py-6">
+                                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Check size={32} className="text-green-600 dark:text-green-400" />
+                                </div>
+                                <p className="text-gray-800 dark:text-white font-medium mb-2">Στάλθηκε email!</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Ελέγξτε τα εισερχόμενά σας (και τα spam) για οδηγίες επαναφοράς.</p>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleForgotPassword} className="space-y-4">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    Συμπληρώστε το email σας και θα σας στείλουμε έναν σύνδεσμο για να ορίσετε νέο κωδικό.
+                                </p>
+
+                                {resetStatus.error && (
+                                    <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs p-3 rounded-xl">
+                                        {resetStatus.error}
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 ml-1">Email</label>
+                                    <div className="relative mt-1">
+                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                        <input
+                                            type="email"
+                                            value={resetEmail}
+                                            onChange={(e) => setResetEmail(e.target.value)}
+                                            className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-600 rounded-xl py-3 pl-10 pr-4 text-gray-800 dark:text-white focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-gray-700 transition-all font-medium"
+                                            placeholder="name@example.com"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={resetStatus.loading}
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all"
+                                >
+                                    {resetStatus.loading ? 'Αποστολή...' : 'Αποστολή Συνδέσμου'}
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
