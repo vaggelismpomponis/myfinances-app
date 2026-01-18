@@ -321,7 +321,7 @@ function MainContent() {
                     )}
                     {activeTab === 'stats' && <StatsView transactions={transactions} />}
                     {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} />}
-                    {activeTab === 'wallet' && <WalletView onBack={() => setActiveTab('home')} />}
+                    {activeTab === 'wallet' && <WalletView onBack={() => setActiveTab('home')} user={user} />}
                     {activeTab === 'cards' && <CardsView onBack={() => setActiveTab('home')} />}
                     {activeTab === 'goals' && <GoalsView user={user} onBack={() => setActiveTab('home')} />}
                     {activeTab === 'budgets' && <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />}
