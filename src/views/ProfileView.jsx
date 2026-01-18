@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { updateProfile } from 'firebase/auth';
 import ConfirmationModal from '../components/ConfirmationModal';
+import PhotoUploadModal from '../components/PhotoUploadModal';
+import { useToast } from '../contexts/ToastContext';
 
 const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecurity }) => {
     const [isDark, setIsDark] = useState(() => {
@@ -25,6 +27,8 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
         }
         return false;
     });
+    const { showToast } = useToast();
+    const [showUploadModal, setShowUploadModal] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     useEffect(() => {
@@ -65,7 +69,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                             )}
                         </div>
                         <button
-                            onClick={() => document.getElementById('photo-upload').click()}
+                            onClick={() => setShowUploadModal(true)}
                             className="absolute bottom-4 right-0 p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg transition-transform hover:scale-110 active:scale-95 z-10"
                             title="Αλλαγή φωτογραφίας"
                         >
@@ -77,9 +81,13 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                     if (window.confirm('Θέλεις να αφαιρέσεις τη φωτογραφία προφίλ;')) {
                                         try {
                                             await updateProfile(user, { photoURL: '' });
-                                            window.location.reload(); // Simple reload to reflect changes if state doesn't update auto
+                                            showToast('Η φωτογραφία αφαιρέθηκε επιτυχώς', 'success');
+                                            // window.location.reload(); // Removed reload, might need manual re-fetch or rely on auth state update
+                                            // Small hack to force re-render if auth listener doesn't catch deep prop change fast enough:
+                                            // Ideally, user object updates automatically.
                                         } catch (e) {
                                             console.error("Error removing photo", e);
+                                            showToast('Σφάλμα κατά την αφαίρεση της φωτογραφίας', 'error');
                                         }
                                     }
                                 }}
@@ -89,30 +97,18 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                 <X size={14} />
                             </button>
                         )}
-                        <input
-                            type="file"
-                            id="photo-upload"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (file) {
-                                    if (file.size > 1048487) { // 1MB limit check roughly
-                                        // Just a warning, not blocking the attempt but usually base64 is heavy
-                                        // alert("Η εικόνα είναι πολύ μεγάλη για αποθήκευση χωρίς Storage Server.");
-                                    }
-                                    const reader = new FileReader();
-                                    reader.onloadend = async () => {
-                                        try {
-                                            // Try to save base64 (limit is small on firebase auth profile usually)
-                                            await updateProfile(user, { photoURL: reader.result });
-                                            window.location.reload();
-                                        } catch (e) {
-                                            console.error("Error updating photo", e);
-                                            alert("Αποτυχία ενημέρωσης: Η εικόνα είναι πιθανώς πολύ μεγάλη.");
-                                        }
-                                    };
-                                    reader.readAsDataURL(file);
+
+                        <PhotoUploadModal
+                            isOpen={showUploadModal}
+                            onClose={() => setShowUploadModal(false)}
+                            onUpload={async (base64Image) => {
+                                try {
+                                    await updateProfile(user, { photoURL: base64Image });
+                                    showToast('Η φωτογραφία ενημερώθηκε επιτυχώς', 'success');
+                                    setShowUploadModal(false);
+                                } catch (e) {
+                                    console.error("Error updating photo", e);
+                                    showToast('Αποτυχία ενημέρωσης φωτογραφίας', 'error');
                                 }
                             }}
                         />

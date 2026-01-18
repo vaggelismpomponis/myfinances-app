@@ -47,13 +47,16 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, onDelete, 
         {/* Quick Actions */}
         <div className="grid grid-cols-4 gap-4">
             {[
-                { icon: Wallet, label: 'Πορτοφόλι' },
-                { icon: CreditCard, label: 'Κάρτες' },
-                { icon: TrendingUp, label: 'Στόχοι' },
-                { icon: MoreHorizontal, label: 'Περισ.' }
+                { icon: Wallet, label: 'Πορτοφόλι', action: 'wallet' },
+                { icon: CreditCard, label: 'Κάρτες', action: 'cards' },
+                { icon: TrendingUp, label: 'Στόχοι', action: 'goals' },
+                { icon: MoreHorizontal, label: 'Περισ.', action: 'profile' }
             ].map((item, idx) => (
                 <div key={idx} className="flex flex-col items-center gap-2">
-                    <button className="w-14 h-14 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:scale-105 transition-all shadow-sm border border-gray-100 dark:border-slate-700">
+                    <button
+                        onClick={() => setActiveTab(item.action)}
+                        className="w-14 h-14 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:scale-105 transition-all shadow-sm border border-gray-100 dark:border-slate-700"
+                    >
                         <item.icon size={22} />
                     </button>
                     <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">{item.label}</span>

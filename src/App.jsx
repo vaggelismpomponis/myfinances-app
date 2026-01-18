@@ -26,6 +26,7 @@ import { auth, db, appId } from './firebase';
 
 // Context
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
+import { ToastProvider } from './contexts/ToastContext';
 
 // Components
 import LoadingView from './views/LoadingView';
@@ -38,13 +39,19 @@ import LockScreen from './views/LockScreen';
 import HomeView from './views/HomeView';
 import StatsView from './views/StatsView';
 import HistoryView from './views/HistoryView';
+import WalletView from './views/WalletView';
+import CardsView from './views/CardsView';
+import GoalsView from './views/GoalsView';
 import AddModal from './components/AddModal';
 import Navbar from './components/Navbar';
+import ConfirmationModal from './components/ConfirmationModal';
 
 function MainContent() {
     const { isLocked } = useSettings();
     const [activeTab, setActiveTab] = useState('home');
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [transactionToDelete, setTransactionToDelete] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -204,14 +211,19 @@ function MainContent() {
         }
     };
 
-    const deleteTransaction = async (id) => {
-        if (!user) return;
-        if (window.confirm('Θέλεις σίγουρα να διαγράψεις αυτή τη συναλλαγή;')) {
-            try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', id));
-            } catch (e) {
-                console.error("Error deleting:", e);
-            }
+    const deleteTransaction = (id) => {
+        setTransactionToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!user || !transactionToDelete) return;
+        try {
+            await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', transactionToDelete));
+            setShowDeleteModal(false);
+            setTransactionToDelete(null);
+        } catch (e) {
+            console.error("Error deleting:", e);
         }
     };
 
@@ -259,10 +271,14 @@ function MainContent() {
                         </div>
                         <button
                             onClick={() => setActiveTab('profile')}
-                            className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 transition-colors rounded-full flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-500/30"
+                            className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 transition-colors rounded-full flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-500/30 overflow-hidden"
                             title="Προφίλ"
                         >
-                            <User size={20} />
+                            {user?.photoURL ? (
+                                <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <User size={20} />
+                            )}
                         </button>
                     </div>
 
@@ -279,6 +295,9 @@ function MainContent() {
                     )}
                     {activeTab === 'stats' && <StatsView transactions={transactions} />}
                     {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} />}
+                    {activeTab === 'wallet' && <WalletView onBack={() => setActiveTab('home')} />}
+                    {activeTab === 'cards' && <CardsView onBack={() => setActiveTab('home')} />}
+                    {activeTab === 'goals' && <GoalsView onBack={() => setActiveTab('home')} />}
 
                 </div>
 
@@ -341,6 +360,16 @@ function MainContent() {
 
                 {/* Modals */}
                 {showAddModal && <AddModal onClose={() => setShowAddModal(false)} onAdd={addTransaction} />}
+
+                <ConfirmationModal
+                    isOpen={showDeleteModal}
+                    onClose={() => setShowDeleteModal(false)}
+                    onConfirm={confirmDelete}
+                    title="Διαγραφή Συναλλαγής"
+                    message="Θέλεις σίγουρα να διαγράψεις αυτή τη συναλλαγή;"
+                    confirmText="Διαγραφή"
+                    type="danger"
+                />
             </div>
         </div>
     );
@@ -349,7 +378,9 @@ function MainContent() {
 export default function App() {
     return (
         <SettingsProvider>
-            <MainContent />
+            <ToastProvider>
+                <MainContent />
+            </ToastProvider>
         </SettingsProvider>
     );
 }
