@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'; // App Root
+import React, { useState, useEffect, useMemo, useRef } from 'react'; // App Root
 import {
     Plus,
     User,
@@ -62,6 +62,38 @@ function MainContent() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
+
+    // Browser History Navigation Logic
+    const isPopping = useRef(false);
+
+    useEffect(() => {
+        // Initialize history state on mount
+        window.history.replaceState({ tab: 'home' }, '', '');
+
+        const handlePopState = (event) => {
+            if (event.state && event.state.tab) {
+                isPopping.current = true;
+                setActiveTab(event.state.tab);
+            } else {
+                // Fallback for empty state (e.g. initial load or weird entry)
+                isPopping.current = true;
+                setActiveTab('home');
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
+    useEffect(() => {
+        if (isPopping.current) {
+            isPopping.current = false;
+            return;
+        }
+
+        // Push new state only if not popping
+        window.history.pushState({ tab: activeTab }, '', '');
+    }, [activeTab]);
 
     // Reset image error when user photo changes
     useEffect(() => {
