@@ -1,12 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Camera, Upload, RotateCw, Check, Loader2 } from 'lucide-react';
 import Tesseract from 'tesseract.js';
+import Cropper from 'react-easy-crop';
+import { getCroppedImg } from '../utils/canvasUtils';
 
 const ScannerModal = ({ onClose, onScanComplete }) => {
     const [image, setImage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [status, setStatus] = useState('Waiting for image...');
+
+    // Cropper State
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [isCropping, setIsCropping] = useState(false);
+
     const fileInputRef = useRef(null);
     const cameraInputRef = useRef(null);
 
@@ -16,9 +25,26 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 setImage(event.target.result);
-                processImage(event.target.result);
+                setIsCropping(true); // Start cropping mode
+                // formerly processImage(event.target.result);
             };
             reader.readAsDataURL(file);
+        }
+    };
+
+    const onCropComplete = (croppedArea, croppedAreaPixels) => {
+        setCroppedAreaPixels(croppedAreaPixels);
+    };
+
+    const handleCropConfirm = async () => {
+        try {
+            const croppedImage = await getCroppedImg(image, croppedAreaPixels);
+            setImage(croppedImage);
+            setIsCropping(false);
+            processImage(croppedImage);
+        } catch (e) {
+            console.error(e);
+            alert("Σφάλμα κατά την επεξεργασία της εικόνας.");
         }
     };
 
@@ -150,7 +176,51 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                 <div className="p-6 text-center">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Σάρωση Απόδειξης</h2>
 
-                    {image ? (
+                    {isCropping ? (
+                        <div className="flex flex-col">
+                            <div className="relative w-full h-80 bg-black rounded-2xl overflow-hidden mb-4 shadow-inner">
+                                <Cropper
+                                    image={image}
+                                    crop={crop}
+                                    zoom={zoom}
+                                    aspect={undefined} // Free aspect ratio
+                                    onCropChange={setCrop}
+                                    onCropComplete={onCropComplete}
+                                    onZoomChange={setZoom}
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2 mb-4 px-2">
+                                <span className="text-xs font-medium text-gray-500">Zoom</span>
+                                <input
+                                    type="range"
+                                    value={zoom}
+                                    min={1}
+                                    max={3}
+                                    step={0.1}
+                                    aria-labelledby="Zoom"
+                                    onChange={(e) => setZoom(e.target.value)}
+                                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    onClick={() => { setIsCropping(false); setImage(null); }}
+                                    className="px-4 py-3 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                >
+                                    Ακύρωση
+                                </button>
+                                <button
+                                    onClick={handleCropConfirm}
+                                    className="px-4 py-3 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <Check size={18} />
+                                    Σάρωση
+                                </button>
+                            </div>
+                        </div>
+                    ) : image ? (
                         <div className="relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 aspect-[3/4] mb-6 border-2 border-dashed border-gray-300 dark:border-gray-700">
                             <img src={image} alt="Receipt" className="w-full h-full object-contain" />
 
