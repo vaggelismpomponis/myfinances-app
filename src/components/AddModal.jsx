@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Camera } from 'lucide-react';
+import ScannerModal from './ScannerModal';
 
 const AddModal = ({ onClose, onAdd }) => {
     const [type, setType] = useState('expense');
@@ -7,6 +8,14 @@ const AddModal = ({ onClose, onAdd }) => {
     const [category, setCategory] = useState('');
     const [note, setNote] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showScanner, setShowScanner] = useState(false);
+
+    // Extracted date storage (not shown in simple form but useful for backend)
+    // For now we'll just use today's date logic in parent or let user see it if we added a date field
+    // But per simple UI let's just stick to amount/note auto-fill
+    // Ideally we should pass the date back too. 
+    // Let's rely on parent's today logic unless we want to add date picker.
+    // For MVP Scanner: Auto-fill Amount and Note.
 
     const categories = type === 'expense'
         ? ['Σούπερ Μάρκετ', 'Φαγητό', 'Σπίτι', 'Μεταφορικά', 'Λογαριασμοί', 'Διασκέδαση', 'Άλλο']
@@ -24,6 +33,13 @@ const AddModal = ({ onClose, onAdd }) => {
             note
         });
         setIsSubmitting(false);
+    };
+
+    const handleScanComplete = (data) => {
+        if (data.amount) setAmount(data.amount.toString());
+        if (data.note) setNote(data.note.substring(0, 30)); // Limit length
+        // We could also try to guess category based on note keywords in future
+        setType('expense'); // Receipts are usually expenses
     };
 
     return (
@@ -59,7 +75,17 @@ const AddModal = ({ onClose, onAdd }) => {
 
                     {/* Amount Input */}
                     <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Ποσό</label>
+                        <div className="flex justify-between items-end mb-2">
+                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Ποσό</label>
+                            <button
+                                type="button"
+                                onClick={() => setShowScanner(true)}
+                                className="flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg hover:bg-indigo-100 transition-colors"
+                            >
+                                <Camera size={14} />
+                                Σάρωση
+                            </button>
+                        </div>
                         <div className="relative">
                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400">€</span>
                             <input
@@ -85,8 +111,8 @@ const AddModal = ({ onClose, onAdd }) => {
                                     type="button"
                                     onClick={() => setCategory(cat)}
                                     className={`py-3 px-2 rounded-xl text-sm font-medium border transition-all ${category === cat
-                                            ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm'
-                                            : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                                        ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm'
+                                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
                                         }`}
                                 >
                                     {cat}
@@ -120,6 +146,8 @@ const AddModal = ({ onClose, onAdd }) => {
                         </button>
                     </div>
                 </form>
+
+                {showScanner && <ScannerModal onClose={() => setShowScanner(false)} onScanComplete={handleScanComplete} />}
             </div>
         </div>
     );
