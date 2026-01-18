@@ -90,6 +90,7 @@ const SecuritySettingsView = ({ user, onBack }) => {
                 toggleBiometrics(true);
             } catch (error) {
                 console.error("Biometric setup failed:", error);
+                alert("Αποτυχία ρύθμισης βιομετρικών: " + error.message);
             }
         } else {
             toggleBiometrics(false);

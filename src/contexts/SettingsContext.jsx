@@ -108,6 +108,31 @@ export const SettingsProvider = ({ children }) => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'hidden') {
                 updateLastActive();
+            } else if (document.visibilityState === 'visible') {
+                // Check if we should lock based on timeout
+                const lastActive = localStorage.getItem('appLastActive');
+                if (lastActive) {
+                    const diff = Date.now() - parseInt(lastActive, 10);
+                    // Standard timeout: 2 minutes (120000ms)
+                    if (diff > 2 * 60 * 1000) {
+                        // Only lock if security is actually enabled
+                        // We check the refs/state directly if possible, or use the values from closure if strict enough
+                        // But closure 'isPinEnabled' might be stale? No, it's in dependency array [isLocked], wait...
+                        // If isLocked is false, we are here.
+
+                        // Let's read directly from localStorage to be safe against stale closures
+                        // or just rely on state if we add them to dep array of useEffect.
+                        const pinEnabled = localStorage.getItem('isPinEnabled') === 'true';
+                        const storedPin = localStorage.getItem('appPin');
+                        const bioEnabled = localStorage.getItem('isBiometricsEnabled') === 'true';
+
+                        const securityActive = bioEnabled || (pinEnabled && storedPin !== null);
+
+                        if (securityActive) {
+                            setIsLocked(true);
+                        }
+                    }
+                }
             }
         };
 
