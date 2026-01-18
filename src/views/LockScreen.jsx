@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, Delete, Fingerprint, ScanFace, LogOut } from 'lucide-react'; // Changed ScanFace for better visual
+import { Wallet, Delete, Fingerprint, ScanFace, LogOut, KeyRound, X, Check } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
+import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
-const LockScreen = ({ onSignOut }) => {
-    const { appPin, unlockApp, isBiometricsEnabled } = useSettings();
+const LockScreen = ({ onSignOut, user }) => {
+    const { appPin, unlockApp, isBiometricsEnabled, removePin, toggleBiometrics } = useSettings();
     const [pin, setPin] = useState('');
     const [error, setError] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
+
+    // Forgot PIN State
+    const [showForgotModal, setShowForgotModal] = useState(false);
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [resetError, setResetError] = useState('');
 
     const handleBiometricAuth = async () => {
         setIsScanning(true);
@@ -68,6 +75,30 @@ const LockScreen = ({ onSignOut }) => {
         }
     }, [pin, appPin, unlockApp]);
 
+    const handleForgotPinSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setResetError('');
+
+        try {
+            // Validating with account password
+            const credential = EmailAuthProvider.credential(user.email, password);
+            await reauthenticateWithCredential(user, credential);
+
+            // Success: Reset Security Settings locally
+            removePin(); // This clears PIN state
+            toggleBiometrics(false); // Disable biometrics
+
+            // Unlock
+            unlockApp();
+        } catch (error) {
+            console.error("Reset PIN error:", error);
+            setResetError('Λάθος κωδικός πρόσβασης.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-[100] bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center animate-fade-in transition-colors duration-300">
 
@@ -113,8 +144,8 @@ const LockScreen = ({ onSignOut }) => {
                         <button
                             onClick={handleBiometricAuth}
                             className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${isScanning
-                                ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 animate-pulse'
-                                : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800'
+                                    ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 animate-pulse'
+                                    : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800'
                                 }`}
                         >
                             <ScanFace size={32} />
@@ -137,21 +168,68 @@ const LockScreen = ({ onSignOut }) => {
                 </button>
             </div>
 
-            {/* Status Text */}
-            {isScanning && (
-                <p className="text-xs font-medium text-indigo-600 dark:text-indigo-400 animate-pulse">
-                    Αναγνώριση προσώπου...
-                </p>
-            )}
+            {/* Actions */}
+            <div className="flex flex-col items-center gap-4 mt-4">
+                <button
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-indigo-600 dark:text-indigo-400 text-sm font-bold hover:underline"
+                >
+                    Ξέχασα το PIN / Μπλοκαρίστηκα
+                </button>
 
-            {/* Logout Option (Escape Hatch) */}
-            <button
-                onClick={onSignOut}
-                className="absolute bottom-8 text-gray-400 hover:text-red-500 transition-colors flex items-center gap-2 text-sm font-medium"
-            >
-                <LogOut size={16} />
-                <span>Αποσύνδεση</span>
-            </button>
+                <button
+                    onClick={onSignOut}
+                    className="text-gray-400 hover:text-red-500 transition-colors flex items-center gap-2 text-sm font-medium"
+                >
+                    <LogOut size={16} />
+                    <span>Αποσύνδεση</span>
+                </button>
+            </div>
+
+            {/* Forgot PIN Modal */}
+            {showForgotModal && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 animate-fade-in">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowForgotModal(false)} />
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Επαναφορά Πρόσβασης</h3>
+                            <button onClick={() => setShowForgotModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                            Για την ασφάλειά σας, εισάγετε τον κωδικό πρόσβασης του λογαριασμού σας για να ξεκλειδώσετε την εφαρμογή και να επαναφέρετε τις ρυθμίσεις ασφαλείας.
+                        </p>
+
+                        <form onSubmit={handleForgotPinSubmit} className="space-y-4">
+                            {resetError && (
+                                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs p-3 rounded-xl">
+                                    {resetError}
+                                </div>
+                            )}
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Κωδικός Λογαριασμού</label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                            >
+                                {loading ? 'Έλεγχος...' : 'Ξεκλείδωμα'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
