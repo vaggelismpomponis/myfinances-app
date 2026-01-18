@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cloud, TrendingUp, TrendingDown, Wallet, CreditCard, MoreHorizontal } from 'lucide-react';
+import { Cloud, TrendingUp, TrendingDown, Wallet, CreditCard, MoreHorizontal, Target } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 
 const HomeView = ({ balance, totalIncome, totalExpense, transactions, onDelete, setActiveTab }) => (
@@ -45,10 +45,11 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, onDelete, 
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
             {[
                 { icon: Wallet, label: 'Πορτοφόλι', action: 'wallet' },
                 { icon: CreditCard, label: 'Κάρτες', action: 'cards' },
+                { icon: Target, label: 'Limits', action: 'budgets' },
                 { icon: TrendingUp, label: 'Στόχοι', action: 'goals' },
                 { icon: MoreHorizontal, label: 'Περισ.', action: 'profile' }
             ].map((item, idx) => (

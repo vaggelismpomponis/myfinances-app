@@ -42,6 +42,7 @@ import HistoryView from './views/HistoryView';
 import WalletView from './views/WalletView';
 import CardsView from './views/CardsView';
 import GoalsView from './views/GoalsView';
+import BudgetsView from './views/BudgetsView';
 import AddModal from './components/AddModal';
 import Navbar from './components/Navbar';
 import ConfirmationModal from './components/ConfirmationModal';
@@ -308,7 +309,8 @@ function MainContent() {
                     {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} />}
                     {activeTab === 'wallet' && <WalletView onBack={() => setActiveTab('home')} />}
                     {activeTab === 'cards' && <CardsView onBack={() => setActiveTab('home')} />}
-                    {activeTab === 'goals' && <GoalsView onBack={() => setActiveTab('home')} />}
+                    {activeTab === 'goals' && <GoalsView user={user} onBack={() => setActiveTab('home')} />}
+                    {activeTab === 'budgets' && <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />}
 
                 </div>
 
