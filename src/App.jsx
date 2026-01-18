@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react'; // App Root
 import {
     Plus,
-    User
+    User,
+    Sun,
+    Moon
 } from 'lucide-react';
 import {
     GoogleAuthProvider,
@@ -49,7 +51,7 @@ import Navbar from './components/Navbar';
 import ConfirmationModal from './components/ConfirmationModal';
 
 function MainContent() {
-    const { isLocked } = useSettings();
+    const { isLocked, theme, toggleTheme } = useSettings();
     const [activeTab, setActiveTab] = useState('home');
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -280,22 +282,30 @@ function MainContent() {
                                 {user?.displayName || user?.email?.split('@')[0] || 'User'}!
                             </h2>
                         </div>
-                        <button
-                            onClick={() => setActiveTab('profile')}
-                            className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 transition-colors rounded-full flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-500/30 overflow-hidden"
-                            title="Προφίλ"
-                        >
-                            {user?.photoURL && !imgError ? (
-                                <img
-                                    src={user.photoURL}
-                                    alt="Profile"
-                                    className="w-full h-full object-cover"
-                                    onError={() => setImgError(true)}
-                                />
-                            ) : (
-                                <User size={20} />
-                            )}
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={toggleTheme}
+                                className="w-10 h-10 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 shadow-sm border border-gray-100 dark:border-gray-700"
+                            >
+                                {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('profile')}
+                                className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 transition-colors rounded-full flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-500/30 overflow-hidden"
+                                title="Προφίλ"
+                            >
+                                {user?.photoURL && !imgError ? (
+                                    <img
+                                        src={user.photoURL}
+                                        alt="Profile"
+                                        className="w-full h-full object-cover"
+                                        onError={() => setImgError(true)}
+                                    />
+                                ) : (
+                                    <User size={20} />
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     {/* View Switcher */}

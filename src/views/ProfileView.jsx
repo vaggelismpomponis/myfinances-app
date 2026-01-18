@@ -20,15 +20,14 @@ import { storage } from '../firebase';
 import ConfirmationModal from '../components/ConfirmationModal';
 import PhotoUploadModal from '../components/PhotoUploadModal';
 import { useToast } from '../contexts/ToastContext';
+import { useSettings } from '../contexts/SettingsContext';
+
+
 
 const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecurity }) => {
-    const [isDark, setIsDark] = useState(() => {
-        if (localStorage.getItem('theme') === 'dark' ||
-            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            return true;
-        }
-        return false;
-    });
+    const { theme, toggleTheme } = useSettings();
+    const isDark = theme === 'dark'; // Derived for UI compatibility
+
     const { showToast } = useToast();
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -37,17 +36,6 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
     useEffect(() => {
         setImgError(false);
     }, [user.photoURL]);
-
-
-    useEffect(() => {
-        if (isDark) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    }, [isDark]);
 
     return (
         <div className="bg-gray-50 dark:bg-gray-900 min-h-screen animate-fade-in pb-24 relative z-50 transition-colors duration-300">
@@ -158,7 +146,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
 
                         {/* Theme Toggle */}
                         <div
-                            onClick={() => setIsDark(!isDark)}
+                            onClick={toggleTheme}
                             className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                         >
                             <div className="flex items-center gap-3">

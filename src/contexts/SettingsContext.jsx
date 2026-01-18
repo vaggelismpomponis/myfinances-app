@@ -57,9 +57,29 @@ export const SettingsProvider = ({ children }) => {
         localStorage.setItem('isBiometricsEnabled', isBiometricsEnabled);
     }, [isBiometricsEnabled]);
 
+    // 5. Theme (Dark Mode)
+    const [theme, setTheme] = useState(() => {
+        if (localStorage.getItem('theme') === 'dark' ||
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            return 'dark';
+        }
+        return 'light';
+    });
+
+    useEffect(() => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    }, [theme]);
+
     // Actions
     const updateCurrency = (newCurrency) => setCurrency(newCurrency);
     const updateLanguage = (newLang) => setLanguage(newLang);
+    const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
     const setPin = (pin) => {
         setAppPin(pin);
@@ -84,6 +104,8 @@ export const SettingsProvider = ({ children }) => {
     const value = {
         currency,
         language,
+        theme,
+        toggleTheme,
         isPinEnabled,
         isLocked,
         appPin, // Ideally shouldn't expose this, but needed for specific checks 
