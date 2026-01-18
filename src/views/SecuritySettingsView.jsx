@@ -16,7 +16,7 @@ import { db, appId, auth } from '../firebase';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 
 const SecuritySettingsView = ({ user, onBack }) => {
-    const { isBiometricsEnabled, toggleBiometrics, isPinEnabled, setPin, removePin } = useSettings();
+    const { isBiometricsEnabled, toggleBiometrics, isPinEnabled, setPin, removePin, appPin } = useSettings();
     const [sessions, setSessions] = useState([]);
     const [currentSessionId, setCurrentSessionId] = useState(null);
 
@@ -54,7 +54,8 @@ const SecuritySettingsView = ({ user, onBack }) => {
     const handleToggleBiometrics = async () => {
         if (!isBiometricsEnabled) {
             // Requirement: Must have a PIN set as fallback before enabling Biometrics
-            if (!isPinEnabled || !useSettings().appPin) { // Check context state
+            // Requirement: Must have a PIN set as fallback before enabling Biometrics
+            if (!isPinEnabled || !appPin) { // Check context state
                 alert("Πρέπει πρώτα να ορίσετε ένα PIN Εφαρμογής ως εφεδρική μέθοδο ασφαλείας.");
                 setShowPinModal(true);
                 return;
