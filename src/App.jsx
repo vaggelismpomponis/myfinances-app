@@ -298,7 +298,7 @@ function MainContent() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 selection:bg-indigo-100 dark:selection:bg-indigo-900 flex justify-center transition-colors duration-300">
 
             {/* Mobile Container Simulator */}
-            <div className="w-full max-w-md bg-white dark:bg-gray-900 h-screen overflow-hidden shadow-2xl relative flex flex-col transition-colors duration-300">
+            <div className="w-full max-w-md bg-white dark:bg-gray-900 h-[100dvh] overflow-hidden shadow-2xl relative flex flex-col transition-colors duration-300">
 
                 {/* Main Content Area */}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden p-5">
@@ -403,7 +403,7 @@ function MainContent() {
                 )}
 
                 {/* Floating Add Button (Center) */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+                <div className="absolute bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-20">
                     <button
                         onClick={() => { setEditingTransaction(null); setShowAddModal(true); }}
                         className="bg-gray-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white p-5 rounded-full shadow-xl shadow-indigo-200 dark:shadow-indigo-900/50 transition-transform active:scale-90 flex items-center justify-center"
