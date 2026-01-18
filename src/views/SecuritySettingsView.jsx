@@ -53,6 +53,13 @@ const SecuritySettingsView = ({ user, onBack }) => {
 
     const handleToggleBiometrics = async () => {
         if (!isBiometricsEnabled) {
+            // Requirement: Must have a PIN set as fallback before enabling Biometrics
+            if (!isPinEnabled || !useSettings().appPin) { // Check context state
+                alert("Πρέπει πρώτα να ορίσετε ένα PIN Εφαρμογής ως εφεδρική μέθοδο ασφαλείας.");
+                setShowPinModal(true);
+                return;
+            }
+
             if (!window.PublicKeyCredential) {
                 alert("Η συσκευή σας δεν υποστηρίζει βιομετρική είσοδο.");
                 return;

@@ -97,6 +97,35 @@ export const SettingsProvider = ({ children }) => {
         toggleBiometrics: (value) => setIsBiometricsEnabled(value)
     };
 
+    // Track Activity for Grace Period
+    useEffect(() => {
+        const updateLastActive = () => {
+            if (!isLocked) {
+                localStorage.setItem('appLastActive', Date.now().toString());
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                updateLastActive();
+            }
+        };
+
+        // Update when app is hidden or closed
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('beforeunload', updateLastActive);
+
+        // Also update immediately if unlocked (to start the timer only when leaving)
+        if (!isLocked) {
+            updateLastActive();
+        }
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('beforeunload', updateLastActive);
+        };
+    }, [isLocked]);
+
     return (
         <SettingsContext.Provider value={value}>
             {children}
