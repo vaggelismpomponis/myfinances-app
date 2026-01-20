@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Camera, Upload, RotateCw, Check, Loader2 } from 'lucide-react';
 import Tesseract from 'tesseract.js';
-import Cropper from 'react-easy-crop';
+import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 import { getCroppedImg } from '../utils/canvasUtils';
 
 const ScannerModal = ({ onClose, onScanComplete }) => {
@@ -10,10 +11,10 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
     const [progress, setProgress] = useState(0);
     const [status, setStatus] = useState('Waiting for image...');
 
-    // Cropper State
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    // ReactCrop State
+    const [crop, setCrop] = useState();
+    const [completedCrop, setCompletedCrop] = useState(null);
+    const imgRef = useRef(null);
     const [isCropping, setIsCropping] = useState(false);
 
     const fileInputRef = useRef(null);
@@ -26,22 +27,80 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
             reader.onload = (event) => {
                 setImage(event.target.result);
                 setIsCropping(true); // Start cropping mode
-                // formerly processImage(event.target.result);
             };
             reader.readAsDataURL(file);
         }
+        e.target.value = '';
     };
 
-    const onCropComplete = (croppedArea, croppedAreaPixels) => {
-        setCroppedAreaPixels(croppedAreaPixels);
+    const onImageLoad = (e) => {
+        imgRef.current = e.currentTarget;
+        const { width, height } = e.currentTarget;
+
+        // Default crop: Center 80%
+        const crop = centerCrop(
+            makeAspectCrop(
+                {
+                    unit: '%',
+                    width: 80,
+                },
+                undefined, // free aspect
+                width,
+                height
+            ),
+            width,
+            height
+        );
+        setCrop(crop);
+        setCompletedCrop(crop);
     };
 
     const handleCropConfirm = async () => {
+        if (!image) return;
+
         try {
-            const croppedImage = await getCroppedImg(image, croppedAreaPixels);
-            setImage(croppedImage);
-            setIsCropping(false);
-            processImage(croppedImage);
+            // If crop exists and is valid, crop it. Else use full image.
+            if (completedCrop && completedCrop.width && completedCrop.height && imgRef.current) {
+                // Determine scale (displayed vs natural)
+                const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+                const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+
+                // Convert to natural pixels if crop is in % or displayed pixels
+                // react-image-crop % logic handles conversion if we use percentCrop, 
+                // but completedCrop is usually pixels relative to display if unit is 'px'
+                // default is px.
+                // But we used % init. 
+
+                let finalCrop = completedCrop;
+
+                if (finalCrop.unit === '%') {
+                    const width = imgRef.current.width;
+                    const height = imgRef.current.height;
+                    finalCrop = {
+                        x: (finalCrop.x / 100) * width,
+                        y: (finalCrop.y / 100) * height,
+                        width: (finalCrop.width / 100) * width,
+                        height: (finalCrop.height / 100) * height,
+                    };
+                }
+
+                const naturalCrop = {
+                    x: finalCrop.x * scaleX,
+                    y: finalCrop.y * scaleY,
+                    width: finalCrop.width * scaleX,
+                    height: finalCrop.height * scaleY,
+                };
+
+                const croppedImage = await getCroppedImg(image, naturalCrop);
+                setImage(croppedImage);
+                setIsCropping(false);
+                processImage(croppedImage);
+            } else {
+                // Use original
+                setIsCropping(false);
+                processImage(image);
+            }
+
         } catch (e) {
             console.error(e);
             alert("Σφάλμα κατά την επεξεργασία της εικόνας.");
@@ -82,25 +141,16 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
         let amount = null;
         let date = null;
 
-        // Smart Extraction Logic
-        // 1. Amount: Look for patterns like "Total 12.34", "Amount: 50.00", "€ 10.50"
-        // Try to find the largest number on the receipt, usually the total
         const moneyRegex = /(\d+[.,]\d{2})/g;
         const potentialAmounts = [];
-
-        // Keywords that usually precede the total
         const totalKeywords = ['total', 'synolo', 'pliroteo', 'amount', 'poso', 'sum', 'euro', 'eur', '€'];
 
         lines.forEach(line => {
             const lowerLine = line.toLowerCase();
-
-            // Check if line contains a total keyword
             const hasKeyword = totalKeywords.some(k => lowerLine.includes(k));
-
             const matches = line.match(moneyRegex);
             if (matches) {
                 matches.forEach(match => {
-                    // Normalize decimal separator (comma to dot)
                     const val = parseFloat(match.replace(',', '.'));
                     if (!isNaN(val)) {
                         potentialAmounts.push({ val, hasKeyword, line });
@@ -109,43 +159,32 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
             }
         });
 
-        // Heuristic: If we found numbers near "Total" keywords, pick the best one. 
-        // Otherwise, pick the largest number found (risky but often works for receipts).
         potentialAmounts.sort((a, b) => {
-            if (a.hasKeyword && !b.hasKeyword) return -1; // Keyword first
+            if (a.hasKeyword && !b.hasKeyword) return -1;
             if (!a.hasKeyword && b.hasKeyword) return 1;
-            return b.val - a.val; // Then largest value
+            return b.val - a.val;
         });
 
         if (potentialAmounts.length > 0) {
             amount = potentialAmounts[0].val;
         }
 
-        // 2. Date: Look for DD/MM/YYYY or DD-MM-YYYY
-        // Simple regex for date dd/mm/yyyy or dd-mm-yyyy. 
-        // Note: Year might be 2 or 4 digits.
         const dateRegex = /\b(\d{1,2})[-./](\d{1,2})[-./](\d{2,4})\b/;
         const dateMatch = text.match(dateRegex);
 
         if (dateMatch) {
-            // Need to parse this carefully
-            // Assuming Day-Month-Year order common in EU/Greece
             const day = dateMatch[1].padStart(2, '0');
             const month = dateMatch[2].padStart(2, '0');
             let year = dateMatch[3];
             if (year.length === 2) year = '20' + year;
-
-            // Format for datetime-local input: YYYY-MM-DDTHH:MM
             const now = new Date();
-            const time = now.toTimeString().slice(0, 5); // HH:MM
+            const time = now.toTimeString().slice(0, 5);
             date = `${year}-${month}-${day}T${time}`;
         } else {
-            // Defaults to now if not found
             const now = new Date();
             date = now.toISOString().slice(0, 16);
         }
 
-        // 3. Merchant/Note (First valid line usually)
         let note = "";
         for (let i = 0; i < lines.length; i++) {
             const l = lines[i].trim();
@@ -164,47 +203,46 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl relative">
+            <div className={`bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md ${isCropping ? 'h-[90vh]' : 'max-h-[85vh]'} overflow-hidden shadow-2xl relative flex flex-col transition-all`}>
 
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 z-10 p-2 bg-black/20 hover:bg-black/30 text-white rounded-full transition-colors"
-                >
-                    <X size={20} />
-                </button>
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                        {isCropping ? 'Περικοπή Εικόνας' : 'Σάρωση Απόδειξης'}
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-full transition-colors"
+                    >
+                        <X size={20} />
+                    </button>
+                </div>
 
-                <div className="p-6 text-center">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Σάρωση Απόδειξης</h2>
+                <div className="p-6 flex-1 overflow-y-auto flex flex-col">
 
                     {isCropping ? (
-                        <div className="flex flex-col">
-                            <div className="relative w-full h-80 bg-black rounded-2xl overflow-hidden mb-4 shadow-inner">
-                                <Cropper
-                                    image={image}
+                        <div className="flex flex-col h-full">
+                            <div className="relative flex-1 bg-black/90 rounded-2xl overflow-hidden mb-4 flex items-center justify-center">
+                                <ReactCrop
                                     crop={crop}
-                                    zoom={zoom}
-                                    aspect={undefined} // Free aspect ratio
-                                    onCropChange={setCrop}
-                                    onCropComplete={onCropComplete}
-                                    onZoomChange={setZoom}
-                                />
+                                    onChange={(c) => setCrop(c)}
+                                    onComplete={(c) => setCompletedCrop(c)}
+                                    className="max-h-full w-auto"
+                                >
+                                    <img
+                                        src={image}
+                                        alt="To Crop"
+                                        onLoad={onImageLoad}
+                                        style={{ maxHeight: '60vh', maxWidth: '100%', objectFit: 'contain' }}
+                                    />
+                                </ReactCrop>
                             </div>
 
-                            <div className="flex items-center gap-2 mb-4 px-2">
-                                <span className="text-xs font-medium text-gray-500">Zoom</span>
-                                <input
-                                    type="range"
-                                    value={zoom}
-                                    min={1}
-                                    max={3}
-                                    step={0.1}
-                                    aria-labelledby="Zoom"
-                                    onChange={(e) => setZoom(e.target.value)}
-                                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                />
-                            </div>
+                            <p className="text-center text-xs text-gray-400 mb-4">
+                                Σύρετε τις γωνίες για να επιλέξετε την περιοχή
+                            </p>
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-3 mt-auto">
                                 <button
                                     onClick={() => { setIsCropping(false); setImage(null); }}
                                     className="px-4 py-3 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
@@ -221,6 +259,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                             </div>
                         </div>
                     ) : image ? (
+                        /* Processing View */
                         <div className="relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 aspect-[3/4] mb-6 border-2 border-dashed border-gray-300 dark:border-gray-700">
                             <img src={image} alt="Receipt" className="w-full h-full object-contain" />
 
@@ -238,7 +277,8 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                             )}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-4 mb-6">
+                        /* Start Screen */
+                        <div className="grid grid-cols-2 gap-4 mb-6 mt-4">
                             <button
                                 onClick={() => cameraInputRef.current?.click()}
                                 className="flex flex-col items-center justify-center p-8 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-2xl transition-colors border-2 border-indigo-100 dark:border-indigo-800"
@@ -257,7 +297,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                         </div>
                     )}
 
-                    {/* Input for File Selection */}
+                    {/* Inputs */}
                     <input
                         type="file"
                         accept="image/*"
@@ -265,8 +305,6 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                         onChange={handleImageUpload}
                         className="hidden"
                     />
-
-                    {/* Input for Camera Capture */}
                     <input
                         type="file"
                         accept="image/*"
@@ -276,9 +314,11 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                         className="hidden"
                     />
 
-                    <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs mx-auto">
-                        Το σύστημα θα προσπαθήσει να αναγνωρίσει αυτόματα την ημερομηνία και το ποσό.
-                    </p>
+                    {!image && !isCropping && (
+                        <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs mx-auto text-center">
+                            Το σύστημα θα προσπαθήσει να αναγνωρίσει αυτόματα την ημερομηνία και το ποσό.
+                        </p>
+                    )}
                 </div>
             </div>
         </div>
