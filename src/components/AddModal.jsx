@@ -15,6 +15,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
     const [showBulkScanner, setShowBulkScanner] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
+    const transcriptRef = useRef('');
     const recognitionRef = useRef(null);
 
     // Batch mode state
@@ -129,17 +130,34 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
                 setIsListening(true);
                 setTranscript('');
+                transcriptRef.current = '';
 
                 // Add listeners
                 await SpeechRecognition.addListener('partialResults', (data) => {
                     if (data.matches && data.matches.length > 0) {
-                        setTranscript(data.matches[0]);
+                        const newText = data.matches[0];
+                        setTranscript(newText);
+                        transcriptRef.current = newText;
                     }
                 });
 
                 // Some devices/versions return the final result in a 'result' event or only after stopping
-                await SpeechRecognition.addListener('json', (data) => {
-                    // Debugging: catch-all for other events if needed, usually partialResults is enough
+                // We mainly rely on partialResults building up the transcript
+
+                // Monitor listening state to auto-complete when silence is detected (Google-like behavior)
+                await SpeechRecognition.addListener('listeningState', (data) => {
+                    if (!data.status) {
+                        setIsListening(false);
+                        // Access the latest transcript state via functional update or ref if needed
+                        // Since we can't access updated state in listener easily without refs, 
+                        // we rely on the fact that transcript state *might* be stale here in a closure.
+                        // HOWEVER, let's use a workaround: The `processVoiceInput` is called manually 
+                        // or we can trigger it if we have text. 
+
+                        // Better approach: Let the user see it stopped and click Done, OR 
+                        // attempt to process content if we have it in a Ref. 
+                        // For now, let's just update UI state to "not listening" so the user sees it stopped.
+                    }
                 });
 
                 // Start listening
@@ -148,7 +166,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                     maxResults: 1,
                     prompt: 'Πείτε το ποσό και την κατηγορία...',
                     partialResults: true,
-                    popup: true, // Enable native Google popup as requested
+                    popup: false,
                 });
 
             } catch (err) {
