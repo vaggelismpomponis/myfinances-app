@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Camera, Layers, Mic } from 'lucide-react';
+import { SpeechRecognition } from '@capacitor-community/speech-recognition';
+import { Capacitor } from '@capacitor/core';
 import ScannerModal from './ScannerModal';
 import BulkScannerModal from './BulkScannerModal';
 
@@ -21,6 +23,16 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
     // Initialize form with initialData (for editing)
     // Initialize form with initialData (for editing)
+    // Initialize form with initialData (for editing)
+    useEffect(() => {
+        // Cleanup listener on unmount
+        return () => {
+            if (Capacitor.isNativePlatform()) {
+                SpeechRecognition.removeAllListeners();
+            }
+        };
+    }, []);
+
     useEffect(() => {
         if (initialData) {
             console.log("AddModal received initialData:", initialData);
@@ -93,7 +105,61 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
     };
 
     const startListening = async () => {
-        // Feature check
+        // Native Implementation
+        if (Capacitor.isNativePlatform()) {
+            try {
+                const { available } = await SpeechRecognition.available();
+                if (!available) {
+                    alert('Η αναγνώριση φωνής δεν είναι διαθέσιμη σε αυτή τη συσκευή.');
+                    return;
+                }
+
+                // Check and request permission
+                const status = await SpeechRecognition.checkPermissions();
+                if (status.speechRecognition !== 'granted') {
+                    const reqStatus = await SpeechRecognition.requestPermissions();
+                    if (reqStatus.speechRecognition !== 'granted') {
+                        alert('Η πρόσβαση στο μικρόφωνο δεν επιτράπηκε.');
+                        return;
+                    }
+                }
+
+                // Remove existing listeners to avoid duplicates
+                await SpeechRecognition.removeAllListeners();
+
+                setIsListening(true);
+                setTranscript('');
+
+                // Add listeners
+                await SpeechRecognition.addListener('partialResults', (data) => {
+                    if (data.matches && data.matches.length > 0) {
+                        setTranscript(data.matches[0]);
+                    }
+                });
+
+                // Some devices/versions return the final result in a 'result' event or only after stopping
+                await SpeechRecognition.addListener('json', (data) => {
+                    // Debugging: catch-all for other events if needed, usually partialResults is enough
+                });
+
+                // Start listening
+                await SpeechRecognition.start({
+                    language: 'el-GR',
+                    maxResults: 1,
+                    prompt: 'Πείτε το ποσό και την κατηγορία...',
+                    partialResults: true,
+                    popup: true, // Enable native Google popup as requested
+                });
+
+            } catch (err) {
+                console.error('Native Speech Recognition Error:', err);
+                setIsListening(false);
+                alert('Σφάλμα: ' + (err.message || JSON.stringify(err)));
+            }
+            return;
+        }
+
+        // Web Implementation (Fallback)
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
             alert('Η φωνητική πληκτρολόγηση δεν υποστηρίζεται σε αυτόν τον browser.');
             return;
@@ -102,8 +168,6 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
         // Explicitly request microphone permission first to trigger the browser prompt
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            // If we get here, permission is granted. We can stop this stream now 
-            // because SpeechRecognition opens its own.
             stream.getTracks().forEach(track => track.stop());
         } catch (err) {
             console.error('Permission denied:', err);
@@ -115,13 +179,13 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
             return;
         }
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
+        const WebSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new WebSpeechRecognition();
         recognitionRef.current = recognition;
 
-        recognition.lang = 'el-GR'; // Set to Greek
+        recognition.lang = 'el-GR';
         recognition.continuous = false;
-        recognition.interimResults = true; // Enable live results
+        recognition.interimResults = true;
 
         recognition.onstart = () => {
             setIsListening(true);
@@ -143,28 +207,6 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
             setTranscript(finalTranscript || interimTranscript);
 
             if (finalTranscript) {
-                console.log('Final Voice Input:', finalTranscript);
-                processVoiceInput(finalTranscript);
-                setIsListening(false);
-            }
-        };
-
-        recognition.onresult = (event) => {
-            let interimTranscript = '';
-            let finalTranscript = '';
-
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
-                } else {
-                    interimTranscript += event.results[i][0].transcript;
-                }
-            }
-
-            setTranscript(finalTranscript || interimTranscript);
-
-            if (finalTranscript) {
-                console.log('Final Voice Input:', finalTranscript);
                 processVoiceInput(finalTranscript);
                 setIsListening(false);
             }
@@ -190,10 +232,20 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
         recognition.start();
     };
 
-    const stopListening = () => {
-        if (recognitionRef.current) {
-            recognitionRef.current.stop();
-            setIsListening(false);
+    const stopListening = async () => {
+        // UI should update immediately to unblock user
+        setIsListening(false);
+
+        try {
+            if (Capacitor.isNativePlatform()) {
+                await SpeechRecognition.stop();
+            } else {
+                if (recognitionRef.current) {
+                    recognitionRef.current.stop();
+                }
+            }
+        } catch (error) {
+            console.error('Error stopping speech recognition:', error);
         }
     };
 
@@ -286,12 +338,23 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                         <p className="text-lg text-gray-600 font-medium min-h-[4rem] flex items-center justify-center max-w-[80%]">
                             {transcript || "Πείτε π.χ. '23 ευρώ φαγητό'"}
                         </p>
-                        <button
-                            onClick={stopListening}
-                            className="mt-8 px-8 py-3 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-sm font-bold text-gray-500 transition-colors"
-                        >
-                            Ακύρωση
-                        </button>
+                        <div className="flex gap-4 mt-8">
+                            <button
+                                onClick={stopListening}
+                                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-sm font-bold text-gray-500 transition-colors"
+                            >
+                                Ακύρωση
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (transcript) processVoiceInput(transcript);
+                                    stopListening();
+                                }}
+                                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-full text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all"
+                            >
+                                Ολοκλήρωση
+                            </button>
+                        </div>
                     </div>
                 )}
 
