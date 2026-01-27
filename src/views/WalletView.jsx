@@ -37,15 +37,7 @@ const WalletView = ({ onBack, user }) => {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 animate-fade-in pb-24 relative">
             {/* Header */}
             <div className="bg-white dark:bg-gray-800 px-6 pt-6 pb-6 shadow-sm sticky top-0 z-10">
-                <div className="flex items-center gap-4 mb-6">
-                    <button
-                        onClick={onBack}
-                        className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-300"
-                    >
-                        <ArrowLeft size={20} />
-                    </button>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Πορτοφόλι</h2>
-                </div>
+
 
                 {/* Total Balance Card */}
                 <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white shadow-xl shadow-indigo-200 dark:shadow-none relative overflow-hidden">

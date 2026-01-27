@@ -102,24 +102,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 animate-fade-in p-6 pb-24 transition-colors duration-300">
-            <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={onBack}
-                        className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
-                        <ArrowLeft size={20} />
-                    </button>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Προϋπολογισμοί</h2>
-                </div>
-                <button
-                    onClick={() => setShowAddModal(true)}
-                    className="p-2 bg-indigo-600 text-white rounded-full shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 hover:bg-indigo-700 transition-transform active:scale-95"
-                >
-                    <Plus size={20} />
-                </button>
-            </div>
-
+            {/* Budgets List */}
             <div className="space-y-4">
                 {budgets.length === 0 ? (
                     <div className="text-center py-10 opacity-50">
@@ -171,6 +154,13 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                         );
                     })
                 )}
+
+                <button
+                    onClick={() => setShowAddModal(true)}
+                    className="w-full py-4 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl flex items-center justify-center gap-2 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
+                >
+                    <Plus size={20} /> Προσθήκη Προϋπολογισμού
+                </button>
             </div>
 
             {/* Add Budget Modal */}

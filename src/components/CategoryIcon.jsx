@@ -8,12 +8,14 @@ import {
     Gift,
     Wallet,
     TrendingUp,
-    MoreHorizontal
+    MoreHorizontal,
+    Utensils
 } from 'lucide-react';
 
 const CategoryIcon = ({ category, type }) => {
     const icons = {
-        'Φαγητό': Coffee,
+        'Καφές': Coffee,
+        'Φαγητό': Utensils,
         'Σούπερ Μάρκετ': ShoppingBag,
         'Σπίτι': HomeIcon,
         'Μεταφορικά': Car,

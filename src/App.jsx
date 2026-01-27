@@ -30,6 +30,7 @@ import { auth, db, appId } from './firebase';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import { trackSession } from './utils/session';
+import { setupNotificationListener } from './utils/notificationListener';
 
 // Components
 import LoadingView from './views/LoadingView';
@@ -53,7 +54,7 @@ import ConfirmationModal from './components/ConfirmationModal';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function MainContent() {
-    const { isLocked, theme, toggleTheme } = useSettings();
+    const { isLocked, theme, toggleTheme, t: translate } = useSettings();
     const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState('home');
     const [showAddModal, setShowAddModal] = useState(false);
@@ -101,6 +102,48 @@ function MainContent() {
     useEffect(() => {
         setImgError(false);
     }, [user?.photoURL]);
+
+    // Notification Listener
+    useEffect(() => {
+        const cleanup = setupNotificationListener((transactions) => {
+            if (transactions && transactions.length > 0) {
+                // Parse the newest transaction
+                // Note: The native plugin returns raw strings in JSON, but our logic might have put full object in 'pending'
+                // The Java code puts { title, text, date, raw }
+
+                // We'll take the last one added (or the first in the list depending on Java logic)
+                // Java logic: jsonArray.put(obj) -> appends to end. So last is newest.
+                const tx = transactions[transactions.length - 1];
+
+                let text = tx.text || "";
+                console.log("[DEBUG] Parsing text:", text);
+
+                // Very simple & robust extraction: Find any number like X.XX or X,XX
+                const simpleMatch = text.match(/(\d+[.,]\d+)/);
+                let amount = 0;
+
+                if (simpleMatch) {
+                    let amountStr = simpleMatch[1].replace(',', '.');
+                    amount = parseFloat(amountStr);
+                    console.log("[DEBUG] Parsed amount:", amount);
+                } else {
+                    console.log("[DEBUG] No match found");
+                }
+
+                setEditingTransaction({
+                    amount: amount || 0,
+                    note: (tx.title || "") + " - " + text,
+                    type: 'expense',
+                    category: 'shopping', // Default
+                    date: new Date().toISOString()
+                });
+                console.log("[DEBUG] Setting editing transaction with amount:", amount);
+                setShowAddModal(true);
+                showToast("Εντοπίστηκε νέα συναλλαγή!", "info");
+            }
+        });
+        return cleanup;
+    }, []);
 
     // 1. Initialize Auth
     useEffect(() => {
@@ -329,21 +372,34 @@ function MainContent() {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 selection:bg-indigo-100 dark:selection:bg-indigo-900 flex justify-center transition-colors duration-300">
+        <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 selection:bg-indigo-100 dark:selection:bg-indigo-900 flex justify-center transition-colors duration-300">
 
             {/* Mobile Container Simulator */}
-            <div className="w-full max-w-md bg-white dark:bg-gray-900 h-[100dvh] overflow-hidden shadow-2xl relative flex flex-col transition-colors duration-300">
+            <div className="w-full max-w-md bg-[#F9F9F9] dark:bg-gray-900 h-[100dvh] overflow-hidden shadow-2xl relative flex flex-col transition-colors duration-300">
 
                 {/* Main Content Area */}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden p-5">
 
                     {/* Top Bar */}
-                    <div className="flex justify-between items-center mb-6 pt-2">
+                    <div className="flex justify-between items-center mb-6 pt-[calc(env(safe-area-inset-top)+1.5rem)]">
                         <div>
-                            <p className="text-gray-500 dark:text-gray-400 text-xs font-medium tracking-wider">Γεια σου,</p>
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                                {user?.displayName || user?.email?.split('@')[0] || 'User'}!
-                            </h2>
+                            {activeTab === 'home' ? (
+                                <>
+                                    <p className="text-gray-500 dark:text-gray-400 text-xs font-medium tracking-wider">{translate('welcome_message')}</p>
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                                        {user?.displayName || user?.email?.split('@')[0] || 'User'}!
+                                    </h2>
+                                </>
+                            ) : (
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                                    {activeTab === 'history' && translate('nav_history')}
+                                    {activeTab === 'stats' && translate('nav_stats')}
+                                    {activeTab === 'wallet' && translate('wallet')}
+                                    {activeTab === 'cards' && translate('cards')}
+                                    {activeTab === 'goals' && translate('goals')}
+                                    {activeTab === 'budgets' && translate('budgets')}
+                                </h2>
+                            )}
                         </div>
                         <div className="flex items-center gap-3">
                             <button
@@ -355,7 +411,7 @@ function MainContent() {
                             <button
                                 onClick={() => setActiveTab('profile')}
                                 className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 transition-colors rounded-full flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-500/30 overflow-hidden"
-                                title="Προφίλ"
+                                title={translate('nav_profile')}
                             >
                                 {user?.photoURL && !imgError ? (
                                     <img

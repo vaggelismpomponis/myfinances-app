@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { translations } from '../utils/translations';
 
 const SettingsContext = createContext();
 
@@ -81,6 +82,16 @@ export const SettingsProvider = ({ children }) => {
     const updateLanguage = (newLang) => setLanguage(newLang);
     const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
+    const t = (key, params = {}) => {
+        let text = translations[language]?.[key] || key;
+        if (params) {
+            Object.keys(params).forEach(param => {
+                text = text.replace(`{${param}}`, params[param]);
+            });
+        }
+        return text;
+    };
+
     const setPin = (pin) => {
         setAppPin(pin);
         setIsPinEnabled(true);
@@ -104,6 +115,7 @@ export const SettingsProvider = ({ children }) => {
     const value = {
         currency,
         language,
+        t,
         theme,
         toggleTheme,
         isPinEnabled,

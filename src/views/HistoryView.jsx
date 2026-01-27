@@ -43,7 +43,7 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
 
     return (
         <div className="pb-24 animate-fade-in">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Ιστορικό</h2>
+
 
             {/* Search & Filters */}
             <div className="mb-6 space-y-4">
@@ -109,7 +109,9 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                 ) : (
                     Object.entries(groupedTransactions).map(([date, txs]) => (
                         <div key={date}>
-                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">{date}</h3>
+                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
+                                {date.normalize('NFD').replace(/[\u0300-\u036f]/g, "")}
+                            </h3>
                             <div className="space-y-3">
                                 {txs.map(t => (
                                     <TransactionItem key={t.id} transaction={t} onDelete={onDelete} onEdit={onEdit} />

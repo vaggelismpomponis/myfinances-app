@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, Delete, Fingerprint, ScanFace, LogOut, KeyRound, X, Check } from 'lucide-react';
+import { NativeBiometric } from '@capgo/capacitor-native-biometric';
 import { useSettings } from '../contexts/SettingsContext';
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
@@ -18,22 +19,28 @@ const LockScreen = ({ onSignOut, user }) => {
     const handleBiometricAuth = async () => {
         setIsScanning(true);
         try {
-            const challenge = new Uint8Array(32);
-            window.crypto.getRandomValues(challenge);
+            const result = await NativeBiometric.isAvailable();
 
-            await navigator.credentials.get({
-                publicKey: {
-                    challenge,
-                    timeout: 60000,
-                    userVerification: "required"
-                }
+            if (!result.isAvailable) {
+                alert("Biometrics not available");
+                setIsScanning(false);
+                return;
+            }
+
+            await NativeBiometric.verifyIdentity({
+                reason: "Identify yourself to unlock the app",
+                title: "Login",
+                subtitle: "Use Face ID or Fingerprint",
+                description: "Confirm your identity",
             });
 
-            // If successful
+            // If successful (no error thrown)
             unlockApp();
             setPin('');
         } catch (error) {
             console.error("Biometric auth failed or cancelled", error);
+            // Don't alert on simple cancellation
+        } finally {
             setIsScanning(false);
         }
     };
@@ -100,7 +107,7 @@ const LockScreen = ({ onSignOut, user }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center animate-fade-in transition-colors duration-300">
+        <div className="fixed inset-0 z-[100] bg-[#F9F9F9] dark:bg-gray-900 flex flex-col items-center justify-center animate-fade-in transition-colors duration-300">
 
             {/* Header / Branding - Matching LoginView */}
             <div className="flex flex-col items-center mb-8">

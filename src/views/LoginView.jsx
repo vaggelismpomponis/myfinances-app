@@ -62,7 +62,7 @@ const LoginView = ({ onGoogleLogin, onEmailLogin, onRegister }) => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-6 transition-colors duration-300">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#F9F9F9] dark:bg-gray-900 p-6 transition-colors duration-300">
 
             {/* Logo */}
             <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white mb-4 shadow-lg shadow-indigo-200 dark:shadow-none rotate-3">

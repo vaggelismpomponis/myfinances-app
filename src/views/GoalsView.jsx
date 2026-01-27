@@ -87,17 +87,7 @@ const GoalsView = ({ user, onBack }) => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 animate-fade-in p-6 pb-24 transition-colors duration-300">
-            <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={onBack}
-                        className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
-                        <ArrowLeft size={20} />
-                    </button>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Οικονομικοί Στόχοι</h2>
-                </div>
-            </div>
+
 
             <div className="space-y-4">
                 {goals.length === 0 ? (

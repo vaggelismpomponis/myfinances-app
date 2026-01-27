@@ -21,8 +21,10 @@ import {
     updateDoc
 } from 'firebase/firestore';
 import { db, appId } from '../firebase';
+import { useSettings } from '../contexts/SettingsContext';
 
 const RecurringView = ({ user, onBack }) => {
+    const { t: translate } = useSettings();
     const [rules, setRules] = useState([]);
     const [showAddForm, setShowAddForm] = useState(false);
 
@@ -107,9 +109,9 @@ const RecurringView = ({ user, onBack }) => {
     };
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen animate-fade-in pb-24 relative z-50 transition-colors duration-300">
+        <div className="bg-[#F9F9F9] dark:bg-gray-900 h-screen flex flex-col animate-fade-in relative z-50 transition-colors duration-300">
             {/* Header */}
-            <div className="bg-white dark:bg-gray-800 px-6 pt-12 pb-6 shadow-sm border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10 transition-colors duration-300">
+            <div className="bg-white dark:bg-gray-800 px-6 pt-12 pb-6 shadow-sm border-b border-gray-100 dark:border-gray-700 shrink-0 transition-colors duration-300">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={onBack}
@@ -117,11 +119,11 @@ const RecurringView = ({ user, onBack }) => {
                     >
                         <ArrowLeft size={20} />
                     </button>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Επαναλαμβανόμενες Συναλλαγές</h2>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{translate('recurring_title')}</h2>
                 </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-24">
 
                 {/* Intro Card */}
                 {!showAddForm && rules.length === 0 && (
@@ -129,9 +131,9 @@ const RecurringView = ({ user, onBack }) => {
                         <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-800/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4">
                             <Repeat size={32} />
                         </div>
-                        <h3 className="font-bold text-gray-900 dark:text-white mb-2">Αυτόματες Συναλλαγές</h3>
+                        <h3 className="font-bold text-gray-900 dark:text-white mb-2">{translate('auto_transactions')}</h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Πρόσθεσε πάγια έξοδα (ενοίκιο, συνδρομές) και η εφαρμογή θα τα προσθέτει αυτόματα κάθε μήνα.
+                            {translate('auto_trans_desc')}
                         </p>
                     </div>
                 )}
@@ -151,7 +153,7 @@ const RecurringView = ({ user, onBack }) => {
                                     <h4 className="font-bold text-gray-900 dark:text-white">{rule.title}</h4>
                                     <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
                                         <Calendar size={12} />
-                                        <span>Κάθε {rule.day} του μήνα</span>
+                                        <span>{translate('every_month_day', { day: rule.day })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -183,7 +185,7 @@ const RecurringView = ({ user, onBack }) => {
                 {showAddForm ? (
                     <form onSubmit={handleAddRule} className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 space-y-4 animate-slide-up">
                         <div className="flex justify-between items-center mb-2">
-                            <h3 className="font-bold text-gray-900 dark:text-white">{editingId ? 'Επεξεργασία Κανόνα' : 'Νέος Κανόνας'}</h3>
+                            <h3 className="font-bold text-gray-900 dark:text-white">{editingId ? translate('edit_rule') : translate('new_rule')}</h3>
                             <button
                                 type="button"
                                 onClick={() => {
@@ -194,12 +196,12 @@ const RecurringView = ({ user, onBack }) => {
                                 }}
                                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                             >
-                                Ακύρωση
+                                {translate('cancel')}
                             </button>
                         </div>
 
                         <div>
-                            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Τίτλος</label>
+                            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('title')}</label>
                             <input
                                 type="text"
                                 value={title}
@@ -212,7 +214,7 @@ const RecurringView = ({ user, onBack }) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Ποσό (€)</label>
+                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('amount')} (€)</label>
                                 <input
                                     type="number"
                                     step="0.01"
@@ -224,21 +226,21 @@ const RecurringView = ({ user, onBack }) => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Τύπος</label>
+                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('type')}</label>
                                 <div className="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
                                     <button
                                         type="button"
                                         onClick={() => setType('expense')}
                                         className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === 'expense' ? 'bg-white dark:bg-gray-600 shadow text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}
                                     >
-                                        Έξοδο
+                                        {translate('expense')}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setType('income')}
                                         className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === 'income' ? 'bg-white dark:bg-gray-600 shadow text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}
                                     >
-                                        Έσοδο
+                                        {translate('income')}
                                     </button>
                                 </div>
                             </div>
@@ -246,18 +248,18 @@ const RecurringView = ({ user, onBack }) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Συχνότητα</label>
+                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('frequency')}</label>
                                 <select
                                     value={frequency}
                                     onChange={(e) => setFrequency(e.target.value)}
                                     className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white transition-all appearance-none"
                                 >
-                                    <option value="monthly">Μηνιαία</option>
-                                    <option value="weekly" disabled>Εβδομαδιαία (Soon)</option>
+                                    <option value="monthly">{translate('monthly')}</option>
+                                    <option value="weekly" disabled>{translate('weekly')} (Soon)</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Ημέρα του μήνα</label>
+                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('day_of_month')}</label>
                                 <select
                                     value={day}
                                     onChange={(e) => setDay(e.target.value)}
@@ -275,7 +277,7 @@ const RecurringView = ({ user, onBack }) => {
                             className="w-full py-4 bg-gray-900 dark:bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 hover:shadow-xl active:scale-95 transition-all text-sm flex items-center justify-center gap-2"
                         >
                             <CheckCircle2 size={18} />
-                            Αποθήκευση
+                            {translate('save')}
                         </button>
 
                     </form>
@@ -285,7 +287,7 @@ const RecurringView = ({ user, onBack }) => {
                         className="w-full py-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl text-gray-500 dark:text-gray-400 font-medium hover:border-indigo-500 hover:text-indigo-500 dark:hover:border-indigo-400 dark:hover:text-indigo-400 transition-colors flex items-center justify-center gap-2"
                     >
                         <Plus size={20} />
-                        Προσθήκη Επαναλαμβανόμενης
+                        {translate('add_recurring')}
                     </button>
                 )}
 

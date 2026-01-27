@@ -13,9 +13,11 @@ import { db, appId, auth } from '../firebase';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
+import { openNotificationSettings } from '../utils/notificationListener';
+import { Capacitor } from '@capacitor/core';
 
 const GeneralSettingsView = ({ user, onBack }) => {
-    const { currency, updateCurrency, language, updateLanguage } = useSettings();
+    const { currency, updateCurrency, language, updateLanguage, t: translate } = useSettings();
     const { showToast } = useToast();
     const [showClearDataModal, setShowClearDataModal] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
@@ -122,7 +124,7 @@ const GeneralSettingsView = ({ user, onBack }) => {
     };
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen animate-fade-in pb-24 relative z-50 transition-colors duration-300">
+        <div className="bg-[#F9F9F9] dark:bg-gray-900 min-h-screen animate-fade-in pb-24 relative z-50 transition-colors duration-300">
             {/* Header */}
             <div className="bg-white dark:bg-gray-800 px-6 pt-12 pb-6 shadow-sm border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10 transition-colors duration-300">
                 <div className="flex items-center gap-4">
@@ -132,7 +134,7 @@ const GeneralSettingsView = ({ user, onBack }) => {
                     >
                         <ArrowLeft size={20} />
                     </button>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Γενικές Ρυθμίσεις</h2>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{translate('general_settings')}</h2>
                 </div>
             </div>
 
@@ -140,14 +142,14 @@ const GeneralSettingsView = ({ user, onBack }) => {
 
                 {/* Regional Group */}
                 <div>
-                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">Τοπικες Ρυθμισεις</h3>
+                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">{translate('regional_settings')}</h3>
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden text-sm">
 
                         {/* Currency */}
                         <div className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Euro size={18} /></div>
-                                <span className="font-medium text-gray-700 dark:text-gray-200">Νόμισμα</span>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">{translate('currency')}</span>
                             </div>
                             <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                                 <button
@@ -169,7 +171,7 @@ const GeneralSettingsView = ({ user, onBack }) => {
                         <div className="flex items-center justify-between p-4">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Globe size={18} /></div>
-                                <span className="font-medium text-gray-700 dark:text-gray-200">Γλώσσα</span>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">{translate('language')}</span>
                             </div>
                             <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                                 <button
@@ -192,7 +194,7 @@ const GeneralSettingsView = ({ user, onBack }) => {
 
                 {/* Data Group */}
                 <div>
-                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">Δεδομενα</h3>
+                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">{translate('data')}</h3>
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden text-sm">
 
                         {/* Export */}
@@ -205,7 +207,7 @@ const GeneralSettingsView = ({ user, onBack }) => {
                                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
                                     {isExporting ? <div className="animate-spin w-[18px] h-[18px] border-2 border-indigo-600 border-t-transparent rounded-full" /> : <Download size={18} />}
                                 </div>
-                                <span className="font-medium text-gray-700 dark:text-gray-200">Εξαγωγή Δεδομένων</span>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">{translate('export_data')}</span>
                             </div>
                         </button>
 
@@ -216,7 +218,7 @@ const GeneralSettingsView = ({ user, onBack }) => {
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/40 transition-colors"><Trash2 size={18} /></div>
-                                <span className="font-medium text-gray-700 dark:text-gray-200">Διαγραφή Όλων</span>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">{translate('clear_all_data')}</span>
                             </div>
                         </button>
 
@@ -227,13 +229,34 @@ const GeneralSettingsView = ({ user, onBack }) => {
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/40 transition-colors"><Trash2 size={18} /></div>
-                                <span className="font-medium text-gray-700 dark:text-gray-200">Διαγραφή Λογαριασμού</span>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">{translate('delete_account')}</span>
                             </div>
                         </button>
 
                     </div>
                     <p className="text-xs text-gray-400 mt-2 ml-2">
-                        Η διαγραφή δεδομένων είναι μη αναστρέψιμη ενέργεια.
+                        {translate('data_deletion_warning')}
+                    </p>
+                </div>
+
+                {/* Notifications Group */}
+                <div>
+                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">{translate('notifications')}</h3>
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden text-sm">
+                        <button
+                            onClick={openNotificationSettings}
+                            className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
+                                    <Check size={18} />
+                                </div>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">{translate('enable_sms_reading')}</span>
+                            </div>
+                        </button>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2 ml-2">
+                        {translate('sms_reading_desc')}
                     </p>
                 </div>
 
@@ -250,63 +273,65 @@ const GeneralSettingsView = ({ user, onBack }) => {
             />
 
             {/* Delete Account Modal */}
-            {showDeleteModal && (
-                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowDeleteModal(false)} />
-                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
-                        <div className="flex flex-col items-center mb-6 text-center">
-                            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 dark:text-red-400 mb-4">
-                                <Trash2 size={32} />
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Διαγραφή Λογαριασμού</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                                Αυτή η ενέργεια είναι <strong>μη αναστρέψιμη</strong>. Όλα τα δεδομένα σας (συναλλαγές, στόχοι, ρυθμίσεις) θα χαθούν οριστικά.
-                            </p>
-                        </div>
-
-                        <form onSubmit={handleDeleteAccount} className="space-y-4">
-                            {user.providerData.some(p => p.providerId === 'password') ? (
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                                        Επιβεβαίωση με τον κωδικό σας
-                                    </label>
-                                    <input
-                                        type="password"
-                                        value={deletePassword}
-                                        onChange={(e) => setDeletePassword(e.target.value)}
-                                        placeholder="Ο κωδικός σας..."
-                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 dark:text-white"
-                                        required
-                                    />
+            {
+                showDeleteModal && (
+                    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fade-in">
+                        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowDeleteModal(false)} />
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                            <div className="flex flex-col items-center mb-6 text-center">
+                                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 dark:text-red-400 mb-4">
+                                    <Trash2 size={32} />
                                 </div>
-                            ) : (
-                                <p className="text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
-                                    Θα σας ζητηθεί να συνδεθείτε ξανά με τον Google λογαριασμό σας για επιβεβαίωση.
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Διαγραφή Λογαριασμού</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    Αυτή η ενέργεια είναι <strong>μη αναστρέψιμη</strong>. Όλα τα δεδομένα σας (συναλλαγές, στόχοι, ρυθμίσεις) θα χαθούν οριστικά.
                                 </p>
-                            )}
-
-                            <div className="flex gap-3 pt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowDeleteModal(false)}
-                                    className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl"
-                                    disabled={isDeleting}
-                                >
-                                    Ακύρωση
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-200 dark:shadow-none transition-colors"
-                                    disabled={isDeleting}
-                                >
-                                    {isDeleting ? 'Διαγραφή...' : 'Οριστική Διαγραφή'}
-                                </button>
                             </div>
-                        </form>
+
+                            <form onSubmit={handleDeleteAccount} className="space-y-4">
+                                {user.providerData.some(p => p.providerId === 'password') ? (
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                            Επιβεβαίωση με τον κωδικό σας
+                                        </label>
+                                        <input
+                                            type="password"
+                                            value={deletePassword}
+                                            onChange={(e) => setDeletePassword(e.target.value)}
+                                            placeholder="Ο κωδικός σας..."
+                                            className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 dark:text-white"
+                                            required
+                                        />
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
+                                        Θα σας ζητηθεί να συνδεθείτε ξανά με τον Google λογαριασμό σας για επιβεβαίωση.
+                                    </p>
+                                )}
+
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowDeleteModal(false)}
+                                        className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl"
+                                        disabled={isDeleting}
+                                    >
+                                        Ακύρωση
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-200 dark:shadow-none transition-colors"
+                                        disabled={isDeleting}
+                                    >
+                                        {isDeleting ? 'Διαγραφή...' : 'Οριστική Διαγραφή'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 

@@ -96,12 +96,7 @@ const StatsView = ({ transactions }) => {
 
     return (
         <div className="pb-24 animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Ανάλυση</h2>
-                <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl flex gap-1">
-                    <Calendar size={16} className="text-gray-400 ml-2 my-auto" />
-                </div>
-            </div>
+
 
             {/* Date Filters */}
             <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">

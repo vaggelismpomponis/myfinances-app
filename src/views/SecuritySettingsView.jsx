@@ -14,9 +14,10 @@ import { useSettings } from '../contexts/SettingsContext';
 import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 import { db, appId, auth } from '../firebase';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
+import { NativeBiometric } from '@capgo/capacitor-native-biometric';
 
 const SecuritySettingsView = ({ user, onBack }) => {
-    const { isBiometricsEnabled, toggleBiometrics, isPinEnabled, setPin, removePin, appPin } = useSettings();
+    const { isBiometricsEnabled, toggleBiometrics, isPinEnabled, setPin, removePin, appPin, t: translate } = useSettings();
     const [sessions, setSessions] = useState([]);
     const [currentSessionId, setCurrentSessionId] = useState(null);
 
@@ -54,43 +55,31 @@ const SecuritySettingsView = ({ user, onBack }) => {
     const handleToggleBiometrics = async () => {
         if (!isBiometricsEnabled) {
             // Requirement: Must have a PIN set as fallback before enabling Biometrics
-            // Requirement: Must have a PIN set as fallback before enabling Biometrics
             if (!isPinEnabled || !appPin) { // Check context state
                 alert("Πρέπει πρώτα να ορίσετε ένα PIN Εφαρμογής ως εφεδρική μέθοδο ασφαλείας.");
                 setShowPinModal(true);
                 return;
             }
 
-            if (!window.PublicKeyCredential) {
-                alert("Η συσκευή σας δεν υποστηρίζει βιομετρική είσοδο.");
-                return;
-            }
             try {
-                const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-                if (!available) {
-                    alert("Δεν βρέθηκε ρυθμισμένη βιομετρική μέθοδος.");
+                const result = await NativeBiometric.isAvailable();
+                if (!result.isAvailable) {
+                    alert("Η συσκευή σας δεν υποστηρίζει βιομετρική είσοδο ή δεν έχει ρυθμιστεί.");
                     return;
                 }
-                const challenge = new Uint8Array(32);
-                window.crypto.getRandomValues(challenge);
-                await navigator.credentials.create({
-                    publicKey: {
-                        challenge,
-                        rp: { name: "MyFinances App" },
-                        user: {
-                            id: new Uint8Array(16),
-                            name: user.email || "user",
-                            displayName: user.displayName || "User"
-                        },
-                        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
-                        authenticatorSelection: { userVerification: "required", authenticatorAttachment: "platform" },
-                        timeout: 60000
-                    }
+
+                // Verify identity once before enabling to ensure it works
+                await NativeBiometric.verifyIdentity({
+                    reason: "Confirm transparency to enable biometrics",
+                    title: "Enable Biometrics",
+                    subtitle: "",
+                    description: "",
                 });
+
                 toggleBiometrics(true);
             } catch (error) {
                 console.error("Biometric setup failed:", error);
-                alert("Αποτυχία ρύθμισης βιομετρικών: " + error.message);
+                // alert("Αποτυχία ρύθμισης βιομετρικών: " + error.message);
             }
         } else {
             toggleBiometrics(false);
@@ -121,13 +110,13 @@ const SecuritySettingsView = ({ user, onBack }) => {
         setLoading(true);
 
         if (newPassword !== confirmPassword) {
-            setPasswordError("Οι νέοι κωδικοί δεν ταιριάζουν.");
+            setPasswordError(translate('password_mismatch'));
             setLoading(false);
             return;
         }
 
         if (newPassword.length < 6) {
-            setPasswordError("Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες.");
+            setPasswordError(translate('password_length_error'));
             setLoading(false);
             return;
         }
@@ -136,7 +125,7 @@ const SecuritySettingsView = ({ user, onBack }) => {
             const credential = EmailAuthProvider.credential(user.email, currentPassword);
             await reauthenticateWithCredential(user, credential);
             await updatePassword(user, newPassword);
-            setPasswordSuccess("Ο κωδικός άλλαξε επιτυχώς!");
+            setPasswordSuccess(translate('password_changed_success'));
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
@@ -147,7 +136,7 @@ const SecuritySettingsView = ({ user, onBack }) => {
         } catch (error) {
             console.error("Password change error:", error);
             if (error.code === 'auth/wrong-password') {
-                setPasswordError("Ο τρέχων κωδικός είναι λάθος.");
+                setPasswordError(translate('current_password_error'));
             } else {
                 setPasswordError("Σφάλμα: " + error.message);
             }
@@ -164,9 +153,9 @@ const SecuritySettingsView = ({ user, onBack }) => {
     };
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen animate-fade-in pb-24 relative z-50 transition-colors duration-300">
+        <div className="bg-[#F9F9F9] dark:bg-gray-900 h-screen flex flex-col animate-fade-in relative z-50 transition-colors duration-300">
             {/* Header */}
-            <div className="bg-white dark:bg-gray-800 px-6 pt-12 pb-6 shadow-sm border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10 transition-colors duration-300">
+            <div className="bg-white dark:bg-gray-800 px-6 pt-12 pb-6 shadow-sm border-b border-gray-100 dark:border-gray-700 shrink-0 transition-colors duration-300">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={onBack}
@@ -174,15 +163,15 @@ const SecuritySettingsView = ({ user, onBack }) => {
                     >
                         <ArrowLeft size={20} />
                     </button>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Ασφάλεια</h2>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{translate('security_title')}</h2>
                 </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-24">
 
                 {/* Login Security */}
                 <div>
-                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">Συνδεση & Αυθεντικοποιηση</h3>
+                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">{translate('login_auth')}</h3>
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden text-sm">
 
                         {/* Change Password */}
@@ -192,7 +181,7 @@ const SecuritySettingsView = ({ user, onBack }) => {
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><KeyRound size={18} /></div>
-                                <span className="font-medium text-gray-700 dark:text-gray-200">Αλλαγή Κωδικού</span>
+                                <span className="font-medium text-gray-700 dark:text-gray-200">{translate('change_password')}</span>
                             </div>
                             <ChevronRight size={16} className="text-gray-300 dark:text-gray-600" />
                         </button>
@@ -202,8 +191,8 @@ const SecuritySettingsView = ({ user, onBack }) => {
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Lock size={18} /></div>
                                 <div>
-                                    <span className="block font-medium text-gray-700 dark:text-gray-200">PIN Εφαρμογής</span>
-                                    <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">Κλείδωμα οθόνης</span>
+                                    <span className="block font-medium text-gray-700 dark:text-gray-200">{translate('app_pin')}</span>
+                                    <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">{translate('lock_screen')}</span>
                                 </div>
                             </div>
                             <button
@@ -219,8 +208,8 @@ const SecuritySettingsView = ({ user, onBack }) => {
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Smartphone size={18} /></div>
                                 <div>
-                                    <span className="block font-medium text-gray-700 dark:text-gray-200">FaceID / TouchID</span>
-                                    <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">Απαίτηση κατά το άνοιγμα</span>
+                                    <span className="block font-medium text-gray-700 dark:text-gray-200">{translate('biometrics')}</span>
+                                    <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">{translate('biometrics_desc')}</span>
                                 </div>
                             </div>
                             <button
@@ -236,10 +225,10 @@ const SecuritySettingsView = ({ user, onBack }) => {
 
                 {/* Active Sessions */}
                 <div>
-                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">Ενεργες Συνεδριες</h3>
+                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">{translate('active_sessions')}</h3>
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden text-sm">
                         {sessions.length === 0 ? (
-                            <div className="p-4 text-center text-gray-500">Φόρτωση συνεδριών...</div>
+                            <div className="p-4 text-center text-gray-500">{translate('loading_sessions')}</div>
                         ) : (
                             sessions.map((session, index) => {
                                 const isCurrent = session.id === currentSessionId;
@@ -256,7 +245,7 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-medium text-gray-900 dark:text-white">{session.device}</span>
                                                     {isCurrent && (
-                                                        <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-[10px] uppercase font-bold rounded-md">This</span>
+                                                        <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-[10px] uppercase font-bold rounded-md">{translate('this_device')}</span>
                                                     )}
                                                 </div>
                                                 <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">{session.location} • {dateStr}</span>
@@ -276,7 +265,7 @@ const SecuritySettingsView = ({ user, onBack }) => {
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowPasswordModal(false)} />
                     <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Αλλαγή Κωδικού</h3>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{translate('change_password')}</h3>
                             <button onClick={() => setShowPasswordModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                                 <X size={20} />
                             </button>
@@ -294,19 +283,19 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                     </div>
                                 )}
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Τρέχων Κωδικός</label>
+                                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('current_password')}</label>
                                     <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white" required />
                                 </div>
                                 <div className="border-t border-gray-100 dark:border-gray-700 my-2"></div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Νέος Κωδικός</label>
+                                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('new_password')}</label>
                                     <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white" required />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Επιβεβαίωση Νέου Κωδικού</label>
+                                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('confirm_new_password')}</label>
                                     <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white" required />
                                 </div>
-                                <button type="submit" disabled={loading} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-colors disabled:opacity-50">{loading ? 'Ενημέρωση...' : 'Αλλαγή Κωδικού'}</button>
+                                <button type="submit" disabled={loading} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-colors disabled:opacity-50">{loading ? '...' : translate('change_password')}</button>
                             </form>
                         )}
                     </div>
@@ -321,8 +310,8 @@ const SecuritySettingsView = ({ user, onBack }) => {
                         <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                             <Lock size={24} className="text-indigo-600 dark:text-indigo-400" />
                         </div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Ορισμός PIN</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Εισάγετε τον 4-ψήφιο κωδικό για κλείδωμα της εφαρμογής.</p>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{translate('pin_setup')}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{translate('pin_instruction')}</p>
 
                         <form onSubmit={handleSavePin}>
                             <input
@@ -334,8 +323,8 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                 autoFocus
                             />
                             <div className="flex gap-3">
-                                <button type="button" onClick={() => setShowPinModal(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl">Ακύρωση</button>
-                                <button type="submit" disabled={pinInput.length !== 4} className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl disabled:opacity-50">Αποθήκευση</button>
+                                <button type="button" onClick={() => setShowPinModal(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl">{translate('cancel')}</button>
+                                <button type="submit" disabled={pinInput.length !== 4} className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl disabled:opacity-50">{translate('save')}</button>
                             </div>
                         </form>
                     </div>

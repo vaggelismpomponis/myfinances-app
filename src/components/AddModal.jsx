@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Camera, Layers } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Camera, Layers, Mic } from 'lucide-react';
 import ScannerModal from './ScannerModal';
 import BulkScannerModal from './BulkScannerModal';
 
@@ -11,24 +11,191 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
     const [showBulkScanner, setShowBulkScanner] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const [transcript, setTranscript] = useState('');
+    const recognitionRef = useRef(null);
 
     // Batch mode state
     const [batchQueue, setBatchQueue] = useState([]);
     const [batchIndex, setBatchIndex] = useState(0);
 
     // Initialize form with initialData (for editing)
+    // Initialize form with initialData (for editing)
     useEffect(() => {
         if (initialData) {
+            console.log("AddModal received initialData:", initialData);
             setType(initialData.type || 'expense');
-            setAmount(initialData.amount?.toString() || '');
+            setAmount(initialData.amount ? initialData.amount.toString() : '');
             setCategory(initialData.category || '');
             setNote(initialData.note || '');
+        } else {
+            // Reset if no data
+            setAmount('');
+            setCategory('');
+            setNote('');
         }
     }, [initialData]);
 
     const categories = type === 'expense'
-        ? ['Σούπερ Μάρκετ', 'Φαγητό', 'Σπίτι', 'Μεταφορικά', 'Λογαριασμοί', 'Διασκέδαση', 'Άλλο']
+        ? ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Άλλο']
         : ['Μισθός', 'Δώρο', 'Επενδύσεις', 'Άλλο'];
+
+    // Keyword mapping for auto-categorization
+    const CATEGORY_KEYWORDS = {
+        'Σούπερ Μάρκετ': ['σούπερ', 'μάρκετ', 'ψώνια', 'γάλα', 'ψωμί', 'κρέας', 'κρεοπωλείο', 'τυρί', 'λαχανικά', 'φρούτα'],
+        'Φαγητό': ['φαγητό', 'ταβέρνα', 'σουβλάκια', 'πίτσα', 'delivery', 'εστιατόριο', 'γεύμα', 'δείπνο'],
+        'Καφές': ['καφές', 'ποτό', 'μπαρ', 'freddo', 'latte', 'espresso'],
+        'Σπίτι': ['σπίτι', 'νοίκι', 'κοινόχρηστα', 'καθαριστικά', 'επισκευή', 'υδραυλικός', 'ηλεκτρολόγος'],
+        'Λογαριασμοί': ['λογαριασμός', 'τέλη', 'ρεύμα', 'νερό', 'ίντερνετ', 'τηλέφωνο', 'δεή', 'eydap', 'cosmote', 'vodafone', 'nova'],
+        'Διασκέδαση': ['σινεμά', 'θέατρο', 'έξοδος', 'συναυλία', 'εισιτήρια'],
+        'Άλλο': []
+    };
+
+    const processVoiceInput = (text) => {
+        const lowerText = text.toLowerCase();
+
+        // 1. Extract Amount
+        // Look for numbers, possibly with decimals (dot or comma)
+        const amountMatch = lowerText.match(/\d+([.,]\d{1,2})?/);
+        let extractedAmount = '';
+        if (amountMatch) {
+            // Replace comma with dot for standard parsing
+            extractedAmount = amountMatch[0].replace(',', '.');
+        }
+
+        // 2. Extract Category
+        let extractedCategory = '';
+        if (type === 'expense') {
+            for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+                if (keywords.some(k => lowerText.includes(k))) {
+                    extractedCategory = cat;
+                    break;
+                }
+            }
+        }
+
+        // 3. Extract Note (everything else, cleaned up)
+        let extractedNote = text;
+        if (extractedAmount) {
+            // Remove the amount from the note text to avoid duplication
+            // Also remove common currency words
+            const amountRegex = new RegExp(`${amountMatch[0]}\\s*(ευρώ|euro|€)?`, 'i');
+            extractedNote = text.replace(amountRegex, '').trim();
+        }
+
+        // Apply changes
+        if (extractedAmount) setAmount(extractedAmount);
+        if (extractedCategory) setCategory(extractedCategory);
+        if (extractedNote) {
+            // Capitalize first letter of note
+            setNote(extractedNote.charAt(0).toUpperCase() + extractedNote.slice(1));
+        }
+    };
+
+    const startListening = async () => {
+        // Feature check
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert('Η φωνητική πληκτρολόγηση δεν υποστηρίζεται σε αυτόν τον browser.');
+            return;
+        }
+
+        // Explicitly request microphone permission first to trigger the browser prompt
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            // If we get here, permission is granted. We can stop this stream now 
+            // because SpeechRecognition opens its own.
+            stream.getTracks().forEach(track => track.stop());
+        } catch (err) {
+            console.error('Permission denied:', err);
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                alert('Η πρόσβαση στο μικρόφωνο δεν επιτράπηκε. Παρακαλώ ελέγξτε τις ρυθμίσεις του browser σας για να επιτρέψετε την πρόσβαση.');
+            } else {
+                alert('Δεν ήταν δυνατή η πρόσβαση στο μικρόφωνο: ' + err.message);
+            }
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognitionRef.current = recognition;
+
+        recognition.lang = 'el-GR'; // Set to Greek
+        recognition.continuous = false;
+        recognition.interimResults = true; // Enable live results
+
+        recognition.onstart = () => {
+            setIsListening(true);
+            setTranscript('');
+        };
+
+        recognition.onresult = (event) => {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            setTranscript(finalTranscript || interimTranscript);
+
+            if (finalTranscript) {
+                console.log('Final Voice Input:', finalTranscript);
+                processVoiceInput(finalTranscript);
+                setIsListening(false);
+            }
+        };
+
+        recognition.onresult = (event) => {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            setTranscript(finalTranscript || interimTranscript);
+
+            if (finalTranscript) {
+                console.log('Final Voice Input:', finalTranscript);
+                processVoiceInput(finalTranscript);
+                setIsListening(false);
+            }
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error', event.error);
+            // Alert user on error (useful for mobile debugging)
+            if (event.error === 'not-allowed') {
+                alert('Η πρόσβαση στο μικρόφωνο δεν επιτράπηκε. Ελέγξτε τις ρυθμίσεις σας.');
+            } else if (event.error === 'network') {
+                alert('Πρόβλημα δικτύου. Η αναγνώριση ομιλίας απαιτεί σύνδεση στο internet.');
+            } else {
+                alert('Σφάλμα φωνητικής εντολής: ' + event.error);
+            }
+            setIsListening(false);
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+        };
+
+        recognition.start();
+    };
+
+    const stopListening = () => {
+        if (recognitionRef.current) {
+            recognitionRef.current.stop();
+            setIsListening(false);
+        }
+    };
 
     const loadFromBatchItem = (item) => {
         if (item.amount) setAmount(item.amount.toString());
@@ -104,7 +271,30 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4 animate-fade-in">
-            <div className="bg-white w-full max-w-md h-[90vh] sm:h-auto rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-up">
+            <div className="bg-white w-full max-w-md h-[90vh] sm:h-auto rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-up relative">
+
+                {/* Voice Input Overlay */}
+                {isListening && (
+                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md animate-fade-in p-6 text-center">
+                        <div className="relative mb-8">
+                            <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20"></div>
+                            <div className="relative bg-gradient-to-tr from-red-500 to-pink-500 p-6 rounded-full shadow-xl shadow-red-200">
+                                <Mic size={40} className="text-white" />
+                            </div>
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-800 mb-3">Σας ακούω...</h3>
+                        <p className="text-lg text-gray-600 font-medium min-h-[4rem] flex items-center justify-center max-w-[80%]">
+                            {transcript || "Πείτε π.χ. '23 ευρώ φαγητό'"}
+                        </p>
+                        <button
+                            onClick={stopListening}
+                            className="mt-8 px-8 py-3 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-sm font-bold text-gray-500 transition-colors"
+                        >
+                            Ακύρωση
+                        </button>
+                    </div>
+                )}
+
                 {/* Modal Header */}
                 <div className="p-4 flex justify-between items-center border-b border-gray-100 dark:border-gray-700">
                     <button onClick={onClose} className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
@@ -145,8 +335,16 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                     {/* Amount Input */}
                     <div>
                         <div className="flex justify-between items-end mb-2">
-                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ποσό</label>
+                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ΠΟΣΟ</label>
                             <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={startListening}
+                                    className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg transition-all text-white bg-gradient-to-r from-red-500 to-pink-500 shadow-md shadow-red-200 hover:shadow-lg hover:shadow-red-300 active:scale-95"
+                                >
+                                    <Mic size={14} />
+                                    Φωνή
+                                </button>
                                 <button
                                     type="button"
                                     onClick={() => setShowScanner(true)}
@@ -175,14 +373,13 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                 onChange={(e) => setAmount(e.target.value)}
                                 placeholder="0.00"
                                 className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 pl-10 pr-4 text-3xl font-bold text-gray-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all placeholder:text-gray-300"
-                                autoFocus
                             />
                         </div>
                     </div>
 
                     {/* Categories Grid */}
                     <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Κατηγορία</label>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">ΚΑΤΗΓΟΡΙΑ</label>
                         <div className="grid grid-cols-3 gap-3">
                             {categories.map(cat => (
                                 <button
@@ -202,7 +399,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
                     {/* Note Input */}
                     <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Σημείωση (Προαιρετικό)</label>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">ΣΗΜΕΙΩΣΗ (ΠΡΟΑΙΡΕΤΙΚΟ)</label>
                         <input
                             type="text"
                             value={note}

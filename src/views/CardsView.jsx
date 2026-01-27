@@ -3,15 +3,7 @@ import { ArrowLeft, CreditCard, Plus } from 'lucide-react';
 
 const CardsView = ({ onBack }) => (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 animate-fade-in p-6 pb-24">
-        <div className="flex items-center gap-4 mb-8">
-            <button
-                onClick={onBack}
-                className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm text-gray-600 dark:text-gray-300"
-            >
-                <ArrowLeft size={20} />
-            </button>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Κάρτες</h2>
-        </div>
+
 
         {/* Card Mockup */}
         <div className="w-full aspect-video bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 relative overflow-hidden shadow-2xl mb-8 border border-gray-700">

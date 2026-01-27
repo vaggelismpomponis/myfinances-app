@@ -4,10 +4,12 @@ import Tesseract from 'tesseract.js';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { getCroppedImg } from '../utils/canvasUtils';
+import { useToast } from '../contexts/ToastContext';
 
 const BulkScannerModal = ({ onClose, onScanComplete }) => {
     // Array of images: { id, src, croppedSrc, status: 'pending' | 'cropping' | 'ready' | 'processing' | 'done', result: null | {amount, date, note} }
     const [images, setImages] = useState([]);
+    const { showToast } = useToast();
     const [activeIndex, setActiveIndex] = useState(null); // Index of image being cropped
     const [processing, setProcessing] = useState(false);
     const [progress, setProgress] = useState({ current: 0, total: 0, percent: 0 });
@@ -74,6 +76,51 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
         setActiveIndex(index);
         setCrop(undefined);
         setCompletedCrop(null);
+    };
+
+    const handleExtractCrop = async () => {
+        if (activeIndex === null || !completedCrop || !imgRef.current) return;
+
+        try {
+            let finalCrop = completedCrop;
+
+            if (finalCrop.unit === '%') {
+                const width = imgRef.current.width;
+                const height = imgRef.current.height;
+                finalCrop = {
+                    x: (finalCrop.x / 100) * width,
+                    y: (finalCrop.y / 100) * height,
+                    width: (finalCrop.width / 100) * width,
+                    height: (finalCrop.height / 100) * height,
+                    unit: 'px'
+                };
+            }
+
+            const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+            const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+
+            const naturalCrop = {
+                x: finalCrop.x * scaleX,
+                y: finalCrop.y * scaleY,
+                width: finalCrop.width * scaleX,
+                height: finalCrop.height * scaleY,
+            };
+
+            const croppedImage = await getCroppedImg(images[activeIndex].src, naturalCrop);
+
+            // Create new item with the crop
+            setImages(prev => [...prev, {
+                id: generateId(),
+                src: croppedImage, // The extracted crop becomes the source for the new item
+                croppedSrc: croppedImage,
+                status: 'ready',
+                result: null
+            }]);
+
+        } catch (e) {
+            console.error(e);
+            alert("Σφάλμα κατά την εξαγωγή της εικόνας.");
+        }
     };
 
     const handleCropConfirm = async () => {
@@ -179,65 +226,128 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
     };
 
     const extractData = (text) => {
-        const lines = text.split('\n');
-        let amount = null;
-        let date = null;
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        const results = [];
 
-        const moneyRegex = /(\d+[.,]\d{2})/g;
-        const potentialAmounts = [];
-        const totalKeywords = ['total', 'synolo', 'pliroteo', 'amount', 'poso', 'sum', 'euro', 'eur', '€', 'σύνολο', 'πληρωτέο'];
-
-        lines.forEach(line => {
-            const lowerLine = line.toLowerCase();
-            const hasKeyword = totalKeywords.some(k => lowerLine.includes(k));
-            const matches = line.match(moneyRegex);
-            if (matches) {
-                matches.forEach(match => {
-                    const val = parseFloat(match.replace(',', '.'));
-                    if (!isNaN(val)) {
-                        potentialAmounts.push({ val, hasKeyword, line });
-                    }
-                });
-            }
-        });
-
-        potentialAmounts.sort((a, b) => {
-            if (a.hasKeyword && !b.hasKeyword) return -1;
-            if (!a.hasKeyword && b.hasKeyword) return 1;
-            return b.val - a.val;
-        });
-
-        if (potentialAmounts.length > 0) {
-            amount = potentialAmounts[0].val;
-        }
-
+        // Regex for money: € 15,73 or 15,73 or - € 15,73
+        // Captures: 1=negative?, 2=amount
+        const moneyRegexLine = /([+-])?\s*€?\s*(\d+[.,]\d{2})/;
         const dateRegex = /\b(\d{1,2})[-./](\d{1,2})[-./](\d{2,4})\b/;
-        const dateMatch = text.match(dateRegex);
 
-        if (dateMatch) {
-            const day = dateMatch[1].padStart(2, '0');
-            const month = dateMatch[2].padStart(2, '0');
-            let year = dateMatch[3];
-            if (year.length === 2) year = '20' + year;
-            const now = new Date();
-            const time = now.toTimeString().slice(0, 5);
-            date = `${year}-${month}-${day}T${time}`;
-        } else {
-            const now = new Date();
-            date = now.toISOString().slice(0, 16);
-        }
+        // We will loop through lines and try to group them into transactions.
+        // Strategy: An amount usually signifies the end or important part of a transaction row.
+        // We'll look for lines containing amounts.
 
-        let note = "";
         for (let i = 0; i < lines.length; i++) {
-            const l = lines[i].trim();
-            if (l.length > 3 && !l.match(moneyRegex) && !l.match(dateRegex)) {
-                note = l;
-                break;
+            const line = lines[i];
+            const moneyMatch = line.match(moneyRegexLine);
+
+            if (moneyMatch) {
+                // Found an amount line.
+                // It's likely a transaction.
+                // val is the number. 'sign' might be - or +.
+                let val = parseFloat(moneyMatch[2].replace(',', '.'));
+
+                // If we see explicit negative sign, or it says "Χρεωθήκατε" (Charged) nearby?
+                // For now, let's trust the sign if present, else default to positive (or expense logic elsewhere).
+                // Actually, let's keep it simple: Extracts absolute amount.
+                // The user confirms sign in UI usually, or we detect 'minus'.
+
+                // Look for Date in this line or previous 1-2 lines
+                let date = null;
+                // Check current line for date
+                let dateMatch = line.match(dateRegex);
+
+                // If not in current, check previous 2 lines
+                if (!dateMatch && i > 0) dateMatch = lines[i - 1].match(dateRegex);
+                if (!dateMatch && i > 1) dateMatch = lines[i - 2].match(dateRegex);
+
+                if (dateMatch) {
+                    const day = dateMatch[1].padStart(2, '0');
+                    const month = dateMatch[2].padStart(2, '0');
+                    let year = dateMatch[3];
+                    if (year.length === 2) year = '20' + year;
+                    const now = new Date();
+                    const time = now.toTimeString().slice(0, 5); // Default time
+                    date = `${year}-${month}-${day}T${time}`; // ISO format for form
+                } else {
+                    // Default to today if not found
+                    date = new Date().toISOString().slice(0, 16);
+                }
+
+                // Look for Note/Merchant
+                // Usually the line BEFORE the amount, or the text on the SAME line before amount.
+                let note = "";
+
+                // Text on the same line before the amount?
+                const textBeforeAmount = line.split(moneyMatch[0])[0].trim();
+
+                if (textBeforeAmount.length > 3) {
+                    note = textBeforeAmount;
+                } else if (i > 0) {
+                    // Check previous line
+                    const prevLine = lines[i - 1];
+                    // Avoid using the date line as note if possible, but simplest is just take it
+                    if (!prevLine.match(dateRegex) && !prevLine.match(moneyRegexLine)) {
+                        note = prevLine;
+                    }
+                }
+
+                if (!note) note = "Απόδειξη/Συναλλαγή";
+
+                // Clean up note
+                note = note.replace(/[€]/g, '').trim();
+
+                // Avoid duplicates: 
+                // Sometimes OCR reads "Total 15.00" and then "15.00" on next line.
+                // Check if we just added a similar transaction (same amount, almost same time index)
+                const isDuplicate = results.some(r =>
+                    Math.abs(r.amount - val) < 0.01 &&
+                    (r.note === note || r.date === date)
+                );
+
+                if (!isDuplicate) {
+                    results.push({ amount: val, date, note });
+                }
             }
         }
-        if (!note) note = "Απόδειξη";
 
-        return { amount, date, note };
+        // If we found nothing with the strict loop, verify with the old loose "max amount" strategy?
+        // No, user explicitly wants list scanning. If single receipt fails, it might be due to this.
+        // Fallback: If results is empty, try single-amount extraction from whole text.
+        if (results.length === 0) {
+            let amount = null;
+            let date = null;
+            let note = "Απόδειξη";
+
+            // Old Logic fallback
+            const moneyRegex = /(\d+[.,]\d{2})/g;
+            const potentialAmounts = [];
+            lines.forEach(l => {
+                const m = l.match(moneyRegex);
+                if (m) m.forEach(v => potentialAmounts.push(parseFloat(v.replace(',', '.'))));
+            });
+            potentialAmounts.sort((a, b) => b - a); // Largest
+            if (potentialAmounts.length > 0) amount = potentialAmounts[0];
+
+            // Date logic (same as above essentially)
+            const dM = text.match(dateRegex);
+            if (dM) {
+                // ... extract date
+                const day = dM[1].padStart(2, '0');
+                const month = dM[2].padStart(2, '0');
+                let year = dM[3];
+                if (year.length === 2) year = '20' + year;
+                date = `${year}-${month}-${day}T12:00`;
+            } else {
+                date = new Date().toISOString().slice(0, 16);
+            }
+
+            if (amount) return [{ amount, date, note }];
+            return []; // Nothing found
+        }
+
+        return results;
     };
 
     const processAllImages = async () => {
@@ -276,13 +386,27 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                 );
 
                 const text = result.data.text;
-                const extracted = extractData(text);
+                // Now returns an ARRAY of objects
+                const extractedItems = extractData(text);
+
+                if (extractedItems.length > 1) {
+                    showToast(`Βρέθηκαν ${extractedItems.length} συναλλαγές!`, 'success');
+                }
+
+                // We need to associate these results with the current image ID.
+                // If multiple items found, we might want to "expand" the images list?
+                // OR simpler: Just store the array in the result field and BulkScannerModal handles it.
+                // BUT the 'images' state expects result to be ONE object?
+                // Let's modify the onScanComplete to flatten everything.
+
+                // For the UI "Status", if we found items, show "Done (N items)"?
 
                 setImages(prev => prev.map((item, idx) =>
-                    idx === i ? { ...item, status: 'done', result: extracted } : item
+                    idx === i ? { ...item, status: 'done', result: extractedItems } : item
                 ));
 
-                results.push(extracted);
+                extractedItems.forEach(item => results.push(item));
+
                 setProgress(prev => ({ ...prev, current: prev.current + 1 }));
 
             } catch (error) {
@@ -350,12 +474,20 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                                 Σύρετε τις γωνίες για να επιλέξετε την περιοχή
                             </p>
 
-                            <div className="grid grid-cols-2 gap-3 mt-auto">
+                            <div className="grid grid-cols-3 gap-3 mt-auto">
                                 <button
                                     onClick={handleCropCancel}
                                     className="px-4 py-3 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                                 >
                                     Ακύρωση
+                                </button>
+                                <button
+                                    onClick={handleExtractCrop}
+                                    className="px-4 py-3 text-sm font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                                    title="Προσθήκη ως νέο απόκομμα"
+                                >
+                                    <Plus size={18} />
+                                    Προσθήκη
                                 </button>
                                 <button
                                     onClick={handleCropConfirm}
