@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    X, Camera, Layers, Mic, Delete,
+    X, Camera, Layers, Mic, Delete, Check,
     Coffee, ShoppingBag, Home as HomeIcon, Smartphone,
     Gift, Utensils, Wallet, TrendingUp, MoreHorizontal,
     MessageSquare
 } from 'lucide-react';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 import ScannerModal from './ScannerModal';
 import BulkScannerModal from './BulkScannerModal';
 
@@ -28,17 +29,22 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
     const [batchQueue, setBatchQueue] = useState([]);
     const [batchIndex, setBatchIndex] = useState(0);
 
-    // Initialize form with initialData (for editing)
-    // Initialize form with initialData (for editing)
-    // Initialize form with initialData (for editing)
+    // Handle Android back button/gesture to close modal
     useEffect(() => {
-        // Cleanup listener on unmount
+        let backHandler;
+        if (Capacitor.isNativePlatform()) {
+            backHandler = App.addListener('backButton', () => {
+                onClose();
+            });
+        }
+
         return () => {
+            if (backHandler) backHandler.then(h => h.remove());
             if (Capacitor.isNativePlatform()) {
                 SpeechRecognition.removeAllListeners();
             }
         };
-    }, []);
+    }, [onClose]);
 
     useEffect(() => {
         if (initialData) {
@@ -420,7 +426,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                 )}
 
                 {/* ── Header ── */}
-                <div className="px-4 py-3 flex justify-between items-center border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
+                <div className="px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] flex justify-between items-center border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
                     <button onClick={onClose} className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
                         <X size={22} />
                     </button>
@@ -479,7 +485,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                     </div>
 
                     {/* Amount Display */}
-                    <div className="px-5 py-4 text-center flex-shrink-0">
+                    <div className="px-5 py-4 text-center flex-1 flex items-center justify-center">
                         <div className="flex items-baseline justify-center gap-1">
                             <span className="text-2xl font-bold text-gray-300 dark:text-gray-500">€</span>
                             <span className={`text-5xl font-extrabold tracking-tight transition-colors ${amount ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-600'
@@ -501,8 +507,8 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                         type="button"
                                         onClick={() => setCategory(cat)}
                                         className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all active:scale-95 ${isSelected
-                                                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 shadow-sm'
-                                                : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
+                                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                                            : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
                                             }`}
                                     >
                                         <Icon size={14} />
@@ -581,20 +587,41 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
                 {/* ── Numpad ── */}
                 <div className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex-shrink-0">
+                    {/* Digits 1-9 */}
                     <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
-                        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'backspace'].map(key => (
+                        {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(key => (
                             <button
                                 key={key}
                                 type="button"
                                 onClick={() => handleNumpadPress(key)}
-                                className={`h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 ${key === 'backspace'
-                                        ? 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                                        : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-700'
-                                    }`}
+                                className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-700"
                             >
-                                {key === 'backspace' ? <Delete size={22} /> : key}
+                                {key}
                             </button>
                         ))}
+                    </div>
+                    {/* Bottom row: .  0  ⌫  ✓ */}
+                    <div className="grid grid-cols-4 gap-2 max-w-xs mx-auto mt-2">
+                        <button type="button" onClick={() => handleNumpadPress('.')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-700">.</button>
+                        <button type="button" onClick={() => handleNumpadPress('0')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-700">0</button>
+                        <button type="button" onClick={() => handleNumpadPress('backspace')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
+                            <Delete size={22} />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={!amount || !category || isSubmitting}
+                            className={`h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 ${!amount || !category
+                                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                    : 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30 hover:bg-indigo-700'
+                                }`}
+                        >
+                            {isSubmitting ? (
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            ) : (
+                                <Check size={24} />
+                            )}
+                        </button>
                     </div>
                 </div>
 
