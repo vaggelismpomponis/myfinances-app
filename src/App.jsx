@@ -8,6 +8,7 @@ import {
 import {
     GoogleAuthProvider,
     signInWithPopup,
+    signInWithCredential,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     onAuthStateChanged,
@@ -25,6 +26,8 @@ import {
     updateDoc
 } from 'firebase/firestore';
 import { auth, db, appId } from './firebase';
+import { Capacitor } from '@capacitor/core';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 
 // Context
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
@@ -159,13 +162,24 @@ function MainContent() {
         return () => unsubscribe();
     }, []);
 
+
+
     const handleGoogleLogin = async () => {
         try {
-            const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
+            if (Capacitor.isNativePlatform()) {
+                const result = await FirebaseAuthentication.signInWithGoogle();
+                // Sign in to Firebase with the credential from the native plugin
+                if (result.credential?.idToken) {
+                    const credential = GoogleAuthProvider.credential(result.credential.idToken);
+                    await signInWithCredential(auth, credential);
+                }
+            } else {
+                const provider = new GoogleAuthProvider();
+                await signInWithPopup(auth, provider);
+            }
         } catch (error) {
             console.error("Google Auth error:", error);
-            showToast("Η σύνδεση με Google απέτυχε.", 'error');
+            showToast("Η σύνδεση με Google απέτυχε: " + (error.message || JSON.stringify(error)), 'error');
         }
     };
 
@@ -306,13 +320,13 @@ function MainContent() {
         if (!user) return;
 
         try {
-            if (editingTransaction) {
+            if (editingTransaction && editingTransaction.id) {
                 // Update existing
                 const txRef = doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', editingTransaction.id);
                 await updateDoc(txRef, transaction);
                 setEditingTransaction(null);
             } else {
-                // Add new
+                // Add new (Regular add or from Notification/Scanner without ID)
                 await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'transactions'), {
                     ...transaction,
                     date: new Date().toISOString()

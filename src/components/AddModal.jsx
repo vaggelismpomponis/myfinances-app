@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Camera, Layers, Mic } from 'lucide-react';
+import {
+    X, Camera, Layers, Mic, Delete,
+    Coffee, ShoppingBag, Home as HomeIcon, Smartphone,
+    Gift, Utensils, Wallet, TrendingUp, MoreHorizontal,
+    MessageSquare
+} from 'lucide-react';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 import { Capacitor } from '@capacitor/core';
 import ScannerModal from './ScannerModal';
@@ -15,6 +20,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
     const [showBulkScanner, setShowBulkScanner] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
+    const [showNote, setShowNote] = useState(false);
     const transcriptRef = useRef('');
     const recognitionRef = useRef(null);
 
@@ -41,11 +47,13 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
             setAmount(initialData.amount ? initialData.amount.toString() : '');
             setCategory(initialData.category || '');
             setNote(initialData.note || '');
+            setShowNote(!!(initialData.note));
         } else {
             // Reset if no data
             setAmount('');
             setCategory('');
             setNote('');
+            setShowNote(false);
         }
     }, [initialData]);
 
@@ -274,8 +282,43 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
         setCategory('');
     };
 
+    // Category icon mapping
+    const categoryIcons = {
+        'Σούπερ Μάρκετ': ShoppingBag,
+        'Φαγητό': Utensils,
+        'Καφές': Coffee,
+        'Σπίτι': HomeIcon,
+        'Λογαριασμοί': Smartphone,
+        'Διασκέδαση': Gift,
+        'Μισθός': Wallet,
+        'Δώρο': Gift,
+        'Επενδύσεις': TrendingUp,
+        'Άλλο': MoreHorizontal
+    };
+
+    // Numpad handler
+    const handleNumpadPress = (key) => {
+        if (key === 'backspace') {
+            setAmount(prev => prev.slice(0, -1));
+        } else if (key === '.') {
+            setAmount(prev => {
+                if (prev.includes('.')) return prev;
+                return prev === '' ? '0.' : prev + '.';
+            });
+        } else {
+            // Digit
+            setAmount(prev => {
+                if (prev === '0' && key !== '.') return key;
+                const decIndex = prev.indexOf('.');
+                if (decIndex !== -1 && prev.length - decIndex > 2) return prev;
+                if (prev.length >= 10) return prev;
+                return prev + key;
+            });
+        }
+    };
+
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         if (!amount || !category) return;
 
         setIsSubmitting(true);
@@ -341,25 +384,25 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4 animate-fade-in">
-            <div className="bg-white w-full max-w-md h-[90vh] sm:h-auto rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-up relative">
+            <div className="bg-white dark:bg-gray-800 w-full max-w-md h-[100dvh] sm:h-auto sm:max-h-[95vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-up relative transition-colors">
 
                 {/* Voice Input Overlay */}
                 {isListening && (
-                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md animate-fade-in p-6 text-center">
+                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-gray-900/95 backdrop-blur-md animate-fade-in p-6 text-center">
                         <div className="relative mb-8">
                             <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20"></div>
-                            <div className="relative bg-gradient-to-tr from-red-500 to-pink-500 p-6 rounded-full shadow-xl shadow-red-200">
+                            <div className="relative bg-gradient-to-tr from-red-500 to-pink-500 p-6 rounded-full shadow-xl shadow-red-200 dark:shadow-red-900/30">
                                 <Mic size={40} className="text-white" />
                             </div>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800 mb-3">Σας ακούω...</h3>
-                        <p className="text-lg text-gray-600 font-medium min-h-[4rem] flex items-center justify-center max-w-[80%]">
+                        <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">Σας ακούω...</h3>
+                        <p className="text-lg text-gray-600 dark:text-gray-300 font-medium min-h-[4rem] flex items-center justify-center max-w-[80%]">
                             {transcript || "Πείτε π.χ. '23 ευρώ φαγητό'"}
                         </p>
                         <div className="flex gap-4 mt-8">
                             <button
                                 onClick={stopListening}
-                                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-sm font-bold text-gray-500 transition-colors"
+                                className="px-6 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 active:bg-gray-300 rounded-full text-sm font-bold text-gray-500 dark:text-gray-300 transition-colors"
                             >
                                 Ακύρωση
                             </button>
@@ -368,7 +411,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                     if (transcript) processVoiceInput(transcript);
                                     stopListening();
                                 }}
-                                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-full text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all"
+                                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-full text-sm font-bold text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 transition-all"
                             >
                                 Ολοκλήρωση
                             </button>
@@ -376,144 +419,184 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                     </div>
                 )}
 
-                {/* Modal Header */}
-                <div className="p-4 flex justify-between items-center border-b border-gray-100 dark:border-gray-700">
-                    <button onClick={onClose} className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
-                        <X size={24} />
+                {/* ── Header ── */}
+                <div className="px-4 py-3 flex justify-between items-center border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
+                    <button onClick={onClose} className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
+                        <X size={22} />
                     </button>
                     <div className="text-center">
-                        <h3 className="text-lg font-bold text-gray-800 dark:text-white">
+                        <h3 className="text-base font-bold text-gray-800 dark:text-white">
                             {initialData ? 'Επεξεργασία' : 'Νέα Συναλλαγή'}
                         </h3>
                         {inBatchMode && (
                             <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
-                                {batchIndex + 1} από {batchQueue.length} αποδείξεις
+                                {batchIndex + 1} από {batchQueue.length}
                             </p>
                         )}
                     </div>
-                    <div className="w-10"></div>
+                    <button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={!amount || !category || isSubmitting}
+                        className={`text-sm font-bold px-4 py-1.5 rounded-full transition-all ${!amount || !category
+                            ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                            : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 active:scale-95'
+                            }`}
+                    >
+                        {isSubmitting ? (
+                            <div className="w-5 h-5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                        ) : initialData ? 'Ενημέρωση' : 'Αποθήκευση'}
+                    </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 flex-1 flex flex-col gap-6 overflow-y-auto">
-                    {/* Type Switcher */}
-                    <div className="bg-gray-100 p-1 rounded-xl flex">
-                        <button
-                            type="button"
-                            onClick={() => setType('expense')}
-                            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${type === 'expense' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500'}`}
-                        >
-                            Έξοδο
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setType('income')}
-                            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${type === 'income' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500'}`}
-                        >
-                            Έσοδο
-                        </button>
+                {/* ── Content area (scrollable if needed) ── */}
+                <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-h-0">
+
+                    {/* Type Toggle */}
+                    <div className="px-5 pt-4 pb-2 flex-shrink-0">
+                        <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded-xl flex">
+                            <button
+                                type="button"
+                                onClick={() => setType('expense')}
+                                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${type === 'expense'
+                                    ? 'bg-white dark:bg-gray-600 text-red-600 dark:text-red-400 shadow-sm'
+                                    : 'text-gray-400 dark:text-gray-400'
+                                    }`}
+                            >
+                                Έξοδο
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setType('income')}
+                                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${type === 'income'
+                                    ? 'bg-white dark:bg-gray-600 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                                    : 'text-gray-400 dark:text-gray-400'
+                                    }`}
+                            >
+                                Έσοδο
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Amount Input */}
-                    <div>
-                        <div className="flex justify-between items-end mb-2">
-                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ΠΟΣΟ</label>
-                            <div className="flex gap-2">
-                                <button
-                                    type="button"
-                                    onClick={startListening}
-                                    className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg transition-all text-white bg-gradient-to-r from-red-500 to-pink-500 shadow-md shadow-red-200 hover:shadow-lg hover:shadow-red-300 active:scale-95"
-                                >
-                                    <Mic size={14} />
-                                    Φωνή
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowScanner(true)}
-                                    className="flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
-                                >
-                                    <Camera size={14} />
-                                    Σάρωση
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowBulkScanner(true)}
-                                    className="flex items-center gap-1 text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 px-2 py-1 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-900/50 transition-colors"
-                                >
-                                    <Layers size={14} />
-                                    Πολλά
-                                </button>
-                            </div>
+                    {/* Amount Display */}
+                    <div className="px-5 py-4 text-center flex-shrink-0">
+                        <div className="flex items-baseline justify-center gap-1">
+                            <span className="text-2xl font-bold text-gray-300 dark:text-gray-500">€</span>
+                            <span className={`text-5xl font-extrabold tracking-tight transition-colors ${amount ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-600'
+                                }`}>
+                                {amount || '0'}
+                            </span>
                         </div>
-                        <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400">€</span>
+                    </div>
+
+                    {/* Category Chips with Icons */}
+                    <div className="px-4 pb-3 flex-shrink-0">
+                        <div className="flex flex-wrap gap-2 justify-center">
+                            {categories.map(cat => {
+                                const Icon = categoryIcons[cat] || MoreHorizontal;
+                                const isSelected = category === cat;
+                                return (
+                                    <button
+                                        key={cat}
+                                        type="button"
+                                        onClick={() => setCategory(cat)}
+                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all active:scale-95 ${isSelected
+                                                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                                                : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
+                                            }`}
+                                    >
+                                        <Icon size={14} />
+                                        <span>{cat}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Collapsible Note */}
+                    <div className="px-5 pb-2 flex-shrink-0">
+                        {showNote ? (
                             <input
-                                type="number"
-                                step="0.01"
-                                inputMode="decimal"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                placeholder="0.00"
-                                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 pl-10 pr-4 text-3xl font-bold text-gray-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all placeholder:text-gray-300"
+                                type="text"
+                                value={note}
+                                onChange={(e) => setNote(e.target.value)}
+                                placeholder="π.χ. Καφές με φίλους"
+                                autoFocus
+                                className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                                onBlur={() => { if (!note) setShowNote(false); }}
                             />
-                        </div>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => setShowNote(true)}
+                                className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors w-full justify-center py-1"
+                            >
+                                <MessageSquare size={14} />
+                                <span>Σημείωση...</span>
+                            </button>
+                        )}
                     </div>
 
-                    {/* Categories Grid */}
-                    <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">ΚΑΤΗΓΟΡΙΑ</label>
-                        <div className="grid grid-cols-3 gap-3">
-                            {categories.map(cat => (
-                                <button
-                                    key={cat}
-                                    type="button"
-                                    onClick={() => setCategory(cat)}
-                                    className={`py-3 px-2 rounded-xl text-sm font-medium border transition-all ${category === cat
-                                        ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm'
-                                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                                        }`}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
-                        </div>
+                    {/* Tool Strip — voice, scan, bulk */}
+                    <div className="px-5 pb-3 flex justify-center gap-3 flex-shrink-0">
+                        <button
+                            type="button"
+                            onClick={startListening}
+                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-white bg-gradient-to-r from-red-500 to-pink-500 shadow-md shadow-red-200/50 dark:shadow-red-900/30 hover:shadow-lg active:scale-95 transition-all"
+                        >
+                            <Mic size={14} />
+                            Φωνή
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setShowScanner(true)}
+                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 active:scale-95 transition-all"
+                        >
+                            <Camera size={14} />
+                            Σάρωση
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setShowBulkScanner(true)}
+                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/20 hover:bg-violet-100 dark:hover:bg-violet-500/30 active:scale-95 transition-all"
+                        >
+                            <Layers size={14} />
+                            Πολλά
+                        </button>
                     </div>
 
-                    {/* Note Input */}
-                    <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">ΣΗΜΕΙΩΣΗ (ΠΡΟΑΙΡΕΤΙΚΟ)</label>
-                        <input
-                            type="text"
-                            value={note}
-                            onChange={(e) => setNote(e.target.value)}
-                            placeholder="π.χ. Καφές με φίλους"
-                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-indigo-500"
-                        />
-                    </div>
-
-                    <div className="mt-auto pt-4 space-y-2">
-                        {inBatchMode && (
+                    {/* Batch Skip */}
+                    {inBatchMode && (
+                        <div className="px-5 pb-2 flex-shrink-0">
                             <button
                                 type="button"
                                 onClick={handleSkipBatchItem}
-                                className="w-full py-3 rounded-xl text-gray-600 dark:text-gray-300 font-semibold bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                className="w-full py-2.5 rounded-xl text-gray-600 dark:text-gray-300 font-semibold bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm"
                             >
                                 Παράλειψη
                             </button>
-                        )}
-                        <button
-                            type="submit"
-                            disabled={!amount || !category || isSubmitting}
-                            className={`w-full py-4 rounded-2xl text-white font-bold text-lg shadow-lg shadow-indigo-200 dark:shadow-indigo-900/50 transition-all flex justify-center items-center ${!amount || !category ? 'bg-gray-300 dark:bg-gray-600 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 active:scale-95'
-                                }`}
-                        >
-                            {isSubmitting ? (
-                                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                            ) : inBatchMode ? (
-                                batchIndex < batchQueue.length - 1 ? 'Επόμενο' : 'Αποθήκευση'
-                            ) : initialData ? 'Ενημέρωση' : 'Αποθήκευση'}
-                        </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* ── Numpad ── */}
+                <div className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex-shrink-0">
+                    <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+                        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'backspace'].map(key => (
+                            <button
+                                key={key}
+                                type="button"
+                                onClick={() => handleNumpadPress(key)}
+                                className={`h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 ${key === 'backspace'
+                                        ? 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                        : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-700'
+                                    }`}
+                            >
+                                {key === 'backspace' ? <Delete size={22} /> : key}
+                            </button>
+                        ))}
                     </div>
-                </form>
+                </div>
 
                 {showScanner && <ScannerModal onClose={() => setShowScanner(false)} onScanComplete={handleScanComplete} />}
                 {showBulkScanner && <BulkScannerModal onClose={() => setShowBulkScanner(false)} onScanComplete={handleBulkScanComplete} />}
