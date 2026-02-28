@@ -9,7 +9,8 @@ const EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφ
 const BudgetsView = ({ user, transactions }) => {
     const [budgets, setBudgets] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [editingBudget, setEditingBudget] = useState(null); // null = add mode, obj = edit mode
+    const [editingBudget, setEditingBudget] = useState(null);
+    const [deletingBudget, setDeletingBudget] = useState(null); // budget to confirm delete
 
     // Form State
     const [formCategory, setFormCategory] = useState('');
@@ -72,12 +73,18 @@ const BudgetsView = ({ user, transactions }) => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Διαγραφή αυτού του προϋπολογισμού;')) return;
+    const handleDelete = async (budget) => {
+        setDeletingBudget(budget);
+    };
+
+    const confirmDelete = async () => {
+        if (!deletingBudget) return;
         try {
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'budgets', id));
+            await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'budgets', deletingBudget.id));
         } catch (error) {
             console.error('Error deleting budget:', error);
+        } finally {
+            setDeletingBudget(null);
         }
     };
 
@@ -213,7 +220,7 @@ const BudgetsView = ({ user, transactions }) => {
                                         <Pencil size={13} /> Επεξεργασία
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(budget.id)}
+                                        onClick={() => handleDelete(budget)}
                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors active:scale-95"
                                     >
                                         <Trash2 size={13} /> Διαγραφή
@@ -313,6 +320,41 @@ const BudgetsView = ({ user, transactions }) => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Delete Confirmation Modal ── */}
+            {deletingBudget && (
+                <div className="fixed inset-0 z-50 flex items-end justify-center p-4 animate-fade-in sm:items-center">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setDeletingBudget(null)} />
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                        {/* Icon */}
+                        <div className="flex flex-col items-center text-center mb-5">
+                            <div className="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-500 dark:text-red-400 mb-3">
+                                <Trash2 size={26} />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Διαγραφή Προϋπολογισμού</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                Θέλεις σίγουρα να διαγράψεις τον προϋπολογισμό για
+                                <span className="font-semibold text-gray-700 dark:text-gray-200"> {deletingBudget.category}</span>;
+                            </p>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setDeletingBudget(null)}
+                                className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                            >
+                                Ακύρωση
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-200 dark:shadow-none transition-colors flex items-center justify-center gap-2"
+                            >
+                                <Trash2 size={15} /> Διαγραφή
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

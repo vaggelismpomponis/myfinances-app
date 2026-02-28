@@ -53,8 +53,8 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, onDelete, 
             {/* Quick Actions */}
             <div className="grid grid-cols-3 gap-4">
                 {[
-                    { icon: Target, label: t('budgets'), action: 'budgets' },
                     { icon: TrendingUp, label: t('goals'), action: 'goals' },
+                    { icon: Target, label: t('budgets'), action: 'budgets' },
                     { icon: MoreHorizontal, label: t('more'), action: 'profile' }
                 ].map((item, idx) => (
                     <div key={idx} className="flex flex-col items-center gap-2">

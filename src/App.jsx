@@ -361,18 +361,21 @@ function MainContent() {
         const now = new Date();
         const currentMonthStr = `${now.getFullYear()}-${now.getMonth() + 1}`;
 
-        // If already notified this month, skip
-        if (budget.lastNotifiedMonth === currentMonthStr) return;
+        // Skip if already notified at this threshold level this month
+        // Use lastNotifiedThreshold + lastNotifiedMonth to allow re-notification at higher thresholds
+        const alreadyNotified =
+            budget.lastNotifiedMonth === currentMonthStr &&
+            (budget.lastNotifiedPct || 0) >= budget.notificationThreshold;
+        if (alreadyNotified) return;
 
         let totalSpent = transaction.amount;
-
         transactions.forEach(t => {
             const tDate = new Date(t.date);
             if (t.type === 'expense' &&
-                t.id !== transaction.id && // Don't count it twice if editing
+                t.id !== transaction.id &&
                 tDate.getMonth() === now.getMonth() &&
                 tDate.getFullYear() === now.getFullYear() &&
-                ((t.category && t.category.toLowerCase() === budget.category.toLowerCase()) || (t.note && t.note.toLowerCase().includes(budget.category.toLowerCase())))) {
+                t.category?.toLowerCase() === budget.category.toLowerCase()) {
                 totalSpent += t.amount;
             }
         });
@@ -380,36 +383,15 @@ function MainContent() {
         const percentage = (totalSpent / budget.amount) * 100;
 
         if (percentage >= budget.notificationThreshold) {
-            console.log(`[BUDGET] Threshold exceeded for ${budget.category}: ${percentage.toFixed(0)}%`);
+            showToast(`⚠️ ${budget.category}: ${percentage.toFixed(0)}% του budget!`, 'warning');
 
-            if (Capacitor.isNativePlatform()) {
-                try {
-                    await LocalNotifications.schedule({
-                        notifications: [
-                            {
-                                title: "Προσοχή στο Budget!",
-                                body: `Έχεις ξοδέψει το ${percentage.toFixed(0)}% από το όριο σου στην ${budget.category}.`,
-                                id: new Date().getTime(),
-                                schedule: { at: new Date(Date.now() + 1000) },
-                                actionTypeId: "",
-                                extra: null
-                            }
-                        ]
-                    });
-                } catch (e) {
-                    console.error("Local Notification Error: ", e);
-                }
-            } else {
-                showToast(`Προσοχή: Έφτασες το ${percentage.toFixed(0)}% στο budget ${budget.category}`, 'warning');
-            }
-
-            // Prevent duplicate alerts this month
             try {
                 await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'budgets', budget.id), {
-                    lastNotifiedMonth: currentMonthStr
+                    lastNotifiedMonth: currentMonthStr,
+                    lastNotifiedPct: Math.floor(percentage)
                 });
             } catch (e) {
-                console.error("Error updating budget notification state", e);
+                console.error('Error updating budget notification state', e);
             }
         }
     };
