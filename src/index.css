@@ -2,30 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Prevent mobile browser chrome from causing layout shifts ── */
-html, body {
+/* ── Prevent mobile browser layout shifts ── */
+html,
+body {
   height: 100%;
-  overflow: hidden;
   overscroll-behavior: none;
-  /* Prevent pull-to-refresh and bottom-swipe gestures triggering browser UI */
-  touch-action: pan-x pan-y;
 }
 
 #root {
   height: 100%;
-  height: 100dvh; /* dynamic viewport — doesn't change when browser chrome hides */
+  height: 100dvh;
   overflow: hidden;
   overscroll-behavior: none;
 }
 
-.animate-fade-in { animation: fadeIn 0.3s ease-out; }
-.animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
