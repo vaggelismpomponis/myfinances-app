@@ -2,18 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Prevent mobile browser layout shifts ── */
+/* ── Stable viewport for mobile browsers ── */
 html,
 body {
   height: 100%;
-  overscroll-behavior: none;
 }
 
 #root {
   height: 100%;
   height: 100dvh;
   overflow: hidden;
-  overscroll-behavior: none;
 }
 
 .animate-fade-in {
