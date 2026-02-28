@@ -27,8 +27,8 @@ import {
 } from 'firebase/firestore';
 import { auth, db, appId } from './firebase';
 import { Capacitor } from '@capacitor/core';
-import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 
 // Context
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
@@ -385,6 +385,24 @@ function MainContent() {
         if (percentage >= budget.notificationThreshold) {
             showToast(`⚠️ ${budget.category}: ${percentage.toFixed(0)}% του budget!`, 'warning');
 
+            // Push notification on native devices
+            if (Capacitor.isNativePlatform()) {
+                try {
+                    await LocalNotifications.schedule({
+                        notifications: [{
+                            title: '⚠️ Budget Alert',
+                            body: `${budget.category}: έφτασες το ${percentage.toFixed(0)}% του ορίου!`,
+                            id: Math.floor(Math.random() * 100000),
+                            schedule: { at: new Date(Date.now() + 500) },
+                            actionTypeId: '',
+                            extra: null
+                        }]
+                    });
+                } catch (e) {
+                    console.error('Local Notification Error:', e);
+                }
+            }
+
             try {
                 await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'budgets', budget.id), {
                     lastNotifiedMonth: currentMonthStr,
@@ -435,11 +453,44 @@ function MainContent() {
     const confirmDelete = async () => {
         if (!user || !transactionToDelete) return;
         try {
+            // Find the transaction before deleting it so we can check its category
+            const deletedTx = transactions.find(t => t.id === transactionToDelete);
+
             await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', transactionToDelete));
             setShowDeleteModal(false);
             setTransactionToDelete(null);
+
+            // After deletion, recalculate spending for the affected budget.
+            // If it drops BELOW the threshold, reset lastNotifiedMonth so it can fire again.
+            if (deletedTx?.type === 'expense' && deletedTx.category) {
+                const affectedBudget = budgets.find(b =>
+                    b.category.toLowerCase() === deletedTx.category.toLowerCase()
+                );
+                if (affectedBudget && affectedBudget.lastNotifiedMonth) {
+                    const now = new Date();
+                    const remainingSpent = transactions
+                        .filter(t =>
+                            t.id !== transactionToDelete &&
+                            t.type === 'expense' &&
+                            t.category?.toLowerCase() === affectedBudget.category.toLowerCase() &&
+                            new Date(t.date).getMonth() === now.getMonth() &&
+                            new Date(t.date).getFullYear() === now.getFullYear()
+                        )
+                        .reduce((s, t) => s + t.amount, 0);
+
+                    const remainingPct = (remainingSpent / affectedBudget.amount) * 100;
+
+                    // If now below threshold → reset so next add fires the toast again
+                    if (remainingPct < affectedBudget.notificationThreshold) {
+                        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'budgets', affectedBudget.id), {
+                            lastNotifiedMonth: null,
+                            lastNotifiedPct: 0
+                        });
+                    }
+                }
+            }
         } catch (e) {
-            console.error("Error deleting:", e);
+            console.error('Error deleting:', e);
         }
     };
 
