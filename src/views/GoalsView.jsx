@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Target, TrendingUp, Plus, Trash2, PiggyBank } from 'lucide-react';
+import { ArrowLeft, Target, Plus, Trash2, PiggyBank, Pencil } from 'lucide-react';
 import { collection, addDoc, onSnapshot, query, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db, appId } from '../firebase';
 
@@ -13,6 +13,11 @@ const GoalsView = ({ user, onBack }) => {
     const [newGoalTitle, setNewGoalTitle] = useState('');
     const [newGoalTarget, setNewGoalTarget] = useState('');
     const [newGoalCurrent, setNewGoalCurrent] = useState('');
+
+    // Edit Goal state
+    const [editingGoal, setEditingGoal] = useState(null);
+    const [editTitle, setEditTitle] = useState('');
+    const [editTarget, setEditTarget] = useState('');
 
     // Form State for Add Money
     const [addMoneyAmount, setAddMoneyAmount] = useState('');
@@ -53,12 +58,30 @@ const GoalsView = ({ user, onBack }) => {
     };
 
     const handleDeleteGoal = async (id) => {
-        if (window.confirm('Διαγραφή αυτού του στόχου;')) {
-            try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'goals', id));
-            } catch (error) {
-                console.error("Error deleting goal:", error);
-            }
+        try {
+            await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'goals', id));
+        } catch (error) {
+            console.error('Error deleting goal:', error);
+        }
+    };
+
+    const openEditModal = (goal) => {
+        setEditingGoal(goal);
+        setEditTitle(goal.title);
+        setEditTarget(String(goal.targetAmount));
+    };
+
+    const handleEditGoal = async (e) => {
+        e.preventDefault();
+        if (!editingGoal || !editTitle || !editTarget) return;
+        try {
+            await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'goals', editingGoal.id), {
+                title: editTitle,
+                targetAmount: parseFloat(editTarget)
+            });
+            setEditingGoal(null);
+        } catch (error) {
+            console.error('Error editing goal:', error);
         }
     };
 
@@ -68,8 +91,7 @@ const GoalsView = ({ user, onBack }) => {
         setAddMoneyAmount('');
     };
 
-    const handleAddMoney = async (e) => {
-        e.preventDefault();
+    const handleAddMoney = async () => {
         if (!selectedGoal || !addMoneyAmount) return;
 
         try {
@@ -120,14 +142,7 @@ const GoalsView = ({ user, onBack }) => {
                             const percentage = Math.min(100, ((goal.currentAmount || 0) / goal.targetAmount) * 100);
 
                             return (
-                                <div key={goal.id} className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative group transition-colors duration-300">
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); handleDeleteGoal(goal.id); }}
-                                        className="absolute top-4 right-4 p-1.5 text-gray-300 hover:text-red-500 dark:text-gray-600 dark:hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 z-10"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-
+                                <div key={goal.id} className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="flex items-center gap-3">
                                             <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
@@ -141,19 +156,31 @@ const GoalsView = ({ user, onBack }) => {
                                         <span className="text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-lg text-xs">{percentage.toFixed(0)}%</span>
                                     </div>
                                     <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-3">
-                                        <div
-                                            className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                                            style={{ width: `${percentage}%` }}
-                                        /></div>
-                                    <div className="flex justify-between items-center">
-                                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                                            {(goal.currentAmount || 0).toLocaleString('el-GR', { minimumFractionDigits: 0 })}€ / {goal.targetAmount.toLocaleString('el-GR', { minimumFractionDigits: 0 })}€
-                                        </p>
+                                        <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${percentage}%` }} />
+                                    </div>
+                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-4">
+                                        {(goal.currentAmount || 0).toLocaleString('el-GR', { minimumFractionDigits: 0 })}€ / {goal.targetAmount.toLocaleString('el-GR', { minimumFractionDigits: 0 })}€
+                                    </p>
+
+                                    {/* Action Row */}
+                                    <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                        <button
+                                            onClick={() => openEditModal(goal)}
+                                            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors active:scale-95"
+                                        >
+                                            <Pencil size={13} /> Επεξεργασία
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteGoal(goal.id)}
+                                            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors active:scale-95"
+                                        >
+                                            <Trash2 size={13} /> Διαγραφή
+                                        </button>
                                         <button
                                             onClick={() => openAddMoneyModal(goal)}
-                                            className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
+                                            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors active:scale-95"
                                         >
-                                            + Προσθήκη
+                                            <Plus size={13} /> Προσθήκη
                                         </button>
                                     </div>
                                 </div>
@@ -224,55 +251,119 @@ const GoalsView = ({ user, onBack }) => {
                 )
             }
 
+            {/* Edit Goal Modal */}
+            {editingGoal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setEditingGoal(null)} />
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Επεξεργασία Στόχου</h3>
+                        <form onSubmit={handleEditGoal} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Τίτλος</label>
+                                <input
+                                    type="text"
+                                    value={editTitle}
+                                    onChange={(e) => setEditTitle(e.target.value)}
+                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Ποσό Στόχος (€)</label>
+                                <input
+                                    type="number"
+                                    value={editTarget}
+                                    onChange={(e) => setEditTarget(e.target.value)}
+                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                                    required
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button type="button" onClick={() => setEditingGoal(null)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl">
+                                    Ακύρωση
+                                </button>
+                                <button type="submit" className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none">
+                                    Αποθήκευση
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Add Money Modal */}
-            {
-                showMoneyModal && selectedGoal && (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in">
+            {showMoneyModal && selectedGoal && (() => {
+                const handleNumpad = (key) => {
+                    if (key === '⌫') {
+                        setAddMoneyAmount(prev => prev.slice(0, -1));
+                    } else if (key === '.') {
+                        if (!addMoneyAmount.includes('.')) setAddMoneyAmount(prev => prev + '.');
+                    } else {
+                        if (addMoneyAmount === '0') setAddMoneyAmount(key);
+                        else setAddMoneyAmount(prev => prev + key);
+                    }
+                };
+                const numKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'];
+                return (
+                    <div className="fixed inset-0 z-[60] flex items-end justify-center animate-fade-in">
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowMoneyModal(false)} />
-                        <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full">
-                                    <PiggyBank size={24} />
+                        <div className="bg-white dark:bg-gray-800 rounded-t-3xl w-full max-w-sm relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                            {/* Handle */}
+                            <div className="flex justify-center pt-3 pb-1"><div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" /></div>
+
+                            {/* Header */}
+                            <div className="flex items-center gap-3 px-6 pb-2 pt-2">
+                                <div className="p-2.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full">
+                                    <PiggyBank size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Προσθήκη Χρημάτων</h3>
+                                    <h3 className="font-bold text-gray-900 dark:text-white">Προσθήκη Χρημάτων</h3>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">{selectedGoal.title}</p>
                                 </div>
                             </div>
 
-                            <form onSubmit={handleAddMoney} className="space-y-4">
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Ποσό (€)</label>
-                                    <input
-                                        type="number"
-                                        placeholder="50"
-                                        value={addMoneyAmount}
-                                        onChange={(e) => setAddMoneyAmount(e.target.value)}
-                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-lg font-bold text-center"
-                                        autoFocus
-                                        required
-                                    />
-                                </div>
-                                <div className="flex gap-3 pt-2">
+                            {/* Amount Display */}
+                            <div className="px-6 py-4 text-center">
+                                <p className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                                    {addMoneyAmount || '0'}<span className="text-2xl text-gray-400 ml-1">€</span>
+                                </p>
+                            </div>
+
+                            {/* Numpad */}
+                            <div className="grid grid-cols-3 gap-px bg-gray-100 dark:bg-gray-700 border-t border-gray-100 dark:border-gray-700">
+                                {numKeys.map(key => (
                                     <button
-                                        type="button"
-                                        onClick={() => setShowMoneyModal(false)}
-                                        className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl"
+                                        key={key}
+                                        onClick={() => handleNumpad(key)}
+                                        className={`py-4 text-xl font-semibold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 active:bg-gray-100 dark:active:bg-gray-600 transition-colors
+                                            ${key === '⌫' ? 'text-red-500' : 'text-gray-800 dark:text-gray-100'}`}
                                     >
-                                        Ακύρωση
+                                        {key}
                                     </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 dark:shadow-none"
-                                    >
-                                        Προσθήκη
-                                    </button>
-                                </div>
-                            </form>
+                                ))}
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-3 p-4 pb-8">
+                                <button
+                                    onClick={() => { setShowMoneyModal(false); setAddMoneyAmount(''); }}
+                                    className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-2xl"
+                                >
+                                    Ακύρωση
+                                </button>
+                                <button
+                                    onClick={handleAddMoney}
+                                    disabled={!addMoneyAmount || addMoneyAmount === '0'}
+                                    className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-white font-bold rounded-2xl shadow-lg shadow-emerald-200 dark:shadow-none transition-colors"
+                                >
+                                    Προσθήκη
+                                </button>
+                            </div>
                         </div>
                     </div>
-                )
-            }
+                );
+            })()}
         </div >
     );
 };
