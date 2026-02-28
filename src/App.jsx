@@ -594,8 +594,6 @@ function MainContent() {
                     )}
                     {activeTab === 'stats' && <StatsView transactions={transactions} />}
                     {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
-                    {activeTab === 'goals' && <GoalsView user={user} onBack={() => setActiveTab('home')} />}
-                    {activeTab === 'budgets' && <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />}
 
                 </div>
 
@@ -643,15 +641,31 @@ function MainContent() {
                     </div>
                 )}
 
-                {/* Floating Add Button (Center) */}
-                <div className="absolute bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-20">
-                    <button
-                        onClick={() => { setEditingTransaction(null); setShowAddModal(true); }}
-                        className="bg-gray-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white p-5 rounded-full shadow-xl shadow-indigo-200 dark:shadow-indigo-900/50 transition-transform active:scale-90 flex items-center justify-center"
-                    >
-                        <Plus size={32} />
-                    </button>
-                </div>
+                {/* Goals Overlay */}
+                {activeTab === 'goals' && (
+                    <div className="absolute inset-0 z-50 bg-[#F9F9F9] dark:bg-gray-900 flex flex-col">
+                        <GoalsView user={user} onBack={() => setActiveTab('home')} />
+                    </div>
+                )}
+
+                {/* Budgets Overlay */}
+                {activeTab === 'budgets' && (
+                    <div className="absolute inset-0 z-50 bg-[#F9F9F9] dark:bg-gray-900 flex flex-col">
+                        <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />
+                    </div>
+                )}
+
+                {/* Floating Add Button — hidden on sub-pages */}
+                {!['goals', 'budgets', 'profile', 'recurring', 'general', 'security'].includes(activeTab) && (
+                    <div className="absolute bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-20">
+                        <button
+                            onClick={() => { setEditingTransaction(null); setShowAddModal(true); }}
+                            className="bg-gray-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white p-5 rounded-full shadow-xl shadow-indigo-200 dark:shadow-indigo-900/50 transition-transform active:scale-90 flex items-center justify-center"
+                        >
+                            <Plus size={32} />
+                        </button>
+                    </div>
+                )}
 
                 {/* Bottom Navigation */}
                 <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />

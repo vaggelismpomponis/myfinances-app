@@ -18,10 +18,11 @@ import {
     Bar,
     Legend
 } from 'recharts';
-import { Filter, Calendar, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { Filter, Calendar, TrendingUp, TrendingDown, X, ChevronRight, ArrowDownLeft } from 'lucide-react';
 
 const StatsView = ({ transactions }) => {
-    const [timeRange, setTimeRange] = useState('thisMonth'); // 'thisMonth', 'lastMonth', 'year', 'all'
+    const [timeRange, setTimeRange] = useState('thisMonth');
+    const [selectedCategory, setSelectedCategory] = useState(null); // for drill-down modal
 
     // 1. Filter Transactions based on Time Range
     const filteredTransactions = useMemo(() => {
@@ -128,34 +129,6 @@ const StatsView = ({ transactions }) => {
                 </Card>
             </div>
 
-            {/* Cash Flow Chart */}
-            <div className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8 h-72">
-                <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">Ροή Χρημάτων</h3>
-                {trendData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={trendData}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" opacity={0.3} />
-                            <XAxis
-                                dataKey="date"
-                                tickLine={false}
-                                axisLine={false}
-                                tick={{ fontSize: 10, fill: '#9CA3AF' }}
-                            />
-                            <Tooltip
-                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                cursor={{ fill: 'rgba(99, 102, 241, 0.1)' }}
-                            />
-                            <Bar dataKey="income" name="Έσοδα" fill="#10b981" radius={[4, 4, 0, 0]} />
-                            <Bar dataKey="expense" name="Έξοδα" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                ) : (
-                    <div className="h-full flex items-center justify-center text-gray-400 text-xs">
-                        Δεν υπάρχουν δεδομένα
-                    </div>
-                )}
-            </div>
-
             {/* Category Distribution (Donut) */}
             <div className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
                 <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">Κατανομή Εξόδων</h3>
@@ -203,22 +176,107 @@ const StatsView = ({ transactions }) => {
                     <p className="text-gray-500 text-center py-4 opacity-50">Δεν υπάρχουν έξοδα.</p>
                 ) : (
                     categoryData.map((cat, index) => (
-                        <div key={cat.name} className="bg-white dark:bg-gray-800 p-3 rounded-2xl flex justify-between items-center shadow-sm border border-gray-50 dark:border-gray-700">
+                        <button
+                            key={cat.name}
+                            onClick={() => setSelectedCategory(cat.name)}
+                            className="w-full bg-white dark:bg-gray-800 p-3 rounded-2xl flex justify-between items-center shadow-sm border border-gray-50 dark:border-gray-700 active:scale-[0.98] transition-transform"
+                        >
                             <div className="flex items-center gap-3">
                                 <div
                                     className="w-2 h-8 rounded-full"
                                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                                ></div>
+                                />
                                 <div className="flex items-center gap-2">
                                     <CategoryIcon category={cat.name} type="expense" />
                                     <span className="font-semibold text-gray-700 dark:text-gray-300 capitalize">{cat.name}</span>
                                 </div>
                             </div>
-                            <span className="font-bold text-gray-900 dark:text-white">{cat.value.toFixed(2)}€</span>
-                        </div>
+                            <div className="flex items-center gap-2">
+                                <span className="font-bold text-gray-900 dark:text-white">{cat.value.toFixed(2)}€</span>
+                                <ChevronRight size={14} className="text-gray-400" />
+                            </div>
+                        </button>
                     ))
                 )}
             </div>
+
+            {/* Cash Flow Chart — at the bottom */}
+            <div className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mt-8 mb-8 h-72">
+                <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">Ροή Χρημάτων</h3>
+                {trendData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={trendData}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" opacity={0.3} />
+                            <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                            <Tooltip
+                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                cursor={{ fill: 'rgba(99, 102, 241, 0.1)' }}
+                            />
+                            <Bar dataKey="income" name="Έσοδα" fill="#10b981" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="expense" name="Έξοδα" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <div className="h-full flex items-center justify-center text-gray-400 text-xs">Δεν υπάρχουν δεδομένα</div>
+                )}
+            </div>
+
+            {/* ── Category Drill-Down Bottom Sheet ── */}
+            {selectedCategory && (() => {
+                const catTxs = filteredTransactions
+                    .filter(t => t.type === 'expense' && t.category === selectedCategory)
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                const total = catTxs.reduce((s, t) => s + t.amount, 0);
+                const color = COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length];
+
+                return (
+                    <div className="fixed inset-0 z-50 flex items-end animate-fade-in">
+                        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedCategory(null)} />
+                        <div className="relative z-10 w-full bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl max-h-[80vh] flex flex-col">
+                            {/* Handle */}
+                            <div className="flex justify-center pt-3 pb-1">
+                                <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                            </div>
+
+                            {/* Header */}
+                            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+                                    <h3 className="font-bold text-gray-900 dark:text-white text-lg capitalize">{selectedCategory}</h3>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="font-extrabold text-lg" style={{ color }}>{total.toFixed(2)}€</span>
+                                    <button onClick={() => setSelectedCategory(null)} className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400">
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Transactions list */}
+                            <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
+                                {catTxs.length === 0 ? (
+                                    <p className="text-center text-gray-400 py-8">Τα εγγραφή βρέθηκαν.</p>
+                                ) : catTxs.map(t => (
+                                    <div key={t.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-3 rounded-2xl">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 rounded-xl" style={{ backgroundColor: color + '22' }}>
+                                                <ArrowDownLeft size={16} style={{ color }} />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm">{t.note || t.category}</p>
+                                                <p className="text-xs text-gray-400">
+                                                    {new Date(t.date).toLocaleDateString('el-GR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <span className="font-bold text-red-500">-{t.amount.toFixed(2)}€</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
         </div>
     );
 };
