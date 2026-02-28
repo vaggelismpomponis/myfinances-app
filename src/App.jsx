@@ -28,6 +28,7 @@ import {
 import { auth, db, appId } from './firebase';
 import { Capacitor } from '@capacitor/core';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 // Context
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
@@ -46,8 +47,6 @@ import LockScreen from './views/LockScreen';
 import HomeView from './views/HomeView';
 import StatsView from './views/StatsView';
 import HistoryView from './views/HistoryView';
-import WalletView from './views/WalletView';
-import CardsView from './views/CardsView';
 import GoalsView from './views/GoalsView';
 import BudgetsView from './views/BudgetsView';
 import AddModal from './components/AddModal';
@@ -65,6 +64,7 @@ function MainContent() {
     const [transactionToDelete, setTransactionToDelete] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
+    const [budgets, setBudgets] = useState([]); // New budgets state
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
@@ -244,6 +244,39 @@ function MainContent() {
         return () => unsubscribe();
     }, [user]);
 
+    // 2.5 Fetch Budgets
+    useEffect(() => {
+        if (!user) {
+            setBudgets([]);
+            return;
+        }
+
+        const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'budgets'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setBudgets(data);
+        });
+
+        const requestPermissions = async () => {
+            if (Capacitor.isNativePlatform()) {
+                try {
+                    let permStatus = await LocalNotifications.checkPermissions();
+                    if (permStatus.display === 'prompt') {
+                        permStatus = await LocalNotifications.requestPermissions();
+                    }
+                } catch (e) {
+                    console.error("Local Notifications not available", e);
+                }
+            }
+        };
+        requestPermissions();
+
+        return () => unsubscribe();
+    }, [user]);
+
     // 3. Process Recurring Transactions
     useEffect(() => {
         if (!user) return;
@@ -315,11 +348,83 @@ function MainContent() {
     const totalIncome = useMemo(() => transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0), [transactions]);
     const totalExpense = useMemo(() => transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0), [transactions]);
 
+    const checkBudgetThresholds = async (transaction) => {
+        if (transaction.type !== 'expense' || !transaction.category) return;
+
+        // Find matching budget by exact category match (standardized from dropdown)
+        const budget = budgets.find(b =>
+            b.category.toLowerCase() === transaction.category.toLowerCase()
+        );
+
+        if (!budget || !budget.notificationThreshold) return;
+
+        const now = new Date();
+        const currentMonthStr = `${now.getFullYear()}-${now.getMonth() + 1}`;
+
+        // If already notified this month, skip
+        if (budget.lastNotifiedMonth === currentMonthStr) return;
+
+        let totalSpent = transaction.amount;
+
+        transactions.forEach(t => {
+            const tDate = new Date(t.date);
+            if (t.type === 'expense' &&
+                t.id !== transaction.id && // Don't count it twice if editing
+                tDate.getMonth() === now.getMonth() &&
+                tDate.getFullYear() === now.getFullYear() &&
+                ((t.category && t.category.toLowerCase() === budget.category.toLowerCase()) || (t.note && t.note.toLowerCase().includes(budget.category.toLowerCase())))) {
+                totalSpent += t.amount;
+            }
+        });
+
+        const percentage = (totalSpent / budget.amount) * 100;
+
+        if (percentage >= budget.notificationThreshold) {
+            console.log(`[BUDGET] Threshold exceeded for ${budget.category}: ${percentage.toFixed(0)}%`);
+
+            if (Capacitor.isNativePlatform()) {
+                try {
+                    await LocalNotifications.schedule({
+                        notifications: [
+                            {
+                                title: "Προσοχή στο Budget!",
+                                body: `Έχεις ξοδέψει το ${percentage.toFixed(0)}% από το όριο σου στην ${budget.category}.`,
+                                id: new Date().getTime(),
+                                schedule: { at: new Date(Date.now() + 1000) },
+                                actionTypeId: "",
+                                extra: null
+                            }
+                        ]
+                    });
+                } catch (e) {
+                    console.error("Local Notification Error: ", e);
+                }
+            } else {
+                showToast(`Προσοχή: Έφτασες το ${percentage.toFixed(0)}% στο budget ${budget.category}`, 'warning');
+            }
+
+            // Prevent duplicate alerts this month
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'budgets', budget.id), {
+                    lastNotifiedMonth: currentMonthStr
+                });
+            } catch (e) {
+                console.error("Error updating budget notification state", e);
+            }
+        }
+    };
+
     // Handlers
     const addTransaction = async (transaction) => {
         if (!user) return;
 
         try {
+            let txId = editingTransaction?.id;
+            const newTx = {
+                ...transaction,
+                date: editingTransaction && editingTransaction.id ? transaction.date : new Date().toISOString()
+            };
+
             if (editingTransaction && editingTransaction.id) {
                 // Update existing
                 const txRef = doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', editingTransaction.id);
@@ -327,12 +432,13 @@ function MainContent() {
                 setEditingTransaction(null);
             } else {
                 // Add new (Regular add or from Notification/Scanner without ID)
-                await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'transactions'), {
-                    ...transaction,
-                    date: new Date().toISOString()
-                });
+                const docRef = await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'transactions'), newTx);
+                txId = docRef.id;
             }
             setShowAddModal(false);
+
+            // Check budgets
+            await checkBudgetThresholds({ ...newTx, id: txId });
         } catch (e) {
             console.error("Error saving document: ", e);
             showToast("Σφάλμα αποθήκευσης. Προσπάθησε ξανά.", 'error');
@@ -455,8 +561,6 @@ function MainContent() {
                     )}
                     {activeTab === 'stats' && <StatsView transactions={transactions} />}
                     {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
-                    {activeTab === 'wallet' && <WalletView onBack={() => setActiveTab('home')} user={user} />}
-                    {activeTab === 'cards' && <CardsView onBack={() => setActiveTab('home')} />}
                     {activeTab === 'goals' && <GoalsView user={user} onBack={() => setActiveTab('home')} />}
                     {activeTab === 'budgets' && <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />}
 

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     ArrowLeft,
     Globe,
-    Euro,
     Download,
     Trash2,
     Check
@@ -17,7 +16,7 @@ import { openNotificationSettings } from '../utils/notificationListener';
 import { Capacitor } from '@capacitor/core';
 
 const GeneralSettingsView = ({ user, onBack }) => {
-    const { currency, updateCurrency, language, updateLanguage, t: translate } = useSettings();
+    const { language, updateLanguage, t: translate } = useSettings();
     const { showToast } = useToast();
     const [showClearDataModal, setShowClearDataModal] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
@@ -144,28 +143,6 @@ const GeneralSettingsView = ({ user, onBack }) => {
                 <div>
                     <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-2">{translate('regional_settings')}</h3>
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden text-sm">
-
-                        {/* Currency */}
-                        <div className="flex items-center justify-between p-4 border-b border-gray-50 dark:border-gray-700">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><Euro size={18} /></div>
-                                <span className="font-medium text-gray-700 dark:text-gray-200">{translate('currency')}</span>
-                            </div>
-                            <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-                                <button
-                                    onClick={() => updateCurrency('€')}
-                                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${currency === '€' ? 'bg-white dark:bg-gray-600 shadow text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'}`}
-                                >
-                                    EUR
-                                </button>
-                                <button
-                                    onClick={() => updateCurrency('$')}
-                                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${currency === '$' ? 'bg-white dark:bg-gray-600 shadow text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'}`}
-                                >
-                                    USD
-                                </button>
-                            </div>
-                        </div>
 
                         {/* Language */}
                         <div className="flex items-center justify-between p-4">
