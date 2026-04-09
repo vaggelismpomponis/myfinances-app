@@ -51,6 +51,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
     const isDark = theme === 'dark';
     const { showToast } = useToast();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showApkModal, setShowApkModal] = useState(false);
     const [imgError, setImgError] = useState(false);
 
     useEffect(() => { setImgError(false); }, [user.photoURL]);
@@ -159,14 +160,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                             sublabel={translate('install_android_desc')}
                             color="text-green-500 dark:text-green-400"
                             bg="bg-green-50 dark:bg-green-500/10"
-                            onClick={() => {
-                                const link = document.createElement('a');
-                                link.href = '/SpendWise.apk';
-                                link.download = 'SpendWise.apk';
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
-                            }}
+                            onClick={() => setShowApkModal(true)}
                         />
                         <SettingRow
                             icon={Settings}
@@ -217,6 +211,23 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                     </p>
                 </div>
             </div>
+
+            <ConfirmationModal
+                isOpen={showApkModal}
+                onClose={() => setShowApkModal(false)}
+                onConfirm={() => {
+                    const link = document.createElement('a');
+                    link.href = '/SpendWise.apk';
+                    link.download = 'SpendWise.apk';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }}
+                title={translate('apk_install_title')}
+                message={translate('apk_install_instructions')}
+                confirmText={translate('download_apk')}
+                type="primary"
+            />
 
             <ConfirmationModal
                 isOpen={showLogoutModal}
