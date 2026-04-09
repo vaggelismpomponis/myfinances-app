@@ -1,224 +1,303 @@
-import React, { useState, useMemo } from 'react'; // Updated StatsView
-import Card from '../components/Card';
+import React, { useState, useMemo } from 'react';
 import CategoryIcon from '../components/CategoryIcon';
 import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    Area,
-    AreaChart,
-    PieChart,
-    Pie,
-    Cell,
-    BarChart,
-    Bar,
-    Legend
+    AreaChart, Area,
+    BarChart, Bar,
+    PieChart, Pie, Cell,
+    XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
-import { Filter, Calendar, TrendingUp, TrendingDown, X, ChevronRight, ArrowDownLeft } from 'lucide-react';
+import { TrendingUp, TrendingDown, X, ChevronRight, ArrowDownLeft, BarChart2 } from 'lucide-react';
+import { useSettings } from '../contexts/SettingsContext';
+
+/* ─── Palette ─── */
+const COLORS = ['#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#ef4444'];
+
+/* ─── Custom Tooltip ─── */
+const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload?.length) return null;
+    return (
+        <div className="bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-transparent
+                        rounded-2xl p-3 shadow-glass text-xs">
+            <p className="font-bold text-gray-500 dark:text-gray-400 mb-1.5">{label}</p>
+            {payload.map(p => (
+                <div key={p.name} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ background: p.color }} />
+                    <span className="text-gray-600 dark:text-gray-300">{p.name}:</span>
+                    <span className="font-bold text-gray-800 dark:text-white">{p.value.toFixed(2)}€</span>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+/* ─── Time filter button ─── */
+const TimeBtn = ({ value, label, active, onClick }) => (
+    <button
+        onClick={() => onClick(value)}
+        className={`flex-1 py-2.5 px-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200
+                    ${active
+                        ? 'bg-white dark:bg-white/10 text-violet-700 dark:text-white shadow-sm'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    }`}
+    >
+        {label}
+    </button>
+);
 
 const StatsView = ({ transactions }) => {
+    const { t } = useSettings();
     const [timeRange, setTimeRange] = useState('thisMonth');
-    const [selectedCategory, setSelectedCategory] = useState(null); // for drill-down modal
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
-    // 1. Filter Transactions based on Time Range
+    /* ── Filter ── */
     const filteredTransactions = useMemo(() => {
         const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-
-        return transactions.filter(t => {
-            const tDate = new Date(t.date);
-
-            if (timeRange === 'thisMonth') {
-                return tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear;
-            }
+        return transactions.filter(tx => {
+            const d = new Date(tx.date);
+            if (timeRange === 'thisMonth')
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
             if (timeRange === 'lastMonth') {
-                const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                return tDate.getMonth() === lastMonthDate.getMonth() && tDate.getFullYear() === lastMonthDate.getFullYear();
+                const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                return d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear();
             }
-            if (timeRange === 'year') {
-                return tDate.getFullYear() === currentYear;
-            }
+            if (timeRange === 'year') return d.getFullYear() === now.getFullYear();
             return true;
         });
     }, [transactions, timeRange]);
 
-    // 2. Trend Data (Cumulative/Daily)
+    /* ── Trend data ── */
     const trendData = useMemo(() => {
-        const sorted = [...filteredTransactions].sort((a, b) => new Date(a.date) - new Date(b.date));
-        const dailyData = {};
-
-        sorted.forEach(t => {
-            const dateStr = new Date(t.date).toLocaleDateString('el-GR', { day: '2-digit', month: 'short' });
-
-            if (!dailyData[dateStr]) dailyData[dateStr] = { date: dateStr, income: 0, expense: 0 };
-
-            if (t.type === 'income') dailyData[dateStr].income += t.amount;
-            if (t.type === 'expense') dailyData[dateStr].expense += t.amount;
-        });
-
-        return Object.values(dailyData);
+        const daily = {};
+        [...filteredTransactions]
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .forEach(t => {
+                const key = new Date(t.date).toLocaleDateString('el-GR', { day: '2-digit', month: 'short' });
+                if (!daily[key]) daily[key] = { date: key, income: 0, expense: 0 };
+                if (t.type === 'income')  daily[key].income  += t.amount;
+                if (t.type === 'expense') daily[key].expense += t.amount;
+            });
+        return Object.values(daily);
     }, [filteredTransactions]);
 
-    // 3. Category Data for Pie Chart
+    /* ── Category data ── */
     const categoryData = useMemo(() => {
         const groups = {};
         filteredTransactions.filter(t => t.type === 'expense').forEach(t => {
             groups[t.category] = (groups[t.category] || 0) + t.amount;
         });
-
         return Object.entries(groups)
             .map(([name, value]) => ({ name, value }))
             .sort((a, b) => b.value - a.value);
     }, [filteredTransactions]);
 
-    // 4. Totals
-    const totalIncome = useMemo(() => filteredTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0), [filteredTransactions]);
-    const totalExpense = useMemo(() => filteredTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0), [filteredTransactions]);
-    const cashFlow = totalIncome - totalExpense;
+    const totalIncome  = useMemo(() => filteredTransactions.filter(t => t.type === 'income').reduce((a, t) => a + t.amount, 0), [filteredTransactions]);
+    const totalExpense = useMemo(() => filteredTransactions.filter(t => t.type === 'expense').reduce((a, t) => a + t.amount, 0), [filteredTransactions]);
+    const cashFlow     = totalIncome - totalExpense;
 
-    const COLORS = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#3b82f6'];
-
-    const TimeFilterButton = ({ value, label }) => (
-        <button
-            onClick={() => setTimeRange(value)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${timeRange === value
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none'
-                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                }`}
-        >
-            {label}
-        </button>
-    );
+    const TIME_FILTERS = [
+        { value: 'thisMonth', label: 'Αυτός ο μήνας' },
+        { value: 'lastMonth', label: 'Προηγ. Μήνας' },
+        { value: 'year',      label: 'Φέτος' },
+        { value: 'all',       label: 'Όλα' },
+    ];
 
     return (
-        <div className="pb-24 animate-fade-in">
+        <div className="pb-28 animate-fade-in space-y-5">
 
-
-            {/* Date Filters */}
-            <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-                <TimeFilterButton value="thisMonth" label="Αυτός ο μήνας" />
-                <TimeFilterButton value="lastMonth" label="Προηγ. Μήνας" />
-                <TimeFilterButton value="year" label="Φέτος" />
-                <TimeFilterButton value="all" label="Όλα" />
+            {/* ── Time Filter (segmented) ── */}
+            <div className="flex gap-1 bg-gray-100 dark:bg-surface-dark3
+                            rounded-2xl p-1 border border-gray-200 dark:border-transparent">
+                {TIME_FILTERS.map(f => (
+                    <TimeBtn key={f.value} value={f.value} label={f.label}
+                             active={timeRange === f.value} onClick={setTimeRange} />
+                ))}
             </div>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-2 gap-4 mb-8">
-                <Card className="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="p-1.5 bg-emerald-100 dark:bg-emerald-800 rounded-lg">
-                            <TrendingUp size={14} className="text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                        <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">Έσοδα</p>
+            {/* ── Summary cards ── */}
+            <div className="grid grid-cols-3 gap-3">
+                {/* Income */}
+                <div className="col-span-1 bg-emerald-50 dark:bg-emerald-900/20
+                                border border-emerald-100 dark:border-transparent
+                                rounded-2xl p-3.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/50
+                                    flex items-center justify-center mb-2">
+                        <TrendingUp size={14} className="text-emerald-600 dark:text-emerald-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-100">{totalIncome.toLocaleString('el-GR', { style: 'currency', currency: 'EUR' })}</h3>
-                </Card>
-                <Card className="bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-800">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="p-1.5 bg-red-100 dark:bg-red-800 rounded-lg">
-                            <TrendingDown size={14} className="text-red-600 dark:text-red-400" />
-                        </div>
-                        <p className="text-xs font-bold text-red-800 dark:text-red-300">Έξοδα</p>
+                    <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-0.5">Έσοδα</p>
+                    <p className="text-sm font-black text-emerald-800 dark:text-emerald-100">
+                        {totalIncome.toLocaleString('el-GR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                    </p>
+                </div>
+                {/* Expense */}
+                <div className="col-span-1 bg-rose-50 dark:bg-rose-900/20
+                                border border-rose-100 dark:border-transparent
+                                rounded-2xl p-3.5">
+                    <div className="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-900/50
+                                    flex items-center justify-center mb-2">
+                        <TrendingDown size={14} className="text-rose-600 dark:text-rose-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-red-900 dark:text-red-100">{totalExpense.toLocaleString('el-GR', { style: 'currency', currency: 'EUR' })}</h3>
-                </Card>
+                    <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wide mb-0.5">Έξοδα</p>
+                    <p className="text-sm font-black text-rose-800 dark:text-rose-100">
+                        {totalExpense.toLocaleString('el-GR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                    </p>
+                </div>
+                {/* Cash flow */}
+                <div className={`col-span-1 rounded-2xl p-3.5 border dark:border-transparent
+                                 ${cashFlow >= 0
+                                    ? 'bg-violet-50 dark:bg-violet-900/20 border-violet-100'
+                                    : 'bg-orange-50 dark:bg-orange-900/20 border-orange-100'
+                                 }`}>
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center mb-2
+                                     ${cashFlow >= 0
+                                        ? 'bg-violet-100 dark:bg-violet-900/50'
+                                        : 'bg-orange-100 dark:bg-orange-900/50'
+                                     }`}>
+                        <BarChart2 size={14} className={cashFlow >= 0 ? 'text-violet-600 dark:text-violet-400' : 'text-orange-600 dark:text-orange-400'} />
+                    </div>
+                    <p className={`text-[10px] font-bold uppercase tracking-wide mb-0.5
+                                   ${cashFlow >= 0 ? 'text-violet-600 dark:text-violet-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                        Ροή
+                    </p>
+                    <p className={`text-sm font-black
+                                   ${cashFlow >= 0 ? 'text-violet-800 dark:text-violet-100' : 'text-orange-800 dark:text-orange-100'}`}>
+                        {cashFlow >= 0 ? '+' : ''}{cashFlow.toLocaleString('el-GR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                    </p>
+                </div>
             </div>
 
-            {/* Category Distribution (Donut) */}
-            <div className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
-                <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">Κατανομή Εξόδων</h3>
-                <div className="h-64 flex flex-col items-center">
-                    {categoryData.length > 0 ? (
+            {/* ── Donut / Category Distribution ── */}
+            <div className="bg-white dark:bg-surface-dark3
+                            border border-gray-100 dark:border-transparent
+                            rounded-3xl p-5 shadow-card dark:shadow-card-dark">
+                <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-4">
+                    Κατανομή Εξόδων
+                </h3>
+                {categoryData.length > 0 ? (
+                    <div className="h-52">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
                                     data={categoryData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={5}
+                                    cx="50%" cy="50%"
+                                    innerRadius={55} outerRadius={80}
+                                    paddingAngle={4}
                                     dataKey="value"
+                                    strokeWidth={0}
                                 >
-                                    {categoryData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    {categoryData.map((_, i) => (
+                                        <Cell key={i} fill={COLORS[i % COLORS.length]}
+                                              opacity={selectedCategory && categoryData[i].name !== selectedCategory ? 0.35 : 1} />
                                     ))}
                                 </Pie>
-                                <Tooltip
-                                    formatter={(value) => value.toLocaleString('el-GR', { style: 'currency', currency: 'EUR' })}
-                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                />
-                                <Legend
-                                    verticalAlign="bottom"
-                                    height={36}
-                                    iconType="circle"
-                                    formatter={(value) => <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">{value}</span>}
-                                />
+                                <Tooltip content={<CustomTooltip />} />
                             </PieChart>
                         </ResponsiveContainer>
+                    </div>
+                ) : (
+                    <div className="h-52 flex items-center justify-center text-gray-400 dark:text-gray-600 text-sm">
+                        Δεν υπάρχουν δεδομένα
+                    </div>
+                )}
+                {/* Legend */}
+                {categoryData.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2 justify-center">
+                        {categoryData.map((cat, i) => (
+                            <button
+                                key={cat.name}
+                                onClick={() => setSelectedCategory(prev => prev === cat.name ? null : cat.name)}
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold
+                                            border transition-all duration-200
+                                            ${selectedCategory === cat.name
+                                                ? 'border-transparent text-white'
+                                                : 'border-gray-200 dark:border-transparent text-gray-600 dark:text-gray-400'
+                                            }`}
+                                style={selectedCategory === cat.name ? { backgroundColor: COLORS[i % COLORS.length] } : {}}
+                            >
+                                <span className="w-1.5 h-1.5 rounded-full"
+                                      style={{ background: COLORS[i % COLORS.length] }} />
+                                {cat.name}
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* ── Top Categories ── */}
+            <div>
+                <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3">
+                    Κορυφαίες Κατηγορίες
+                </h3>
+                {categoryData.length === 0 ? (
+                    <p className="text-gray-400 text-center py-6 text-sm">Δεν υπάρχουν έξοδα.</p>
+                ) : (
+                    <div className="space-y-2.5">
+                        {categoryData.map((cat, i) => {
+                            const pct = totalExpense > 0 ? (cat.value / totalExpense) * 100 : 0;
+                            return (
+                                <button
+                                    key={cat.name}
+                                    onClick={() => setSelectedCategory(cat.name)}
+                                    className="w-full bg-white dark:bg-surface-dark3
+                                               border border-gray-100 dark:border-transparent
+                                               rounded-2xl p-3.5
+                                               shadow-card dark:shadow-none
+                                               active:scale-[0.98] transition-all duration-200"
+                                >
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="w-2 h-8 rounded-full flex-shrink-0"
+                                             style={{ background: COLORS[i % COLORS.length] }} />
+                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                            <CategoryIcon category={cat.name} type="expense" />
+                                            <span className="font-semibold text-sm text-gray-700 dark:text-gray-200 capitalize truncate">
+                                                {cat.name}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                            <span className="font-black text-sm text-gray-900 dark:text-white">
+                                                {cat.value.toFixed(2)}€
+                                            </span>
+                                            <ChevronRight size={13} className="text-gray-300 dark:text-gray-600" />
+                                        </div>
+                                    </div>
+                                    {/* Progress bar */}
+                                    <div className="ml-5 h-1.5 bg-gray-100 dark:bg-white/8 rounded-full overflow-hidden">
+                                        <div className="h-full rounded-full transition-all duration-500"
+                                             style={{ width: `${pct}%`, background: COLORS[i % COLORS.length] }} />
+                                    </div>
+                                    <p className="ml-5 mt-0.5 text-[10px] text-gray-400 dark:text-gray-600 font-medium">
+                                        {pct.toFixed(1)}% των συνολικών εξόδων
+                                    </p>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            {/* ── Cash Flow Chart ── */}
+            <div className="bg-white dark:bg-surface-dark3
+                            border border-gray-100 dark:border-transparent
+                            rounded-3xl p-5 shadow-card dark:shadow-card-dark">
+                <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-4">Ροή Χρημάτων</h3>
+                <div className="h-52">
+                    {trendData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={trendData} barGap={4}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false}
+                                               stroke="currentColor" className="text-gray-100 dark:text-white/5" opacity={1} />
+                                <XAxis dataKey="date" tickLine={false} axisLine={false}
+                                       tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(124,58,237,0.05)' }} />
+                                <Bar dataKey="income"  name="Έσοδα"  fill="#10b981" radius={[5, 5, 0, 0]} />
+                                <Bar dataKey="expense" name="Έξοδα" fill="#7c3aed" radius={[5, 5, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
                     ) : (
-                        <div className="h-full flex items-center justify-center text-gray-400 text-xs">
+                        <div className="h-full flex items-center justify-center text-gray-400 dark:text-gray-600 text-sm">
                             Δεν υπάρχουν δεδομένα
                         </div>
                     )}
                 </div>
-            </div>
-
-            {/* Top Categories List */}
-            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Κορυφαίες Κατηγορίες</h3>
-            <div className="space-y-4">
-                {categoryData.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4 opacity-50">Δεν υπάρχουν έξοδα.</p>
-                ) : (
-                    categoryData.map((cat, index) => (
-                        <button
-                            key={cat.name}
-                            onClick={() => setSelectedCategory(cat.name)}
-                            className="w-full bg-white dark:bg-gray-800 p-3 rounded-2xl flex justify-between items-center shadow-sm border border-gray-50 dark:border-gray-700 active:scale-[0.98] transition-transform"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div
-                                    className="w-2 h-8 rounded-full"
-                                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                                />
-                                <div className="flex items-center gap-2">
-                                    <CategoryIcon category={cat.name} type="expense" />
-                                    <span className="font-semibold text-gray-700 dark:text-gray-300 capitalize">{cat.name}</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="font-bold text-gray-900 dark:text-white">{cat.value.toFixed(2)}€</span>
-                                <ChevronRight size={14} className="text-gray-400" />
-                            </div>
-                        </button>
-                    ))
-                )}
-            </div>
-
-            {/* Cash Flow Chart — at the bottom */}
-            <div className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mt-8 mb-8 h-72">
-                <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">Ροή Χρημάτων</h3>
-                {trendData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={trendData}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" opacity={0.3} />
-                            <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
-                            <Tooltip
-                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                cursor={{ fill: 'rgba(99, 102, 241, 0.1)' }}
-                            />
-                            <Bar dataKey="income" name="Έσοδα" fill="#10b981" radius={[4, 4, 0, 0]} />
-                            <Bar dataKey="expense" name="Έξοδα" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                ) : (
-                    <div className="h-full flex items-center justify-center text-gray-400 text-xs">Δεν υπάρχουν δεδομένα</div>
-                )}
             </div>
 
             {/* ── Category Drill-Down Bottom Sheet ── */}
@@ -231,45 +310,70 @@ const StatsView = ({ transactions }) => {
 
                 return (
                     <div className="fixed inset-0 z-50 flex items-end animate-fade-in">
-                        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedCategory(null)} />
-                        <div className="relative z-10 w-full bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl max-h-[80vh] flex flex-col">
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                             onClick={() => setSelectedCategory(null)} />
+                        <div className="relative z-10 w-full
+                                        bg-white dark:bg-surface-dark2
+                                        rounded-t-[2rem] shadow-2xl
+                                        border-t border-x border-gray-100 dark:border-transparent
+                                        max-h-[82vh] flex flex-col animate-slide-up">
+
                             {/* Handle */}
                             <div className="flex justify-center pt-3 pb-1">
-                                <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                                <div className="w-10 h-1 bg-gray-200 dark:bg-gray-700 rounded-full" />
                             </div>
 
                             {/* Header */}
-                            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+                            <div className="flex items-center justify-between px-5 py-3
+                                            border-b border-gray-100 dark:border-white/8">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
-                                    <h3 className="font-bold text-gray-900 dark:text-white text-lg capitalize">{selectedCategory}</h3>
+                                    <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                                         style={{ backgroundColor: color + '22' }}>
+                                        <CategoryIcon category={selectedCategory} type="expense" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-gray-900 dark:text-white capitalize">
+                                            {selectedCategory}
+                                        </h3>
+                                        <p className="text-xs text-gray-400">{catTxs.length} συναλλαγές</p>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="font-extrabold text-lg" style={{ color }}>{total.toFixed(2)}€</span>
-                                    <button onClick={() => setSelectedCategory(null)} className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400">
+                                    <span className="font-black text-lg" style={{ color }}>
+                                        {total.toFixed(2)}€
+                                    </span>
+                                    <button onClick={() => setSelectedCategory(null)}
+                                            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10
+                                                       text-gray-400 transition-colors">
                                         <X size={18} />
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Transactions list */}
+                            {/* List */}
                             <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
                                 {catTxs.length === 0 ? (
-                                    <p className="text-center text-gray-400 py-8">Τα εγγραφή βρέθηκαν.</p>
+                                    <p className="text-center text-gray-400 py-10">Δεν βρέθηκαν εγγραφές.</p>
                                 ) : catTxs.map(t => (
-                                    <div key={t.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-3 rounded-2xl">
+                                    <div key={t.id}
+                                         className="flex justify-between items-center
+                                                    bg-gray-50 dark:bg-surface-dark3
+                                                    p-3.5 rounded-2xl border border-gray-100 dark:border-transparent">
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 rounded-xl" style={{ backgroundColor: color + '22' }}>
-                                                <ArrowDownLeft size={16} style={{ color }} />
+                                            <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                                                 style={{ backgroundColor: color + '22' }}>
+                                                <ArrowDownLeft size={15} style={{ color }} />
                                             </div>
                                             <div>
-                                                <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm">{t.note || t.category}</p>
+                                                <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+                                                    {t.note || t.category}
+                                                </p>
                                                 <p className="text-xs text-gray-400">
                                                     {new Date(t.date).toLocaleDateString('el-GR', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className="font-bold text-red-500">-{t.amount.toFixed(2)}€</span>
+                                        <span className="font-bold text-rose-500">−{t.amount.toFixed(2)}€</span>
                                     </div>
                                 ))}
                             </div>

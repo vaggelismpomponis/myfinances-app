@@ -206,7 +206,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
             <div className={`bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md ${isCropping ? 'h-[90vh]' : 'max-h-[85vh]'} overflow-hidden shadow-2xl relative flex flex-col transition-all`}>
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/8">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                         {isCropping ? 'Περικοπή Εικόνας' : 'Σάρωση Απόδειξης'}
                     </h2>
@@ -260,7 +260,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                         </div>
                     ) : image ? (
                         /* Processing View */
-                        <div className="relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 aspect-[3/4] mb-6 border-2 border-dashed border-gray-300 dark:border-gray-700">
+                        <div className="relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 aspect-[3/4] mb-6 border-2 border-dashed border-gray-300">
                             <img src={image} alt="Receipt" className="w-full h-full object-contain" />
 
                             {loading && (
@@ -281,7 +281,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                         <div className="grid grid-cols-2 gap-4 mb-6 mt-4">
                             <button
                                 onClick={() => cameraInputRef.current?.click()}
-                                className="flex flex-col items-center justify-center p-8 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-2xl transition-colors border-2 border-indigo-100 dark:border-indigo-800"
+                                className="flex flex-col items-center justify-center p-8 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-2xl transition-colors border-2 border-indigo-100"
                             >
                                 <Camera size={32} className="text-indigo-600 dark:text-indigo-400 mb-3" />
                                 <span className="font-bold text-indigo-900 dark:text-indigo-200">Κάμερα</span>
@@ -289,7 +289,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
 
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl transition-colors border-2 border-gray-100 dark:border-gray-600"
+                                className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl transition-colors border-2 border-gray-100"
                             >
                                 <Upload size={32} className="text-gray-600 dark:text-gray-400 mb-3" />
                                 <span className="font-bold text-gray-700 dark:text-gray-300">Αρχείο</span>

@@ -525,62 +525,81 @@ function MainContent() {
     );
 
     return (
-        <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 selection:bg-indigo-100 dark:selection:bg-indigo-900 flex justify-center transition-colors duration-300">
+        <div className="min-h-screen bg-surface-light dark:bg-surface-dark
+                        font-sans text-gray-900 dark:text-gray-100
+                        selection:bg-violet-100 dark:selection:bg-violet-900
+                        flex justify-center transition-colors duration-300">
 
-            {/* Mobile Container Simulator */}
-            <div className="w-full max-w-md bg-[#F9F9F9] dark:bg-gray-900 h-[100dvh] overflow-hidden shadow-2xl relative flex flex-col transition-colors duration-300">
+            {/* Mobile container */}
+            <div className="w-full max-w-md bg-gray-50 dark:bg-surface-dark
+                            h-[100dvh] overflow-hidden
+                            shadow-2xl relative flex flex-col
+                            transition-colors duration-300">
 
-                {/* Main Content Area */}
-                <div className="flex-1 overflow-y-auto overflow-x-hidden p-5">
+                {/* ── Main Scroll Area ── */}
+                <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-1">
 
-                    {/* Top Bar */}
-                    <div className="flex justify-between items-center mb-6 pt-[calc(env(safe-area-inset-top)+1.5rem)]">
+                    {/* ── Top Bar ── */}
+                    <div className="flex justify-between items-center
+                                    pt-[calc(env(safe-area-inset-top)+1rem)] mb-5 sticky top-0 z-10
+                                    bg-gray-50/90 dark:bg-surface-dark/90 backdrop-blur-md py-3 -mx-4 px-4">
                         <div>
                             {activeTab === 'home' ? (
                                 <>
-                                    <p className="text-gray-500 dark:text-gray-400 text-xs font-medium tracking-wider">{translate('welcome_message')}</p>
-                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                                        {user?.displayName || user?.email?.split('@')[0] || 'User'}!
+                                    <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 tracking-widest uppercase">
+                                        {translate('welcome_message')}
+                                    </p>
+                                    <h2 className="text-xl font-black text-gray-900 dark:text-white leading-tight">
+                                        {user?.displayName || user?.email?.split('@')[0] || 'User'} 👋
                                     </h2>
                                 </>
                             ) : (
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                                <h2 className="text-xl font-black text-gray-900 dark:text-white">
                                     {activeTab === 'history' && translate('nav_history')}
-                                    {activeTab === 'stats' && translate('nav_stats')}
-                                    {activeTab === 'wallet' && translate('wallet')}
-                                    {activeTab === 'cards' && translate('cards')}
-                                    {activeTab === 'goals' && translate('goals')}
+                                    {activeTab === 'stats'   && translate('nav_stats')}
+                                    {activeTab === 'goals'   && translate('goals')}
                                     {activeTab === 'budgets' && translate('budgets')}
                                 </h2>
                             )}
                         </div>
-                        <div className="flex items-center gap-3">
+
+                        <div className="flex items-center gap-2.5">
+                            {/* Theme toggle */}
                             <button
                                 onClick={toggleTheme}
-                                className="w-10 h-10 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 shadow-sm border border-gray-100 dark:border-gray-700"
+                                className="w-9 h-9 rounded-full
+                                           bg-white dark:bg-surface-dark3
+                                           shadow-card dark:shadow-none
+                                           flex items-center justify-center
+                                           text-gray-500 dark:text-gray-400
+                                           hover:scale-110 active:scale-95 transition-all duration-200"
                             >
-                                {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+                                {theme === 'dark' ? <Moon size={17} /> : <Sun size={17} />}
                             </button>
+
+                            {/* Avatar */}
                             <button
                                 onClick={() => setActiveTab('profile')}
-                                className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 transition-colors rounded-full flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-500/30 overflow-hidden"
+                                className="w-9 h-9 rounded-full overflow-hidden
+                                           bg-gradient-to-br from-violet-500 to-violet-700
+                                           border-2 border-violet-300 dark:border-violet-800
+                                           flex items-center justify-center
+                                           text-white shadow-glow-sm
+                                           hover:scale-110 active:scale-95 transition-all duration-200"
                                 title={translate('nav_profile')}
                             >
                                 {user?.photoURL && !imgError ? (
-                                    <img
-                                        src={user.photoURL}
-                                        alt="Profile"
-                                        className="w-full h-full object-cover"
-                                        onError={() => setImgError(true)}
-                                    />
+                                    <img src={user.photoURL} alt="Profile"
+                                         className="w-full h-full object-cover"
+                                         onError={() => setImgError(true)} />
                                 ) : (
-                                    <User size={20} />
+                                    <User size={17} />
                                 )}
                             </button>
                         </div>
                     </div>
 
-                    {/* View Switcher */}
+                    {/* ── View Switcher ── */}
                     {activeTab === 'home' && (
                         <HomeView
                             balance={balance}
@@ -592,85 +611,71 @@ function MainContent() {
                             setActiveTab={setActiveTab}
                         />
                     )}
-                    {activeTab === 'stats' && <StatsView transactions={transactions} />}
+                    {activeTab === 'stats'   && <StatsView transactions={transactions} />}
                     {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
-
                 </div>
 
-                {/* Profile View Overlay */}
+                {/* ── Overlays ── */}
                 {activeTab === 'profile' && (
-                    <div className="absolute inset-0 z-50 bg-white dark:bg-gray-900">
-                        <ProfileView
-                            user={user}
-                            onBack={() => setActiveTab('home')}
-                            onSignOut={handleSignOut}
-                            onRecurring={() => setActiveTab('recurring')}
-                            onGeneral={() => setActiveTab('general')}
-                            onSecurity={() => setActiveTab('security')}
-                        />
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark pb-20">
+                        <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
+                                     onRecurring={() => setActiveTab('recurring')} onGeneral={() => setActiveTab('general')}
+                                     onSecurity={() => setActiveTab('security')} />
                     </div>
                 )}
-
-                {/* Recurring View Overlay */}
                 {activeTab === 'recurring' && (
-                    <div className="absolute inset-0 z-50 bg-white dark:bg-gray-900">
-                        <RecurringView
-                            user={user}
-                            onBack={() => setActiveTab('profile')}
-                        />
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark pb-20">
+                        <RecurringView user={user} onBack={() => setActiveTab('profile')} />
                     </div>
                 )}
-
-                {/* General Settings Overlay */}
                 {activeTab === 'general' && (
-                    <div className="absolute inset-0 z-50 bg-white dark:bg-gray-900">
-                        <GeneralSettingsView
-                            user={user}
-                            onBack={() => setActiveTab('profile')}
-                        />
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark pb-20">
+                        <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} />
                     </div>
                 )}
-
-                {/* Security Settings Overlay */}
                 {activeTab === 'security' && (
-                    <div className="absolute inset-0 z-50 bg-white dark:bg-gray-900">
-                        <SecuritySettingsView
-                            user={user}
-                            onBack={() => setActiveTab('profile')}
-                        />
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark pb-20">
+                        <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} />
                     </div>
                 )}
-
-                {/* Goals Overlay */}
                 {activeTab === 'goals' && (
-                    <div className="absolute inset-0 z-50 bg-[#F9F9F9] dark:bg-gray-900 flex flex-col">
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col pb-20">
                         <GoalsView user={user} onBack={() => setActiveTab('home')} />
                     </div>
                 )}
-
-                {/* Budgets Overlay */}
                 {activeTab === 'budgets' && (
-                    <div className="absolute inset-0 z-50 bg-[#F9F9F9] dark:bg-gray-900 flex flex-col">
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col pb-20">
                         <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />
                     </div>
                 )}
 
-                {/* Floating Add Button — hidden on sub-pages */}
-                {!['goals', 'budgets', 'profile', 'recurring', 'general', 'security'].includes(activeTab) && (
-                    <div className="absolute bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-20">
-                        <button
-                            onClick={() => { setEditingTransaction(null); setShowAddModal(true); }}
-                            className="bg-gray-900 hover:bg-black dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white p-5 rounded-full shadow-xl shadow-indigo-200 dark:shadow-indigo-900/50 transition-transform active:scale-90 flex items-center justify-center"
-                        >
-                            <Plus size={32} />
-                        </button>
-                    </div>
-                )}
+                {/* ── Navbar + FAB wrapper ── */}
+                <div className="relative z-[60]">
+                    {/* FAB — floats above the navbar pill */}
+                    {!['goals', 'budgets', 'profile', 'recurring', 'general', 'security'].includes(activeTab) && (
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
+                            {/* Pulse ring */}
+                            <div className="absolute inset-0 rounded-full bg-violet-600/30 animate-ping-pulse" />
+                            <button
+                                onClick={() => { setEditingTransaction(null); setShowAddModal(true); }}
+                                className="relative w-16 h-16 rounded-full
+                                           bg-gradient-to-br from-violet-500 to-violet-700
+                                           hover:from-violet-400 hover:to-violet-600
+                                           text-white shadow-glow-violet
+                                           active:scale-90 hover:scale-105
+                                           flex items-center justify-center
+                                           transition-all duration-200 border border-violet-400/40"
+                            >
+                                <Plus size={28} />
+                            </button>
+                        </div>
+                    )}
 
-                {/* Bottom Navigation */}
-                <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+                    {/* ── Navbar ── */}
+                    <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+                </div>
 
-                {/* Modals */}
+                {/* ── Modals ── */}
                 {showAddModal && (
                     <AddModal
                         onClose={() => { setShowAddModal(false); setEditingTransaction(null); }}
@@ -678,7 +683,6 @@ function MainContent() {
                         initialData={editingTransaction}
                     />
                 )}
-
                 <ConfirmationModal
                     isOpen={showDeleteModal}
                     onClose={() => setShowDeleteModal(false)}

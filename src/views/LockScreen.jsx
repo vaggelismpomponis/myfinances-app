@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, Delete, Fingerprint, ScanFace, LogOut, KeyRound, X, Check } from 'lucide-react';
+import { Wallet, Delete, ScanFace, LogOut, X, Check } from 'lucide-react';
 import { NativeBiometric } from '@capgo/capacitor-native-biometric';
 import { useSettings } from '../contexts/SettingsContext';
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
@@ -9,8 +9,6 @@ const LockScreen = ({ onSignOut, user }) => {
     const [pin, setPin] = useState('');
     const [error, setError] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
-
-    // Forgot PIN State
     const [showForgotModal, setShowForgotModal] = useState(false);
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -20,64 +18,37 @@ const LockScreen = ({ onSignOut, user }) => {
         setIsScanning(true);
         try {
             const result = await NativeBiometric.isAvailable();
-
-            if (!result.isAvailable) {
-                alert("Biometrics not available");
-                setIsScanning(false);
-                return;
-            }
-
+            if (!result.isAvailable) { setIsScanning(false); return; }
             await NativeBiometric.verifyIdentity({
-                reason: "Identify yourself to unlock the app",
-                title: "Login",
-                subtitle: "Use Face ID or Fingerprint",
-                description: "Confirm your identity",
+                reason: 'Identify yourself to unlock the app',
+                title: 'Login',
+                subtitle: 'Use Face ID or Fingerprint',
+                description: 'Confirm your identity',
             });
-
-            // If successful (no error thrown)
             unlockApp();
             setPin('');
-        } catch (error) {
-            console.error("Biometric auth failed or cancelled", error);
-            // Don't alert on simple cancellation
-        } finally {
-            setIsScanning(false);
-        }
+        } catch { /* cancelled */ }
+        finally { setIsScanning(false); }
     };
 
     useEffect(() => {
         if (isBiometricsEnabled) {
-            // Trigger immediately but safely
-            const timer = setTimeout(() => {
-                handleBiometricAuth();
-            }, 300); // 300ms delay for smooth transition
-            return () => clearTimeout(timer);
+            const t = setTimeout(handleBiometricAuth, 300);
+            return () => clearTimeout(t);
         }
     }, [isBiometricsEnabled]);
 
     const handleNumberClick = (num) => {
-        if (pin.length < 4) {
-            setPin(prev => prev + num);
-            setError(false);
-        }
-    };
-
-    const handleDelete = () => {
-        setPin(prev => prev.slice(0, -1));
+        if (pin.length < 4) { setPin(p => p + num); setError(false); }
     };
 
     useEffect(() => {
         if (pin.length === 4) {
             if (pin === appPin) {
-                // Success
-                setTimeout(() => {
-                    unlockApp();
-                    setPin('');
-                }, 200);
+                setTimeout(() => { unlockApp(); setPin(''); }, 180);
             } else {
-                // Fail
                 setError(true);
-                setTimeout(() => setPin(''), 500);
+                setTimeout(() => setPin(''), 480);
             }
         }
     }, [pin, appPin, unlockApp]);
@@ -86,20 +57,13 @@ const LockScreen = ({ onSignOut, user }) => {
         e.preventDefault();
         setLoading(true);
         setResetError('');
-
         try {
-            // Validating with account password
             const credential = EmailAuthProvider.credential(user.email, password);
             await reauthenticateWithCredential(user, credential);
-
-            // Success: Reset Security Settings locally
-            removePin(); // This clears PIN state
-            toggleBiometrics(false); // Disable biometrics
-
-            // Unlock
+            removePin();
+            toggleBiometrics(false);
             unlockApp();
-        } catch (error) {
-            console.error("Reset PIN error:", error);
+        } catch {
             setResetError('Λάθος κωδικός πρόσβασης.');
         } finally {
             setLoading(false);
@@ -107,130 +71,146 @@ const LockScreen = ({ onSignOut, user }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] bg-[#F9F9F9] dark:bg-gray-900 flex flex-col items-center justify-center animate-fade-in transition-colors duration-300">
+        <div className="fixed inset-0 z-[100] mesh-bg flex flex-col items-center justify-center
+                        animate-fade-in transition-colors duration-300 overflow-hidden">
 
-            {/* Header / Branding - Matching LoginView */}
-            <div className="flex flex-col items-center mb-8">
-                <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white mb-4 shadow-lg shadow-indigo-200 dark:shadow-none rotate-3">
-                    <Wallet size={32} />
+            {/* Ambient glow */}
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2
+                            w-80 h-80 rounded-full bg-violet-600/20 blur-[100px] pointer-events-none" />
+
+            {/* Logo */}
+            <div className="flex flex-col items-center mb-10 animate-slide-in-up">
+                <div className="relative mb-4">
+                    <div className="absolute inset-0 rounded-2xl bg-violet-600/40 blur-lg scale-110 animate-glow-pulse" />
+                    <div className="relative w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-700
+                                    rounded-2xl flex items-center justify-center
+                                    shadow-glow-violet border border-violet-400/30">
+                        <div className="absolute top-1 left-1.5 w-8 h-3 bg-white/20 rounded-full blur-sm rotate-[-25deg]" />
+                        <Wallet size={28} className="text-white relative z-10" />
+                    </div>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Καλωσήρθατε</h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">Επιβεβαίωση στοιχείων για είσοδο.</p>
+                <h1 className="text-2xl font-black text-white mb-1">Καλωσήρθατε</h1>
+                <p className="text-sm text-gray-400 font-medium">Εισάγετε το PIN σας για είσοδο</p>
             </div>
 
-            {/* PIN Dots */}
-            <div className="flex gap-4 mb-10">
+            {/* PIN dots */}
+            <div className="flex gap-5 mb-10">
                 {[0, 1, 2, 3].map(i => (
-                    <div
-                        key={i}
-                        className={`w-4 h-4 rounded-full transition-all duration-300 ${pin.length > i
-                            ? 'bg-indigo-600 scale-110'
-                            : error
-                                ? 'bg-red-500 animate-shake'
-                                : 'bg-gray-200 dark:bg-gray-700'
-                            }`}
-                    />
+                    <div key={i}
+                         className={`relative w-4 h-4 rounded-full transition-all duration-250
+                                     ${pin.length > i
+                                        ? 'bg-violet-500 scale-110 shadow-glow-sm'
+                                        : error
+                                            ? 'bg-rose-500'
+                                            : 'bg-white/15 border border-white/20'
+                                     }
+                                     ${error ? 'animate-shake' : ''}`} />
                 ))}
             </div>
 
             {/* Keypad */}
-            <div className="grid grid-cols-3 gap-x-8 gap-y-6 mb-8">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                    <button
-                        key={num}
-                        onClick={() => handleNumberClick(num.toString())}
-                        className="w-16 h-16 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 transition-all flex items-center justify-center text-2xl font-bold text-gray-900 dark:text-white"
-                    >
+            <div className="grid grid-cols-3 gap-x-7 gap-y-4 mb-8">
+                {[1,2,3,4,5,6,7,8,9].map(num => (
+                    <button key={num}
+                            onClick={() => handleNumberClick(num.toString())}
+                            className="w-18 h-18 w-[72px] h-[72px] rounded-2xl
+                                       glass text-white
+                                       hover:bg-white/15 active:scale-95 active:bg-white/20
+                                       flex items-center justify-center
+                                       text-2xl font-bold
+                                       transition-all duration-150 press-effect">
                         {num}
                     </button>
                 ))}
 
+                {/* Biometric / empty */}
                 <div className="flex items-center justify-center">
-                    {/* Empty or Biometric Icon if enabled */}
                     {isBiometricsEnabled && (
-                        <button
-                            onClick={handleBiometricAuth}
-                            className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${isScanning
-                                ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 animate-pulse'
-                                : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800'
-                                }`}
-                        >
-                            <ScanFace size={32} />
+                        <button onClick={handleBiometricAuth}
+                                className={`w-[72px] h-[72px] rounded-2xl flex items-center justify-center
+                                            transition-all duration-200 press-effect
+                                            ${isScanning
+                                                ? 'glass bg-violet-500/30 text-violet-300 animate-glow-pulse'
+                                                : 'glass text-violet-300 hover:bg-white/15'
+                                            }`}>
+                            <ScanFace size={30} />
                         </button>
                     )}
                 </div>
 
-                <button
-                    onClick={() => handleNumberClick('0')}
-                    className="w-16 h-16 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 transition-all flex items-center justify-center text-2xl font-bold text-gray-900 dark:text-white"
-                >
+                <button onClick={() => handleNumberClick('0')}
+                        className="w-[72px] h-[72px] rounded-2xl glass text-white
+                                   hover:bg-white/15 active:scale-95
+                                   flex items-center justify-center
+                                   text-2xl font-bold transition-all duration-150 press-effect">
                     0
                 </button>
 
-                <button
-                    onClick={handleDelete}
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-                >
-                    <Delete size={28} />
+                <button onClick={() => setPin(p => p.slice(0, -1))}
+                        className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center
+                                   text-gray-400 hover:text-white hover:bg-white/10
+                                   transition-all duration-200 press-effect">
+                    <Delete size={26} />
                 </button>
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col items-center gap-4 mt-4">
-                <button
-                    onClick={() => setShowForgotModal(true)}
-                    className="text-indigo-600 dark:text-indigo-400 text-sm font-bold hover:underline"
-                >
+            <div className="flex flex-col items-center gap-3">
+                <button onClick={() => setShowForgotModal(true)}
+                        className="text-sm font-bold text-violet-400 hover:text-violet-300 transition-colors">
                     Ξέχασα το PIN μου
                 </button>
-
-                <button
-                    onClick={onSignOut}
-                    className="text-gray-400 hover:text-red-500 transition-colors flex items-center gap-2 text-sm font-medium"
-                >
-                    <LogOut size={16} />
-                    <span>Αποσύνδεση</span>
+                <button onClick={onSignOut}
+                        className="flex items-center gap-2 text-xs font-medium
+                                   text-gray-500 hover:text-rose-400 transition-colors">
+                    <LogOut size={14} /> Αποσύνδεση
                 </button>
             </div>
 
-            {/* Forgot PIN Modal */}
+            {/* Forgot PIN modal */}
             {showForgotModal && (
-                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowForgotModal(false)} />
-                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                <div className="fixed inset-0 z-[110] flex items-end justify-center animate-fade-in">
+                    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                         onClick={() => setShowForgotModal(false)} />
+                    <div className="relative z-10 w-full max-w-md
+                                    bg-surface-dark2 dark:bg-surface-dark2
+                                    rounded-t-[2rem] p-7
+                                    border-t border-x border-white/10
+                                    shadow-2xl animate-slide-up">
+                        <div className="w-10 h-1 bg-gray-600 rounded-full mx-auto mb-5" />
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Επαναφορά Πρόσβασης</h3>
-                            <button onClick={() => setShowForgotModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                                <X size={20} />
+                            <h3 className="text-lg font-bold text-white">Επαναφορά Πρόσβασης</h3>
+                            <button onClick={() => setShowForgotModal(false)}
+                                    className="p-2 rounded-full hover:bg-white/10 text-gray-400 transition-colors">
+                                <X size={18} />
                             </button>
                         </div>
-
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                            Για την ασφάλειά σας, εισάγετε τον κωδικό πρόσβασης του λογαριασμού σας για να ξεκλειδώσετε την εφαρμογή και να επαναφέρετε τις ρυθμίσεις ασφαλείας.
+                        <p className="text-sm text-gray-400 mb-5">
+                            Εισάγετε τον κωδικό του λογαριασμού σας για να ξεκλειδώσετε και να επαναφέρετε τις ρυθμίσεις ασφαλείας.
                         </p>
-
                         <form onSubmit={handleForgotPinSubmit} className="space-y-4">
                             {resetError && (
-                                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs p-3 rounded-xl">
+                                <div className="bg-rose-900/30 text-rose-400 text-xs p-3 rounded-xl border border-rose-800/40">
                                     {resetError}
                                 </div>
                             )}
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Κωδικός Λογαριασμού</label>
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
-                                    placeholder="••••••••"
-                                    required
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-colors disabled:opacity-50"
-                            >
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                placeholder="Κωδικός λογαριασμού"
+                                required
+                                className="input-glow w-full px-4 py-3 rounded-xl text-sm
+                                           bg-white/8 border border-white/10
+                                           text-white placeholder-gray-600
+                                           transition-all duration-200"
+                            />
+                            <button type="submit" disabled={loading}
+                                    className="w-full py-3.5 rounded-xl font-bold text-sm text-white
+                                               bg-gradient-to-r from-violet-600 to-violet-700
+                                               shadow-glow-sm hover:from-violet-500
+                                               active:scale-[0.98] disabled:opacity-60
+                                               transition-all duration-200">
                                 {loading ? 'Έλεγχος...' : 'Ξεκλείδωμα'}
                             </button>
                         </form>

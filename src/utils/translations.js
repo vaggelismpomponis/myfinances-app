@@ -84,7 +84,7 @@ export const translations = {
         monthly: 'Μηνιαία',
         weekly: 'Εβδομαδιαία',
         save: 'Αποθήκευση',
-        add_recurring: 'Προσθήκη Επαναλαμβανόμενης',
+        add_recurring: 'Προσθήκη',
         every_month_day: 'Κάθε {day} του μήνα',
 
         // Home View

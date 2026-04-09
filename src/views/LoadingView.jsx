@@ -2,27 +2,48 @@ import React from 'react';
 import { Wallet } from 'lucide-react';
 
 const LoadingView = () => (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <div className="relative mb-8">
-            {/* Pulsing Background Circle */}
-            <div className="absolute inset-0 bg-indigo-500/20 dark:bg-indigo-500/10 rounded-full animate-ping"></div>
+    <div className="flex flex-col items-center justify-center min-h-screen
+                    mesh-bg transition-colors duration-300 overflow-hidden">
 
-            {/* Main Icon Container */}
-            <div className="relative z-10 w-24 h-24 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-3xl shadow-xl flex items-center justify-center transform animate-bounce-slow">
-                <Wallet className="text-white w-10 h-10" strokeWidth={1.5} />
+        {/* Ambient blobs */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2
+                        w-72 h-72 rounded-full
+                        bg-violet-600/25 blur-[80px] animate-glow-pulse pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4
+                        w-48 h-48 rounded-full
+                        bg-cyan-500/15 blur-[60px] animate-float pointer-events-none" />
+
+        {/* Logo */}
+        <div className="relative mb-8 animate-float">
+            {/* Outer glow ring */}
+            <div className="absolute inset-0 rounded-3xl bg-violet-600/40 blur-xl scale-110
+                            animate-glow-pulse" />
+
+            {/* Glass card */}
+            <div className="relative z-10 w-24 h-24
+                            bg-gradient-to-br from-violet-600 to-violet-800
+                            rounded-3xl shadow-glow-violet
+                            flex items-center justify-center
+                            border border-violet-400/30">
+                {/* inner shine */}
+                <div className="absolute top-1.5 left-2 w-10 h-4 bg-white/20 rounded-full blur-sm rotate-[-30deg]" />
+                <Wallet className="text-white w-11 h-11 relative z-10" strokeWidth={1.5} />
             </div>
         </div>
 
-        {/* App Name with Gradient */}
-        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-2 tracking-tight">
+        {/* App name */}
+        <h1 className="text-3xl font-black tracking-tight mb-1.5 gradient-text animate-fade-in">
             MyFinances
         </h1>
+        <p className="text-sm text-gray-400 dark:text-gray-500 animate-fade-in mb-10">
+            Η οικονομία σου. Απλά.
+        </p>
 
-        {/* Loading Indicator */}
-        <div className="flex gap-1.5 items-center mt-2">
-            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></div>
+        {/* Progress bar shimmer */}
+        <div className="w-32 h-1 rounded-full bg-white/10 overflow-hidden">
+            <div className="h-full w-1/2 rounded-full
+                            bg-gradient-to-r from-violet-600 via-cyan-400 to-violet-600
+                            bg-[length:200%] animate-shimmer" />
         </div>
     </div>
 );

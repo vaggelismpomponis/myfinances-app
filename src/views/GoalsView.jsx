@@ -111,7 +111,7 @@ const GoalsView = ({ user, onBack }) => {
         <div className="flex flex-col h-full bg-[#F9F9F9] dark:bg-gray-900 animate-fade-in transition-colors duration-300">
 
             {/* Sticky Header */}
-            <div className="bg-white dark:bg-gray-800 px-5 pt-12 pb-4 shadow-sm border-b border-gray-100 dark:border-gray-700 flex items-center justify-between sticky top-0 z-10">
+            <div className="bg-white dark:bg-gray-800 px-5 pt-12 pb-4 shadow-sm border-b border-gray-100 dark:border-white/8 flex items-center justify-between sticky top-0 z-10">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onBack}
@@ -142,7 +142,7 @@ const GoalsView = ({ user, onBack }) => {
                             const percentage = Math.min(100, ((goal.currentAmount || 0) / goal.targetAmount) * 100);
 
                             return (
-                                <div key={goal.id} className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                                <div key={goal.id} className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-transparent transition-colors duration-300">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="flex items-center gap-3">
                                             <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
@@ -163,7 +163,7 @@ const GoalsView = ({ user, onBack }) => {
                                     </p>
 
                                     {/* Action Row */}
-                                    <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                    <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-white/8">
                                         <button
                                             onClick={() => openEditModal(goal)}
                                             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors active:scale-95"
@@ -195,7 +195,7 @@ const GoalsView = ({ user, onBack }) => {
                 showAddModal && (
                     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in">
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
-                        <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-transparent">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Νέος Στόχος</h3>
                             <form onSubmit={handleAddGoal} className="space-y-4">
                                 <div>
@@ -205,7 +205,7 @@ const GoalsView = ({ user, onBack }) => {
                                         placeholder="π.χ. Ταξίδι στο Παρίσι"
                                         value={newGoalTitle}
                                         onChange={(e) => setNewGoalTitle(e.target.value)}
-                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                                         required
                                     />
                                 </div>
@@ -216,7 +216,7 @@ const GoalsView = ({ user, onBack }) => {
                                         placeholder="1500"
                                         value={newGoalTarget}
                                         onChange={(e) => setNewGoalTarget(e.target.value)}
-                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                                         required
                                     />
                                 </div>
@@ -227,7 +227,7 @@ const GoalsView = ({ user, onBack }) => {
                                         placeholder="0"
                                         value={newGoalCurrent}
                                         onChange={(e) => setNewGoalCurrent(e.target.value)}
-                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                                     />
                                 </div>
                                 <div className="flex gap-3 pt-2">
@@ -255,7 +255,7 @@ const GoalsView = ({ user, onBack }) => {
             {editingGoal && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in">
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setEditingGoal(null)} />
-                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-transparent">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Επεξεργασία Στόχου</h3>
                         <form onSubmit={handleEditGoal} className="space-y-4">
                             <div>
@@ -264,7 +264,7 @@ const GoalsView = ({ user, onBack }) => {
                                     type="text"
                                     value={editTitle}
                                     onChange={(e) => setEditTitle(e.target.value)}
-                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                                     required
                                     autoFocus
                                 />
@@ -275,7 +275,7 @@ const GoalsView = ({ user, onBack }) => {
                                     type="number"
                                     value={editTarget}
                                     onChange={(e) => setEditTarget(e.target.value)}
-                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                                     required
                                 />
                             </div>
@@ -308,7 +308,7 @@ const GoalsView = ({ user, onBack }) => {
                 return (
                     <div className="fixed inset-0 z-[60] flex items-end justify-center animate-fade-in">
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowMoneyModal(false)} />
-                        <div className="bg-white dark:bg-gray-800 rounded-t-3xl w-full max-w-sm relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                        <div className="bg-white dark:bg-gray-800 rounded-t-3xl w-full max-w-sm relative z-10 shadow-2xl border border-gray-100 dark:border-transparent overflow-hidden">
                             {/* Handle */}
                             <div className="flex justify-center pt-3 pb-1"><div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" /></div>
 
@@ -331,7 +331,7 @@ const GoalsView = ({ user, onBack }) => {
                             </div>
 
                             {/* Numpad */}
-                            <div className="grid grid-cols-3 gap-px bg-gray-100 dark:bg-gray-700 border-t border-gray-100 dark:border-gray-700">
+                            <div className="grid grid-cols-3 gap-px bg-gray-100 dark:bg-gray-700 border-t border-gray-100 dark:border-transparent">
                                 {numKeys.map(key => (
                                     <button
                                         key={key}

@@ -15,7 +15,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
             />
 
             {/* Modal */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm relative z-10 overflow-hidden animate-scale-in border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm relative z-10 overflow-hidden animate-scale-in border border-gray-100">
                 <div className="p-6 text-center">
                     <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isDanger ? 'bg-red-50 dark:bg-red-900/20 text-red-500' : 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500'}`}>
                         {isDanger ? <AlertTriangle size={32} /> : <CheckCircle2 size={32} />}

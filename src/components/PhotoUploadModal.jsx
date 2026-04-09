@@ -110,10 +110,10 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in text-gray-900 dark:text-gray-100">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden border border-gray-100 dark:border-gray-700 font-sans">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden border border-gray-100 dark:border-transparent font-sans">
 
                 {/* Header */}
-                <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-white/8">
                     <h3 className="text-lg font-bold">Αλλαγή Φωτογραφίας</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
                         <X size={20} />
@@ -123,7 +123,7 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
                 <div className="p-6">
                     {!image ? (
                         <div
-                            className="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-all group"
+                            className="border-2 border-dashed border-gray-200 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-all group"
                             onClick={() => document.getElementById('modal-upload').click()}
                         >
                             <div className="w-16 h-16 bg-gray-50 dark:bg-gray-700 text-gray-400 group-hover:text-indigo-500 rounded-full flex items-center justify-center mb-4 transition-colors">

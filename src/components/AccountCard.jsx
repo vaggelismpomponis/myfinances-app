@@ -18,7 +18,7 @@ const AccountCard = ({ account }) => {
     const bgStyle = { backgroundColor: `${account.color}15` }; // 15 = ~8% opacity hex
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between group hover:border-indigo-100 dark:hover:border-indigo-900 transition-colors">
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between group hover:border-indigo-100 dark:hover:border-indigo-900 transition-colors">
             <div className="flex items-center gap-4">
                 <div
                     className="w-12 h-12 rounded-full flex items-center justify-center transition-colors"

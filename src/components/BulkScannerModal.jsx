@@ -433,7 +433,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
             <div className={`bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md ${isCropping ? 'h-[90vh]' : 'max-h-[85vh]'} overflow-hidden shadow-2xl relative flex flex-col transition-all duration-300`}>
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/8">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                         {isCropping ? 'Περικοπή Εικόνας' : 'Μαζική Σάρωση'}
                     </h2>
@@ -522,7 +522,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                                     {images.map((img, idx) => (
                                         <div
                                             key={img.id}
-                                            className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 group"
+                                            className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 group"
                                         >
                                             <img
                                                 src={img.croppedSrc || img.src}
@@ -580,7 +580,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                             <div className="grid grid-cols-2 gap-3 mt-auto">
                                 <button
                                     onClick={() => cameraInputRef.current?.click()}
-                                    className="flex flex-col items-center justify-center p-6 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-2xl transition-colors border-2 border-indigo-100 dark:border-indigo-800"
+                                    className="flex flex-col items-center justify-center p-6 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-2xl transition-colors border-2 border-indigo-100"
                                 >
                                     <Camera size={28} className="text-indigo-600 dark:text-indigo-400 mb-2" />
                                     <span className="font-bold text-sm text-indigo-900 dark:text-indigo-200">
@@ -590,7 +590,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
 
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-2xl transition-colors border-2 border-gray-100 dark:border-gray-600"
+                                    className="flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-2xl transition-colors border-2 border-gray-100"
                                 >
                                     <Upload size={28} className="text-gray-600 dark:text-gray-400 mb-2" />
                                     <span className="font-bold text-sm text-gray-700 dark:text-gray-300">
@@ -622,7 +622,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
 
                 {/* Footer */}
                 {!isCropping && !processing && hasImages && (
-                    <div className="p-4 border-t border-gray-100 dark:border-gray-700">
+                    <div className="p-4 border-t border-gray-100">
                         <button
                             onClick={processAllImages}
                             disabled={readyCount === 0}
@@ -641,7 +641,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                 )}
 
                 {!isCropping && !processing && !hasImages && (
-                    <div className="p-4 border-t border-gray-100 dark:border-gray-700">
+                    <div className="p-4 border-t border-gray-100">
                         <p className="text-xs text-center text-gray-400 dark:text-gray-500">
                             Προσθέστε αποδείξεις για μαζική σάρωση
                         </p>

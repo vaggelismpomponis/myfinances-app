@@ -111,7 +111,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
         <div className="flex flex-col h-full bg-[#F9F9F9] dark:bg-gray-900 animate-fade-in transition-colors duration-300">
 
             {/* Sticky Header */}
-            <div className="bg-white dark:bg-gray-800 px-5 pt-12 pb-4 shadow-sm border-b border-gray-100 dark:border-gray-700 flex items-center justify-between sticky top-0 z-10">
+            <div className="bg-white dark:bg-gray-800 px-5 pt-12 pb-4 shadow-sm border-b border-gray-100 dark:border-white/8 flex items-center justify-between sticky top-0 z-10">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onBack}
@@ -193,7 +193,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                             const isOver = spent > budget.amount;
 
                             return (
-                                <div key={budget.id} className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                                <div key={budget.id} className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-transparent transition-colors duration-300">
 
                                     {/* Top row: icon + name + % badge */}
                                     <div className="flex justify-between items-start mb-4">
@@ -234,7 +234,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                                     )}
 
                                     {/* Action Row: Edit | Delete */}
-                                    <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                    <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-white/8">
                                         <button
                                             onClick={() => openEditModal(budget)}
                                             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors active:scale-95"
@@ -258,7 +258,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                 {showModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal} />
-                        <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-transparent">
                             {/* Modal header */}
                             <div className="flex justify-between items-center mb-5">
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -276,7 +276,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                                         value={formCategory}
                                         onChange={(e) => setFormCategory(e.target.value)}
                                         disabled={!!editingBudget} // Can't change category when editing (would break matching)
-                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white disabled:opacity-60"
+                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white disabled:opacity-60"
                                         required
                                     >
                                         <option value="">-- Επέλεξε κατηγορία --</option>
@@ -294,7 +294,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                                         placeholder="300"
                                         value={formAmount}
                                         onChange={(e) => setFormAmount(e.target.value)}
-                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                                        className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                                         required
                                     />
                                 </div>
@@ -343,7 +343,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                 {deletingBudget && (
                     <div className="fixed inset-0 z-50 flex items-end justify-center p-4 animate-fade-in sm:items-center">
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setDeletingBudget(null)} />
-                        <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-gray-700">
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 relative z-10 shadow-2xl border border-gray-100 dark:border-transparent">
                             {/* Icon */}
                             <div className="flex flex-col items-center text-center mb-5">
                                 <div className="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-500 dark:text-red-400 mb-3">

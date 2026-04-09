@@ -5,11 +5,13 @@ import {
     Trash2,
     Calendar,
     Repeat,
-    CreditCard,
     TrendingUp,
     TrendingDown,
     CheckCircle2,
-    Pencil
+    Pencil,
+    X,
+    ChevronRight,
+    Zap
 } from 'lucide-react';
 import {
     collection,
@@ -23,12 +25,79 @@ import {
 import { db, appId } from '../firebase';
 import { useSettings } from '../contexts/SettingsContext';
 
+/* ─── Section Label ─── */
+const SectionLabel = ({ children }) => (
+    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-white/30 mb-2 ml-1 px-1">
+        {children}
+    </p>
+);
+
+/* ── Type pill selector ── */
+const TypeSelector = ({ value, onChange, translate }) => (
+    <div className="flex bg-gray-100 dark:bg-white/[0.06] rounded-xl p-1">
+        {['expense', 'income'].map(t => (
+            <button
+                key={t}
+                type="button"
+                onClick={() => onChange(t)}
+                className={`flex-1 py-2 text-[12px] font-bold rounded-lg transition-all duration-200
+                            ${value === t
+                        ? t === 'expense'
+                            ? 'bg-white dark:bg-white/[0.12] shadow-sm text-rose-500'
+                            : 'bg-white dark:bg-white/[0.12] shadow-sm text-emerald-500'
+                        : 'text-gray-400 dark:text-white/30'}`}
+            >
+                {translate(t)}
+            </button>
+        ))}
+    </div>
+);
+
+/* ── Styled select ── */
+const StyledSelect = ({ label, value, onChange, children }) => (
+    <div>
+        <label className="block text-[11px] font-semibold text-gray-400 dark:text-white/40 uppercase tracking-wide mb-1.5">
+            {label}
+        </label>
+        <div className="relative">
+            <select
+                value={value}
+                onChange={onChange}
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-white/[0.05]
+                           border border-gray-200 dark:border-white/[0.08]
+                           rounded-xl text-[14px] text-gray-800 dark:text-white
+                           focus:outline-none focus:ring-2 focus:ring-violet-500/40
+                           transition-all appearance-none pr-8 cursor-pointer"
+            >
+                {children}
+            </select>
+            <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 dark:text-white/30 pointer-events-none" />
+        </div>
+    </div>
+);
+
+/* ── Styled input ── */
+const StyledInput = ({ label, ...props }) => (
+    <div>
+        <label className="block text-[11px] font-semibold text-gray-400 dark:text-white/40 uppercase tracking-wide mb-1.5">
+            {label}
+        </label>
+        <input
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-white/[0.05]
+                       border border-gray-200 dark:border-white/[0.08]
+                       rounded-xl text-[14px] text-gray-800 dark:text-white
+                       placeholder:text-gray-300 dark:placeholder:text-white/20
+                       focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition-all"
+            {...props}
+        />
+    </div>
+);
+
 const RecurringView = ({ user, onBack }) => {
     const { t: translate } = useSettings();
     const [rules, setRules] = useState([]);
     const [showAddForm, setShowAddForm] = useState(false);
 
-    // Form State
     const [title, setTitle] = useState('');
     const [amount, setAmount] = useState('');
     const [type, setType] = useState('expense');
@@ -38,58 +107,46 @@ const RecurringView = ({ user, onBack }) => {
 
     useEffect(() => {
         if (!user) return;
-
         const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'recurring_transactions'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setRules(data);
+            setRules(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
-
         return () => unsubscribe();
     }, [user]);
+
+    const resetForm = () => {
+        setShowAddForm(false);
+        setEditingId(null);
+        setTitle('');
+        setAmount('');
+        setType('expense');
+        setFrequency('monthly');
+        setDay('1');
+    };
 
     const handleAddRule = async (e) => {
         e.preventDefault();
         if (!title || !amount) return;
-
         try {
             if (editingId) {
-                // Update
                 await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'recurring_transactions', editingId), {
-                    title,
-                    amount: parseFloat(amount),
-                    type,
-                    frequency,
-                    day: parseInt(day),
+                    title, amount: parseFloat(amount), type, frequency, day: parseInt(day),
                 });
             } else {
-                // Add
                 await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'recurring_transactions'), {
-                    title,
-                    amount: parseFloat(amount),
-                    type,
-                    frequency,
-                    day: parseInt(day),
-                    createdAt: new Date().toISOString(),
-                    // Start tracking from yesterday so it triggers today if needed, or null to trigger immediately
-                    lastProcessed: null
+                    title, amount: parseFloat(amount), type, frequency, day: parseInt(day),
+                    createdAt: new Date().toISOString(), lastProcessed: null
                 });
             }
-            setShowAddForm(false);
-            setEditingId(null);
-            setTitle('');
-            setAmount('');
+            resetForm();
         } catch (error) {
             console.error("Error adding rule:", error);
-            alert("Σφάλμα κατά την προσθήκη.");
+            alert("Error saving rule.");
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Διαγραφή επαναλαμβανόμενης συναλλαγής;')) {
+        if (window.confirm(translate('delete_recurring_confirm') || 'Delete this recurring transaction?')) {
             try {
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'recurring_transactions', id));
             } catch (error) {
@@ -109,188 +166,237 @@ const RecurringView = ({ user, onBack }) => {
     };
 
     return (
-        <div className="bg-[#F9F9F9] dark:bg-gray-900 h-screen flex flex-col animate-fade-in relative z-50 transition-colors duration-300">
-            {/* Header */}
-            <div className="bg-white dark:bg-gray-800 px-6 pt-12 pb-6 shadow-sm border-b border-gray-100 dark:border-gray-700 shrink-0 transition-colors duration-300">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={onBack}
-                        className="p-2 bg-gray-50 dark:bg-gray-700 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-300"
-                    >
-                        <ArrowLeft size={20} />
-                    </button>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{translate('recurring_title')}</h2>
+        <div className="h-full bg-gray-50 dark:bg-[#0f0f14] flex flex-col animate-fade-in transition-colors duration-300">
+
+            {/* ───────── Header ───────── */}
+            <div className="shrink-0 bg-white dark:bg-white/[0.03]
+                            border-b border-gray-100 dark:border-white/[0.06]
+                            shadow-[0_1px_0_rgba(0,0,0,0.04)] dark:shadow-none
+                            px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 sticky top-0 z-10
+                            backdrop-blur-xl transition-colors duration-300">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={onBack}
+                            className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/[0.07]
+                                       flex items-center justify-center
+                                       text-gray-600 dark:text-white/60
+                                       hover:bg-gray-200 dark:hover:bg-white/[0.12]
+                                       active:scale-90 transition-all"
+                        >
+                            <ArrowLeft size={17} strokeWidth={2.5} />
+                        </button>
+                        <div>
+                            <h2 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight">
+                                {translate('recurring_title')}
+                            </h2>
+                            <p className="text-[11px] text-gray-400 dark:text-white/35">Auto-scheduled payments</p>
+                        </div>
+                    </div>
+                    {!showAddForm && (
+                        <button
+                            onClick={() => setShowAddForm(true)}
+                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl
+                                       bg-violet-600 hover:bg-violet-700
+                                       text-white text-[12px] font-bold
+                                       shadow-[0_2px_12px_rgba(124,58,237,0.4)]
+                                       active:scale-95 transition-all"
+                        >
+                            <Plus size={14} strokeWidth={2.5} />
+                            {translate('add_recurring')}
+                        </button>
+                    )}
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-24">
+            {/* ───────── Content ───────── */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-10">
 
-                {/* Intro Card */}
+                {/* Empty State */}
                 {!showAddForm && rules.length === 0 && (
-                    <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-2xl text-center border border-indigo-100 dark:border-indigo-800/30">
-                        <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-800/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Repeat size={32} />
+                    <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
+                        <div className="w-20 h-20 rounded-[24px] bg-violet-50 dark:bg-violet-500/10
+                                        flex items-center justify-center mb-5
+                                        shadow-[0_0_32px_rgba(124,58,237,0.12)]">
+                            <Repeat size={34} className="text-violet-500 dark:text-violet-400" strokeWidth={1.5} />
                         </div>
-                        <h3 className="font-bold text-gray-900 dark:text-white mb-2">{translate('auto_transactions')}</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <h3 className="font-bold text-[17px] text-gray-900 dark:text-white mb-2">
+                            {translate('auto_transactions')}
+                        </h3>
+                        <p className="text-[13px] text-gray-400 dark:text-white/35 leading-relaxed max-w-xs">
                             {translate('auto_trans_desc')}
                         </p>
+                        <button
+                            onClick={() => setShowAddForm(true)}
+                            className="mt-6 flex items-center gap-2 px-5 py-3 rounded-2xl
+                                       bg-violet-600 hover:bg-violet-700 text-white font-bold text-[13px]
+                                       shadow-[0_4px_16px_rgba(124,58,237,0.35)]
+                                       active:scale-95 transition-all"
+                        >
+                            <Plus size={16} strokeWidth={2.5} />
+                            {translate('add_recurring')}
+                        </button>
                     </div>
                 )}
 
-                {/* List of Rules */}
-                <div className="space-y-4">
-                    {rules.map(rule => (
-                        <div key={rule.id} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex justify-between items-center group">
-                            <div className="flex items-center gap-4">
-                                <div className={`p-3 rounded-xl ${rule.type === 'income'
-                                    ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                                    : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
-                                    }`}>
-                                    {rule.type === 'income' ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-gray-900 dark:text-white">{rule.title}</h4>
-                                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                        <Calendar size={12} />
-                                        <span>{translate('every_month_day', { day: rule.day })}</span>
+                {/* Rules List */}
+                {rules.length > 0 && (
+                    <div>
+                        <SectionLabel>Active rules ({rules.length})</SectionLabel>
+                        <div className="space-y-3">
+                            {rules.map(rule => (
+                                <div
+                                    key={rule.id}
+                                    className="bg-white dark:bg-white/[0.04] rounded-2xl
+                                               border border-gray-100 dark:border-white/[0.06]
+                                               shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-none
+                                               overflow-hidden"
+                                >
+                                    <div className="flex items-center gap-3.5 p-4">
+                                        {/* Icon */}
+                                        <div className={`w-10 h-10 rounded-[13px] flex items-center justify-center flex-shrink-0
+                                                          ${rule.type === 'income'
+                                                ? 'bg-emerald-50 dark:bg-emerald-500/10'
+                                                : 'bg-rose-50 dark:bg-rose-500/10'}`}>
+                                            {rule.type === 'income'
+                                                ? <TrendingUp size={18} className="text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                                                : <TrendingDown size={18} className="text-rose-500" strokeWidth={2} />
+                                            }
+                                        </div>
+
+                                        {/* Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-bold text-[14px] text-gray-900 dark:text-white truncate">{rule.title}</h4>
+                                            <div className="flex items-center gap-1.5 mt-0.5">
+                                                <Calendar size={10} className="text-gray-400 dark:text-white/30" />
+                                                <span className="text-[11px] text-gray-400 dark:text-white/35">
+                                                    {translate('every_month_day', { day: rule.day })}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Amount + actions */}
+                                        <div className="flex flex-col items-end gap-1.5">
+                                            <span className={`text-[15px] font-bold
+                                                              ${rule.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
+                                                {rule.type === 'income' ? '+' : '-'}{rule.amount.toFixed(2)}€
+                                            </span>
+                                            <div className="flex gap-1">
+                                                <button
+                                                    onClick={() => handleEdit(rule)}
+                                                    className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-white/[0.06]
+                                                               flex items-center justify-center
+                                                               text-gray-400 hover:text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-500/10
+                                                               active:scale-90 transition-all"
+                                                >
+                                                    <Pencil size={12} strokeWidth={2.5} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(rule.id)}
+                                                    className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-white/[0.06]
+                                                               flex items-center justify-center
+                                                               text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10
+                                                               active:scale-90 transition-all"
+                                                >
+                                                    <Trash2 size={12} strokeWidth={2.5} />
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="text-right">
-                                <p className={`font-bold ${rule.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                                    }`}>
-                                    {rule.type === 'income' ? '+' : '-'}{rule.amount.toFixed(2)}€
-                                </p>
-                                <div className="flex justify-end gap-1">
-                                    <button
-                                        onClick={() => handleEdit(rule)}
-                                        className="p-2 text-gray-400 hover:text-indigo-500 transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100"
-                                    >
-                                        <Pencil size={16} />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(rule.id)}
-                                        className="p-2 text-gray-400 hover:text-red-500 transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Add / Edit Form */}
+                {showAddForm && (
+                    <div className="bg-white dark:bg-white/[0.04] rounded-2xl overflow-hidden
+                                    border border-gray-100 dark:border-white/[0.06]
+                                    shadow-[0_4px_24px_rgba(0,0,0,0.08)] dark:shadow-none
+                                    animate-slide-in-up">
+                        {/* Form Header */}
+                        <div className="flex items-center justify-between px-5 pt-5 pb-4
+                                        border-b border-gray-100 dark:border-white/[0.06]">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-[10px] bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center">
+                                    <Zap size={15} className="text-violet-600 dark:text-violet-400" strokeWidth={2.2} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-[14px] text-gray-900 dark:text-white leading-tight">
+                                        {editingId ? translate('edit_rule') : translate('new_rule')}
+                                    </h3>
+                                    <p className="text-[11px] text-gray-400 dark:text-white/35">Fill in the details below</p>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Add Button / Form */}
-                {showAddForm ? (
-                    <form onSubmit={handleAddRule} className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 space-y-4 animate-slide-up">
-                        <div className="flex justify-between items-center mb-2">
-                            <h3 className="font-bold text-gray-900 dark:text-white">{editingId ? translate('edit_rule') : translate('new_rule')}</h3>
                             <button
                                 type="button"
-                                onClick={() => {
-                                    setShowAddForm(false);
-                                    setEditingId(null);
-                                    setTitle('');
-                                    setAmount('');
-                                }}
-                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                onClick={resetForm}
+                                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.07]
+                                           flex items-center justify-center
+                                           text-gray-400 hover:text-gray-600 dark:hover:text-white/60
+                                           active:scale-90 transition-all"
                             >
-                                {translate('cancel')}
+                                <X size={14} />
                             </button>
                         </div>
 
-                        <div>
-                            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('title')}</label>
-                            <input
+                        {/* Form Body */}
+                        <form onSubmit={handleAddRule} className="p-5 space-y-4">
+                            <StyledInput
+                                label={translate('title')}
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                placeholder="π.χ. Netflix"
-                                className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white transition-all"
+                                placeholder="e.g. Netflix, Rent..."
                                 required
                             />
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('amount')} (€)</label>
-                                <input
+                            <div className="grid grid-cols-2 gap-3">
+                                <StyledInput
+                                    label={`${translate('amount')} (€)`}
                                     type="number"
                                     step="0.01"
+                                    min="0"
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
                                     placeholder="0.00"
-                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white transition-all"
                                     required
                                 />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('type')}</label>
-                                <div className="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => setType('expense')}
-                                        className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === 'expense' ? 'bg-white dark:bg-gray-600 shadow text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}
-                                    >
-                                        {translate('expense')}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setType('income')}
-                                        className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === 'income' ? 'bg-white dark:bg-gray-600 shadow text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}
-                                    >
-                                        {translate('income')}
-                                    </button>
+                                <div>
+                                    <label className="block text-[11px] font-semibold text-gray-400 dark:text-white/40 uppercase tracking-wide mb-1.5">
+                                        {translate('type')}
+                                    </label>
+                                    <TypeSelector value={type} onChange={setType} translate={translate} />
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('frequency')}</label>
-                                <select
-                                    value={frequency}
-                                    onChange={(e) => setFrequency(e.target.value)}
-                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white transition-all appearance-none"
-                                >
+                            <div className="grid grid-cols-2 gap-3">
+                                <StyledSelect label={translate('frequency')} value={frequency} onChange={(e) => setFrequency(e.target.value)}>
                                     <option value="monthly">{translate('monthly')}</option>
                                     <option value="weekly" disabled>{translate('weekly')} (Soon)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{translate('day_of_month')}</label>
-                                <select
-                                    value={day}
-                                    onChange={(e) => setDay(e.target.value)}
-                                    className="w-full p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white transition-all appearance-none"
-                                >
+                                </StyledSelect>
+                                <StyledSelect label={translate('day_of_month')} value={day} onChange={(e) => setDay(e.target.value)}>
                                     {[...Array(31)].map((_, i) => (
                                         <option key={i + 1} value={i + 1}>{i + 1}</option>
                                     ))}
-                                </select>
+                                </StyledSelect>
                             </div>
-                        </div>
 
-                        <button
-                            type="submit"
-                            className="w-full py-4 bg-gray-900 dark:bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 hover:shadow-xl active:scale-95 transition-all text-sm flex items-center justify-center gap-2"
-                        >
-                            <CheckCircle2 size={18} />
-                            {translate('save')}
-                        </button>
-
-                    </form>
-                ) : (
-                    <button
-                        onClick={() => setShowAddForm(true)}
-                        className="w-full py-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl text-gray-500 dark:text-gray-400 font-medium hover:border-indigo-500 hover:text-indigo-500 dark:hover:border-indigo-400 dark:hover:text-indigo-400 transition-colors flex items-center justify-center gap-2"
-                    >
-                        <Plus size={20} />
-                        {translate('add_recurring')}
-                    </button>
+                            <button
+                                type="submit"
+                                className="w-full py-4 mt-1 rounded-xl font-bold text-[14px] text-white
+                                           bg-violet-600 hover:bg-violet-700
+                                           shadow-[0_4px_16px_rgba(124,58,237,0.35)]
+                                           active:scale-[0.98] transition-all
+                                           flex items-center justify-center gap-2"
+                            >
+                                <CheckCircle2 size={17} strokeWidth={2.2} />
+                                {translate('save')}
+                            </button>
+                        </form>
+                    </div>
                 )}
-
             </div>
         </div>
     );
