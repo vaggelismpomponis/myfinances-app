@@ -35,6 +35,7 @@ export const SettingsProvider = ({ children }) => {
 
     useEffect(() => {
         localStorage.setItem('language', language);
+        document.documentElement.lang = language;
     }, [language]);
 
     useEffect(() => {

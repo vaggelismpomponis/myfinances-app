@@ -36,7 +36,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                                         transition-all duration-300 ease-out
                                         ${active
                                             ? 'text-violet-600 dark:text-violet-400'
-                                            : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
+                                            : 'text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-400'
                                         }`}
                         >
                             {/* Icon with active highlight ring */}
@@ -48,7 +48,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                                 <Icon
                                     size={20}
                                     strokeWidth={active ? 2.5 : 1.8}
-                                    className={`transition-all duration-300 ${active ? 'text-white' : ''}`}
+                                    className={`transition-all duration-300 ${active ? 'text-violet-600 dark:text-white' : ''}`}
                                 />
                             </span>
                             <span className={`text-[10px] font-semibold tracking-wide transition-all duration-300

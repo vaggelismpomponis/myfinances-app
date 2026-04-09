@@ -389,7 +389,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4 animate-fade-in">
+        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4 animate-fade-in">
             <div className="bg-white dark:bg-gray-800 w-full max-w-md h-[100dvh] sm:h-auto sm:max-h-[95vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-up relative transition-colors">
 
                 {/* Voice Input Overlay */}
