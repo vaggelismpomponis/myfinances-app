@@ -161,7 +161,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                             bg="bg-green-50 dark:bg-green-500/10"
                             onClick={() => {
                                 const link = document.createElement('a');
-                                link.href = '/app.apk';
+                                link.href = '/SpendWise.apk';
                                 link.download = 'SpendWise.apk';
                                 document.body.appendChild(link);
                                 link.click();
