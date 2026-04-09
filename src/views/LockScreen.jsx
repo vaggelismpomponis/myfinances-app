@@ -20,10 +20,10 @@ const LockScreen = ({ onSignOut, user }) => {
             const result = await NativeBiometric.isAvailable();
             if (!result.isAvailable) { setIsScanning(false); return; }
             await NativeBiometric.verifyIdentity({
-                reason: 'Identify yourself to unlock the app',
-                title: 'Login',
+                reason: ' ', // Empty string might fall back, using a space to be safe, but iOS requires reason
+                title: 'Σύνδεση',
                 subtitle: 'Use Face ID or Fingerprint',
-                description: 'Confirm your identity',
+                description: '',
             });
             unlockApp();
             setPin('');

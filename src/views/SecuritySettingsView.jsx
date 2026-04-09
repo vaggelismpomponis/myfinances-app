@@ -126,8 +126,8 @@ const SecuritySettingsView = ({ user, onBack }) => {
                     return;
                 }
                 await NativeBiometric.verifyIdentity({
-                    reason: "Confirm to enable biometrics",
-                    title: "Enable Biometrics",
+                    reason: "Επιβεβαιώστε για ενεργοποίηση των βιομετρικών",
+                    title: "Ενεργοποίηση Βιομετρικών",
                     subtitle: "",
                     description: "",
                 });
