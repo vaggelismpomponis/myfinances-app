@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     User, Settings, LogOut, ChevronRight,
     Cloud, Shield, ArrowLeft, Moon, Sun, Repeat,
-    Sparkles, CheckCircle, Wifi
+    Sparkles, CheckCircle, Wifi, Smartphone
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { useToast } from '../contexts/ToastContext';
@@ -152,6 +152,21 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                             color="text-cyan-500 dark:text-cyan-400"
                             bg="bg-cyan-50 dark:bg-cyan-500/10"
                             onClick={onRecurring}
+                        />
+                        <SettingRow
+                            icon={Smartphone}
+                            label={translate('install_android')}
+                            sublabel={translate('install_android_desc')}
+                            color="text-green-500 dark:text-green-400"
+                            bg="bg-green-50 dark:bg-green-500/10"
+                            onClick={() => {
+                                const link = document.createElement('a');
+                                link.href = '/app.apk';
+                                link.download = 'MyFinances.apk';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            }}
                         />
                         <SettingRow
                             icon={Settings}
