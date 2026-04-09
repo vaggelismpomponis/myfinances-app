@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'MyFinances App',
-        short_name: 'MyFinances',
+        name: 'SpendWise',
+        short_name: 'SpendWise',
         description: 'Track your income and expenses easily.',
         theme_color: '#4f46e5',
         background_color: '#ffffff',

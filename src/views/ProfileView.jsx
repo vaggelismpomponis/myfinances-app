@@ -162,7 +162,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                             onClick={() => {
                                 const link = document.createElement('a');
                                 link.href = '/app.apk';
-                                link.download = 'MyFinances.apk';
+                                link.download = 'SpendWise.apk';
                                 document.body.appendChild(link);
                                 link.click();
                                 document.body.removeChild(link);
@@ -210,7 +210,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                 <div className="text-center pt-3 pb-4">
                     <div className="flex items-center justify-center gap-1.5 mb-1.5">
                         <Sparkles size={11} className="text-violet-400" />
-                        <span className="text-[12px] font-bold gradient-text">MyFinances</span>
+                        <span className="text-[12px] font-bold gradient-text">SpendWise</span>
                     </div>
                     <p className="text-[10px] text-gray-300 dark:text-white/20">
                         {translate('version')} • 2026

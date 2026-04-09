@@ -105,7 +105,7 @@ const LoginView = ({ onGoogleLogin, onEmailLogin, onRegister }) => {
                         <Wallet size={28} className="text-white relative z-10" />
                     </div>
                 </div>
-                <h1 className="text-3xl font-black gradient-text tracking-tight">MyFinances</h1>
+                <h1 className="text-3xl font-black gradient-text tracking-tight">SpendWise</h1>
                 <p className="text-gray-400 text-sm mt-1 font-medium">
                     {isLogin ? 'Καλωσήρθες πίσω! 👋' : 'Ξεκίνα σήμερα. Δωρεάν!'}
                 </p>
