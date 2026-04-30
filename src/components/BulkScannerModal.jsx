@@ -5,9 +5,11 @@ import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { getCroppedImg } from '../utils/canvasUtils';
 import { useToast } from '../contexts/ToastContext';
+import { useSettings } from '../contexts/SettingsContext';
 
 const BulkScannerModal = ({ onClose, onScanComplete }) => {
     // Array of images: { id, src, croppedSrc, status: 'pending' | 'cropping' | 'ready' | 'processing' | 'done', result: null | {amount, date, note} }
+    const { t } = useSettings();
     const [images, setImages] = useState([]);
     const { showToast } = useToast();
     const [activeIndex, setActiveIndex] = useState(null); // Index of image being cropped
@@ -119,7 +121,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
 
         } catch (e) {
             console.error(e);
-            alert("Σφάλμα κατά την εξαγωγή της εικόνας.");
+            alert(t('error_processing') || "Σφάλμα κατά την εξαγωγή της εικόνας.");
         }
     };
 
@@ -201,7 +203,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
             setActiveIndex(null);
         } catch (e) {
             console.error(e);
-            alert("Σφάλμα κατά την επεξεργασία της εικόνας.");
+            alert(t('error_processing') || "Σφάλμα κατά την επεξεργασία της εικόνας.");
         }
     };
 
@@ -430,12 +432,12 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-            <div className={`bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md ${isCropping ? 'h-[90vh]' : 'max-h-[85vh]'} overflow-hidden shadow-2xl relative flex flex-col transition-all duration-300`}>
+            <div className={`bg-white dark:bg-surface-dark2 rounded-3xl w-full max-w-md ${isCropping ? 'h-[90vh]' : 'max-h-[85vh]'} overflow-hidden shadow-2xl relative flex flex-col transition-all duration-300`}>
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/8">
+                <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-transparent">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                        {isCropping ? 'Περικοπή Εικόνας' : 'Μαζική Σάρωση'}
+                        {isCropping ? t('crop_image') : t('bulk_scan_title')}
                     </h2>
                     <button
                         onClick={onClose}
@@ -471,15 +473,15 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                             </div>
 
                             <p className="text-center text-xs text-gray-400 mb-4">
-                                Σύρετε τις γωνίες για να επιλέξετε την περιοχή
+                                {t('crop_drag')}
                             </p>
 
                             <div className="grid grid-cols-3 gap-3 mt-auto">
                                 <button
                                     onClick={handleCropCancel}
-                                    className="px-4 py-3 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                    className="px-4 py-3 text-sm font-bold text-gray-700 dark:text-white/90 bg-gray-100 dark:bg-surface-dark3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                                 >
-                                    Ακύρωση
+                                    {t('cancel')}
                                 </button>
                                 <button
                                     onClick={handleExtractCrop}
@@ -487,7 +489,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                                     title="Προσθήκη ως νέο απόκομμα"
                                 >
                                     <Plus size={18} />
-                                    Προσθήκη
+                                    {t('add')}
                                 </button>
                                 <button
                                     onClick={handleCropConfirm}
@@ -505,7 +507,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                             <p className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                                 Επεξεργασία {progress.current + 1} από {progress.total}
                             </p>
-                            <div className="w-full max-w-xs h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div className="w-full max-w-xs h-2 bg-gray-200 dark:bg-surface-dark3 rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-indigo-600 transition-all duration-300"
                                     style={{ width: `${progress.percent}%` }}
@@ -522,7 +524,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                                     {images.map((img, idx) => (
                                         <div
                                             key={img.id}
-                                            className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 group"
+                                            className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-surface-dark3 border-2 border-gray-200 group"
                                         >
                                             <img
                                                 src={img.croppedSrc || img.src}
@@ -584,17 +586,17 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                                 >
                                     <Camera size={28} className="text-indigo-600 dark:text-indigo-400 mb-2" />
                                     <span className="font-bold text-sm text-indigo-900 dark:text-indigo-200">
-                                        {hasImages ? 'Άλλη Φωτό' : 'Κάμερα'}
+                                        {hasImages ? t('another_photo') : t('camera')}
                                     </span>
                                 </button>
 
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-2xl transition-colors border-2 border-gray-100"
+                                    className="flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-surface-dark3 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-2xl transition-colors border-2 border-gray-100"
                                 >
                                     <Upload size={28} className="text-gray-600 dark:text-gray-400 mb-2" />
                                     <span className="font-bold text-sm text-gray-700 dark:text-gray-300">
-                                        {hasImages ? 'Άλλα Αρχεία' : 'Αρχεία'}
+                                        {hasImages ? t('other_files') : t('files')}
                                     </span>
                                 </button>
                             </div>
@@ -643,7 +645,7 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
                 {!isCropping && !processing && !hasImages && (
                     <div className="p-4 border-t border-gray-100">
                         <p className="text-xs text-center text-gray-400 dark:text-gray-500">
-                            Προσθέστε αποδείξεις για μαζική σάρωση
+                            {t('bulk_scan_description')}
                         </p>
                     </div>
                 )}
@@ -653,3 +655,12 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
 };
 
 export default BulkScannerModal;
+
+
+
+
+
+
+
+
+

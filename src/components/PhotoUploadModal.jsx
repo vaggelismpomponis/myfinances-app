@@ -107,13 +107,13 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in text-gray-900 dark:text-gray-100">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in text-gray-900 dark:text-white">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden border border-gray-100 dark:border-transparent font-sans">
+            <div className="bg-white dark:bg-surface-dark2 rounded-3xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden border border-gray-100 dark:border-transparent font-sans">
 
                 {/* Header */}
-                <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-white/8">
+                <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-transparent">
                     <h3 className="text-lg font-bold">Αλλαγή Φωτογραφίας</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
                         <X size={20} />
@@ -126,7 +126,7 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
                             className="border-2 border-dashed border-gray-200 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-all group"
                             onClick={() => document.getElementById('modal-upload').click()}
                         >
-                            <div className="w-16 h-16 bg-gray-50 dark:bg-gray-700 text-gray-400 group-hover:text-indigo-500 rounded-full flex items-center justify-center mb-4 transition-colors">
+                            <div className="w-16 h-16 bg-gray-50 dark:bg-surface-dark3 text-gray-400 group-hover:text-indigo-500 rounded-full flex items-center justify-center mb-4 transition-colors">
                                 <Upload size={32} />
                             </div>
                             <p className="font-bold text-gray-700 dark:text-gray-300">Πάτησε εδώ για μεταφόρτωση</p>
@@ -179,7 +179,7 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
                                         step="0.05"
                                         value={zoom}
                                         onChange={(e) => setZoom(parseFloat(e.target.value))}
-                                        className="flex-1 accent-indigo-600 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                                        className="flex-1 accent-indigo-600 h-1.5 bg-gray-200 dark:bg-surface-dark3 rounded-lg appearance-none cursor-pointer"
                                     />
                                     <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="text-gray-400 hover:text-indigo-500">
                                         <ZoomIn size={20} />
@@ -189,7 +189,7 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
                                 <div className="flex gap-3 pt-2">
                                     <button
                                         onClick={() => setImage(null)}
-                                        className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                        className="flex-1 py-3 bg-gray-100 dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                                     >
                                         Ακύρωση
                                     </button>
@@ -210,3 +210,12 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
 };
 
 export default PhotoUploadModal;
+
+
+
+
+
+
+
+
+

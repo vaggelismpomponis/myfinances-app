@@ -4,8 +4,10 @@ import Tesseract from 'tesseract.js';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { getCroppedImg } from '../utils/canvasUtils';
+import { useSettings } from '../contexts/SettingsContext';
 
 const ScannerModal = ({ onClose, onScanComplete }) => {
+    const { t } = useSettings();
     const [image, setImage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -103,7 +105,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
 
         } catch (e) {
             console.error(e);
-            alert("Σφάλμα κατά την επεξεργασία της εικόνας.");
+            alert(t('error_processing') || "Σφάλμα κατά την επεξεργασία της εικόνας.");
         }
     };
 
@@ -195,7 +197,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
         }
         if (!note) note = "Απόδειξη";
 
-        console.log("Extracted:", { amount, date, note });
+
 
         onScanComplete({ amount, date, note });
         onClose();
@@ -203,12 +205,12 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-            <div className={`bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md ${isCropping ? 'h-[90vh]' : 'max-h-[85vh]'} overflow-hidden shadow-2xl relative flex flex-col transition-all`}>
+            <div className={`bg-white dark:bg-surface-dark2 rounded-3xl w-full max-w-md ${isCropping ? 'h-[90vh]' : 'max-h-[85vh]'} overflow-hidden shadow-2xl relative flex flex-col transition-all`}>
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/8">
+                <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-transparent">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {isCropping ? 'Περικοπή Εικόνας' : 'Σάρωση Απόδειξης'}
+                        {isCropping ? t('crop_image') : t('scan_receipt')}
                     </h2>
                     <button
                         onClick={onClose}
@@ -239,28 +241,28 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                             </div>
 
                             <p className="text-center text-xs text-gray-400 mb-4">
-                                Σύρετε τις γωνίες για να επιλέξετε την περιοχή
+                                {t('crop_drag')}
                             </p>
 
                             <div className="grid grid-cols-2 gap-3 mt-auto">
                                 <button
                                     onClick={() => { setIsCropping(false); setImage(null); }}
-                                    className="px-4 py-3 text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                    className="px-4 py-3 text-sm font-bold text-gray-700 dark:text-white/90 bg-gray-100 dark:bg-surface-dark3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                                 >
-                                    Ακύρωση
+                                    {t('cancel')}
                                 </button>
                                 <button
                                     onClick={handleCropConfirm}
                                     className="px-4 py-3 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Check size={18} />
-                                    Σάρωση
+                                    {t('scan')}
                                 </button>
                             </div>
                         </div>
                     ) : image ? (
                         /* Processing View */
-                        <div className="relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 aspect-[3/4] mb-6 border-2 border-dashed border-gray-300">
+                        <div className="relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-surface-dark aspect-[3/4] mb-6 border-2 border-dashed border-gray-300">
                             <img src={image} alt="Receipt" className="w-full h-full object-contain" />
 
                             {loading && (
@@ -284,15 +286,15 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                                 className="flex flex-col items-center justify-center p-8 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-2xl transition-colors border-2 border-indigo-100"
                             >
                                 <Camera size={32} className="text-indigo-600 dark:text-indigo-400 mb-3" />
-                                <span className="font-bold text-indigo-900 dark:text-indigo-200">Κάμερα</span>
+                                <span className="font-bold text-indigo-900 dark:text-indigo-200">{t('camera')}</span>
                             </button>
 
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl transition-colors border-2 border-gray-100"
+                                className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-surface-dark2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl transition-colors border-2 border-gray-100"
                             >
                                 <Upload size={32} className="text-gray-600 dark:text-gray-400 mb-3" />
-                                <span className="font-bold text-gray-700 dark:text-gray-300">Αρχείο</span>
+                                <span className="font-bold text-gray-700 dark:text-gray-300">{t('file')}</span>
                             </button>
                         </div>
                     )}
@@ -316,7 +318,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
 
                     {!image && !isCropping && (
                         <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs mx-auto text-center">
-                            Το σύστημα θα προσπαθήσει να αναγνωρίσει αυτόματα την ημερομηνία και το ποσό.
+                            {t('scan_description')}
                         </p>
                     )}
                 </div>
@@ -326,3 +328,12 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
 };
 
 export default ScannerModal;
+
+
+
+
+
+
+
+
+

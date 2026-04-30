@@ -1,5 +1,4 @@
-import { collection, doc, setDoc, getDocs, query, where, updateDoc } from 'firebase/firestore';
-import { db, appId } from '../firebase';
+import { supabase } from '../supabase';
 
 export const trackSession = async (user) => {
     if (!user) return;
@@ -8,8 +7,7 @@ export const trackSession = async (user) => {
     let location = 'Unknown';
 
     try {
-        // 1. Get IP & Location (Best effort)
-        const response = await fetch('https://ipapi.co/json/');
+        const response = await fetch('https://ipwho.is/');
         if (response.ok) {
             const data = await response.json();
             ip = data.ip || 'Unknown';
@@ -19,7 +17,7 @@ export const trackSession = async (user) => {
         console.warn("IP fetch failed, continuing without location data.");
     }
 
-    // 2. Parsed Device Info
+    // Parsed Device Info
     const ua = navigator.userAgent;
     let device = "Unknown Device";
     if (ua.includes("iPhone")) device = "iPhone";
@@ -35,32 +33,41 @@ export const trackSession = async (user) => {
     else if (ua.includes("Edge")) device += " (Edge)";
 
     const sessionData = {
+        user_id: user.id,
+        email: user.email,
+        display_name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0],
         ip,
         location,
         device,
-        lastActive: new Date().toISOString(),
-        userAgent: ua,
-        isCurrent: true // Marker for UI
+        last_active: new Date().toISOString(),
+        user_agent: ua,
     };
 
-    // 3. Identification (Simple localStorage persistence to track "this" browser)
     let sessionId = localStorage.getItem('myfinances_session_id');
-    const sessionsRef = collection(db, 'artifacts', appId, 'users', user.uid, 'sessions');
 
     if (sessionId) {
-        // Update existing
-        await setDoc(doc(sessionsRef, sessionId), sessionData, { merge: true });
-    } else {
-        // Create new
-        const newDoc = await setDoc(doc(sessionsRef), sessionData);
-        // setDoc requires an ID if we want one, or we use addDoc. 
-        // Actually, let's use doc() to generate ID if we want, or just addDoc then save ID.
-        // Let's use custom ID generation for cleaner control or just let firestore handle it.
-        // Better:
-        const newSessionRef = doc(sessionsRef);
-        await setDoc(newSessionRef, sessionData);
-        localStorage.setItem('myfinances_session_id', newSessionRef.id);
+        // Update existing session
+        const { error } = await supabase
+            .from('sessions')
+            .update({ ...sessionData, last_active: new Date().toISOString() })
+            .eq('id', sessionId);
+
+        if (error) {
+            // Session might have been deleted, create a new one
+            sessionId = null;
+        }
     }
 
+    if (!sessionId) {
+        // Create new session
+        const { data, error } = await supabase
+            .from('sessions')
+            .insert(sessionData)
+            .select()
+            .single();
 
+        if (!error && data) {
+            localStorage.setItem('myfinances_session_id', data.id);
+        }
+    }
 };

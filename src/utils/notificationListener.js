@@ -1,9 +1,11 @@
-import { registerPlugin } from '@capacitor/core';
+import { registerPlugin, Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 
 const TransactionReader = registerPlugin('TransactionReader');
 
 export const setupNotificationListener = (onTransactionsFound) => {
+    if (!Capacitor.isNativePlatform()) return () => {};
+
     const checkTransactions = async () => {
         try {
             console.log("[DEBUG] Polling for transactions...");

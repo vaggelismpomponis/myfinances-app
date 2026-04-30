@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, Delete, ScanFace, LogOut, X, Check } from 'lucide-react';
 import { NativeBiometric } from '@capgo/capacitor-native-biometric';
+import { Capacitor } from '@capacitor/core';
 import { useSettings } from '../contexts/SettingsContext';
-import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { supabase } from '../supabase';
+import PromptModal from '../components/PromptModal';
+
+const BIOMETRIC_SERVER = 'app.myfinances.lock';
 
 const LockScreen = ({ onSignOut, user }) => {
-    const { appPin, unlockApp, isBiometricsEnabled, removePin, toggleBiometrics } = useSettings();
+    const { appPin, unlockApp, isBiometricsEnabled, removePin, toggleBiometrics, t } = useSettings();
     const [pin, setPin] = useState('');
     const [error, setError] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
     const [showForgotModal, setShowForgotModal] = useState(false);
-    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [resetError, setResetError] = useState('');
 
@@ -19,15 +22,37 @@ const LockScreen = ({ onSignOut, user }) => {
         try {
             const result = await NativeBiometric.isAvailable();
             if (!result.isAvailable) { setIsScanning(false); return; }
-            await NativeBiometric.verifyIdentity({
-                reason: ' ', // Empty string might fall back, using a space to be safe, but iOS requires reason
-                title: 'Σύνδεση',
-                subtitle: 'Use Face ID or Fingerprint',
-                description: '',
-            });
-            unlockApp();
-            setPin('');
-        } catch { /* cancelled */ }
+
+            if (Capacitor.isNativePlatform()) {
+                // Native: first show the OS biometric prompt, then retrieve the keychain token.
+                // The token (PIN) is only accessible after the OS confirms biometric identity.
+                await NativeBiometric.verifyIdentity({
+                    reason: t('biometric_reason'),
+                    title: t('biometric_title'),
+                    subtitle: t('biometric_subtitle'),
+                    description: '',
+                });
+                // If verifyIdentity resolves, biometrics succeeded — retrieve the secure token
+                const credentials = await NativeBiometric.getCredentials({
+                    server: BIOMETRIC_SERVER,
+                });
+                // Verify the returned token matches our stored PIN as a sanity check
+                if (credentials.password === appPin) {
+                    unlockApp();
+                    setPin('');
+                }
+            } else {
+                // Web fallback: verify identity then trust local PIN
+                await NativeBiometric.verifyIdentity({
+                    reason: ' ',
+                    title: t('biometric_title'),
+                    subtitle: t('biometric_subtitle'),
+                    description: '',
+                });
+                unlockApp();
+                setPin('');
+            }
+        } catch { /* cancelled or failed */ }
         finally { setIsScanning(false); }
     };
 
@@ -53,18 +78,20 @@ const LockScreen = ({ onSignOut, user }) => {
         }
     }, [pin, appPin, unlockApp]);
 
-    const handleForgotPinSubmit = async (e) => {
-        e.preventDefault();
+    const handleForgotPinSubmit = async (submittedPassword) => {
         setLoading(true);
         setResetError('');
         try {
-            const credential = EmailAuthProvider.credential(user.email, password);
-            await reauthenticateWithCredential(user, credential);
+            const { error } = await supabase.auth.signInWithPassword({
+                email: user.email,
+                password: submittedPassword
+            });
+            if (error) throw error;
             removePin();
             toggleBiometrics(false);
             unlockApp();
         } catch {
-            setResetError('Λάθος κωδικός πρόσβασης.');
+            setResetError(t('wrong_password'));
         } finally {
             setLoading(false);
         }
@@ -82,15 +109,12 @@ const LockScreen = ({ onSignOut, user }) => {
             <div className="flex flex-col items-center mb-10 animate-slide-in-up">
                 <div className="relative mb-4">
                     <div className="absolute inset-0 rounded-2xl bg-violet-600/40 blur-lg scale-110 animate-glow-pulse" />
-                    <div className="relative w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-700
-                                    rounded-2xl flex items-center justify-center
-                                    shadow-glow-violet border border-violet-400/30">
-                        <div className="absolute top-1 left-1.5 w-8 h-3 bg-white/20 rounded-full blur-sm rotate-[-25deg]" />
-                        <Wallet size={28} className="text-white relative z-10" />
+                    <div className="relative w-16 h-16 flex items-center justify-center z-10 animate-glow-pulse">
+                        <img src="/spendwise-logo.png" alt="App Logo" className="w-16 h-16 drop-shadow-md object-contain" />
                     </div>
                 </div>
-                <h1 className="text-2xl font-black text-white mb-1">Καλωσήρθατε</h1>
-                <p className="text-sm text-gray-400 font-medium">Εισάγετε το PIN σας για είσοδο</p>
+                <h1 className="text-2xl font-black text-white mb-1">{t('lock_welcome')}</h1>
+                <p className="text-sm text-gray-400 font-medium">{t('lock_enter_pin')}</p>
             </div>
 
             {/* PIN dots */}
@@ -158,67 +182,41 @@ const LockScreen = ({ onSignOut, user }) => {
             <div className="flex flex-col items-center gap-3">
                 <button onClick={() => setShowForgotModal(true)}
                         className="text-sm font-bold text-violet-400 hover:text-violet-300 transition-colors">
-                    Ξέχασα το PIN μου
+                    {t('forgot_pin')}
                 </button>
                 <button onClick={onSignOut}
                         className="flex items-center gap-2 text-xs font-medium
                                    text-gray-500 hover:text-rose-400 transition-colors">
-                    <LogOut size={14} /> Αποσύνδεση
+                    <LogOut size={14} /> {t('sign_out')}
                 </button>
             </div>
 
             {/* Forgot PIN modal */}
-            {showForgotModal && (
-                <div className="fixed inset-0 z-[110] flex items-end justify-center animate-fade-in">
-                    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-                         onClick={() => setShowForgotModal(false)} />
-                    <div className="relative z-10 w-full max-w-md
-                                    bg-surface-dark2 dark:bg-surface-dark2
-                                    rounded-t-[2rem] p-7
-                                    border-t border-x border-white/10
-                                    shadow-2xl animate-slide-up">
-                        <div className="w-10 h-1 bg-gray-600 rounded-full mx-auto mb-5" />
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-white">Επαναφορά Πρόσβασης</h3>
-                            <button onClick={() => setShowForgotModal(false)}
-                                    className="p-2 rounded-full hover:bg-white/10 text-gray-400 transition-colors">
-                                <X size={18} />
-                            </button>
-                        </div>
-                        <p className="text-sm text-gray-400 mb-5">
-                            Εισάγετε τον κωδικό του λογαριασμού σας για να ξεκλειδώσετε και να επαναφέρετε τις ρυθμίσεις ασφαλείας.
-                        </p>
-                        <form onSubmit={handleForgotPinSubmit} className="space-y-4">
-                            {resetError && (
-                                <div className="bg-rose-900/30 text-rose-400 text-xs p-3 rounded-xl border border-rose-800/40">
-                                    {resetError}
-                                </div>
-                            )}
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                placeholder="Κωδικός λογαριασμού"
-                                required
-                                className="input-glow w-full px-4 py-3 rounded-xl text-sm
-                                           bg-white/8 border border-white/10
-                                           text-white placeholder-gray-600
-                                           transition-all duration-200"
-                            />
-                            <button type="submit" disabled={loading}
-                                    className="w-full py-3.5 rounded-xl font-bold text-sm text-white
-                                               bg-gradient-to-r from-violet-600 to-violet-700
-                                               shadow-glow-sm hover:from-violet-500
-                                               active:scale-[0.98] disabled:opacity-60
-                                               transition-all duration-200">
-                                {loading ? 'Έλεγχος...' : 'Ξεκλείδωμα'}
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            )}
+            <PromptModal
+                isOpen={showForgotModal}
+                onClose={() => setShowForgotModal(false)}
+                onSubmit={(val) => {
+                    handleForgotPinSubmit(val);
+                }}
+                title={t('reset_access')}
+                description={t('reset_access_desc')}
+                placeholder={t('account_password')}
+                submitText={loading ? t('checking') : t('unlock')}
+                inputType="password"
+                error={resetError}
+                isLoading={loading}
+            />
         </div>
     );
 };
 
 export default LockScreen;
+
+
+
+
+
+
+
+
+

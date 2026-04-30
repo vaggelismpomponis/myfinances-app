@@ -1,7 +1,10 @@
 import React from 'react';
 import { Wallet } from 'lucide-react';
+import { useSettings } from '../contexts/SettingsContext';
 
-const LoadingView = () => (
+const LoadingView = () => {
+    const { t } = useSettings();
+    return (
     <div className="flex flex-col items-center justify-center min-h-screen
                     mesh-bg transition-colors duration-300 overflow-hidden">
 
@@ -19,15 +22,10 @@ const LoadingView = () => (
             <div className="absolute inset-0 rounded-3xl bg-violet-600/40 blur-xl scale-110
                             animate-glow-pulse" />
 
-            {/* Glass card */}
+            {/* Logo image */}
             <div className="relative z-10 w-24 h-24
-                            bg-gradient-to-br from-violet-600 to-violet-800
-                            rounded-3xl shadow-glow-violet
-                            flex items-center justify-center
-                            border border-violet-400/30">
-                {/* inner shine */}
-                <div className="absolute top-1.5 left-2 w-10 h-4 bg-white/20 rounded-full blur-sm rotate-[-30deg]" />
-                <Wallet className="text-white w-11 h-11 relative z-10" strokeWidth={1.5} />
+                            flex items-center justify-center">
+                <img src="/spendwise-logo.png" alt="SpendWise Logo" className="w-24 h-24 drop-shadow-xl object-contain" />
             </div>
         </div>
 
@@ -36,7 +34,7 @@ const LoadingView = () => (
             SpendWise
         </h1>
         <p className="text-sm text-gray-400 dark:text-gray-500 animate-fade-in mb-10">
-            Η οικονομία σου. Απλά.
+            {t('loading_tagline')}
         </p>
 
         {/* Progress bar shimmer */}
@@ -46,6 +44,16 @@ const LoadingView = () => (
                             bg-[length:200%] animate-shimmer" />
         </div>
     </div>
-);
+    );
+};
 
 export default LoadingView;
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-package com.myfinances.app;
+package com.bomponis.spendwise;
 
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -46,7 +46,7 @@ public class SMSNotificationListenerService extends NotificationListenerService 
 
     private void saveTransaction(String title, String text) {
         try {
-            SharedPreferences prefs = getSharedPreferences("com.myfinances.app.transactions", Context.MODE_PRIVATE);
+            SharedPreferences prefs = getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
             String existing = prefs.getString("pending", "[]");
             JSONArray jsonArray = new JSONArray(existing);
 
@@ -58,7 +58,6 @@ public class SMSNotificationListenerService extends NotificationListenerService 
             jsonArray.put(obj);
 
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("pending", jsonArray.toString());
             editor.putString("pending", jsonArray.toString());
             boolean success = editor.commit(); // Synchronous save to be sure
             

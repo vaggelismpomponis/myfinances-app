@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">SpendWise</string>
     <string name="title_activity_main">SpendWise</string>
-    <string name="package_name">com.myfinances.app</string>
-    <string name="custom_url_scheme">com.myfinances.app</string>
+    <string name="package_name">com.bomponis.spendwise</string>
+    <string name="custom_url_scheme">com.bomponis.spendwise</string>
+    <!-- Web Client ID for Google Sign-In (from google-services.json, client_type: 3) -->
+    <string name="default_web_client_id">345124628478-9dfooug409in2o115t5fdcolhfl9ojnk.apps.googleusercontent.com</string>
 </resources>

@@ -12,7 +12,13 @@ export const SettingsProvider = ({ children }) => {
     const [currency, setCurrency] = useState(() => localStorage.getItem('currency') || '€');
 
     // 2. Language
-    const [language, setLanguage] = useState(() => localStorage.getItem('language') || 'el');
+    const [language, setLanguage] = useState(() => localStorage.getItem('language') || 'en');
+
+    // Custom Categories
+    const [customCategories, setCustomCategories] = useState(() => {
+        const saved = localStorage.getItem('customCategories');
+        return saved ? JSON.parse(saved) : { expense: [], income: [] };
+    });
 
     // 3. Security (PIN)
     const [isPinEnabled, setIsPinEnabled] = useState(() => localStorage.getItem('isPinEnabled') === 'true');
@@ -39,6 +45,10 @@ export const SettingsProvider = ({ children }) => {
     }, [language]);
 
     useEffect(() => {
+        localStorage.setItem('customCategories', JSON.stringify(customCategories));
+    }, [customCategories]);
+
+    useEffect(() => {
         localStorage.setItem('isPinEnabled', isPinEnabled);
         if (!isPinEnabled) {
             localStorage.removeItem('appPin');
@@ -58,6 +68,20 @@ export const SettingsProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem('isBiometricsEnabled', isBiometricsEnabled);
     }, [isBiometricsEnabled]);
+
+    // 5a. Privacy Screen
+    const [isPrivacyScreenEnabled, setIsPrivacyScreenEnabled] = useState(() => localStorage.getItem('isPrivacyScreenEnabled') === 'true');
+
+    useEffect(() => {
+        localStorage.setItem('isPrivacyScreenEnabled', isPrivacyScreenEnabled);
+    }, [isPrivacyScreenEnabled]);
+
+    // 5b. Privacy Mode (Amount Masking)
+    const [privacyMode, setPrivacyMode] = useState(() => localStorage.getItem('privacyMode') === 'true');
+
+    useEffect(() => {
+        localStorage.setItem('privacyMode', privacyMode);
+    }, [privacyMode]);
 
     // 5. Theme (Dark Mode)
     const [theme, setTheme] = useState(() => {
@@ -82,6 +106,21 @@ export const SettingsProvider = ({ children }) => {
     const updateCurrency = (newCurrency) => setCurrency(newCurrency);
     const updateLanguage = (newLang) => setLanguage(newLang);
     const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    const togglePrivacyMode = () => setPrivacyMode(prev => !prev);
+
+    const addCustomCategory = (type, categoryName) => {
+        setCustomCategories(prev => ({
+            ...prev,
+            [type]: [...new Set([...(prev[type] || []), categoryName])]
+        }));
+    };
+
+    const removeCustomCategory = (type, categoryName) => {
+        setCustomCategories(prev => ({
+            ...prev,
+            [type]: (prev[type] || []).filter(c => c !== categoryName)
+        }));
+    };
 
     const t = (key, params = {}) => {
         let text = translations[language]?.[key] || key;
@@ -129,7 +168,14 @@ export const SettingsProvider = ({ children }) => {
         unlockApp,
         lockApp,
         isBiometricsEnabled,
-        toggleBiometrics: (value) => setIsBiometricsEnabled(value)
+        toggleBiometrics: (value) => setIsBiometricsEnabled(value),
+        isPrivacyScreenEnabled,
+        togglePrivacyScreen: (value) => setIsPrivacyScreenEnabled(value),
+        customCategories,
+        addCustomCategory,
+        removeCustomCategory,
+        privacyMode,
+        togglePrivacyMode
     };
 
     // Track Activity for Grace Period
@@ -192,3 +238,12 @@ export const SettingsProvider = ({ children }) => {
         </SettingsContext.Provider>
     );
 };
+
+
+
+
+
+
+
+
+

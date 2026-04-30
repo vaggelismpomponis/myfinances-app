@@ -1,21 +1,43 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# ─── Capacitor / WebView ─────────────────────────────────────────────────────
+-keep class com.getcapacitor.** { *; }
+-keep class com.getcapacitor.plugin.** { *; }
+-dontwarn com.getcapacitor.**
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Keep JavaScript Interface classes from being obfuscated
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# ─── Firebase / Google Auth ──────────────────────────────────────────────────
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.firebase.**
+-dontwarn com.google.android.gms.**
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Firebase Authentication plugin
+-keep class io.capawesome.capacitorjs.plugins.firebase.** { *; }
+
+# Google Auth plugin
+-keep class com.codetrixstudio.capacitor.GoogleAuth.** { *; }
+
+# ─── Biometric ───────────────────────────────────────────────────────────────
+-keep class ee.forgr.biometric.** { *; }
+-dontwarn ee.forgr.biometric.**
+
+# ─── Supabase / OkHttp / Retrofit ────────────────────────────────────────────
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
+
+# ─── Kotlin ──────────────────────────────────────────────────────────────────
+-keep class kotlin.** { *; }
+-keep class kotlinx.** { *; }
+-dontwarn kotlin.**
+
+# ─── App-specific ────────────────────────────────────────────────────────────
+-keep class com.myfinances.app.** { *; }
+
+# ─── Debugging (keep line numbers in crash reports) ──────────────────────────
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile

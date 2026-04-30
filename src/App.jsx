@@ -2,33 +2,15 @@ import React, { useState, useEffect, useMemo, useRef } from 'react'; // App Root
 import {
     Plus,
     User,
-    Sun,
-    Moon
+    Eye,
+    EyeOff
 } from 'lucide-react';
-import {
-    GoogleAuthProvider,
-    signInWithPopup,
-    signInWithCredential,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-} from 'firebase/auth';
-import {
-    collection,
-    addDoc,
-    deleteDoc,
-    doc,
-    onSnapshot,
-    query,
-    where,
-    getDocs,
-    updateDoc
-} from 'firebase/firestore';
-import { auth, db, appId } from './firebase';
+import { supabase } from './supabase';
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
-import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { PrivacyScreen } from '@capacitor/privacy-screen';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import logger from './utils/logger';
 
 // Context
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
@@ -49,31 +31,46 @@ import StatsView from './views/StatsView';
 import HistoryView from './views/HistoryView';
 import GoalsView from './views/GoalsView';
 import BudgetsView from './views/BudgetsView';
+import BackupView from './views/BackupView';
+import FeedbackView from './views/FeedbackView';
+import AdminView from './views/AdminView';
+import PrivacyPolicyView from './views/PrivacyPolicyView';
 import AddModal from './components/AddModal';
+import WhatsNewModal from './components/WhatsNewModal';
 import Navbar from './components/Navbar';
+import FinancialAdvisorView from './views/FinancialAdvisorView';
+import GuideView from './views/GuideView';
+import UserProfileView from './views/UserProfileView';
+
 
 import ConfirmationModal from './components/ConfirmationModal';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function MainContent() {
-    const { isLocked, theme, toggleTheme, t: translate } = useSettings();
+    const { isLocked, theme, toggleTheme, t: translate, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode } = useSettings();
     const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState('home');
+    const [previousTab, setPreviousTab] = useState('home');
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
-    const [budgets, setBudgets] = useState([]); // New budgets state
+    const [budgets, setBudgets] = useState([]);
+    const [goals, setGoals] = useState([]);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
 
+    // Whats New Modal
+    const [latestUpdate, setLatestUpdate] = useState(null);
+    const [showWhatsNew, setShowWhatsNew] = useState(false);
+
     // Browser History Navigation Logic
     const isPopping = useRef(false);
+    const gsiInitialized = useRef(false);
 
     useEffect(() => {
-        // Initialize history state on mount
         window.history.replaceState({ tab: 'home' }, '', '');
 
         const handlePopState = (event) => {
@@ -81,7 +78,6 @@ function MainContent() {
                 isPopping.current = true;
                 setActiveTab(event.state.tab);
             } else {
-                // Fallback for empty state (e.g. initial load or weird entry)
                 isPopping.current = true;
                 setActiveTab('home');
             }
@@ -96,51 +92,37 @@ function MainContent() {
             isPopping.current = false;
             return;
         }
-
-        // Push new state only if not popping
         window.history.pushState({ tab: activeTab }, '', '');
     }, [activeTab]);
 
     // Reset image error when user photo changes
     useEffect(() => {
         setImgError(false);
-    }, [user?.photoURL]);
+    }, [user?.user_metadata?.avatar_url]);
 
     // Notification Listener
     useEffect(() => {
         const cleanup = setupNotificationListener((transactions) => {
             if (transactions && transactions.length > 0) {
-                // Parse the newest transaction
-                // Note: The native plugin returns raw strings in JSON, but our logic might have put full object in 'pending'
-                // The Java code puts { title, text, date, raw }
-
-                // We'll take the last one added (or the first in the list depending on Java logic)
-                // Java logic: jsonArray.put(obj) -> appends to end. So last is newest.
                 const tx = transactions[transactions.length - 1];
-
                 let text = tx.text || "";
-                console.log("[DEBUG] Parsing text:", text);
-
-                // Very simple & robust extraction: Find any number like X.XX or X,XX
+                // console.log("[DEBUG] Parsing text:", text);
                 const simpleMatch = text.match(/(\d+[.,]\d+)/);
                 let amount = 0;
-
                 if (simpleMatch) {
                     let amountStr = simpleMatch[1].replace(',', '.');
                     amount = parseFloat(amountStr);
-                    console.log("[DEBUG] Parsed amount:", amount);
                 } else {
-                    console.log("[DEBUG] No match found");
+                    logger.debug('No amount match found in notification text', 'NotificationListener');
                 }
-
                 setEditingTransaction({
                     amount: amount || 0,
                     note: (tx.title || "") + " - " + text,
                     type: 'expense',
-                    category: 'shopping', // Default
+                    category: 'shopping',
                     date: new Date().toISOString()
                 });
-                console.log("[DEBUG] Setting editing transaction with amount:", amount);
+                // console.log("[DEBUG] Setting editing transaction with amount:", amount);
                 setShowAddModal(true);
                 showToast("Εντοπίστηκε νέα συναλλαγή!", "info");
             }
@@ -148,10 +130,54 @@ function MainContent() {
         return cleanup;
     }, []);
 
-    // 1. Initialize Auth
+    // Privacy Screen — enable/disable based on setting
     useEffect(() => {
-        // Listen for auth state changes
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        if (!Capacitor.isNativePlatform()) return;
+        const apply = async () => {
+            try {
+                if (isPrivacyScreenEnabled) {
+                    await PrivacyScreen.enable();
+                } else {
+                    await PrivacyScreen.disable();
+                }
+            } catch (e) {
+                logger.warn('PrivacyScreen toggle failed', 'App');
+            }
+        };
+        apply();
+    }, [isPrivacyScreenEnabled]);
+
+    // 1. Initialize Auth via Supabase
+    useEffect(() => {
+        const checkWhatsNew = async () => {
+            if (user && !loading && !isLocked) {
+                try {
+                    const { data, error } = await supabase
+                        .from('app_updates')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(1);
+
+                    if (error) throw error;
+                    if (data && data.length > 0) {
+                        const update = data[0];
+                        const hasSeen = localStorage.getItem(`whatsnew_seen_${update.version}_${user.id}`);
+                        if (!hasSeen) {
+                            setLatestUpdate(update);
+                            setShowWhatsNew(true);
+                        }
+                    }
+                } catch (e) {
+                    logger.error('Error fetching latest update', e, 'App');
+                }
+            }
+        };
+        checkWhatsNew();
+    }, [user, loading, isLocked]);
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            const currentUser = session?.user ?? null;
             setUser(currentUser);
             setLoading(false);
             if (currentUser) {
@@ -159,106 +185,312 @@ function MainContent() {
             }
         });
 
-        return () => unsubscribe();
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
+            setLoading(false);
+            if (currentUser) {
+                trackSession(currentUser);
+            }
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
+    const GOOGLE_CLIENT_ID = '345124628478-9dfooug409in2o115t5fdcolhfl9ojnk.apps.googleusercontent.com';
 
+    const [gsiNonce, setGsiNonce] = useState(null);
+
+    useEffect(() => {
+        const raw = Array.from(window.crypto.getRandomValues(new Uint8Array(16)))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+
+        crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw)).then(hashBuffer => {
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashed = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            setGsiNonce({ raw, hashed });
+        }).catch(err => {
+            logger.error('Error generating GSI nonce', err, 'App');
+            // Fallback to raw if subtle crypto fails
+            setGsiNonce({ raw, hashed: raw });
+        });
+    }, []);
+
+    // 1.5. Google Sign-In Init (Web)
+    useEffect(() => {
+        if (!user && !loading && !Capacitor.isNativePlatform() && gsiNonce) {
+            // Reset the guard so a fresh mount always re-initializes the button
+            gsiInitialized.current = false;
+            let initialized = false;
+
+            const initGSI = () => {
+                if (!window.google) return;
+                if (initialized) return;
+                initialized = true;
+                gsiInitialized.current = true;
+
+                window.google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: async (response) => {
+                        try {
+                            const { error } = await supabase.auth.signInWithIdToken({
+                                provider: 'google',
+                                token: response.credential,
+                                nonce: gsiNonce.raw
+                            });
+                            if (error) throw error;
+                        } catch (err) {
+                            logger.error('GSI login failed', err, 'App');
+                            showToast("Η σύνδεση απέτυχε.", "error");
+                        }
+                    },
+                    itp_support: true,
+                    ux_mode: 'popup',
+                    context: 'signin',
+                    nonce: gsiNonce.hashed
+                });
+
+                // Render the native Google button — shows "SpendWise" in the popup
+                // renderButton manages its own click/FedCM flow independently from prompt()
+                const btnContainer = document.getElementById('google-signin-button');
+                if (btnContainer) {
+                    btnContainer.innerHTML = ''; // clear any stale render
+                    window.google.accounts.id.renderButton(btnContainer, {
+                        type: 'standard',
+                        shape: 'rectangular',
+                        theme: 'outline',
+                        text: 'continue_with',
+                        size: 'large',
+                        logo_alignment: 'left',
+                        width: btnContainer.offsetWidth || 320
+                    });
+                }
+
+                // One Tap auto-prompt overlay (separate from button, no conflict)
+                window.google.accounts.id.prompt();
+            };
+
+            if (window.google) {
+                initGSI();
+            } else {
+                const interval = setInterval(() => {
+                    if (window.google) {
+                        clearInterval(interval);
+                        initGSI();
+                    }
+                }, 100);
+                setTimeout(() => clearInterval(interval), 5000);
+            }
+        }
+    }, [user, loading, gsiNonce]);
+
+    // OAuth popup fallback — bypasses FedCM entirely
+    const handleGoogleOAuthPopup = async () => {
+        try {
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    skipBrowserRedirect: true,
+                    redirectTo: window.location.origin
+                }
+            });
+            if (error) throw error;
+            if (!data?.url) throw new Error('No OAuth URL returned');
+
+            const popup = window.open(
+                data.url,
+                'google-oauth',
+                'width=500,height=620,left=' + (window.screen.width / 2 - 250) +
+                ',top=' + (window.screen.height / 2 - 310) +
+                ',scrollbars=yes,resizable=yes'
+            );
+
+            if (!popup) {
+                // Popup was blocked — redirect instead
+                window.location.href = data.url;
+            }
+        } catch (err) {
+            logger.error('OAuth popup error', err, 'App');
+            showToast('Η σύνδεση με Google απέτυχε.', 'error');
+        }
+    };
+
+    // Expose OAuth popup handler for LoginView (avoids prop drilling through native button)
+    useEffect(() => {
+        window.__googleOAuthPopup = handleGoogleOAuthPopup;
+        return () => { delete window.__googleOAuthPopup; };
+    }, [gsiNonce]);
 
     const handleGoogleLogin = async () => {
         try {
             if (Capacitor.isNativePlatform()) {
-                const result = await FirebaseAuthentication.signInWithGoogle();
-                // Sign in to Firebase with the credential from the native plugin
-                if (result.credential?.idToken) {
-                    const credential = GoogleAuthProvider.credential(result.credential.idToken);
-                    await signInWithCredential(auth, credential);
-                }
+                await GoogleAuth.initialize({
+                    clientId: GOOGLE_CLIENT_ID,
+                    scopes: ['profile', 'email'],
+                    grantOfflineAccess: true,
+                });
+                const googleUser = await GoogleAuth.signIn();
+                const idToken = googleUser?.authentication?.idToken;
+                if (!idToken) throw new Error('Δεν ελήφθη Google ID token.');
+
+                const { error } = await supabase.auth.signInWithIdToken({
+                    provider: 'google',
+                    token: idToken,
+                });
+                if (error) throw error;
             } else {
-                const provider = new GoogleAuthProvider();
-                await signInWithPopup(auth, provider);
+                // Web: Re-initialize and show Google One Tap as a popup
+                return new Promise((resolve, reject) => {
+                    if (!window.google || !gsiNonce) {
+                        reject(new Error('Google Sign-In not ready. Please try again.'));
+                        return;
+                    }
+
+                    // Re-initialize with the same hashed nonce to get a fresh prompt
+                    window.google.accounts.id.initialize({
+                        client_id: GOOGLE_CLIENT_ID,
+                        callback: async (response) => {
+                            try {
+                                const { error } = await supabase.auth.signInWithIdToken({
+                                    provider: 'google',
+                                    token: response.credential,
+                                    nonce: gsiNonce.raw
+                                });
+                                if (error) { reject(error); return; }
+                                resolve();
+                            } catch (err) {
+                                reject(err);
+                            }
+                        },
+                        itp_support: true,
+                        ux_mode: 'popup',
+                        context: 'signin',
+                        nonce: gsiNonce.hashed
+                    });
+
+                    window.google.accounts.id.prompt((notification) => {
+                        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                            reject(new Error('Το Google Sign-In δεν εμφανίστηκε. Δοκιμάστε ξανά.'));
+                        }
+                    });
+                });
             }
         } catch (error) {
-            console.error("Google Auth error:", error);
-            showToast("Η σύνδεση με Google απέτυχε: " + (error.message || JSON.stringify(error)), 'error');
+            logger.error('Google auth failed', error, 'App');
+            showToast("Η σύνδεση με Google απέτυχε.", 'error');
+            throw error;
         }
     };
 
     const handleEmailLogin = async (email, password) => {
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) throw error;
         } catch (error) {
-            console.error("Login error:", error);
-            let msg = "Αποτυχία σύνδεσης.";
-            if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                msg = "Λάθος email ή κωδικός πρόσβασης.";
-            } else if (error.code === 'auth/too-many-requests') {
-                msg = "Πολλές αποτυχημένες προσπάθειες. Δοκιμάστε αργότερα.";
-            }
-            showToast(msg, 'error');
-            throw error; // Rethrow to let LoginView know
-        }
-    };
+            const isCredentialError = error.message?.includes('Invalid login credentials') || error.message?.includes('invalid_credentials');
+            const isRateLimit = error.message?.includes('too many requests') || error.status === 429;
 
-    const handleRegister = async (email, password) => {
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            showToast("Ο λογαριασμός δημιουργήθηκε!", 'success');
-        } catch (error) {
-            console.error("Register error:", error);
-            let msg = "Αποτυχία εγγραφής.";
-            if (error.code === 'auth/email-already-in-use') {
-                msg = "Το email χρησιμοποιείται ήδη.";
-            } else if (error.code === 'auth/weak-password') {
-                msg = "Ο κωδικός είναι πολύ αδύναμος.";
+            if (isCredentialError || isRateLimit) {
+                logger.warn(`Email login attempt failed: ${error.message}`, 'App');
+            } else {
+                logger.error('Email login failed', error, 'App');
+            }
+
+            let msg = translate('error_prefix') + (error.message || translate('something_went_wrong'));
+            if (isCredentialError) {
+                msg = translate('wrong_password');
+            } else if (isRateLimit) {
+                msg = translate('rate_limit_error');
             }
             showToast(msg, 'error');
             throw error;
         }
     };
 
-    // 2. Fetch Data from Firestore
+    const handleRegister = async (email, password) => {
+        try {
+            const { error } = await supabase.auth.signUp({ email, password });
+            if (error) throw error;
+            showToast("Ο λογαριασμός δημιουργήθηκε!", 'success');
+        } catch (error) {
+            const isAlreadyRegistered = error.message?.includes('already registered') || error.message?.includes('User already registered');
+            
+            if (isAlreadyRegistered) {
+                logger.warn(`Registration attempt for existing user: ${error.message}`, 'App');
+            } else {
+                logger.error('Registration failed', error, 'App');
+            }
+
+            let msg = translate('error_prefix') + (error.message || translate('something_went_wrong'));
+            if (isAlreadyRegistered) {
+                msg = translate('email_in_use');
+            } else if (error.message?.includes('Password should be at least')) {
+                msg = translate('password_length_error');
+            }
+            showToast(msg, 'error');
+            throw error;
+        }
+    };
+
+    // 2. Fetch Transactions from Supabase
     useEffect(() => {
         if (!user) {
             setTransactions([]);
             return;
         }
 
-        // Path: artifacts/{appId}/users/{uid}/transactions
-        const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'transactions'));
+        const fetchTransactions = async () => {
+            const { data, error } = await supabase
+                .from('transactions')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('date', { ascending: false });
+            if (error) {
+                logger.error('Failed to fetch transactions', error, 'App');
+            } else {
+                setTransactions(data || []);
+            }
+        };
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+        fetchTransactions();
 
-            // Sort in JS (Rule: No complex Firestore queries)
-            // Descending order (newest first)
-            data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // Realtime subscription
+        const channel = supabase
+            .channel('transactions-changes')
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'transactions',
+                filter: `user_id=eq.${user.id}`
+            }, () => {
+                fetchTransactions();
+            })
+            .subscribe();
 
-            setTransactions(data);
-        }, (error) => {
-            console.error("Firestore error:", error);
-        });
-
-        return () => unsubscribe();
+        return () => supabase.removeChannel(channel);
     }, [user]);
 
-    // 2.5 Fetch Budgets
+    // 2.5 Fetch Budgets from Supabase
     useEffect(() => {
         if (!user) {
             setBudgets([]);
             return;
         }
 
-        const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'budgets'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setBudgets(data);
-        });
+        const fetchBudgets = async () => {
+            const { data, error } = await supabase
+                .from('budgets')
+                .select('*')
+                .eq('user_id', user.id);
+            if (error) {
+                logger.error('Failed to fetch budgets', error, 'App');
+            } else {
+                setBudgets(data || []);
+            }
+        };
+
+        fetchBudgets();
 
         const requestPermissions = async () => {
             if (Capacitor.isNativePlatform()) {
@@ -274,7 +506,55 @@ function MainContent() {
         };
         requestPermissions();
 
-        return () => unsubscribe();
+        const channel = supabase
+            .channel('budgets-changes')
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'budgets',
+                filter: `user_id=eq.${user.id}`
+            }, () => {
+                fetchBudgets();
+            })
+            .subscribe();
+
+        return () => supabase.removeChannel(channel);
+    }, [user]);
+
+    // 2.6 Fetch Goals from Supabase
+    useEffect(() => {
+        if (!user) {
+            setGoals([]);
+            return;
+        }
+
+        const fetchGoals = async () => {
+            const { data, error } = await supabase
+                .from('goals')
+                .select('*')
+                .eq('user_id', user.id);
+            if (error) {
+                logger.error('Failed to fetch goals', error, 'App');
+            } else {
+                setGoals(data || []);
+            }
+        };
+
+        fetchGoals();
+
+        const channel = supabase
+            .channel('goals-changes')
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'goals',
+                filter: `user_id=eq.${user.id}`
+            }, () => {
+                fetchGoals();
+            })
+            .subscribe();
+
+        return () => supabase.removeChannel(channel);
     }, [user]);
 
     // 3. Process Recurring Transactions
@@ -282,63 +562,60 @@ function MainContent() {
         if (!user) return;
 
         const checkRecurring = async () => {
-            const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'recurring_transactions'));
-            const snapshot = await getDocs(q);
-            const today = new Date(); // Current date
+            const { data: rules, error } = await supabase
+                .from('recurring_transactions')
+                .select('*')
+                .eq('user_id', user.id);
 
-            snapshot.forEach(async (docSnap) => {
-                const rule = { id: docSnap.id, ...docSnap.data() };
+            if (error) {
+                logger.error('Failed to fetch recurring transactions', error, 'App');
+                return;
+            }
+
+            const today = new Date();
+
+            for (const rule of (rules || [])) {
                 const ruleDay = rule.day;
-
-                // Determine if we should run it today
-                // Simple logic: If it hasn't run this month (or ever), and today >= ruleDay
-                const lastRun = rule.lastProcessed ? new Date(rule.lastProcessed) : null;
+                const lastRun = rule.last_processed ? new Date(rule.last_processed) : null;
                 const currentMonth = today.getMonth();
                 const currentYear = today.getFullYear();
 
                 let shouldRun = false;
-
                 if (!lastRun) {
-                    // Never run before. Run if today >= ruleDay
                     if (today.getDate() >= ruleDay) shouldRun = true;
                 } else {
-                    // Has run before. check if it ran this month
                     const lastRunMonth = lastRun.getMonth();
                     const lastRunYear = lastRun.getFullYear();
-
                     if (lastRunYear < currentYear || (lastRunYear === currentYear && lastRunMonth < currentMonth)) {
-                        // Hasn't run this month
                         if (today.getDate() >= ruleDay) shouldRun = true;
                     }
                 }
 
                 if (shouldRun) {
-                    // Add Transaction
                     try {
-                        await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'transactions'), {
+                        await supabase.from('transactions').insert({
+                            user_id: user.id,
                             note: rule.title + ' (Αυτόματο)',
                             amount: rule.amount,
                             type: rule.type,
-                            category: 'bills', // Default or add to rule
+                            category: 'bills',
                             date: new Date().toISOString()
                         });
 
-                        // Update Rule
-                        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'recurring_transactions', rule.id), {
-                            lastProcessed: new Date().toISOString()
-                        });
+                        await supabase.from('recurring_transactions')
+                            .update({ last_processed: new Date().toISOString() })
+                            .eq('id', rule.id);
 
-                        // Notify user (optional, simple alert for now if they are looking)
-                        console.log(`Auto-added ${rule.title}`);
+                        logger.info('Auto-added recurring transaction', 'App');
                     } catch (e) {
-                        console.error("Auto-add failed", e);
+                        logger.error('Auto-add recurring transaction failed', e, 'App');
                     }
                 }
-            });
+            }
         };
 
         checkRecurring();
-    }, [user]); // Runs once on user load/change
+    }, [user]);
 
     // Derived State
     const balance = useMemo(() => {
@@ -351,21 +628,18 @@ function MainContent() {
     const checkBudgetThresholds = async (transaction) => {
         if (transaction.type !== 'expense' || !transaction.category) return;
 
-        // Find matching budget by exact category match (standardized from dropdown)
         const budget = budgets.find(b =>
             b.category.toLowerCase() === transaction.category.toLowerCase()
         );
 
-        if (!budget || !budget.notificationThreshold) return;
+        if (!budget || !budget.notification_threshold) return;
 
         const now = new Date();
         const currentMonthStr = `${now.getFullYear()}-${now.getMonth() + 1}`;
 
-        // Skip if already notified at this threshold level this month
-        // Use lastNotifiedThreshold + lastNotifiedMonth to allow re-notification at higher thresholds
         const alreadyNotified =
-            budget.lastNotifiedMonth === currentMonthStr &&
-            (budget.lastNotifiedPct || 0) >= budget.notificationThreshold;
+            budget.last_notified_month === currentMonthStr &&
+            (budget.last_notified_pct || 0) >= budget.notification_threshold;
         if (alreadyNotified) return;
 
         let totalSpent = transaction.amount;
@@ -382,10 +656,9 @@ function MainContent() {
 
         const percentage = (totalSpent / budget.amount) * 100;
 
-        if (percentage >= budget.notificationThreshold) {
+        if (percentage >= budget.notification_threshold) {
             showToast(`⚠️ ${budget.category}: ${percentage.toFixed(0)}% του budget!`, 'warning');
 
-            // Push notification on native devices
             if (Capacitor.isNativePlatform()) {
                 try {
                     await LocalNotifications.schedule({
@@ -399,17 +672,19 @@ function MainContent() {
                         }]
                     });
                 } catch (e) {
-                    console.error('Local Notification Error:', e);
+                    logger.error('Local Notification Error', e, 'App');
                 }
             }
 
             try {
-                await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'budgets', budget.id), {
-                    lastNotifiedMonth: currentMonthStr,
-                    lastNotifiedPct: Math.floor(percentage)
-                });
+                await supabase.from('budgets')
+                    .update({
+                        last_notified_month: currentMonthStr,
+                        last_notified_pct: Math.floor(percentage)
+                    })
+                    .eq('id', budget.id);
             } catch (e) {
-                console.error('Error updating budget notification state', e);
+                logger.error('Error updating budget notification state', e, 'App');
             }
         }
     };
@@ -426,21 +701,39 @@ function MainContent() {
             };
 
             if (editingTransaction && editingTransaction.id) {
-                // Update existing
-                const txRef = doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', editingTransaction.id);
-                await updateDoc(txRef, transaction);
+                // Optimistic update: update in local state immediately
+                const updatedTx = { ...editingTransaction, ...transaction };
+                setTransactions(prev =>
+                    prev.map(t => t.id === editingTransaction.id ? updatedTx : t)
+                );
+                setShowAddModal(false);
                 setEditingTransaction(null);
-            } else {
-                // Add new (Regular add or from Notification/Scanner without ID)
-                const docRef = await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'transactions'), newTx);
-                txId = docRef.id;
-            }
-            setShowAddModal(false);
 
-            // Check budgets
-            await checkBudgetThresholds({ ...newTx, id: txId });
+                const { error } = await supabase.from('transactions')
+                    .update(transaction)
+                    .eq('id', editingTransaction.id);
+                if (error) {
+                    // Rollback on failure
+                    setTransactions(prev =>
+                        prev.map(t => t.id === editingTransaction.id ? editingTransaction : t)
+                    );
+                    throw error;
+                }
+            } else {
+                const { data, error } = await supabase.from('transactions')
+                    .insert({ ...newTx, user_id: user.id })
+                    .select()
+                    .single();
+                if (error) throw error;
+                txId = data.id;
+                // Optimistic add: insert at the top immediately
+                setTransactions(prev => [{ ...newTx, id: txId, user_id: user.id }, ...prev]);
+                setShowAddModal(false);
+
+                await checkBudgetThresholds({ ...newTx, id: txId });
+            }
         } catch (e) {
-            console.error("Error saving document: ", e);
+            logger.error('Error saving transaction', e, 'App');
             showToast("Σφάλμα αποθήκευσης. Προσπάθησε ξανά.", 'error');
         }
     };
@@ -453,20 +746,28 @@ function MainContent() {
     const confirmDelete = async () => {
         if (!user || !transactionToDelete) return;
         try {
-            // Find the transaction before deleting it so we can check its category
             const deletedTx = transactions.find(t => t.id === transactionToDelete);
 
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'transactions', transactionToDelete));
+            // Optimistic update: αφαίρεσε αμέσως από το UI
+            setTransactions(prev => prev.filter(t => t.id !== transactionToDelete));
             setShowDeleteModal(false);
             setTransactionToDelete(null);
 
-            // After deletion, recalculate spending for the affected budget.
-            // If it drops BELOW the threshold, reset lastNotifiedMonth so it can fire again.
+            const { error } = await supabase.from('transactions')
+                .delete()
+                .eq('id', transactionToDelete);
+            if (error) {
+                // Rollback αν αποτύχει
+                setTransactions(prev => [...prev, deletedTx].sort((a, b) => new Date(b.date) - new Date(a.date)));
+                showToast('Σφάλμα διαγραφής. Προσπάθησε ξανά.', 'error');
+                throw error;
+            }
+
             if (deletedTx?.type === 'expense' && deletedTx.category) {
                 const affectedBudget = budgets.find(b =>
                     b.category.toLowerCase() === deletedTx.category.toLowerCase()
                 );
-                if (affectedBudget && affectedBudget.lastNotifiedMonth) {
+                if (affectedBudget && affectedBudget.last_notified_month) {
                     const now = new Date();
                     const remainingSpent = transactions
                         .filter(t =>
@@ -480,17 +781,15 @@ function MainContent() {
 
                     const remainingPct = (remainingSpent / affectedBudget.amount) * 100;
 
-                    // If now below threshold → reset so next add fires the toast again
-                    if (remainingPct < affectedBudget.notificationThreshold) {
-                        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'budgets', affectedBudget.id), {
-                            lastNotifiedMonth: null,
-                            lastNotifiedPct: 0
-                        });
+                    if (remainingPct < affectedBudget.notification_threshold) {
+                        await supabase.from('budgets')
+                            .update({ last_notified_month: null, last_notified_pct: 0 })
+                            .eq('id', affectedBudget.id);
                     }
                 }
             }
         } catch (e) {
-            console.error('Error deleting:', e);
+            logger.error('Error deleting transaction', e, 'App');
         }
     };
 
@@ -500,17 +799,12 @@ function MainContent() {
     };
 
     const handleSignOut = () => {
-        signOut(auth);
+        supabase.auth.signOut();
     };
 
     // --- Layout Render ---
 
     if (loading) return <LoadingView />;
-
-    // Show Lock Screen if locked (only if accessed, but standard behavior is to block everything)
-    // We check !user because LockScreen is usually for when you are ALREADY logged in locally.
-    // If not logged in, LoginView takes precedence? Or LockScreen first?
-    // Let's say LockScreen protects the session.
 
     if (user && isLocked) {
         return <LockScreen onSignOut={handleSignOut} user={user} />;
@@ -518,86 +812,121 @@ function MainContent() {
 
     if (!user && !loading) return (
         <LoginView
-            onGoogleLogin={handleGoogleLogin}
             onEmailLogin={handleEmailLogin}
             onRegister={handleRegister}
+            onGoogleLogin={handleGoogleLogin}
         />
     );
 
+    // Derive display name and photo from Supabase user_metadata
+    const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+    const photoURL = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+
     return (
-        <div className="min-h-screen bg-surface-light dark:bg-surface-dark
-                        font-sans text-gray-900 dark:text-gray-100
+        <div className="h-full w-full bg-surface-light dark:bg-surface-dark
+                        font-sans text-gray-900 dark:text-white
                         selection:bg-violet-100 dark:selection:bg-violet-900
-                        flex justify-center transition-colors duration-300">
+                        flex justify-center items-start transition-colors duration-300">
 
             {/* Mobile container */}
             <div className="w-full max-w-md bg-gray-50 dark:bg-surface-dark
-                            h-[100dvh] overflow-hidden
+                            h-full overflow-hidden
                             shadow-2xl relative flex flex-col
                             transition-colors duration-300">
 
                 {/* ── Main Scroll Area ── */}
-                <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-1">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden px-4">
 
                     {/* ── Top Bar ── */}
-                    <div className="flex justify-between items-center
-                                    pt-[calc(env(safe-area-inset-top)+1rem)] mb-5 sticky top-0 z-10
-                                    bg-gray-50/90 dark:bg-surface-dark/90 backdrop-blur-md py-3 -mx-4 px-4">
-                        <div>
+                    <div className="shrink-0 sticky top-0 z-20
+                                    bg-gray-50 dark:bg-surface-dark backdrop-blur-md
+                                    border-b border-gray-100 dark:border-white/5
+                                    px-4 pb-3 -mx-4 transition-all duration-300"
+                         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
+                        
+                        <div className="flex items-center justify-center relative min-h-[40px]">
                             {activeTab === 'home' ? (
                                 <>
-                                    <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 tracking-widest uppercase">
-                                        {translate('welcome_message')}
-                                    </p>
-                                    <h2 className="text-xl font-black text-gray-900 dark:text-white leading-tight">
-                                        {user?.displayName || user?.email?.split('@')[0] || 'User'} 👋
-                                    </h2>
+                                    <div className="absolute left-4 flex items-center gap-3">
+                                        {/* Avatar */}
+                                        <button
+                                            onClick={() => setActiveTab('profile')}
+                                            className="w-10 h-10 rounded-full overflow-hidden
+                                                       bg-gradient-to-br from-violet-500 to-violet-700
+                                                       border-2 border-violet-200 dark:border-violet-900/50
+                                                       flex items-center justify-center flex-shrink-0
+                                                       text-white shadow-md
+                                                       hover:scale-105 active:scale-95 transition-all duration-200"
+                                            title={translate('nav_profile')}
+                                        >
+                                            {photoURL && !imgError ? (
+                                                <img src={photoURL} alt="Profile"
+                                                    className="w-full h-full object-cover"
+                                                    onError={() => setImgError(true)} />
+                                            ) : (
+                                                <User size={18} />
+                                            )}
+                                        </button>
+
+                                        <div className="flex flex-col">
+                                            <h2 className="text-[14px] font-bold text-gray-700 dark:text-gray-300 leading-tight flex items-center gap-1.5">
+                                                {(() => {
+                                                    const hour = new Date().getHours();
+                                                    if (hour < 12) return translate('good_morning');
+                                                    if (hour < 18) return translate('good_afternoon');
+                                                    return translate('good_evening');
+                                                })()}, {displayName.split(' ')[0]} <span className="animate-wave origin-bottom-right">👋</span>
+                                            </h2>
+                                        </div>
+                                    </div>
+
+                                    {/* Privacy toggle */}
+                                    <button
+                                        onClick={togglePrivacyMode}
+                                        className="absolute right-4 w-9 h-9 rounded-full
+                                                   bg-gray-100 dark:bg-white/[0.08]
+                                                   flex items-center justify-center flex-shrink-0
+                                                   text-gray-500 dark:text-white/50
+                                                   hover:bg-gray-200 dark:hover:bg-white/[0.14]
+                                                   active:scale-90 transition-all duration-150"
+                                        title={privacyMode ? "Disable Privacy Mode" : "Enable Privacy Mode"}
+                                    >
+                                        {privacyMode ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
                                 </>
                             ) : (
-                                <h2 className="text-xl font-black text-gray-900 dark:text-white">
-                                    {activeTab === 'history' && translate('nav_history')}
-                                    {activeTab === 'stats'   && translate('nav_stats')}
-                                    {activeTab === 'goals'   && translate('goals')}
-                                    {activeTab === 'budgets' && translate('budgets')}
-                                </h2>
+                                <>
+                                    <div className="text-center">
+                                        <h2 className="text-[16px] font-bold text-gray-900 dark:text-white">
+                                            {activeTab === 'history' && translate('nav_history')}
+                                            {activeTab === 'stats' && translate('nav_stats')}
+                                            {activeTab === 'goals' && translate('goals')}
+                                            {activeTab === 'budgets' && translate('budgets')}
+                                            {activeTab === 'feedback' && translate('feedback')}
+                                            {activeTab === 'admin' && 'Admin Panel'}
+                                        </h2>
+                                    </div>
+                                    <div className="absolute right-4 flex items-center">
+                                        <button
+                                            onClick={togglePrivacyMode}
+                                            className="w-9 h-9 rounded-full
+                                                       bg-gray-100 dark:bg-white/[0.08]
+                                                       flex items-center justify-center
+                                                       text-gray-500 dark:text-white/50
+                                                       hover:bg-gray-200 dark:hover:bg-white/[0.14]
+                                                       active:scale-90 transition-all duration-150"
+                                            title={privacyMode ? "Disable Privacy Mode" : "Enable Privacy Mode"}
+                                        >
+                                            {privacyMode ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </button>
+                                    </div>
+                                </>
                             )}
                         </div>
-
-                        <div className="flex items-center gap-2.5">
-                            {/* Theme toggle */}
-                            <button
-                                onClick={toggleTheme}
-                                className="w-9 h-9 rounded-full
-                                           bg-white dark:bg-surface-dark3
-                                           shadow-card dark:shadow-none
-                                           flex items-center justify-center
-                                           text-gray-500 dark:text-gray-400
-                                           hover:scale-110 active:scale-95 transition-all duration-200"
-                            >
-                                {theme === 'dark' ? <Moon size={17} /> : <Sun size={17} />}
-                            </button>
-
-                            {/* Avatar */}
-                            <button
-                                onClick={() => setActiveTab('profile')}
-                                className="w-9 h-9 rounded-full overflow-hidden
-                                           bg-gradient-to-br from-violet-500 to-violet-700
-                                           border-2 border-violet-300 dark:border-violet-800
-                                           flex items-center justify-center
-                                           text-white shadow-glow-sm
-                                           hover:scale-110 active:scale-95 transition-all duration-200"
-                                title={translate('nav_profile')}
-                            >
-                                {user?.photoURL && !imgError ? (
-                                    <img src={user.photoURL} alt="Profile"
-                                         className="w-full h-full object-cover"
-                                         onError={() => setImgError(true)} />
-                                ) : (
-                                    <User size={17} />
-                                )}
-                            </button>
-                        </div>
                     </div>
+
+                    {/* Spacer to replace the previous mb-5 */}
+                    <div className="h-4 shrink-0" />
 
                     {/* ── View Switcher ── */}
                     {activeTab === 'home' && (
@@ -606,74 +935,122 @@ function MainContent() {
                             totalIncome={totalIncome}
                             totalExpense={totalExpense}
                             transactions={transactions}
+                            budgets={budgets}
                             onDelete={deleteTransaction}
                             onEdit={handleEdit}
                             setActiveTab={setActiveTab}
+                            onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
                         />
                     )}
-                    {activeTab === 'stats'   && <StatsView transactions={transactions} />}
+                    {activeTab === 'stats' && <StatsView transactions={transactions} />}
                     {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
                 </div>
 
                 {/* ── Overlays ── */}
                 {activeTab === 'profile' && (
-                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark pb-20">
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                         <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
-                                     onRecurring={() => setActiveTab('recurring')} onGeneral={() => setActiveTab('general')}
-                                     onSecurity={() => setActiveTab('security')} />
+                            onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
+                            onGeneral={() => setActiveTab('general')}
+                            onSecurity={() => setActiveTab('security')}
+                            onBackup={() => setActiveTab('backup')}
+                            onAdmin={() => setActiveTab('admin')}
+                            onFeedback={() => setActiveTab('feedback')}
+                            onGuide={() => setActiveTab('guide')}
+                            onProfileDetails={() => setActiveTab('profile-details')}
+                        />
+                    </div>
+                )}
+                {activeTab === 'profile-details' && (
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                        <UserProfileView user={user} onBack={() => setActiveTab('profile')} onSignOut={handleSignOut} />
+                    </div>
+                )}
+
+                {activeTab === 'guide' && (
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                        <GuideView onBack={() => setActiveTab('profile')} />
                     </div>
                 )}
                 {activeTab === 'recurring' && (
-                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark pb-20">
-                        <RecurringView user={user} onBack={() => setActiveTab('profile')} />
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                        <RecurringView user={user} onBack={() => setActiveTab(previousTab)} />
                     </div>
                 )}
                 {activeTab === 'general' && (
-                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark pb-20">
-                        <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} />
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                        <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} />
+                    </div>
+                )}
+                {activeTab === 'privacy' && (
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                        <PrivacyPolicyView onBack={() => setActiveTab('general')} />
+                    </div>
+                )}
+                {activeTab === 'feedback' && (
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                        <FeedbackView user={user} onBack={() => setActiveTab('profile')} />
                     </div>
                 )}
                 {activeTab === 'security' && (
-                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark pb-20">
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                         <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} />
                     </div>
                 )}
+                {activeTab === 'backup' && (
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                        <BackupView user={user} onBack={() => setActiveTab('profile')} />
+                    </div>
+                )}
+                {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                        <AdminView onBack={() => setActiveTab('profile')} />
+                    </div>
+                )}
                 {activeTab === 'goals' && (
-                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col pb-20">
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
                         <GoalsView user={user} onBack={() => setActiveTab('home')} />
                     </div>
                 )}
                 {activeTab === 'budgets' && (
-                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col pb-20">
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
                         <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />
                     </div>
                 )}
+                {activeTab === 'advisor' && (
+                    <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
+                        <FinancialAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />
+                    </div>
+                )}
+
+
 
                 {/* ── Navbar + FAB wrapper ── */}
-                <div className="relative z-[60]">
-                    {/* FAB — floats above the navbar pill */}
-                    {!['goals', 'budgets', 'profile', 'recurring', 'general', 'security'].includes(activeTab) && (
+                {!['goals', 'budgets', 'profile', 'profile-details', 'recurring', 'general', 'security', 'backup', 'feedback', 'admin', 'privacy', 'advisor', 'guide'].includes(activeTab) && (
+
+                    <div className="relative z-[45]">
+                        {/* FAB — floats above the navbar */}
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
                             {/* Pulse ring */}
-                            <div className="absolute inset-0 rounded-full bg-violet-600/30 animate-ping-pulse" />
+                            <div className="absolute inset-0 rounded-full bg-violet-600/30 animate-ping-pulse scale-110" />
                             <button
                                 onClick={() => { setEditingTransaction(null); setShowAddModal(true); }}
                                 className="relative w-16 h-16 rounded-full
-                                           bg-gradient-to-br from-violet-500 to-violet-700
-                                           hover:from-violet-400 hover:to-violet-600
-                                           text-white shadow-glow-violet
+                                           bg-violet-500
+                                           hover:bg-violet-600
+                                           text-white shadow-lg shadow-violet-500/40
                                            active:scale-90 hover:scale-105
                                            flex items-center justify-center
-                                           transition-all duration-200 border border-violet-400/40"
+                                           transition-all duration-200"
                             >
-                                <Plus size={28} />
+                                <Plus size={32} strokeWidth={2.5} />
                             </button>
                         </div>
-                    )}
 
-                    {/* ── Navbar ── */}
-                    <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-                </div>
+                        {/* ── Navbar ── */}
+                        <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+                    </div>
+                )}
 
                 {/* ── Modals ── */}
                 {showAddModal && (
@@ -693,6 +1070,17 @@ function MainContent() {
                     type="danger"
                 />
             </div>
+
+            <WhatsNewModal
+                isOpen={showWhatsNew}
+                onClose={() => {
+                    if (latestUpdate) {
+                        localStorage.setItem(`whatsnew_seen_${latestUpdate.version}_${user?.id}`, 'true');
+                    }
+                    setShowWhatsNew(false);
+                }}
+                data={latestUpdate}
+            />
         </div>
     );
 }
@@ -708,3 +1096,12 @@ export default function App() {
         </SettingsProvider>
     );
 }
+
+
+
+
+
+
+
+
+

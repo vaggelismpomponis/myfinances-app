@@ -13,4 +13,10 @@ ext {
     androidxJunitVersion = '1.3.0'
     androidxEspressoCoreVersion = '3.7.0'
     cordovaAndroidVersion = '14.0.1'
+
+    // Required for @capacitor-firebase/authentication to include
+    // Google Sign-In runtime dependencies (play-services-auth, credentials, googleid).
+    // Without this flag, those libs are 'compileOnly' and Google Sign-In
+    // fails silently on native Android while working fine in the browser.
+    rgcfaIncludeGoogle = true
 }

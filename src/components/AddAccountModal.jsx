@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Check, Wallet, CreditCard, Banknote, Landmark } from 'lucide-react';
-import { collection, addDoc } from 'firebase/firestore';
-import { db, appId } from '../firebase';
+import { supabase } from '../supabase';
+import { useSettings } from '../contexts/SettingsContext';
 
 const COLORS = [
     { bg: 'bg-blue-500', text: 'text-blue-500', hex: '#3B82F6' },
@@ -20,6 +20,7 @@ const ICONS = [
 ];
 
 const AddAccountModal = ({ onClose, user }) => {
+    const { privacyMode } = useSettings();
     const [name, setName] = useState('');
     const [balance, setBalance] = useState('');
     const [selectedColor, setSelectedColor] = useState(COLORS[0]);
@@ -32,13 +33,14 @@ const AddAccountModal = ({ onClose, user }) => {
 
         setLoading(true);
         try {
-            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'accounts'), {
+            const { error } = await supabase.from('accounts').insert({
+                user_id: user.id,
                 name,
                 balance: parseFloat(balance),
                 type: selectedType.id,
                 color: selectedColor.hex,
-                dateCreated: new Date().toISOString()
             });
+            if (error) throw error;
             onClose();
         } catch (error) {
             console.error("Error adding account:", error);
@@ -50,7 +52,7 @@ const AddAccountModal = ({ onClose, user }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
-            <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform transition-all animate-slide-up">
+            <div className="w-full max-w-sm bg-white dark:bg-surface-dark2 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform transition-all animate-slide-up">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">Νέος Λογαριασμός</h2>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
@@ -67,7 +69,7 @@ const AddAccountModal = ({ onClose, user }) => {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="π.χ. Τράπεζα Πειραιώς"
-                            className="w-full p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-lg placeholder-gray-400"
+                            className="w-full p-4 bg-gray-50 dark:bg-surface-dark3/50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-lg placeholder-gray-400"
                             required
                         />
                     </div>
@@ -82,10 +84,10 @@ const AddAccountModal = ({ onClose, user }) => {
                                 onChange={(e) => setBalance(e.target.value)}
                                 placeholder="0.00"
                                 step="0.01"
-                                className="w-full p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-2xl font-bold placeholder-gray-400"
+                                className="w-full p-4 bg-gray-50 dark:bg-surface-dark3/50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-2xl font-bold placeholder-gray-400"
                                 required
                             />
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">€</span>
+                             {!privacyMode && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">€</span>}
                         </div>
                     </div>
 
@@ -100,7 +102,7 @@ const AddAccountModal = ({ onClose, user }) => {
                                     onClick={() => setSelectedType(item)}
                                     className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all min-w-[80px] ${selectedType.id === item.id
                                             ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400'
-                                            : 'border-transparent bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400'
+                                            : 'border-transparent bg-gray-50 dark:bg-surface-dark3/50 text-gray-500 dark:text-gray-400'
                                         }`}
                                 >
                                     <item.icon size={24} />

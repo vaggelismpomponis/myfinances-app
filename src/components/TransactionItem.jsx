@@ -1,6 +1,8 @@
-import React from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Pencil, Trash2, ChevronRight } from 'lucide-react';
 import CategoryIcon from './CategoryIcon';
+import Amount from './Amount';
+import { useSettings } from '../contexts/SettingsContext';
 
 const CATEGORY_ACCENT = {
     food:        '#f59e0b',
@@ -17,16 +19,22 @@ const CATEGORY_ACCENT = {
 };
 
 const TransactionItem = ({ transaction, onDelete, onEdit }) => {
+    const { t } = useSettings();
+    const [showActions, setShowActions] = useState(false);
+    
     const isIncome  = transaction.type === 'income';
     const accent    = CATEGORY_ACCENT[transaction.category?.toLowerCase()] || '#9ca3af';
 
     return (
-        <div className="group relative flex items-center gap-3.5
+        <div 
+            onClick={() => setShowActions(!showActions)}
+            className="group relative flex items-center gap-3.5
                         bg-white dark:bg-surface-dark3
                         border border-gray-100 dark:border-transparent
                         rounded-2xl p-3.5
                         shadow-card dark:shadow-card-dark
                         hover:shadow-md dark:hover:shadow-card-dark
+                        cursor-pointer
                         active:scale-[0.98] transition-all duration-200"
         >
             {/* Colored left accent line */}
@@ -40,52 +48,52 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
 
             {/* Text */}
             <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-gray-800 dark:text-gray-100 truncate capitalize">
+                <p className="font-semibold text-sm text-gray-800 dark:text-white truncate capitalize">
                     {transaction.note || transaction.category}
                 </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">
-                    <span className="capitalize">{transaction.category}</span>
-                    {' · '}
-                    {new Date(transaction.date).toLocaleDateString('el-GR', { day: 'numeric', month: 'short' })}
+                    {new Date(transaction.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </p>
             </div>
 
-            {/* Amount */}
-            <div className="shrink-0 flex flex-col items-end gap-1">
-                <span className={`text-sm font-bold tabular-nums ${isIncome ? 'text-emerald-500' : 'text-gray-800 dark:text-gray-100'}`}>
-                    {isIncome ? '+' : '−'}{transaction.amount.toFixed(2)}€
+            {/* Amount and Arrow */}
+            <div className="shrink-0 flex items-center gap-2">
+                <span className={`text-sm font-semibold tabular-nums ${isIncome ? 'text-emerald-500' : 'text-rose-500'}`}>
+                    <Amount value={transaction.amount} prefix={isIncome ? '+' : '-'} />
                 </span>
-                {/* Type badge */}
-                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full
-                                  ${isIncome
-                                    ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-600 dark:text-emerald-400'
-                                    : 'bg-rose-50 dark:bg-rose-900/25 text-rose-500 dark:text-rose-400'
-                                  }`}>
-                    {isIncome ? 'Έσοδο' : 'Έξοδο'}
-                </span>
+                <ChevronRight size={18} className="text-gray-400" />
             </div>
 
-            {/* Hover actions */}
-            <div className="absolute right-2 top-1/2 -translate-y-1/2
+            {/* Click actions */}
+            <div className={`absolute right-4 top-1/2 -translate-y-1/2
                             flex items-center gap-1
-                            opacity-0 group-hover:opacity-100
                             bg-white dark:bg-surface-dark3
-                            rounded-xl px-1.5 py-1
-                            shadow-sm border border-gray-100 dark:border-transparent
-                            transition-opacity duration-200 z-10">
+                            rounded-xl px-2 py-1.5
+                            shadow-lg border border-gray-100 dark:border-transparent
+                            transition-all duration-200 z-10
+                            ${showActions ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
                 <button
-                    onClick={() => onEdit && onEdit(transaction)}
-                    title="Επεξεργασία"
-                    className="p-1.5 text-violet-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/30 rounded-lg transition-colors"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit && onEdit(transaction);
+                        setShowActions(false);
+                    }}
+                    title={t('edit_tooltip')}
+                    className="p-1.5 text-violet-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/30 rounded-lg transition-colors"
                 >
-                    <Pencil size={13} />
+                    <Pencil size={18} />
                 </button>
+                <div className="w-[1px] h-4 bg-gray-200 dark:bg-surface-dark3 mx-1" />
                 <button
-                    onClick={() => onDelete(transaction.id)}
-                    title="Διαγραφή"
-                    className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-colors"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(transaction.id);
+                        setShowActions(false);
+                    }}
+                    title={t('delete_tooltip')}
+                    className="p-1.5 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-colors"
                 >
-                    <Trash2 size={13} />
+                    <Trash2 size={18} />
                 </button>
             </div>
         </div>
@@ -93,3 +101,12 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
 };
 
 export default TransactionItem;
+
+
+
+
+
+
+
+
+

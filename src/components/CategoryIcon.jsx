@@ -1,30 +1,32 @@
 import React from 'react';
 import {
     Coffee,
-    ShoppingBag,
+    ShoppingCart,
     Home as HomeIcon,
     Car,
-    Smartphone,
+    Receipt,
     Gift,
-    Wallet,
-    TrendingUp,
-    MoreHorizontal,
-    Utensils
+    Banknote,
+    LineChart,
+    Package,
+    Utensils,
+    Gamepad2,
+    MoreHorizontal
 } from 'lucide-react';
 
 const CategoryIcon = ({ category, type }) => {
     const icons = {
         'Καφές': Coffee,
         'Φαγητό': Utensils,
-        'Σούπερ Μάρκετ': ShoppingBag,
+        'Σούπερ Μάρκετ': ShoppingCart,
         'Σπίτι': HomeIcon,
         'Μεταφορικά': Car,
-        'Λογαριασμοί': Smartphone,
-        'Διασκέδαση': Gift,
-        'Μισθός': Wallet,
+        'Λογαριασμοί': Receipt,
+        'Διασκέδαση': Gamepad2,
+        'Μισθός': Banknote,
         'Δώρο': Gift,
-        'Επενδύσεις': TrendingUp,
-        'Άλλο': MoreHorizontal
+        'Επενδύσεις': LineChart,
+        'Άλλο': Package
     };
 
     const IconComponent = icons[category] || MoreHorizontal;
@@ -39,3 +41,12 @@ const CategoryIcon = ({ category, type }) => {
 };
 
 export default CategoryIcon;
+
+
+
+
+
+
+
+
+

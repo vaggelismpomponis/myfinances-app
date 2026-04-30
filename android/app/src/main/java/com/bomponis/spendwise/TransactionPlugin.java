@@ -1,4 +1,4 @@
-package com.myfinances.app;
+package com.bomponis.spendwise;
 
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -17,7 +17,7 @@ public class TransactionPlugin extends Plugin {
     public void getPendingTransactions(PluginCall call) {
         try {
             Context context = getContext();
-            SharedPreferences prefs = context.getSharedPreferences("com.myfinances.app.transactions", Context.MODE_PRIVATE);
+            SharedPreferences prefs = context.getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
             String existing = prefs.getString("pending", "[]");
             android.util.Log.d("TransactionReader", "Checking pending: " + existing);
             
