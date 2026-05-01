@@ -369,7 +369,7 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-semibold text-[13.5px] text-gray-800 dark:text-white/90 truncate">
-                                                    {session.device || translate('unknown_device')}
+                                                    {session.device && !session.device.includes('Unknown') ? session.device : translate('unknown_device')}
                                                 </span>
                                                 {isCurrent && (
                                                     <span className="shrink-0 px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-500/15
@@ -379,7 +379,7 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-2 mt-0.5">
-                                                {session.location && (
+                                                {session.location && !session.location.includes('Unknown') && (
                                                     <span className="flex items-center gap-1 text-[11px] text-gray-400 dark:text-white/35">
                                                         <MapPin size={9} />
                                                         {session.location}

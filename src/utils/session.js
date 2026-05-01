@@ -4,13 +4,13 @@ export const trackSession = async (user) => {
     if (!user) return;
 
     // Use session storage to cache IP/Location for the current tab session
-    let ip = sessionStorage.getItem('myfinances_ip') || 'Unknown';
-    let location = sessionStorage.getItem('myfinances_location') || 'Unknown';
+    let ip = sessionStorage.getItem('myfinances_ip');
+    let location = sessionStorage.getItem('myfinances_location');
     const lastAttempt = sessionStorage.getItem('myfinances_ip_last_attempt');
     const isBlocked = sessionStorage.getItem('myfinances_ip_blocked');
 
     // Skip if already found or if we're known to be blocked in this session
-    if (ip === 'Unknown' && !isBlocked) {
+    if (!ip && !isBlocked) {
         // Throttling: only try once every 5 minutes if it failed previously
         if (!lastAttempt || Date.now() - parseInt(lastAttempt) > 300000) {
             try {
@@ -25,10 +25,18 @@ export const trackSession = async (user) => {
                 if (response.ok) {
                     const data = await response.json();
                     if (data && data.success) {
-                        ip = data.ip || 'Unknown';
-                        location = `${data.city || 'Unknown'}, ${data.country_code || ''}`;
-                        sessionStorage.setItem('myfinances_ip', ip);
-                        sessionStorage.setItem('myfinances_location', location);
+                        ip = data.ip;
+                        // Build location string: "City, CountryCode" or just "CountryName" or null
+                        if (data.city && data.country_code) {
+                            location = `${data.city}, ${data.country_code}`;
+                        } else if (data.country_name) {
+                            location = data.country_name;
+                        } else {
+                            location = null;
+                        }
+
+                        if (ip) sessionStorage.setItem('myfinances_ip', ip);
+                        if (location) sessionStorage.setItem('myfinances_location', location);
                     }
                 }
             } catch (e) {
@@ -39,7 +47,7 @@ export const trackSession = async (user) => {
 
     // Parsed Device Info
     const ua = navigator.userAgent;
-    let device = "Unknown Device";
+    let device = null;
     if (ua.includes("iPhone")) device = "iPhone";
     else if (ua.includes("iPad")) device = "iPad";
     else if (ua.includes("Android")) device = "Android";

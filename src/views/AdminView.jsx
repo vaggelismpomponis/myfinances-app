@@ -306,7 +306,10 @@ const AdminView = ({ onBack }) => {
                                                     {session.display_name && session.email && (
                                                         <p className="text-[10px] text-gray-400 truncate -mt-0.5">{session.email}</p>
                                                     )}
-                                                    <p className="text-[11px] text-gray-500 mt-0.5">{session.device || "Unknown Device"} • {session.location || "Unknown Location"}</p>
+                                                    <p className="text-[11px] text-gray-500 mt-0.5">
+                                                        {session.device && !session.device.includes('Unknown') ? session.device : translate('unknown_device')}
+                                                        {session.location && !session.location.includes('Unknown') && ` • ${session.location}`}
+                                                    </p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
