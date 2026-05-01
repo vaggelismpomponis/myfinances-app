@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, Delete, ScanFace, LogOut, X, Check } from 'lucide-react';
 import { NativeBiometric } from '@capgo/capacitor-native-biometric';
+import { verifyWebBiometric, hasWebBiometricRegistered, clearWebBiometric } from '../utils/webBiometric';
 import { Capacitor } from '@capacitor/core';
 import { useSettings } from '../contexts/SettingsContext';
 import { supabase } from '../supabase';
@@ -16,50 +17,73 @@ const LockScreen = ({ onSignOut, user }) => {
     const [showForgotModal, setShowForgotModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [resetError, setResetError] = useState('');
+    const [bioToast, setBioToast] = useState(false);
+
+    // Migration guard: if biometrics is flagged as enabled on web but no real
+    // WebAuthn credential was ever registered (old fake-enrollment state),
+    // silently reset the flag so the user sees just the PIN pad.
+    useEffect(() => {
+        if (isBiometricsEnabled && !Capacitor.isNativePlatform()) {
+            if (!hasWebBiometricRegistered()) {
+                clearWebBiometric();
+                toggleBiometrics(false);
+                // Show a brief nudge so the user knows what happened
+                setBioToast(true);
+                setTimeout(() => setBioToast(false), 5000);
+            }
+        }
+    }, []);
 
     const handleBiometricAuth = async () => {
         setIsScanning(true);
         try {
-            const result = await NativeBiometric.isAvailable();
-            if (!result.isAvailable) { setIsScanning(false); return; }
-
             if (Capacitor.isNativePlatform()) {
-                // Native: first show the OS biometric prompt, then retrieve the keychain token.
-                // The token (PIN) is only accessible after the OS confirms biometric identity.
+                // Native: check plugin availability, show OS prompt, then retrieve keychain token.
+                const result = await NativeBiometric.isAvailable();
+                if (!result.isAvailable) { setIsScanning(false); return; }
+
                 await NativeBiometric.verifyIdentity({
                     reason: t('biometric_reason'),
                     title: t('biometric_title'),
                     subtitle: t('biometric_subtitle'),
                     description: '',
                 });
-                // If verifyIdentity resolves, biometrics succeeded — retrieve the secure token
                 const credentials = await NativeBiometric.getCredentials({
                     server: BIOMETRIC_SERVER,
                 });
-                // Verify the returned token matches our stored PIN as a sanity check
                 if (credentials.password === appPin) {
                     unlockApp();
                     setPin('');
                 }
             } else {
-                // Web fallback: verify identity then trust local PIN
-                await NativeBiometric.verifyIdentity({
-                    reason: ' ',
-                    title: t('biometric_title'),
-                    subtitle: t('biometric_subtitle'),
-                    description: '',
-                });
+                // Web/PWA: use the real WebAuthn API.
+                // verifyWebBiometric() calls navigator.credentials.get(), which
+                // shows the actual OS biometric dialog (Touch ID, Windows Hello, etc.).
+                // It throws if the user cancels or fails — the catch below keeps the lock.
+                if (!hasWebBiometricRegistered()) {
+                    // Stale state — clear it and prompt to re-enroll
+                    clearWebBiometric();
+                    toggleBiometrics(false);
+                    setBioToast(true);
+                    setTimeout(() => setBioToast(false), 5000);
+                    return;
+                }
+                await verifyWebBiometric();
                 unlockApp();
                 setPin('');
             }
-        } catch { /* cancelled or failed */ }
+        } catch { /* cancelled or failed — stay locked */ }
         finally { setIsScanning(false); }
     };
 
     useEffect(() => {
-        if (isBiometricsEnabled) {
-            const t = setTimeout(handleBiometricAuth, 300);
-            return () => clearTimeout(t);
+        // Auto-trigger biometric prompt only on native platforms.
+        // On web/PWA, WebAuthn requires a real user gesture (button tap) to show
+        // the OS biometric dialog — auto-triggering on mount resolves silently
+        // without actually authenticating the user.
+        if (isBiometricsEnabled && Capacitor.isNativePlatform()) {
+            const timer = setTimeout(handleBiometricAuth, 300);
+            return () => clearTimeout(timer);
         }
     }, [isBiometricsEnabled]);
 
@@ -104,6 +128,17 @@ const LockScreen = ({ onSignOut, user }) => {
             {/* Ambient glow */}
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2
                             w-80 h-80 rounded-full bg-violet-600/20 blur-[100px] pointer-events-none" />
+
+            {/* Biometrics re-enrollment toast */}
+            {bioToast && (
+                <div className="absolute top-6 left-4 right-4 z-10
+                                bg-amber-500/90 backdrop-blur-sm
+                                text-white text-xs font-semibold
+                                px-4 py-3 rounded-2xl shadow-lg
+                                animate-slide-in-up text-center leading-relaxed">
+                    {t('biometric_reenroll_notice') || 'Face/Touch ID needs to be re-enabled in Settings → Security.'}
+                </div>
+            )}
 
             {/* Logo */}
             <div className="flex flex-col items-center mb-10 animate-slide-in-up">

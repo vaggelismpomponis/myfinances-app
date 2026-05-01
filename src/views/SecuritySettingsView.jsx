@@ -21,6 +21,7 @@ import PasswordInput from '../components/PasswordInput';
 import { useSettings } from '../contexts/SettingsContext';
 import { supabase } from '../supabase';
 import { NativeBiometric } from '@capgo/capacitor-native-biometric';
+import { isWebBiometricAvailable, registerWebBiometric, clearWebBiometric } from '../utils/webBiometric';
 
 const BIOMETRIC_SERVER = 'app.myfinances.lock';
 
@@ -104,40 +105,43 @@ const SecuritySettingsView = ({ user, onBack }) => {
                 return;
             }
             try {
-                const result = await NativeBiometric.isAvailable();
-                if (!result.isAvailable) {
-                    setShowBioUnavailableModal(true);
-                    return;
-                }
-
                 if (Capacitor.isNativePlatform()) {
-                    // Native: Store the PIN as a secure token in the device keychain.
-                    // On unlock, we call verifyIdentity() first, then getCredentials() —
-                    // so the token is only accessible after the OS confirms biometric identity.
+                    // Native: check availability via plugin, then store PIN in keychain.
+                    const result = await NativeBiometric.isAvailable();
+                    if (!result.isAvailable) {
+                        setShowBioUnavailableModal(true);
+                        return;
+                    }
                     await NativeBiometric.setCredentials({
                         username: 'myfinances_user',
-                        password: appPin, // PIN is the secure token
+                        password: appPin,
                         server: BIOMETRIC_SERVER,
                     });
                 } else {
-                    // Web fallback: just verify identity
-                    await NativeBiometric.verifyIdentity({
-                        reason: translate('biometric_enable_reason'),
-                        title: translate('biometric_enable_title'),
-                        subtitle: "",
-                        description: "",
-                    });
+                    // Web/PWA: use the real WebAuthn API.
+                    // This shows the OS biometric prompt (Touch ID / Windows Hello).
+                    const available = await isWebBiometricAvailable();
+                    if (!available) {
+                        setShowBioUnavailableModal(true);
+                        return;
+                    }
+                    // registerWebBiometric will show the OS biometric prompt to enroll.
+                    // It stores the credential ID in localStorage for future verifications.
+                    await registerWebBiometric(user?.id ?? 'spendwise_user');
                 }
                 toggleBiometrics(true);
             } catch (error) {
-                console.error("Biometric setup failed:", error);
+                // User cancelled the biometric prompt — do not enable
+                console.warn('Biometric setup cancelled or failed:', error);
             }
         } else {
-            // Remove stored credentials from keychain
+            // Disable: clean up stored credentials
             if (Capacitor.isNativePlatform()) {
                 try {
                     await NativeBiometric.deleteCredentials({ server: BIOMETRIC_SERVER });
                 } catch { /* ignore if not found */ }
+            } else {
+                clearWebBiometric();
             }
             toggleBiometrics(false);
         }
