@@ -3,18 +3,38 @@ import { supabase } from '../supabase';
 export const trackSession = async (user) => {
     if (!user) return;
 
-    let ip = 'Unknown';
-    let location = 'Unknown';
+    // Use session storage to cache IP/Location for the current tab session
+    let ip = sessionStorage.getItem('myfinances_ip') || 'Unknown';
+    let location = sessionStorage.getItem('myfinances_location') || 'Unknown';
+    const lastAttempt = sessionStorage.getItem('myfinances_ip_last_attempt');
+    const isBlocked = sessionStorage.getItem('myfinances_ip_blocked');
 
-    try {
-        const response = await fetch('https://ipwho.is/');
-        if (response.ok) {
-            const data = await response.json();
-            ip = data.ip || 'Unknown';
-            location = `${data.city || 'Unknown'}, ${data.country_code || ''}`;
+    // Skip if already found or if we're known to be blocked in this session
+    if (ip === 'Unknown' && !isBlocked) {
+        // Throttling: only try once every 5 minutes if it failed previously
+        if (!lastAttempt || Date.now() - parseInt(lastAttempt) > 300000) {
+            try {
+                sessionStorage.setItem('myfinances_ip_last_attempt', Date.now().toString());
+                const response = await fetch('https://ipwho.is/', { cache: 'no-store' });
+                
+                if (response.status === 403) {
+                    sessionStorage.setItem('myfinances_ip_blocked', 'true');
+                    throw new Error('Forbidden');
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.success) {
+                        ip = data.ip || 'Unknown';
+                        location = `${data.city || 'Unknown'}, ${data.country_code || ''}`;
+                        sessionStorage.setItem('myfinances_ip', ip);
+                        sessionStorage.setItem('myfinances_location', location);
+                    }
+                }
+            } catch (e) {
+                // Silent fail for location tracking
+            }
         }
-    } catch (e) {
-        console.warn("IP fetch failed, continuing without location data.");
     }
 
     // Parsed Device Info

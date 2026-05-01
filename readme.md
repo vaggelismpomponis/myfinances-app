@@ -1,4 +1,4 @@
-# SpendWise          
+# SpendWise
 
 SpendWise is a comprehensive personal finance management application built with React and Capacitor, designed to help you track your income and expenses, manage budgets, and achieve your financial goals. The app features a modern, user-friendly interface with dark mode support and advanced analytics.
 

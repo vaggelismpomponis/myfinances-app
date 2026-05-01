@@ -436,11 +436,25 @@ const AdminView = ({ onBack }) => {
                                         />
                                     </div>
                                     <button 
-                                        onClick={() => {
+                                        onClick={async () => {
                                             if(!broadcastTitle.trim() || !broadcastMessage.trim()) return showToast(translate('admin_broadcast_fill_fields'), 'error');
-                                            showToast(translate('admin_broadcast_success'), 'success');
-                                            setBroadcastTitle('');
-                                            setBroadcastMessage('');
+                                            
+                                            try {
+                                                const { error } = await supabase.from('broadcasts').insert([{
+                                                    title: broadcastTitle.trim(),
+                                                    message: broadcastMessage.trim(),
+                                                    created_at: new Date().toISOString()
+                                                }]);
+                                                
+                                                if (error) throw error;
+                                                
+                                                showToast(translate('admin_broadcast_success'), 'success');
+                                                setBroadcastTitle('');
+                                                setBroadcastMessage('');
+                                            } catch (e) {
+                                                console.error('Broadcast error:', e);
+                                                showToast('Αποτυχία αποστολής: ' + e.message, 'error');
+                                            }
                                         }}
                                         className="w-full py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-xl active:scale-[0.98] transition-all shadow-xl shadow-violet-500/20 flex items-center justify-center gap-2"
                                     >

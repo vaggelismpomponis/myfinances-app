@@ -41,6 +41,7 @@ import Navbar from './components/Navbar';
 import FinancialAdvisorView from './views/FinancialAdvisorView';
 import GuideView from './views/GuideView';
 import UserProfileView from './views/UserProfileView';
+import BroadcastModal from './components/BroadcastModal';
 
 
 import ConfirmationModal from './components/ConfirmationModal';
@@ -65,6 +66,10 @@ function MainContent() {
     // Whats New Modal
     const [latestUpdate, setLatestUpdate] = useState(null);
     const [showWhatsNew, setShowWhatsNew] = useState(false);
+
+    // Broadcasts State
+    const [currentBroadcast, setCurrentBroadcast] = useState(null);
+    const [showBroadcast, setShowBroadcast] = useState(false);
 
     // Browser History Navigation Logic
     const isPopping = useRef(false);
@@ -176,21 +181,62 @@ function MainContent() {
     }, [user, loading, isLocked]);
 
     useEffect(() => {
+        const checkBroadcasts = async () => {
+            if (user && !loading && !isLocked) {
+                try {
+                    const { data, error } = await supabase
+                        .from('broadcasts')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(1);
+
+                    if (error) {
+                        console.error('[Broadcast] Fetch error:', error);
+                        return;
+                    }
+                    
+                    if (data && data.length > 0) {
+                        const broadcast = data[0];
+                        const lastSeenId = localStorage.getItem(`broadcast_seen_${user.id}`);
+                        
+                        console.log('[Broadcast] Latest:', broadcast.id, 'Last Seen:', lastSeenId);
+                        
+                        if (lastSeenId !== broadcast.id.toString()) {
+                            setCurrentBroadcast(broadcast);
+                            setShowBroadcast(true);
+                        }
+                    }
+                } catch (e) {
+                    console.error('[Broadcast] Exception:', e);
+                }
+            }
+        };
+        checkBroadcasts();
+    }, [user, loading, isLocked]);
+
+    const lastTrackedUser = useRef(null);
+
+    useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             const currentUser = session?.user ?? null;
             setUser(currentUser);
             setLoading(false);
-            if (currentUser) {
+            if (currentUser && lastTrackedUser.current !== currentUser.id) {
+                lastTrackedUser.current = currentUser.id;
                 trackSession(currentUser);
             }
         });
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             const currentUser = session?.user ?? null;
             setUser(currentUser);
             setLoading(false);
-            if (currentUser) {
+            
+            if (currentUser && lastTrackedUser.current !== currentUser.id) {
+                lastTrackedUser.current = currentUser.id;
                 trackSession(currentUser);
+            } else if (event === 'SIGNED_OUT') {
+                lastTrackedUser.current = null;
             }
         });
 
@@ -1080,6 +1126,17 @@ function MainContent() {
                     setShowWhatsNew(false);
                 }}
                 data={latestUpdate}
+            />
+
+            <BroadcastModal
+                isOpen={showBroadcast}
+                onClose={() => {
+                    if (currentBroadcast) {
+                        localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id);
+                    }
+                    setShowBroadcast(false);
+                }}
+                data={currentBroadcast}
             />
         </div>
     );
