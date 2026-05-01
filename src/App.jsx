@@ -19,7 +19,6 @@ import { trackSession } from './utils/session';
 import { setupNotificationListener } from './utils/notificationListener';
 
 // Components
-import LoadingView from './views/LoadingView';
 import LoginView from './views/LoginView';
 import ProfileView from './views/ProfileView';
 import RecurringView from './views/RecurringView';
@@ -242,6 +241,21 @@ function MainContent() {
 
         return () => subscription.unsubscribe();
     }, []);
+
+    // Remove initial loader when app is ready
+    useEffect(() => {
+        if (!loading) {
+            const loader = document.getElementById('initial-loader');
+            if (loader) {
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    if (loader.parentNode) {
+                        loader.remove();
+                    }
+                }, 500);
+            }
+        }
+    }, [loading]);
 
     const GOOGLE_CLIENT_ID = '345124628478-9dfooug409in2o115t5fdcolhfl9ojnk.apps.googleusercontent.com';
 
@@ -850,7 +864,7 @@ function MainContent() {
 
     // --- Layout Render ---
 
-    if (loading) return <LoadingView />;
+    if (loading) return null;
 
     if (user && isLocked) {
         return <LockScreen onSignOut={handleSignOut} user={user} />;
