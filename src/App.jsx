@@ -35,6 +35,7 @@ import BackupView from './views/BackupView';
 import FeedbackView from './views/FeedbackView';
 import AdminView from './views/AdminView';
 import PrivacyPolicyView from './views/PrivacyPolicyView';
+import PaymentSuccessView from './views/PaymentSuccessView';
 import AddModal from './components/AddModal';
 import WhatsNewModal from './components/WhatsNewModal';
 import Navbar from './components/Navbar';
@@ -71,6 +72,11 @@ function MainContent() {
     // Broadcasts State
     const [currentBroadcast, setCurrentBroadcast] = useState(null);
     const [showBroadcast, setShowBroadcast] = useState(false);
+
+    // Payment success overlay (Stripe redirect back with ?upgraded=true)
+    const [showPaymentSuccess, setShowPaymentSuccess] = useState(
+        () => new URLSearchParams(window.location.search).get('upgraded') === 'true'
+    );
 
     // Browser History Navigation Logic
     const isPopping = useRef(false);
@@ -215,15 +221,16 @@ function MainContent() {
         checkBroadcasts();
     }, [user, loading, isLocked]);
 
-    const lastTrackedUser = useRef(null);
+    const sessionTracked = useRef(false);
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             const currentUser = session?.user ?? null;
             setUser(currentUser);
             setLoading(false);
-            if (currentUser && lastTrackedUser.current !== currentUser.id) {
-                lastTrackedUser.current = currentUser.id;
+            // Always track on app open so device/location is refreshed every session
+            if (currentUser && !sessionTracked.current) {
+                sessionTracked.current = true;
                 trackSession(currentUser);
             }
         });
@@ -232,12 +239,13 @@ function MainContent() {
             const currentUser = session?.user ?? null;
             setUser(currentUser);
             setLoading(false);
-            
-            if (currentUser && lastTrackedUser.current !== currentUser.id) {
-                lastTrackedUser.current = currentUser.id;
+
+            if (event === 'SIGNED_IN' && currentUser) {
+                // Always track on sign-in to capture device/location for new and returning users
+                sessionTracked.current = true;
                 trackSession(currentUser);
             } else if (event === 'SIGNED_OUT') {
-                lastTrackedUser.current = null;
+                sessionTracked.current = false;
             }
         });
 
@@ -1086,7 +1094,15 @@ function MainContent() {
                     </div>
                 )}
 
-
+                {/* ── Payment Success Overlay ── */}
+                {showPaymentSuccess && (
+                    <PaymentSuccessView
+                        onContinue={() => {
+                            setShowPaymentSuccess(false);
+                            setActiveTab('home');
+                        }}
+                    />
+                )}
 
                 {/* ── Navbar + FAB wrapper ── */}
                 {!['goals', 'budgets', 'profile', 'profile-details', 'recurring', 'general', 'security', 'backup', 'feedback', 'admin', 'privacy', 'advisor', 'guide'].includes(activeTab) && (

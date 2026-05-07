@@ -323,19 +323,19 @@ const AdminView = ({ onBack }) => {
                                                 </div>
                                                 <div>
                                                     <p className="text-[13px] font-bold text-gray-900 dark:text-white truncate max-w-[180px]">
-                                                        {profile.display_name || profile.email || `User: ${profile.id.substring(0, 8)}...`}
+                                                        {profile.display_name || profile.latest_session?.display_name || profile.email}
                                                         {profile.subscription_status === 'pro' && (
                                                             <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[8px] font-black bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 uppercase tracking-widest align-middle">
                                                                 PRO
                                                             </span>
                                                         )}
                                                     </p>
-                                                    {profile.display_name && profile.email && (
+                                                    {(profile.display_name || profile.latest_session?.display_name) && (
                                                         <p className="text-[10px] text-gray-400 truncate -mt-0.5">{profile.email}</p>
                                                     )}
                                                     <p className="text-[11px] text-gray-500 mt-0.5">
                                                         {profile.latest_session?.device && !profile.latest_session.device.includes('Unknown') ? profile.latest_session.device : translate('unknown_device')}
-                                                        {profile.latest_session?.location && !profile.latest_session.location.includes('Unknown') && ` • ${profile.latest_session.location}`}
+                                                        {profile.latest_session?.location && !profile.latest_session.location.includes('Unknown') ? ` • ${profile.latest_session.location}` : ''}
                                                     </p>
                                                 </div>
                                             </div>
