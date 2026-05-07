@@ -28,6 +28,7 @@ const AdminView = ({ onBack }) => {
 
     // Dashboard & Users State
     const [stats, setStats] = useState({ users: 0, transactions: 0, feedback: 0, activity: 0 });
+    const [profiles, setProfiles] = useState([]);
     const [sessions, setSessions] = useState([]);
 
     // Broadcast State
@@ -45,22 +46,43 @@ const AdminView = ({ onBack }) => {
                 { data: upData },
                 { count: fCount },
                 { count: tCount },
-                { data: sessData }
+                { data: sessData },
+                { data: profRes }
             ] = await Promise.all([
                 supabase.from('feedback').select('*').order('created_at', { ascending: false }),
                 supabase.from('app_updates').select('*').order('created_at', { ascending: false }),
                 supabase.from('feedback').select('*', { count: 'exact', head: true }),
                 supabase.from('transactions').select('*', { count: 'exact', head: true }),
-                supabase.from('sessions').select('*').order('last_active', { ascending: false })
+                supabase.from('sessions').select('*').order('last_active', { ascending: false }),
+                supabase.functions.invoke('admin-get-profiles')
             ]);
+
+            const profData = profRes?.profiles || [];
 
             setFeedback(fbData || []);
             setUpdates(upData || []);
             setSessions(sessData || []);
+            
+            // Render unique profiles with their latest session info
+            const latestSessionsMap = (sessData || []).reduce((acc, s) => {
+                // Keep the most recent session for each user
+                if (!acc[s.user_id] || new Date(s.last_active) > new Date(acc[s.user_id].last_active)) {
+                    acc[s.user_id] = s;
+                }
+                return acc;
+            }, {});
 
-            const uniqueUsers = new Set((sessData || []).map(s => s.user_id)).size;
+            const enhancedProfiles = (profData || []).map((p, index) => ({
+                ...p,
+                displayId: index + 1, // 1, 2, 3, etc.
+                latest_session: latestSessionsMap[p.id] || null
+            }));
+            
+            setProfiles(enhancedProfiles);
+
+            const uniqueUsers = profData?.length || 0;
             setStats({
-                users: uniqueUsers || 0,
+                users: uniqueUsers,
                 transactions: tCount || 0,
                 feedback: fCount || 0,
                 activity: sessData?.length || 0
@@ -287,34 +309,67 @@ const AdminView = ({ onBack }) => {
                         {/* USERS SECTION */}
                         {activeSection === 'users' && (
                             <div className="space-y-3 animate-fade-in">
-                                {sessions.length === 0 ? (
+                                {profiles.length === 0 ? (
                                     <div className="text-center py-10 opacity-50">
                                         <Users size={40} className="mx-auto mb-3" />
                                         <p className="text-sm">{translate('admin_no_users')}</p>
                                     </div>
                                 ) : (
-                                    sessions.map(session => (
-                                        <div key={session.id} className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm flex items-center justify-between">
+                                    profiles.map(profile => (
+                                        <div key={profile.id} className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm flex items-center justify-between">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center">
-                                                    <User size={18} className="text-gray-400" />
+                                                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center font-black text-gray-400">
+                                                    {profile.displayId}
                                                 </div>
                                                 <div>
                                                     <p className="text-[13px] font-bold text-gray-900 dark:text-white truncate max-w-[180px]">
-                                                        {session.display_name || session.email || `User: ${session.user_id?.substring(0, 8)}...`}
+                                                        {profile.display_name || profile.email || `User: ${profile.id.substring(0, 8)}...`}
+                                                        {profile.subscription_status === 'pro' && (
+                                                            <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[8px] font-black bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 uppercase tracking-widest align-middle">
+                                                                PRO
+                                                            </span>
+                                                        )}
                                                     </p>
-                                                    {session.display_name && session.email && (
-                                                        <p className="text-[10px] text-gray-400 truncate -mt-0.5">{session.email}</p>
+                                                    {profile.display_name && profile.email && (
+                                                        <p className="text-[10px] text-gray-400 truncate -mt-0.5">{profile.email}</p>
                                                     )}
                                                     <p className="text-[11px] text-gray-500 mt-0.5">
-                                                        {session.device && !session.device.includes('Unknown') ? session.device : translate('unknown_device')}
-                                                        {session.location && !session.location.includes('Unknown') && ` • ${session.location}`}
+                                                        {profile.latest_session?.device && !profile.latest_session.device.includes('Unknown') ? profile.latest_session.device : translate('unknown_device')}
+                                                        {profile.latest_session?.location && !profile.latest_session.location.includes('Unknown') && ` • ${profile.latest_session.location}`}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md block mb-1">Active</span>
-                                                <span className="text-[10px] text-gray-400">{new Date(session.last_active).toLocaleDateString()}</span>
+                                            <div className="text-right flex flex-col items-end gap-1.5">
+                                                <button
+                                                    onClick={async () => {
+                                                        const newStatus = profile.subscription_status === 'pro' ? 'free' : 'pro';
+                                                        if (window.confirm(`Are you sure you want to change this user to ${newStatus.toUpperCase()}?`)) {
+                                                            try {
+                                                                const { error } = await supabase.functions.invoke('admin-manage-subscription', {
+                                                                    body: { targetUserId: profile.id, status: newStatus }
+                                                                });
+                                                                if (error) throw error;
+                                                                showToast(`User updated to ${newStatus.toUpperCase()}`, 'success');
+                                                                fetchAllData(); // refresh list
+                                                            } catch (err) {
+                                                                showToast(`Error: ${err.message}`, 'error');
+                                                            }
+                                                        }
+                                                    }}
+                                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all border ${
+                                                        profile.subscription_status === 'pro' 
+                                                            ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-500/30 dark:hover:bg-rose-500/10' 
+                                                            : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500/30 dark:hover:bg-emerald-500/10'
+                                                    }`}
+                                                >
+                                                    {profile.subscription_status === 'pro' ? 'Revoke Pro' : 'Grant Pro'}
+                                                </button>
+                                                {profile.latest_session && (
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md block">Active</span>
+                                                        <span className="text-[10px] text-gray-400">{new Date(profile.latest_session.last_active).toLocaleDateString()}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))

@@ -15,6 +15,7 @@ import logger from './utils/logger';
 // Context
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
+import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import { trackSession } from './utils/session';
 import { setupNotificationListener } from './utils/notificationListener';
 
@@ -37,6 +38,7 @@ import PrivacyPolicyView from './views/PrivacyPolicyView';
 import AddModal from './components/AddModal';
 import WhatsNewModal from './components/WhatsNewModal';
 import Navbar from './components/Navbar';
+import UpgradeModal from './components/UpgradeModal';
 import FinancialAdvisorView from './views/FinancialAdvisorView';
 import GuideView from './views/GuideView';
 import UserProfileView from './views/UserProfileView';
@@ -883,6 +885,7 @@ function MainContent() {
     const photoURL = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
 
     return (
+        <SubscriptionProvider user={user}>
         <div className="h-full w-full bg-surface-light dark:bg-surface-dark
                         font-sans text-gray-900 dark:text-white
                         selection:bg-violet-100 dark:selection:bg-violet-900
@@ -1152,7 +1155,9 @@ function MainContent() {
                 }}
                 data={currentBroadcast}
             />
+            <UpgradeModal />
         </div>
+        </SubscriptionProvider>
     );
 }
 

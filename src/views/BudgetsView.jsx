@@ -8,6 +8,7 @@ import {
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 
 // These MUST match the categories in AddModal.jsx exactly
 const EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Άλλο'];
@@ -24,6 +25,7 @@ const CATEGORY_META = {
 
 const BudgetsView = ({ user, transactions, onBack }) => {
     const { t, privacyMode } = useSettings();
+    const { isPro, openUpgradeModal } = useSubscription();
 
     const getCategoryTranslation = (catName) => {
         const mapping = {
@@ -76,6 +78,10 @@ const BudgetsView = ({ user, transactions, onBack }) => {
     }, [user]);
 
     const openAddModal = () => {
+        if (!isPro && budgets.length >= 3) {
+            openUpgradeModal('budgets');
+            return;
+        }
         setEditingBudget(null);
         setFormCategory('');
         setFormAmount('');
@@ -202,14 +208,16 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                     </button>
                     <div className="pl-10">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none">{t('budgets')}</h2>
-                        <p className="text-xs text-gray-400 mt-1">{budgets.length} {t('active').toLowerCase()} · {new Date().toLocaleString('el-GR', { month: 'long', year: 'numeric' })}</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                            {!isPro ? `${budgets.length}/3 ` + t('active').toLowerCase() : `${budgets.length} ` + t('active').toLowerCase()} · {new Date().toLocaleString('el-GR', { month: 'long', year: 'numeric' })}
+                        </p>
                     </div>
                 </div>
                 <button
                     onClick={openAddModal}
                     className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95"
                 >
-                    <Plus size={16} /> {t('add_recurring')}
+                    {(!isPro && budgets.length >= 3) ? <span className="text-[14px]">👑</span> : <Plus size={16} />} {t('add_recurring')}
                 </button>
             </div>
 

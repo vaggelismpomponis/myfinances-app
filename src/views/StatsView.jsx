@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
+import ProBadge from '../components/ProBadge';
 
 /* ─── Premium Palette ─── */
 const COLORS = [
@@ -68,6 +70,7 @@ const TimeBtn = ({ value, label, active, onClick }) => (
 
 const StatsView = ({ transactions }) => {
     const { t, language, privacyMode } = useSettings();
+    const { isPro, openUpgradeModal } = useSubscription();
     const [timeRange, setTimeRange] = useState('thisMonth');
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -158,11 +161,19 @@ const StatsView = ({ transactions }) => {
 
     const cashFlow = totalIncome - totalExpense;
 
+    const handleTimeRangeChange = (val) => {
+        if (!isPro && val !== 'thisMonth') {
+            openUpgradeModal('stats');
+            return;
+        }
+        setTimeRange(val);
+    };
+
     const TIME_FILTERS = [
         { value: 'thisMonth', label: t('stats_this_month') },
-        { value: 'lastMonth', label: t('stats_last_month') },
-        { value: 'year', label: t('stats_year') },
-        { value: 'custom', label: t('stats_history') },
+        { value: 'lastMonth', label: !isPro ? <span className="flex items-center justify-center gap-1">{t('stats_last_month')} <span className="text-[10px]">👑</span></span> : t('stats_last_month') },
+        { value: 'year', label: !isPro ? <span className="flex items-center justify-center gap-1">{t('stats_year')} <span className="text-[10px]">👑</span></span> : t('stats_year') },
+        { value: 'custom', label: !isPro ? <span className="flex items-center justify-center gap-1">{t('stats_history')} <span className="text-[10px]">👑</span></span> : t('stats_history') },
     ];
 
     return (
@@ -212,10 +223,10 @@ const StatsView = ({ transactions }) => {
 
             {/* ── Time Filter ── */}
             <div className="sticky top-2 z-40 px-1">
-                <div className="glass-light dark:bg-surface-dark2/80 dark:backdrop-blur-xl rounded-2xl p-1.5 shadow-premium flex gap-1 border border-white/50 dark:border-white/5">
+                <div className="glass-light dark:bg-surface-dark2/80 dark:backdrop-blur-xl rounded-2xl p-1.5 shadow-premium flex gap-1 border border-white/50 dark:border-white/5 overflow-x-auto scrollbar-hide">
                     {TIME_FILTERS.map(f => (
                         <TimeBtn key={f.value} value={f.value} label={f.label}
-                            active={timeRange === f.value} onClick={setTimeRange} />
+                            active={timeRange === f.value} onClick={handleTimeRangeChange} />
                     ))}
                 </div>
             </div>

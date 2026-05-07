@@ -11,6 +11,8 @@ import { App } from '@capacitor/app';
 import ScannerModal from './ScannerModal';
 import BulkScannerModal from './BulkScannerModal';
 import { useSettings } from '../contexts/SettingsContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
+import ProBadge from '../components/ProBadge';
 import logger from '../utils/logger';
 
 const NOTE_MAX_LENGTH = 200;
@@ -19,6 +21,7 @@ const AMOUNT_MAX_VALUE = 999999.99;
 
 const AddModal = ({ onClose, onAdd, initialData }) => {
     const { customCategories, addCustomCategory, t, privacyMode } = useSettings();
+    const { isPro, openUpgradeModal } = useSubscription();
     const [isAddingCategory, setIsAddingCategory] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
     const [activeTab, setActiveTab] = useState('manual');
@@ -567,11 +570,18 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                             {!isAddingCategory ? (
                                 <button
                                     type="button"
-                                    onClick={() => setIsAddingCategory(true)}
+                                    onClick={() => {
+                                        if (!isPro) {
+                                            openUpgradeModal('categories');
+                                            return;
+                                        }
+                                        setIsAddingCategory(true);
+                                    }}
                                     className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all active:scale-95 border-dashed border-gray-300 dark:border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 bg-transparent"
                                 >
                                     <Plus size={14} />
                                     <span>{t('new_category')}</span>
+                                    {!isPro && <span className="text-[10px] ml-0.5">👑</span>}
                                 </button>
                             ) : (
                                 <div className="flex items-center gap-1 animate-fade-in">
@@ -680,19 +690,33 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                         </button>
                         <button
                             type="button"
-                            onClick={() => setShowScanner(true)}
+                            onClick={() => {
+                                if (!isPro) {
+                                    openUpgradeModal('scanner');
+                                    return;
+                                }
+                                setShowScanner(true);
+                            }}
                             className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 active:scale-95 transition-all"
                         >
                             <Camera size={14} />
                             {t('scan')}
+                            {!isPro && <span className="text-[10px] ml-0.5">👑</span>}
                         </button>
                         <button
                             type="button"
-                            onClick={() => setShowBulkScanner(true)}
+                            onClick={() => {
+                                if (!isPro) {
+                                    openUpgradeModal('scanner');
+                                    return;
+                                }
+                                setShowBulkScanner(true);
+                            }}
                             className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/20 hover:bg-violet-100 dark:hover:bg-violet-500/30 active:scale-95 transition-all"
                         >
                             <Layers size={14} />
                             {t('bulk')}
+                            {!isPro && <span className="text-[10px] ml-0.5">👑</span>}
                         </button>
                     </div>
 

@@ -14,12 +14,15 @@ import {
     ShieldAlert as Shield
 } from 'lucide-react';
 import { supabase } from '../supabase';
+import { exportJSON } from '../services/export';
 import ConfirmationModal from '../components/ConfirmationModal';
 import PasswordInput from '../components/PasswordInput';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 import { openNotificationSettings } from '../utils/notificationListener';
 import { Capacitor } from '@capacitor/core';
+import { useSubscription } from '../contexts/SubscriptionContext';
+import ProBadge from '../components/ProBadge';
 
 /* ── Section Header ── */
 const SectionLabel = ({ children }) => (
@@ -55,6 +58,7 @@ const SettingRow = ({ icon: Icon, iconColor, iconBg, label, sublabel, right, onC
 const GeneralSettingsView = ({ user, onBack, onPrivacy }) => {
     const { language, updateLanguage, t: translate } = useSettings();
     const { showToast } = useToast();
+    const { isPro, openUpgradeModal } = useSubscription();
     const [showClearDataModal, setShowClearDataModal] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
 
@@ -64,6 +68,10 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy }) => {
     const [isDeleting, setIsDeleting] = useState(false);
 
     const handleExportData = async () => {
+        if (!isPro) {
+            openUpgradeModal('export');
+            return;
+        }
         setIsExporting(true);
         try {
             const { data: transactions, error } = await supabase
@@ -71,15 +79,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy }) => {
                 .select('*')
                 .eq('user_id', user.id);
             if (error) throw error;
-            const dataStr = JSON.stringify(transactions, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `transactions_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            exportJSON(transactions);
             showToast(translate('data_exported_successfully'), 'success');
         } catch (error) {
             console.error("Export error:", error);
@@ -251,7 +251,12 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy }) => {
                             icon={Download}
                             iconBg="bg-violet-50 dark:bg-violet-500/10"
                             iconColor="text-violet-600 dark:text-violet-400"
-                            label={translate('export_data')}
+                            label={
+                                <span className="flex items-center gap-2">
+                                    {translate('export_data')}
+                                    {!isPro && <ProBadge />}
+                                </span>
+                            }
                             sublabel={translate('export_data_desc')}
                             right={isExporting
                                 ? <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />

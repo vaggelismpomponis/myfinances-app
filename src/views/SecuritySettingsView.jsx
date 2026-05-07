@@ -22,6 +22,8 @@ import { useSettings } from '../contexts/SettingsContext';
 import { supabase } from '../supabase';
 import { NativeBiometric } from '@capgo/capacitor-native-biometric';
 import { isWebBiometricAvailable, registerWebBiometric, clearWebBiometric } from '../utils/webBiometric';
+import { useSubscription } from '../contexts/SubscriptionContext';
+import ProBadge from '../components/ProBadge';
 
 const BIOMETRIC_SERVER = 'app.myfinances.lock';
 
@@ -33,11 +35,13 @@ const SectionLabel = ({ children }) => (
 );
 
 /* ── Toggle switch ── */
-const Toggle = ({ enabled, onClick }) => (
+const Toggle = ({ enabled, onClick, disabled }) => (
     <button
-        onClick={onClick}
+        onClick={disabled ? null : onClick}
+        disabled={disabled}
         className={`w-[42px] h-[24px] rounded-full flex items-center p-[3px] transition-colors duration-300
-                     ${enabled ? 'bg-violet-600 shadow-[0_2px_8px_rgba(124,58,237,0.4)]' : 'bg-gray-200 dark:bg-white/10'}`}
+                     ${enabled ? 'bg-violet-600 shadow-[0_2px_8px_rgba(124,58,237,0.4)]' : 'bg-gray-200 dark:bg-white/10'}
+                     ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
         <div className={`w-[18px] h-[18px] rounded-full bg-white shadow-sm transition-transform duration-300
                          ${enabled ? 'translate-x-[18px]' : 'translate-x-0'}`} />
@@ -48,6 +52,7 @@ const Toggle = ({ enabled, onClick }) => (
 const SecuritySettingsView = ({ user, onBack }) => {
     const { isBiometricsEnabled, toggleBiometrics, isPinEnabled, setPin, removePin, appPin,
         isPrivacyScreenEnabled, togglePrivacyScreen, t: translate } = useSettings();
+    const { isPro, openUpgradeModal } = useSubscription();
     const [sessions, setSessions] = useState([]);
     const [currentSessionId, setCurrentSessionId] = useState(null);
 
@@ -99,6 +104,10 @@ const SecuritySettingsView = ({ user, onBack }) => {
     }, [pinInput]);
 
     const handleToggleBiometrics = async () => {
+        if (!isBiometricsEnabled && !isPro) {
+            openUpgradeModal('biometrics');
+            return;
+        }
         if (!isBiometricsEnabled) {
             if (!isPinEnabled || !appPin) {
                 setShowNoPinModal(true);
@@ -313,10 +322,13 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                 <Smartphone size={16} className="text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
                             </div>
                             <div className="flex-1">
-                                <span className="block font-semibold text-[13.5px] text-gray-800 dark:text-white/90">{translate('biometrics')}</span>
+                                <span className="flex items-center gap-2 font-semibold text-[13.5px] text-gray-800 dark:text-white/90">
+                                    {translate('biometrics')}
+                                    {!isPro && <ProBadge />}
+                                </span>
                                 <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('biometrics_desc')}</span>
                             </div>
-                            <Toggle enabled={isBiometricsEnabled} onClick={handleToggleBiometrics} />
+                            <Toggle enabled={isBiometricsEnabled} onClick={handleToggleBiometrics} disabled={!isPro} />
                         </div>
 
                         {/* Privacy Screen Toggle */}

@@ -7,6 +7,7 @@ import {
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 
 /* ─────────────────────────────────────────────────────────────
    Goal icon / colour presets
@@ -97,6 +98,7 @@ const Field = ({ label, ...props }) => (
 ═══════════════════════════════════════════════════════════ */
 const GoalsView = ({ user, onBack }) => {
     const { t, privacyMode } = useSettings();
+    const { isPro, openUpgradeModal } = useSubscription();
     const [goals, setGoals] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -137,6 +139,10 @@ const GoalsView = ({ user, onBack }) => {
 
     /* ── handlers ── */
     const openAdd = () => {
+        if (!isPro && goals.length >= 2) {
+            openUpgradeModal('goals');
+            return;
+        }
         setFormTitle(''); setFormTarget(''); setFormCurrent('');
         setShowAddModal(true);
     };
@@ -260,7 +266,7 @@ const GoalsView = ({ user, onBack }) => {
                     <div className="pl-10">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none">{t('goals')}</h2>
                         <p className="text-xs text-gray-400 mt-1">
-                            {goals.length} {t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
+                            {!isPro ? `${goals.length}/2 ` + t('active').toLowerCase() : `${goals.length} ` + t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
                         </p>
                     </div>
                 </div>
@@ -272,7 +278,7 @@ const GoalsView = ({ user, onBack }) => {
                                shadow-lg shadow-violet-500/25
                                transition-all active:scale-95"
                 >
-                    <Plus size={16} /> {t('add_recurring')}
+                    {(!isPro && goals.length >= 2) ? <span className="text-[14px]">👑</span> : <Plus size={16} />} {t('add_recurring')}
                 </button>
             </div>
 
