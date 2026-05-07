@@ -130,6 +130,15 @@ export const translations = {
         admin_update_published: 'Η ενημέρωση δημοσιεύτηκε επιτυχώς!',
         admin_update_error: 'Σφάλμα: ',
         admin_publish_btn: 'Δημοσίευση σε Όλους τους Χρήστες',
+        admin_grant_pro_title: 'Παροχή Πρόσβασης Pro',
+        admin_revoke_pro_title: 'Ανάκληση Πρόσβασης Pro',
+        admin_grant_pro_message: 'Είσαι σίγουρος ότι θέλεις να αναβαθμίσεις τον χρήστη {email} σε Pro; Θα έχει πρόσβαση σε όλες τις premium λειτουργίες.',
+        admin_revoke_pro_message: 'Είσαι σίγουρος ότι θέλεις να ανακαλέσεις την πρόσβαση Pro από τον χρήστη {email}; Θα επιστρέψει στο δωρεάν πλάνο.',
+        admin_grant_pro_btn: 'Παροχή Pro',
+        admin_revoke_pro_btn: 'Ανάκληση Πρόσβασης',
+        admin_grant_pro: 'Παροχή Pro',
+        admin_revoke_pro: 'Αφαίρεση Pro',
+        admin_delete_update_message: 'Είσαι σίγουρος ότι θέλεις να διαγράψεις την έκδοση {version}; Αυτή η ενέργεια δεν αναιρείται.',
 
         // Legal
         legal: 'Νομικά',
@@ -613,6 +622,13 @@ export const translations = {
         password_strength_fair: 'Μέτριος κωδικός',
         password_strength_strong: 'Ισχυρός κωδικός',
         new_password_placeholder: 'Νέος κωδικός (ελάχ. 8 χαρ., 1 κεφαλαίο, 1 αριθμός)',
+
+        // Payment Success
+        payment_success_label: 'Καλωσήρθες στην ομάδα',
+        payment_success_title: 'Είσαι Pro!',
+        payment_success_subtitle: 'Η συνδρομή σου είναι ενεργή. Όλες οι Pro λειτουργίες είναι ξεκλειδωμένες.',
+        payment_success_cta: 'Ξεκίνα να χρησιμοποιείς το Pro',
+        payment_success_manage: 'Διαχειρίσου τη συνδρομή σου ανά πάσα στιγμή από το προφίλ σου.',
     },
     en: {
         // General Settings
@@ -736,6 +752,15 @@ export const translations = {
         admin_update_published: 'Update published successfully!',
         admin_update_error: 'Error: ',
         admin_publish_btn: 'Publish Update to All Users',
+        admin_grant_pro_title: 'Grant Pro Access',
+        admin_revoke_pro_title: 'Revoke Pro Access',
+        admin_grant_pro_message: 'Are you sure you want to upgrade {email} to Pro? They will have access to all premium features.',
+        admin_revoke_pro_message: 'Are you sure you want to revoke Pro access from {email}? They will return to the free plan.',
+        admin_grant_pro_btn: 'Grant Pro',
+        admin_revoke_pro_btn: 'Revoke Access',
+        admin_grant_pro: 'Grant Pro',
+        admin_revoke_pro: 'Revoke Pro',
+        admin_delete_update_message: 'Are you sure you want to delete version {version}? This action cannot be undone.',
 
         // Legal
         legal: 'Legal',
@@ -1228,5 +1253,12 @@ export const translations = {
         password_strength_fair: 'Fair password',
         password_strength_strong: 'Strong password',
         new_password_placeholder: 'New password (min 8 chars, 1 uppercase, 1 number)',
+
+        // Payment Success
+        payment_success_label: 'Welcome to the club',
+        payment_success_title: "You're Pro!",
+        payment_success_subtitle: 'Your subscription is active. All Pro features are now unlocked.',
+        payment_success_cta: 'Start using Pro',
+        payment_success_manage: 'Manage your subscription anytime from your profile.',
     }
 };

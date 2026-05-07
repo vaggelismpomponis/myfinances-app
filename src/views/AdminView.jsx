@@ -23,6 +23,8 @@ const AdminView = ({ onBack }) => {
     // Updates State
     const [updates, setUpdates] = useState([]);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [showUpdateDeleteModal, setShowUpdateDeleteModal] = useState(false);
+    const [updateToDelete, setUpdateToDelete] = useState(null);
     const initialUpdateState = { version: '', title_el: '', title_en: '', features: [] };
     const [newUpdate, setNewUpdate] = useState(initialUpdateState);
 
@@ -34,6 +36,10 @@ const AdminView = ({ onBack }) => {
     // Broadcast State
     const [broadcastTitle, setBroadcastTitle] = useState('');
     const [broadcastMessage, setBroadcastMessage] = useState('');
+
+    // Subscription Management State
+    const [showSubModal, setShowSubModal] = useState(false);
+    const [subTarget, setSubTarget] = useState(null);
 
     const { showToast } = useToast();
     const { t: translate } = useSettings();
@@ -119,6 +125,52 @@ const AdminView = ({ onBack }) => {
             setItemToDelete(null);
         }
     };
+
+    const handleSubClick = (profile, status) => {
+        setSubTarget({ profile, status });
+        setShowSubModal(true);
+    };
+
+    const confirmSubscriptionChange = async () => {
+        if (!subTarget) return;
+        const { profile, status } = subTarget;
+        try {
+            const { error } = await supabase.functions.invoke('admin-manage-subscription', {
+                body: { targetUserId: profile.id, status }
+            });
+            if (error) throw error;
+            showToast(`User updated to ${status.toUpperCase()}`, 'success');
+            fetchAllData(); // refresh list
+        } catch (err) {
+            showToast(`Error: ${err.message}`, 'error');
+        } finally {
+            setShowSubModal(false);
+            setSubTarget(null);
+        }
+    };
+
+    const handleDeleteUpdateClick = (update) => {
+        setUpdateToDelete(update);
+        setShowUpdateDeleteModal(true);
+    };
+
+    const confirmDeleteUpdate = async () => {
+        if (!updateToDelete) return;
+        try {
+            const { error } = await supabase.from('app_updates').delete().eq('id', updateToDelete.id);
+            if (error) throw error;
+            showToast('Update deleted', 'success');
+            fetchAllData();
+        } catch (error) {
+            console.error('Delete error:', error);
+            showToast('Failed to delete update', 'error');
+        } finally {
+            setShowUpdateDeleteModal(false);
+            setUpdateToDelete(null);
+        }
+    };
+
+
 
     const addFeature = () => {
         setNewUpdate({
@@ -341,28 +393,14 @@ const AdminView = ({ onBack }) => {
                                             </div>
                                             <div className="text-right flex flex-col items-end gap-1.5">
                                                 <button
-                                                    onClick={async () => {
-                                                        const newStatus = profile.subscription_status === 'pro' ? 'free' : 'pro';
-                                                        if (window.confirm(`Are you sure you want to change this user to ${newStatus.toUpperCase()}?`)) {
-                                                            try {
-                                                                const { error } = await supabase.functions.invoke('admin-manage-subscription', {
-                                                                    body: { targetUserId: profile.id, status: newStatus }
-                                                                });
-                                                                if (error) throw error;
-                                                                showToast(`User updated to ${newStatus.toUpperCase()}`, 'success');
-                                                                fetchAllData(); // refresh list
-                                                            } catch (err) {
-                                                                showToast(`Error: ${err.message}`, 'error');
-                                                            }
-                                                        }
-                                                    }}
+                                                    onClick={() => handleSubClick(profile, profile.subscription_status === 'pro' ? 'free' : 'pro')}
                                                     className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all border ${
                                                         profile.subscription_status === 'pro' 
                                                             ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-500/30 dark:hover:bg-rose-500/10' 
                                                             : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500/30 dark:hover:bg-emerald-500/10'
                                                     }`}
                                                 >
-                                                    {profile.subscription_status === 'pro' ? 'Revoke Pro' : 'Grant Pro'}
+                                                    {profile.subscription_status === 'pro' ? translate('admin_revoke_pro') : translate('admin_grant_pro')}
                                                 </button>
                                                 {profile.latest_session && (
                                                     <div className="flex items-center gap-2">
@@ -436,12 +474,7 @@ const AdminView = ({ onBack }) => {
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-[10px] text-gray-400">{new Date(upd.created_at).toLocaleDateString()}</span>
-                                                <button onClick={async () => {
-                                                    if (window.confirm(translate('admin_delete_update_confirm'))) {
-                                                        await supabase.from('app_updates').delete().eq('id', upd.id);
-                                                        fetchAllData();
-                                                    }
-                                                }} className="p-1.5 text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
+                                                <button onClick={() => handleDeleteUpdateClick(upd)} className="p-1.5 text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
                                                     <Trash2 size={14} />
                                                 </button>
                                             </div>
@@ -624,6 +657,31 @@ const AdminView = ({ onBack }) => {
                 onConfirm={confirmDelete}
                 title={translate('delete_feedback_title')}
                 message={translate('delete_feedback_msg')}
+                confirmText={translate('delete')}
+                type="danger"
+            />
+
+            {/* Subscription Management Modal */}
+            <ConfirmationModal
+                isOpen={showSubModal}
+                onClose={() => setShowSubModal(false)}
+                onConfirm={confirmSubscriptionChange}
+                title={subTarget?.status === 'pro' ? translate('admin_grant_pro_title') : translate('admin_revoke_pro_title')}
+                message={subTarget?.status === 'pro' 
+                    ? translate('admin_grant_pro_message', { email: subTarget?.profile?.email })
+                    : translate('admin_revoke_pro_message', { email: subTarget?.profile?.email })
+                }
+                confirmText={subTarget?.status === 'pro' ? translate('admin_grant_pro_btn') : translate('admin_revoke_pro_btn')}
+                type={subTarget?.status === 'pro' ? 'info' : 'danger'}
+            />
+
+            {/* Update Deletion Modal */}
+            <ConfirmationModal
+                isOpen={showUpdateDeleteModal}
+                onClose={() => setShowUpdateDeleteModal(false)}
+                onConfirm={confirmDeleteUpdate}
+                title={translate('admin_delete_update_confirm')}
+                message={translate('admin_delete_update_message', { version: updateToDelete?.version })}
                 confirmText={translate('delete')}
                 type="danger"
             />
