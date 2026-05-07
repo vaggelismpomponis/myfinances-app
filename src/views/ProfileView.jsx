@@ -103,7 +103,7 @@ const SectionLabel = ({ children }) => (
  ═══════════════════════════════════════════════════════════ */
 const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecurity, onBackup, onAdmin, onFeedback, onGuide, onProfileDetails }) => {
     const { theme, toggleTheme, language, updateLanguage, t: translate } = useSettings();
-    const { isPro, openUpgradeModal, manageSubscription } = useSubscription();
+    const { isPro, openUpgradeModal, openBillingPortal } = useSubscription();
     const isDark = theme === 'dark';
     const { showToast } = useToast();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -215,7 +215,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                 </p>
                             </div>
                             <button
-                                onClick={() => isPro ? manageSubscription() : openUpgradeModal('profile')}
+                                onClick={() => isPro ? openBillingPortal() : openUpgradeModal('profile')}
                                 className="shrink-0 px-4 py-2 bg-white text-gray-900 rounded-xl text-[13px] font-bold shadow-sm hover:scale-105 active:scale-95 transition-all"
                             >
                                 {isPro ? translate('manage') || 'Manage' : translate('go_pro') || 'Go Pro'}
