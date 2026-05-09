@@ -2,29 +2,41 @@ import React, { useMemo } from 'react';
 import {
     Target, Wallet, RefreshCw, BarChart,
     ChevronRight, Sparkles, ArrowUpRight, ArrowDownRight, TrendingUp,
-    ArrowRight, TrendingDown
+    ArrowRight, TrendingDown, Crown
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
+import { motion } from 'framer-motion';
 
-const QuickAction = ({ icon: Icon, label, color, bg, onClick, delay }) => (
-    <button
+const QuickAction = ({ icon: Icon, label, color, bg, onClick, delay, isPro, userIsPro }) => (
+    <motion.button
+        whileHover={{ scale: 1.05, y: -2 }}
+        whileTap={{ scale: 0.95 }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: parseFloat(delay) / 1000 }}
         onClick={onClick}
-        className={`flex flex-col items-center gap-2 press-effect animate-fade-in`}
-        style={{ animationDelay: delay }}
+        className={`flex flex-col items-center gap-2 relative`}
     >
         <div className={`w-16 h-16 rounded-2xl flex items-center justify-center
                          shadow-sm ring-2 ring-offset-2 ring-violet-200 dark:ring-violet-900/50 dark:ring-offset-surface-dark
-                         ${bg} transition-all duration-200 hover:scale-105`}>
+                         ${bg} transition-all duration-200 relative`}>
             <Icon size={24} className={color} />
+            {isPro && !userIsPro && (
+                <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10">
+                    <Crown size={12} className="text-amber-400" fill="currentColor" />
+                </div>
+            )}
         </div>
         <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300">{label}</span>
-    </button>
+    </motion.button>
 );
 
 const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, onDelete, onEdit, setActiveTab, onRecurring }) => {
     const { t, privacyMode } = useSettings();
+    const { isPro, openUpgradeModal } = useSubscription();
 
     // ── Data Calculations ──
     const stats = useMemo(() => {
@@ -70,10 +82,14 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
 
 
     return (
-        <div className="space-y-6 pb-28 animate-fade-in">
+        <div className="space-y-6 pb-28">
 
             {/* ── ① Redesigned Hero Card (Minimalist Centered) ── */}
-            <div className="relative overflow-hidden rounded-[2.5rem]
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, type: 'spring' }}
+                className="relative overflow-hidden rounded-[2.5rem]
                             bg-white dark:bg-surface-dark3
                             p-8 pt-12 pb-10 text-center shadow-sm border border-gray-100 dark:border-transparent
                             transition-all duration-300">
@@ -113,16 +129,29 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                     </div>
 
                 </div>
-            </div>
+            </motion.div>
 
 
             {/* ── ③ AI Advisor CTA ── */}
-            <button
-                onClick={() => setActiveTab('advisor')}
+            <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                    if (!isPro) {
+                        openUpgradeModal('advisor');
+                    } else {
+                        setActiveTab('advisor');
+                    }
+                }}
                 className="w-full relative overflow-hidden bg-gray-100 dark:bg-surface-dark3
                            p-4 rounded-[2rem] border border-violet-100/80 dark:border-violet-900/30
-                           shadow-sm flex items-center gap-4 group active:scale-[0.98] transition-all"
+                           shadow-sm flex items-center gap-4 group transition-all"
             >
+                {!isPro && (
+                    <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10 z-10">
+                        <Crown size={12} className="text-amber-400" fill="currentColor" />
+                    </div>
+                )}
                 <div className="absolute top-2 left-10 w-1.5 h-1.5 rounded-full bg-violet-400/30 animate-float" />
                 <div className="absolute bottom-3 right-20 w-2 h-2 rounded-full bg-indigo-400/20 animate-float" style={{ animationDelay: '1s' }} />
 
@@ -139,7 +168,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                 <div className="w-8 h-8 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-500 group-hover:translate-x-1 transition-transform">
                     <ArrowRight size={16} />
                 </div>
-            </button>
+            </motion.button>
 
             {/* ── ④ Quick Actions ── */}
             <div>
@@ -168,8 +197,17 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                         label={t('recurring_short')}
                         color="text-violet-600 dark:text-violet-400"
                         bg="bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20"
-                        onClick={onRecurring || (() => setActiveTab('recurring'))}
+                        onClick={() => {
+                            if (!isPro) {
+                                openUpgradeModal('recurring');
+                            } else {
+                                if (onRecurring) onRecurring();
+                                else setActiveTab('recurring');
+                            }
+                        }}
                         delay="100ms"
+                        isPro
+                        userIsPro={isPro}
                     />
                     <QuickAction
                         icon={BarChart}
@@ -216,9 +254,17 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                         </p>
                     </div>
                 ) : (
-                    <div className="space-y-2.5 stagger-children">
-                        {transactions.slice(0, 5).map(tx => (
-                            <TransactionItem key={tx.id} transaction={tx} onDelete={onDelete} onEdit={onEdit} />
+                    <div className="space-y-2.5">
+                        {transactions.slice(0, 5).map((tx, idx) => (
+                            <motion.div
+                                key={tx.id}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.2 + (idx * 0.05) }}
+                                layout
+                            >
+                                <TransactionItem transaction={tx} onDelete={onDelete} onEdit={onEdit} />
+                            </motion.div>
                         ))}
                     </div>
                 )}

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
     ArrowLeft, Trash2, RefreshCw, MessageSquare, Lightbulb, Bug, Search,
     User, Calendar, ChevronRight, Filter, Plus, X, Shield, Zap,
-    CheckCircle2, Star, HardDriveDownload, Sparkles, Send, LayoutDashboard, Users, Radio
+    CheckCircle2, Star, HardDriveDownload, Sparkles, Send, LayoutDashboard, Users, Radio, Activity, TrendingUp, Award, Clock,
+    MoreVertical, ExternalLink, Mail, Copy, FileText, Smartphone, Monitor, MapPin, ChevronLeft
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
@@ -30,6 +31,7 @@ const AdminView = ({ onBack }) => {
 
     // Dashboard & Users State
     const [stats, setStats] = useState({ users: 0, transactions: 0, feedback: 0, activity: 0 });
+    const [metrics, setMetrics] = useState({ proUsers: 0, freeUsers: 0, canceledUsers: 0, active7Days: 0, active30Days: 0, mostActiveUsers: [] });
     const [profiles, setProfiles] = useState([]);
     const [sessions, setSessions] = useState([]);
 
@@ -40,6 +42,21 @@ const AdminView = ({ onBack }) => {
     // Subscription Management State
     const [showSubModal, setShowSubModal] = useState(false);
     const [subTarget, setSubTarget] = useState(null);
+    const [activeDropdown, setActiveDropdown] = useState(null);
+
+    // Notes State
+    const [showNotesModal, setShowNotesModal] = useState(false);
+    const [notesTarget, setNotesTarget] = useState(null);
+    const [editingNotes, setEditingNotes] = useState('');
+    const [isSavingNotes, setIsSavingNotes] = useState(false);
+
+    // Users State & Filters
+    const [userSearchTerm, setUserSearchTerm] = useState('');
+    const [userFilter, setUserFilter] = useState('all'); // 'all', 'pro', 'free'
+    const [selectedProfile, setSelectedProfile] = useState(null);
+    const [profileStats, setProfileStats] = useState({ transactions: 0, budgets: 0, goals: 0 });
+    const [profileSessions, setProfileSessions] = useState([]);
+    const [loadingProfileData, setLoadingProfileData] = useState(false);
 
     const { showToast } = useToast();
     const { t: translate } = useSettings();
@@ -93,6 +110,49 @@ const AdminView = ({ onBack }) => {
                 feedback: fCount || 0,
                 activity: sessData?.length || 0
             });
+
+            // Calculate extra metrics
+            const proUsers = profData.filter(p => p.subscription_status === 'pro').length;
+            const freeUsers = profData.filter(p => p.subscription_status === 'free').length;
+            const canceledUsers = profData.filter(p => p.subscription_status === 'canceled' || p.subscription_status === 'cancelled').length;
+
+            const now = new Date();
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+            const active7Days = profData.filter(p => {
+                const session = latestSessionsMap[p.id];
+                return session && new Date(session.last_active) >= sevenDaysAgo;
+            }).length;
+
+            const active30Days = profData.filter(p => {
+                const session = latestSessionsMap[p.id];
+                return session && new Date(session.last_active) >= thirtyDaysAgo;
+            }).length;
+
+            const sessionCounts = (sessData || []).reduce((acc, s) => {
+                acc[s.user_id] = (acc[s.user_id] || 0) + 1;
+                return acc;
+            }, {});
+
+            const mostActiveUsers = profData
+                .map(p => ({
+                    ...p,
+                    sessionCount: sessionCounts[p.id] || 0
+                }))
+                .filter(p => p.sessionCount > 0)
+                .sort((a, b) => b.sessionCount - a.sessionCount)
+                .slice(0, 5);
+
+            setMetrics({
+                proUsers,
+                freeUsers,
+                canceledUsers,
+                active7Days,
+                active30Days,
+                mostActiveUsers
+            });
+
         } catch (error) {
             console.error('Fetch error:', error);
             showToast('Failed to load admin data', 'error');
@@ -149,6 +209,24 @@ const AdminView = ({ onBack }) => {
         }
     };
 
+    const handleSaveNotes = async () => {
+        if (!notesTarget) return;
+        setIsSavingNotes(true);
+        try {
+            const { error } = await supabase.functions.invoke('admin-update-notes', {
+                body: { targetUserId: notesTarget.id, notes: editingNotes }
+            });
+            if (error) throw error;
+            showToast(translate('notes_saved') || 'Οι σημειώσεις αποθηκεύτηκαν', 'success');
+            fetchAllData();
+            setShowNotesModal(false);
+        } catch (err) {
+            showToast(`Error: ${err.message}`, 'error');
+        } finally {
+            setIsSavingNotes(false);
+        }
+    };
+
     const handleDeleteUpdateClick = (update) => {
         setUpdateToDelete(update);
         setShowUpdateDeleteModal(true);
@@ -170,7 +248,34 @@ const AdminView = ({ onBack }) => {
         }
     };
 
+    const handleProfileClick = async (profile) => {
+        setSelectedProfile(profile);
+        setLoadingProfileData(true);
+        try {
+            const [
+                { count: tCount },
+                { count: bCount },
+                { count: gCount },
+                { data: sData }
+            ] = await Promise.all([
+                supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
+                supabase.from('budgets').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
+                supabase.from('goals').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
+                supabase.from('sessions').select('*').eq('user_id', profile.id).order('last_active', { ascending: false })
+            ]);
 
+            setProfileStats({
+                transactions: tCount || 0,
+                budgets: bCount || 0,
+                goals: gCount || 0
+            });
+            setProfileSessions(sData || []);
+        } catch (err) {
+            console.error('Error fetching profile data:', err);
+        } finally {
+            setLoadingProfileData(false);
+        }
+    };
 
     const addFeature = () => {
         setNewUpdate({
@@ -195,6 +300,13 @@ const AdminView = ({ onBack }) => {
         const matchesFilter = filter === 'all' || f.type === filter;
         const matchesSearch = (f.message || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (f.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesFilter && matchesSearch;
+    });
+
+    const filteredProfiles = profiles.filter(p => {
+        const matchesFilter = userFilter === 'all' || p.subscription_status === userFilter;
+        const matchesSearch = (p.email || '').toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+            (p.display_name || '').toLowerCase().includes(userSearchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
@@ -297,6 +409,34 @@ const AdminView = ({ onBack }) => {
                     </div>
                 )}
 
+                {/* Search & Filters (Users Only) */}
+                {activeSection === 'users' && !selectedProfile && (
+                    <div className="space-y-3 animate-fade-in">
+                        <div className="relative">
+                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder={translate('search_users') || 'Αναζήτηση email...'}
+                                value={userSearchTerm}
+                                onChange={(e) => setUserSearchTerm(e.target.value)}
+                                className="w-full pl-9 pr-4 py-2.5 bg-gray-50 dark:bg-white/[0.05] border border-gray-100 dark:border-transparent rounded-xl text-[13px] text-gray-900 dark:text-white focus:outline-none"
+                            />
+                        </div>
+                        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                            {['all', 'pro', 'free'].map(t => (
+                                <button
+                                    key={t}
+                                    onClick={() => setUserFilter(t)}
+                                    className={`px-4 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all
+                                                ${userFilter === t ? 'bg-violet-600 text-white shadow-md' : 'bg-white dark:bg-white/[0.06] text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent'}`}
+                                >
+                                    {t === 'all' ? (translate('all') || 'Όλοι') : t === 'pro' ? 'Pro' : 'Free'}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Create Update Button (Updates Only) */}
                 {activeSection === 'updates' && (
                     <button onClick={() => setShowUpdateModal(true)} className="w-full py-2.5 bg-violet-600 text-white text-[13px] font-bold rounded-xl shadow-lg active:scale-95 transition-all animate-fade-in">
@@ -316,14 +456,21 @@ const AdminView = ({ onBack }) => {
                     <>
                         {/* OVERVIEW SECTION */}
                         {activeSection === 'overview' && (
-                            <div className="space-y-4 animate-fade-in">
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
-                                                <Users size={14} className="text-blue-500" />
+                            <div className="space-y-5 animate-fade-in">
+                                {/* Core Stats */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <div 
+                                        onClick={() => setActiveSection('users')}
+                                        className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group"
+                                    >
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-500/20 transition-colors">
+                                                    <Users size={14} className="text-blue-500" />
+                                                </div>
+                                                <span className="text-[12px] font-bold text-gray-500">Total Users</span>
                                             </div>
-                                            <span className="text-[12px] font-bold text-gray-500">Total Users</span>
+                                            <ChevronRight size={14} className="text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </div>
                                         <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.users}</p>
                                     </div>
@@ -336,12 +483,18 @@ const AdminView = ({ onBack }) => {
                                         </div>
                                         <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.transactions}</p>
                                     </div>
-                                    <div className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
-                                                <MessageSquare size={14} className="text-amber-500" />
+                                    <div 
+                                        onClick={() => setActiveSection('feedback')}
+                                        className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group"
+                                    >
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-100 dark:group-hover:bg-amber-500/20 transition-colors">
+                                                    <MessageSquare size={14} className="text-amber-500" />
+                                                </div>
+                                                <span className="text-[12px] font-bold text-gray-500">Feedback</span>
                                             </div>
-                                            <span className="text-[12px] font-bold text-gray-500">Feedback</span>
+                                            <ChevronRight size={14} className="text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </div>
                                         <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.feedback}</p>
                                     </div>
@@ -355,59 +508,455 @@ const AdminView = ({ onBack }) => {
                                         <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.activity}</p>
                                     </div>
                                 </div>
+
+                                {/* Deep Metrics */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Subscription Status */}
+                                    <div className="bg-white dark:bg-surface-dark2 p-5 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm flex flex-col">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Award size={16} className="text-violet-500" />
+                                            <h3 className="text-[14px] font-bold text-gray-900 dark:text-white">Subscription Metrics</h3>
+                                        </div>
+                                        <div className="flex-1 space-y-3">
+                                            <div className="flex justify-between items-center p-3 rounded-2xl bg-gray-50 dark:bg-white/5">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-2 h-2 rounded-full bg-violet-500"></div>
+                                                    <span className="text-[13px] font-bold text-gray-700 dark:text-gray-300">Pro Users</span>
+                                                </div>
+                                                <span className="text-[14px] font-black text-violet-600 dark:text-violet-400">{metrics.proUsers}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center p-3 rounded-2xl bg-gray-50 dark:bg-white/5">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                                                    <span className="text-[13px] font-bold text-gray-700 dark:text-gray-300">Free Users</span>
+                                                </div>
+                                                <span className="text-[14px] font-black text-gray-900 dark:text-white">{metrics.freeUsers}</span>
+                                            </div>
+                                            {metrics.canceledUsers > 0 && (
+                                                <div className="flex justify-between items-center p-3 rounded-2xl bg-rose-50 dark:bg-rose-500/10">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                                                        <span className="text-[13px] font-bold text-rose-700 dark:text-rose-400">Canceled</span>
+                                                    </div>
+                                                    <span className="text-[14px] font-black text-rose-600 dark:text-rose-400">{metrics.canceledUsers}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Engagement Status */}
+                                    <div className="bg-white dark:bg-surface-dark2 p-5 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm flex flex-col">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Activity size={16} className="text-emerald-500" />
+                                            <h3 className="text-[14px] font-bold text-gray-900 dark:text-white">Active Users (Engagement)</h3>
+                                        </div>
+                                        <div className="flex-1 space-y-3">
+                                            <div className="flex justify-between items-center p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10">
+                                                <div className="flex items-center gap-2">
+                                                    <Clock size={14} className="text-emerald-600 dark:text-emerald-400" />
+                                                    <span className="text-[13px] font-bold text-emerald-700 dark:text-emerald-400">Last 7 Days</span>
+                                                </div>
+                                                <span className="text-[14px] font-black text-emerald-600 dark:text-emerald-400">{metrics.active7Days}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center p-3 rounded-2xl bg-blue-50 dark:bg-blue-500/10">
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar size={14} className="text-blue-600 dark:text-blue-400" />
+                                                    <span className="text-[13px] font-bold text-blue-700 dark:text-blue-400">Last 30 Days</span>
+                                                </div>
+                                                <span className="text-[14px] font-black text-blue-600 dark:text-blue-400">{metrics.active30Days}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Most Active Users List */}
+                                <div className="bg-white dark:bg-surface-dark2 p-5 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <TrendingUp size={16} className="text-amber-500" />
+                                        <h3 className="text-[14px] font-bold text-gray-900 dark:text-white">Most Active Users</h3>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {metrics.mostActiveUsers.length > 0 ? (
+                                            metrics.mostActiveUsers.map((user, idx) => (
+                                                <div key={user.id} className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-500/10 flex items-center justify-center font-black text-violet-600 dark:text-violet-400 text-[11px]">
+                                                            #{idx + 1}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[13px] font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                                                {user.display_name || user.email.split('@')[0]}
+                                                                {user.subscription_status === 'pro' && (
+                                                                    <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 uppercase tracking-widest">PRO</span>
+                                                                )}
+                                                            </p>
+                                                            <p className="text-[11px] text-gray-500">{user.email}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className="text-[15px] font-black text-gray-900 dark:text-white">{user.sessionCount}</span>
+                                                        <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Sessions</p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-sm text-gray-500 text-center py-4">No session data available</p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         )}
 
                         {/* USERS SECTION */}
                         {activeSection === 'users' && (
                             <div className="space-y-3 animate-fade-in">
-                                {profiles.length === 0 ? (
-                                    <div className="text-center py-10 opacity-50">
-                                        <Users size={40} className="mx-auto mb-3" />
-                                        <p className="text-sm">{translate('admin_no_users')}</p>
-                                    </div>
-                                ) : (
-                                    profiles.map(profile => (
-                                        <div key={profile.id} className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center font-black text-gray-400">
-                                                    {profile.displayId}
+                                {selectedProfile ? (
+                                    <div className="space-y-4 animate-fade-in pb-10">
+                                        <div className="flex items-center justify-between">
+                                            <button 
+                                                onClick={() => setSelectedProfile(null)} 
+                                                className="flex items-center gap-2 text-[12px] font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-white/5 px-3 py-2 rounded-xl border border-gray-100 dark:border-transparent transition-all"
+                                            >
+                                                <ChevronLeft size={16} /> {translate('back') || 'Back'}
+                                            </button>
+                                            <div className="flex items-center gap-2">
+                                                <button 
+                                                    onClick={() => handleSubClick(selectedProfile, selectedProfile.subscription_status === 'pro' ? 'free' : 'pro')}
+                                                    className={`px-4 py-2 rounded-xl text-[12px] font-black transition-all ${
+                                                        selectedProfile.subscription_status === 'pro'
+                                                            ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400'
+                                                            : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
+                                                    }`}
+                                                >
+                                                    {selectedProfile.subscription_status === 'pro' ? 'Revoke Pro' : 'Grant Pro'}
+                                                </button>
+                                                <button 
+                                                    onClick={() => {
+                                                        setNotesTarget(selectedProfile);
+                                                        setEditingNotes(selectedProfile.admin_notes || '');
+                                                        setShowNotesModal(true);
+                                                    }}
+                                                    className="p-2.5 bg-white dark:bg-white/5 border border-gray-100 dark:border-transparent rounded-xl text-gray-500 dark:text-white/50"
+                                                >
+                                                    <FileText size={18} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white dark:bg-surface-dark2 p-6 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm">
+                                            <div className="flex items-center gap-4 mb-6">
+                                                <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center font-black text-gray-400 text-2xl">
+                                                    {selectedProfile.display_name?.charAt(0) || selectedProfile.email.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <p className="text-[13px] font-bold text-gray-900 dark:text-white truncate max-w-[180px]">
-                                                        {profile.display_name || profile.latest_session?.display_name || profile.email}
-                                                        {profile.subscription_status === 'pro' && (
-                                                            <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[8px] font-black bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 uppercase tracking-widest align-middle">
+                                                    <h2 className="text-xl font-black text-gray-900 dark:text-white leading-tight">
+                                                        {selectedProfile.display_name || selectedProfile.email.split('@')[0]}
+                                                        {selectedProfile.subscription_status === 'pro' && (
+                                                            <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded text-[10px] font-black bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 uppercase tracking-widest align-middle">
                                                                 PRO
                                                             </span>
                                                         )}
-                                                    </p>
-                                                    {(profile.display_name || profile.latest_session?.display_name) && (
-                                                        <p className="text-[10px] text-gray-400 truncate -mt-0.5">{profile.email}</p>
-                                                    )}
-                                                    <p className="text-[11px] text-gray-500 mt-0.5">
-                                                        {profile.latest_session?.device && !profile.latest_session.device.includes('Unknown') ? profile.latest_session.device : translate('unknown_device')}
-                                                        {profile.latest_session?.location && !profile.latest_session.location.includes('Unknown') ? ` • ${profile.latest_session.location}` : ''}
-                                                    </p>
+                                                    </h2>
+                                                    <p className="text-sm text-gray-400">{selectedProfile.email}</p>
                                                 </div>
                                             </div>
-                                            <div className="text-right flex flex-col items-end gap-1.5">
-                                                <button
-                                                    onClick={() => handleSubClick(profile, profile.subscription_status === 'pro' ? 'free' : 'pro')}
-                                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all border ${
-                                                        profile.subscription_status === 'pro' 
-                                                            ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-500/30 dark:hover:bg-rose-500/10' 
-                                                            : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500/30 dark:hover:bg-emerald-500/10'
-                                                    }`}
-                                                >
-                                                    {profile.subscription_status === 'pro' ? translate('admin_revoke_pro') : translate('admin_grant_pro')}
-                                                </button>
-                                                {profile.latest_session && (
+
+                                            {/* Summary Cards */}
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                                                <div className="bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100/50 dark:border-transparent">
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Status</p>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md block">Active</span>
-                                                        <span className="text-[10px] text-gray-400">{new Date(profile.latest_session.last_active).toLocaleDateString()}</span>
+                                                        <div className={`w-2 h-2 rounded-full ${selectedProfile.subscription_status === 'pro' ? 'bg-amber-400 animate-pulse' : 'bg-gray-300'}`}></div>
+                                                        <p className="text-[14px] font-black text-gray-900 dark:text-white capitalize">{selectedProfile.subscription_status}</p>
                                                     </div>
-                                                )}
+                                                </div>
+                                                <div className="bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100/50 dark:border-transparent">
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Transactions</p>
+                                                    <p className="text-[14px] font-black text-gray-900 dark:text-white">{loadingProfileData ? '...' : profileStats.transactions}</p>
+                                                </div>
+                                                <div className="bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100/50 dark:border-transparent">
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Budgets</p>
+                                                    <p className="text-[14px] font-black text-gray-900 dark:text-white">{loadingProfileData ? '...' : profileStats.budgets}</p>
+                                                </div>
+                                                <div className="bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100/50 dark:border-transparent">
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Goals</p>
+                                                    <p className="text-[14px] font-black text-gray-900 dark:text-white">{loadingProfileData ? '...' : profileStats.goals}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Details Grid */}
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                <div className="md:col-span-2 space-y-6">
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center gap-2 px-1">
+                                                            <Activity size={16} className="text-violet-500" />
+                                                            <h4 className="text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-wider">Session History</h4>
+                                                        </div>
+                                                        <div className="bg-gray-50 dark:bg-white/[0.02] rounded-3xl border border-gray-100 dark:border-transparent overflow-hidden divide-y divide-gray-100 dark:divide-white/5">
+                                                            {loadingProfileData ? (
+                                                                <div className="p-12 text-center opacity-50">
+                                                                    <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-violet-500" />
+                                                                    <p className="text-[11px] font-bold">Loading activity...</p>
+                                                                </div>
+                                                            ) : profileSessions.length > 0 ? (
+                                                                profileSessions.slice(0, 10).map((sess, idx) => (
+                                                                    <div key={idx} className="p-4 hover:bg-gray-100/50 dark:hover:bg-white/5 transition-colors">
+                                                                        <div className="flex items-center justify-between mb-2">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <div className="w-8 h-8 rounded-lg bg-white dark:bg-white/5 flex items-center justify-center text-gray-500 border border-gray-100 dark:border-transparent">
+                                                                                    {sess.device?.includes('iPhone') ? <Smartphone size={16} /> : sess.device?.includes('Mac') || sess.device?.includes('Windows') ? <Monitor size={16} /> : <Radio size={16} />}
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="text-[12px] font-bold text-gray-800 dark:text-white">{sess.device || 'Unknown Device'}</p>
+                                                                                    <p className="text-[10px] text-gray-400 font-medium">{new Date(sess.last_active).toLocaleString()}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                            {idx === 0 && (
+                                                                                <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase rounded-md">Latest</span>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="flex items-center gap-4 text-[11px] text-gray-500 bg-white dark:bg-white/5 p-2 rounded-xl border border-gray-100 dark:border-transparent">
+                                                                            <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                                                                <MapPin size={12} className="text-gray-400 shrink-0" />
+                                                                                <span className="truncate">{sess.location || 'Unknown Location'}</span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-1.5 shrink-0">
+                                                                                <Shield size={12} className="text-gray-400" />
+                                                                                <span className="font-mono">{sess.ip || '?.?.?.?'}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <div className="p-12 text-center text-gray-400 text-[12px] font-medium italic">No activity recorded yet</div>
+                                                            )}
+                                                            {profileSessions.length > 10 && (
+                                                                <div className="p-3 text-center bg-gray-50/50 dark:bg-transparent">
+                                                                    <p className="text-[10px] font-bold text-gray-400 uppercase">Showing last 10 of {profileSessions.length} sessions</p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-6">
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center gap-2 px-1">
+                                                            <Shield size={16} className="text-blue-500" />
+                                                            <h4 className="text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-wider">Admin Tools</h4>
+                                                        </div>
+                                                        <div className="bg-gray-50 dark:bg-white/[0.02] p-4 rounded-3xl border border-gray-100 dark:border-transparent space-y-2">
+                                                            <button 
+                                                                onClick={() => {
+                                                                    if (selectedProfile.stripe_customer_id) {
+                                                                        window.open(`https://dashboard.stripe.com/customers/${selectedProfile.stripe_customer_id}`, '_blank');
+                                                                    } else {
+                                                                        window.open(`https://dashboard.stripe.com/search?query=${encodeURIComponent(selectedProfile.email)}`, '_blank');
+                                                                    }
+                                                                }}
+                                                                className="w-full flex items-center justify-between p-3 bg-white dark:bg-white/5 hover:bg-violet-50 dark:hover:bg-violet-500/10 rounded-2xl border border-gray-100 dark:border-transparent transition-all group"
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <ExternalLink size={16} className="text-gray-400 group-hover:text-violet-500" />
+                                                                    <span className="text-[12px] font-bold text-gray-700 dark:text-gray-300">Stripe Dashboard</span>
+                                                                </div>
+                                                                <ChevronRight size={14} className="text-gray-300 group-hover:text-violet-500" />
+                                                            </button>
+                                                            <a 
+                                                                href={`mailto:${selectedProfile.email}`}
+                                                                className="w-full flex items-center justify-between p-3 bg-white dark:bg-white/5 hover:bg-violet-50 dark:hover:bg-violet-500/10 rounded-2xl border border-gray-100 dark:border-transparent transition-all group"
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <Mail size={16} className="text-gray-400 group-hover:text-violet-500" />
+                                                                    <span className="text-[12px] font-bold text-gray-700 dark:text-gray-300">Send Email</span>
+                                                                </div>
+                                                                <ChevronRight size={14} className="text-gray-300 group-hover:text-violet-500" />
+                                                            </a>
+                                                            <button 
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(selectedProfile.id);
+                                                                    showToast(translate('copied') || 'Αντιγράφηκε!', 'success');
+                                                                }}
+                                                                className="w-full flex items-center justify-between p-3 bg-white dark:bg-white/5 hover:bg-violet-50 dark:hover:bg-violet-500/10 rounded-2xl border border-gray-100 dark:border-transparent transition-all group"
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <Copy size={16} className="text-gray-400 group-hover:text-violet-500" />
+                                                                    <span className="text-[12px] font-bold text-gray-700 dark:text-gray-300">Copy ID</span>
+                                                                </div>
+                                                                <Copy size={14} className="text-gray-300 group-hover:text-violet-500" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center justify-between px-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <FileText size={16} className="text-amber-500" />
+                                                                <h4 className="text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-wider">Notes</h4>
+                                                            </div>
+                                                            <button onClick={() => { setNotesTarget(selectedProfile); setEditingNotes(selectedProfile.admin_notes || ''); setShowNotesModal(true); }} className="text-[10px] font-black text-violet-500 uppercase">Edit</button>
+                                                        </div>
+                                                        <div className="bg-amber-50 dark:bg-amber-500/5 p-4 rounded-3xl border border-amber-100 dark:border-transparent min-h-[100px]">
+                                                            <p className="text-[12px] text-amber-900/70 dark:text-amber-400/70 italic leading-relaxed">
+                                                                {selectedProfile.admin_notes || 'No notes for this user.'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    filteredProfiles.length === 0 ? (
+                                        <div className="text-center py-10 opacity-50">
+                                            <Users size={40} className="mx-auto mb-3" />
+                                            <p className="text-sm">{translate('admin_no_users')}</p>
+                                        </div>
+                                    ) : (
+                                        filteredProfiles.map(profile => (
+                                            <div 
+                                                key={profile.id} 
+                                                onClick={() => handleProfileClick(profile)}
+                                                className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm flex items-center gap-2 cursor-pointer hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all group"
+                                            >
+                                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                    <div className="w-10 h-10 rounded-full shrink-0 bg-gray-100 dark:bg-white/5 flex items-center justify-center font-black text-gray-400 group-hover:bg-violet-50 dark:group-hover:bg-violet-500/10 group-hover:text-violet-500 transition-colors text-[11px]">
+                                                        {profile.displayId}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-[13px] font-bold text-gray-900 dark:text-white truncate">
+                                                            {profile.display_name || profile.latest_session?.display_name || profile.email}
+                                                            {profile.subscription_status === 'pro' && (
+                                                                <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[8px] font-black bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 uppercase tracking-widest align-middle">
+                                                                    PRO
+                                                                </span>
+                                                            )}
+                                                        </p>
+                                                        {(profile.display_name || profile.latest_session?.display_name) && (
+                                                            <p className="text-[10px] text-gray-400 truncate -mt-0.5">{profile.email}</p>
+                                                        )}
+                                                        <p className="text-[11px] text-gray-500 mt-0.5 truncate">
+                                                            {profile.latest_session?.device && !profile.latest_session.device.includes('Unknown') ? profile.latest_session.device : translate('unknown_device')}
+                                                            {profile.latest_session?.location && !profile.latest_session.location.includes('Unknown') ? ` • ${profile.latest_session.location}` : ''}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right flex flex-col items-end gap-1.5 relative shrink-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            onClick={(e) => { 
+                                                                e.stopPropagation(); 
+                                                                handleSubClick(profile, profile.subscription_status === 'pro' ? 'free' : 'pro'); 
+                                                            }}
+                                                            className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap border ${
+                                                                profile.subscription_status === 'pro' 
+                                                                    ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-500/30 dark:hover:bg-rose-500/10' 
+                                                                    : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500/30 dark:hover:bg-emerald-500/10'
+                                                            }`}
+                                                        >
+                                                            {profile.subscription_status === 'pro' ? translate('admin_revoke_pro') : translate('admin_grant_pro')}
+                                                        </button>
+                                                        <button 
+                                                            onClick={(e) => { 
+                                                                e.stopPropagation(); 
+                                                                setActiveDropdown(activeDropdown === profile.id ? null : profile.id); 
+                                                            }}
+                                                            className="p-1 rounded-md text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                                                        >
+                                                            <MoreVertical size={16} />
+                                                        </button>
+                                                        {activeDropdown === profile.id && (
+                                                            <>
+                                                                <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setActiveDropdown(null); }} />
+                                                                <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-xl shadow-xl z-50 overflow-hidden py-1 animate-fade-in">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (profile.stripe_customer_id) {
+                                                                                window.open(`https://dashboard.stripe.com/customers/${profile.stripe_customer_id}`, '_blank');
+                                                                            } else {
+                                                                                window.open(`https://dashboard.stripe.com/search?query=${encodeURIComponent(profile.email)}`, '_blank');
+                                                                            }
+                                                                            setActiveDropdown(null);
+                                                                        }}
+                                                                        className="w-full text-left px-3 py-2 text-[12px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
+                                                                    >
+                                                                        <ExternalLink size={14} className="text-gray-400" /> {translate('admin_view_on_stripe')}
+                                                                    </button>
+                                                                    <a 
+                                                                        href={`mailto:${profile.email}`}
+                                                                        onClick={() => setActiveDropdown(null)}
+                                                                        className="w-full text-left px-3 py-2 text-[12px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
+                                                                    >
+                                                                        <Mail size={14} className="text-gray-400" /> {translate('admin_send_email')}
+                                                                    </a>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            navigator.clipboard.writeText(profile.id);
+                                                                            showToast(translate('copied') || 'Αντιγράφηκε!', 'success');
+                                                                            setActiveDropdown(null);
+                                                                        }}
+                                                                        className="w-full text-left px-3 py-2 text-[12px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
+                                                                    >
+                                                                        <Copy size={14} className="text-gray-400" /> {translate('admin_copy_user_id')}
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setNotesTarget(profile);
+                                                                            setEditingNotes(profile.admin_notes || '');
+                                                                            setShowNotesModal(true);
+                                                                            setActiveDropdown(null);
+                                                                        }}
+                                                                        className="w-full text-left px-3 py-2 text-[12px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors border-t dark:border-white/5"
+                                                                    >
+                                                                        <FileText size={14} className="text-gray-400" /> {translate('admin_notes')}
+                                                                    </button>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )
+                                )}
+                            </div>
+                        )}
+
+                        {/* FEEDBACK SECTION */}
+                        {activeSection === 'feedback' && (
+                            <div className="space-y-3 animate-fade-in">
+                                {filteredFeedback.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-20 opacity-40">
+                                        <Filter size={40} strokeWidth={1} className="mb-3" />
+                                        <p className="text-[13px] font-medium">{translate('no_feedback_found')}</p>
+                                    </div>
+                                ) : (
+                                    filteredFeedback.map((item) => (
+                                        <div key={item.id} className="bg-white dark:bg-white/[0.04] rounded-2xl p-4 border border-gray-100 dark:border-transparent shadow-sm space-y-3 group">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${getTypeBg(item.type)}`}>
+                                                        {getTypeIcon(item.type)}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[13px] font-bold text-gray-900 dark:text-white leading-tight capitalize">
+                                                            {translate(item.type)} {translate('submission')}
+                                                        </p>
+                                                        <p className="text-[10px] text-gray-400 font-medium">
+                                                            {new Date(item.created_at).toLocaleDateString()} at {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <button onClick={() => handleDeleteClick(item.id)} className="p-2 text-gray-300 hover:text-rose-500 active:scale-90 transition-all opacity-0 group-hover:opacity-100">
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                            <p className="text-[13px] text-gray-600 dark:text-white/70 leading-relaxed bg-gray-50 dark:bg-white/[0.02] p-3 rounded-xl border border-gray-100/50 dark:border-white/[0.03]">
+                                                {item.message}
+                                            </p>
+                                            <div className="flex items-center gap-2 pt-1">
+                                                <User size={12} className="text-gray-400" />
+                                                <span className="text-[11px] font-medium text-gray-400 truncate">{item.email}</span>
                                             </div>
                                         </div>
                                     ))
@@ -415,83 +964,45 @@ const AdminView = ({ onBack }) => {
                             </div>
                         )}
 
-                        {/* FEEDBACK SECTION */}
-                        {activeSection === 'feedback' && (
-                            filteredFeedback.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-20 opacity-40">
-                                    <Filter size={40} strokeWidth={1} className="mb-3" />
-                                    <p className="text-[13px] font-medium">{translate('no_feedback_found')}</p>
-                                </div>
-                            ) : (
-                                filteredFeedback.map((item) => (
-                                    <div key={item.id} className="bg-white dark:bg-white/[0.04] rounded-2xl p-4 border border-gray-100 dark:border-transparent shadow-sm space-y-3 group">
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${getTypeBg(item.type)}`}>
-                                                    {getTypeIcon(item.type)}
-                                                </div>
-                                                <div>
-                                                    <p className="text-[13px] font-bold text-gray-900 dark:text-white leading-tight capitalize">
-                                                        {translate(item.type)} {translate('submission')}
-                                                    </p>
-                                                    <p className="text-[10px] text-gray-400 font-medium">
-                                                        {new Date(item.created_at).toLocaleDateString()} at {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <button onClick={() => handleDeleteClick(item.id)} className="p-2 text-gray-300 hover:text-rose-500 active:scale-90 transition-all opacity-0 group-hover:opacity-100">
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                        <p className="text-[13px] text-gray-600 dark:text-white/70 leading-relaxed bg-gray-50 dark:bg-white/[0.02] p-3 rounded-xl border border-gray-100/50 dark:border-white/[0.03]">
-                                            {item.message}
-                                        </p>
-                                        <div className="flex items-center gap-2 pt-1">
-                                            <User size={12} className="text-gray-400" />
-                                            <span className="text-[11px] font-medium text-gray-400 truncate">{item.email}</span>
-                                        </div>
-                                    </div>
-                                ))
-                            )
-                        )}
-
                         {/* UPDATES SECTION */}
                         {activeSection === 'updates' && (
-                            updates.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-20 opacity-40">
-                                    <Calendar size={40} strokeWidth={1} className="mb-3" />
-                                    <p className="text-[13px] font-medium">{translate('admin_no_updates')}</p>
-                                </div>
-                            ) : (
-                                updates.map(upd => (
-                                    <div key={upd.id} className="relative bg-white dark:bg-white/[0.04] rounded-2xl p-4 border border-gray-100 dark:border-transparent shadow-sm group">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center text-violet-600">
-                                                    <RefreshCw size={16} />
-                                                </div>
-                                                <h3 className="text-sm font-bold text-gray-900 dark:text-white">v{upd.version}</h3>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[10px] text-gray-400">{new Date(upd.created_at).toLocaleDateString()}</span>
-                                                <button onClick={() => handleDeleteUpdateClick(upd)} className="p-1.5 text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <p className="text-[12px] text-gray-500 dark:text-white/60 px-1 font-medium">{upd.title_el} / {upd.title_en}</p>
-                                        {upd.features && upd.features.length > 0 && (
-                                            <div className="mt-2 pt-2 border-t border-gray-50 dark:border-transparent flex gap-1.5 flex-wrap">
-                                                {upd.features.map((f, i) => (
-                                                    <div key={i} className="px-2 py-0.5 rounded-md bg-gray-50 dark:bg-white/5 text-[9px] text-gray-400">
-                                                        {f.title_en}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+                            <div className="space-y-3 animate-fade-in">
+                                {updates.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-20 opacity-40">
+                                        <Calendar size={40} strokeWidth={1} className="mb-3" />
+                                        <p className="text-[13px] font-medium">{translate('admin_no_updates')}</p>
                                     </div>
-                                ))
-                            )
+                                ) : (
+                                    updates.map(upd => (
+                                        <div key={upd.id} className="relative bg-white dark:bg-white/[0.04] rounded-2xl p-4 border border-gray-100 dark:border-transparent shadow-sm group">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center text-violet-600">
+                                                        <RefreshCw size={16} />
+                                                    </div>
+                                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">v{upd.version}</h3>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] text-gray-400">{new Date(upd.created_at).toLocaleDateString()}</span>
+                                                    <button onClick={() => handleDeleteUpdateClick(upd)} className="p-1.5 text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <p className="text-[12px] text-gray-500 dark:text-white/60 px-1 font-medium">{upd.title_el} / {upd.title_en}</p>
+                                            {upd.features && upd.features.length > 0 && (
+                                                <div className="mt-2 pt-2 border-t border-gray-50 dark:border-transparent flex gap-1.5 flex-wrap">
+                                                    {upd.features.map((f, i) => (
+                                                        <div key={i} className="px-2 py-0.5 rounded-md bg-gray-50 dark:bg-white/5 text-[9px] text-gray-400">
+                                                            {f.title_en}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
+                            </div>
                         )}
 
                         {/* BROADCAST SECTION */}
@@ -685,6 +1196,40 @@ const AdminView = ({ onBack }) => {
                 confirmText={translate('delete')}
                 type="danger"
             />
+
+            {/* Notes Modal */}
+            {showNotesModal && (
+                <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={() => setShowNotesModal(false)} />
+                    <div className="relative w-full max-w-lg bg-white dark:bg-surface-dark2 rounded-3xl overflow-hidden shadow-2xl animate-slide-up flex flex-col">
+                        <div className="p-6 border-b dark:border-transparent flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-black text-gray-900 dark:text-white">{translate('admin_notes')}</h3>
+                                <p className="text-xs text-gray-400">{notesTarget?.email}</p>
+                            </div>
+                            <button onClick={() => setShowNotesModal(false)} className="p-2 bg-gray-100 dark:bg-white/5 rounded-full">
+                                <X size={18} />
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <textarea
+                                value={editingNotes}
+                                onChange={(e) => setEditingNotes(e.target.value)}
+                                className="w-full p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-transparent text-[13px] min-h-[200px] focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all resize-none"
+                                placeholder="Γράψτε μερικές σημειώσεις για αυτόν τον χρήστη..."
+                            />
+                            <button
+                                onClick={handleSaveNotes}
+                                disabled={isSavingNotes}
+                                className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-2xl shadow-xl shadow-violet-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                            >
+                                {isSavingNotes ? <RefreshCw size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+                                {translate('save')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

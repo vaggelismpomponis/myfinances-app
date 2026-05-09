@@ -201,27 +201,126 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                         </div>
                     </Card>
 
-                    {/* ════ Subscription Card ════ */}
-                    <Card className={`relative overflow-hidden ${!isPro ? 'bg-gradient-to-r from-violet-600 to-indigo-600 border-none' : 'bg-gradient-to-r from-emerald-500 to-teal-500 border-none'}`}>
-                        <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
-                        <div className="relative px-5 py-5 flex items-center justify-between">
-                            <div className="flex-1 pr-4">
-                                <h3 className="text-white font-bold text-[15px] flex items-center gap-2">
-                                    {isPro ? translate('pro_plan_active') || 'Pro Plan Active' : translate('upgrade_to_pro') || 'Upgrade to Pro'}
-                                    <span className="text-[14px]">👑</span>
-                                </h3>
-                                <p className="text-white/80 text-[12px] mt-0.5">
-                                    {isPro ? translate('manage_billing') || 'Manage your billing & subscription' : translate('unlock_all_features') || 'Unlock unlimited budgets, goals & more'}
-                                </p>
+                    {/* ════ Subscription Card — Premium Redesign ════ */}
+                    {!isPro ? (
+                        /* ── Upgrade to Pro ── */
+                        <div
+                            className="relative overflow-hidden rounded-2xl border-none"
+                            style={{
+                                background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 40%, #4f46e5 100%)',
+                                boxShadow: '0 8px 32px rgba(109, 40, 217, 0.45), 0 2px 8px rgba(0,0,0,0.2)'
+                            }}
+                        >
+                            {/* Animated shine sweep */}
+                            <div
+                                className="absolute inset-0 pointer-events-none"
+                                style={{
+                                    background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.12) 50%, transparent 65%)',
+                                    animation: 'shine-sweep 3.5s ease-in-out infinite'
+                                }}
+                            />
+                            {/* Glow orbs */}
+                            <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-indigo-400/30 blur-2xl pointer-events-none" />
+                            <div className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full bg-violet-300/20 blur-xl pointer-events-none" />
+
+                            <div className="relative px-5 pt-5 pb-4">
+                                {/* Header row */}
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span
+                                                className="text-[10px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full"
+                                                style={{ background: 'rgba(255,255,255,0.18)', color: '#e9d5ff', letterSpacing: '0.1em' }}
+                                            >
+                                                SpendWise Pro
+                                            </span>
+                                        </div>
+                                        <h3 className="text-white font-extrabold text-[17px] leading-tight flex items-center gap-2">
+                                            {translate('upgrade_to_pro') || 'Αναβάθμιση σε Pro'}
+                                            <span className="text-[16px] drop-shadow-sm">👑</span>
+                                        </h3>
+                                        <p className="text-violet-200 text-[12px] mt-0.5 leading-snug">
+                                            {translate('unlock_all_features') || 'Ξεκλείδωσε απεριόριστα budgets, στόχους & άλλα'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Feature pills */}
+                                <div className="flex flex-wrap gap-1.5 mt-3 mb-4">
+                                    {[
+                                        { icon: '∞', label: translate('unlimited_budgets') || 'Απεριόριστα Budgets' },
+                                        { icon: '🎯', label: translate('unlimited_goals') || 'Απεριόριστοι Στόχοι' },
+                                        { icon: '🤖', label: translate('ai_advisor') || 'AI Σύμβουλος' },
+                                    ].map((f, i) => (
+                                        <span
+                                            key={i}
+                                            className="flex items-center gap-1 text-[11px] font-semibold text-white/90 px-2.5 py-1 rounded-full"
+                                            style={{ background: 'rgba(255,255,255,0.13)', backdropFilter: 'blur(8px)' }}
+                                        >
+                                            <span className="text-[10px]">{f.icon}</span>
+                                            {f.label}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                {/* CTA row */}
+                                <div className="flex items-center justify-between gap-3">
+                                    <p className="text-violet-200/80 text-[11px] font-medium">
+                                        {translate('pro_price_hint') || 'από €2.99 / μήνα'}
+                                    </p>
+                                    <button
+                                        onClick={() => openUpgradeModal('profile')}
+                                        className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-extrabold transition-all duration-200 active:scale-95 hover:scale-105"
+                                        style={{
+                                            background: '#ffffff',
+                                            color: '#5b21b6',
+                                            boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+                                        }}
+                                    >
+                                        {translate('go_pro') || 'Αναβάθμιση'}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
-                            <button
-                                onClick={() => isPro ? openBillingPortal() : openUpgradeModal('profile')}
-                                className="shrink-0 px-4 py-2 bg-white text-gray-900 rounded-xl text-[13px] font-bold shadow-sm hover:scale-105 active:scale-95 transition-all"
-                            >
-                                {isPro ? translate('manage') || 'Manage' : translate('go_pro') || 'Go Pro'}
-                            </button>
                         </div>
-                    </Card>
+                    ) : (
+                        /* ── Pro Active ── */
+                        <div
+                            className="relative overflow-hidden rounded-2xl border-none"
+                            style={{
+                                background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+                                boxShadow: '0 8px 32px rgba(5, 150, 105, 0.4), 0 2px 8px rgba(0,0,0,0.15)'
+                            }}
+                        >
+                            <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-teal-300/20 blur-2xl pointer-events-none" />
+                            <div className="relative px-5 py-5 flex items-center justify-between gap-3">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[10px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full"
+                                            style={{ background: 'rgba(255,255,255,0.2)', color: '#d1fae5' }}>
+                                            ✓ Ενεργό
+                                        </span>
+                                    </div>
+                                    <h3 className="text-white font-extrabold text-[16px] flex items-center gap-2">
+                                        {translate('pro_plan_active') || 'Pro Plan Active'}
+                                        <span className="text-[15px]">👑</span>
+                                    </h3>
+                                    <p className="text-emerald-100/80 text-[12px] mt-0.5">
+                                        {translate('manage_billing') || 'Διαχειρίσου τη συνδρομή σου'}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => openBillingPortal()}
+                                    className="shrink-0 px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-200 active:scale-95 hover:scale-105"
+                                    style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}
+                                >
+                                    {translate('manage') || 'Διαχείριση'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     {/* ════ Other Settings ════ */}
                     <div>

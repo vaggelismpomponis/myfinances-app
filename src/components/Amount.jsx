@@ -12,7 +12,8 @@ const Amount = ({
     minimumFractionDigits = 2, 
     maximumFractionDigits = 2,
     style = "decimal", // "decimal" or "currency"
-    prefix = ""
+    prefix = "",
+    showSign = true
 }) => {
     const { privacyMode, currency, language } = useSettings();
 
@@ -23,12 +24,13 @@ const Amount = ({
     const locale = language === 'el' ? 'el-GR' : 'en-US';
     
     try {
+        const displayValue = showSign ? value : Math.abs(value);
         const formatted = new Intl.NumberFormat(locale, {
             style: style,
             currency: style === 'currency' ? (currency === '€' ? 'EUR' : currency) : undefined,
             minimumFractionDigits,
             maximumFractionDigits,
-        }).format(Math.abs(value));
+        }).format(displayValue);
 
         return (
             <span className={className}>
@@ -37,7 +39,8 @@ const Amount = ({
         );
     } catch (e) {
         // Fallback if Intl fails
-        return <span className={className}>{prefix}{value.toFixed(2)}{showCurrency && ` ${currency}`}</span>;
+        const val = showSign ? value : Math.abs(value);
+        return <span className={className}>{prefix}{val.toFixed(2)}{showCurrency && ` ${currency}`}</span>;
     }
 };
 

@@ -30,13 +30,20 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized. Admin only." }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { data: profiles, error } = await supabase
+    const { targetUserId, notes } = await req.json();
+
+    if (!targetUserId) {
+      return new Response(JSON.stringify({ error: "Target User ID is required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    const { error: updateError } = await supabase
       .from('profiles')
-      .select('id, email, display_name, subscription_status, stripe_customer_id, admin_notes');
+      .update({ admin_notes: notes })
+      .eq('id', targetUserId);
 
-    if (error) throw error;
+    if (updateError) throw updateError;
 
-    return new Response(JSON.stringify({ profiles }), {
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -13,6 +13,7 @@ describe('trackSession Utility', () => {
     global.fetch.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({
+        success: true,
         ip: '1.2.3.4',
         city: 'Athens',
         country_code: 'GR'

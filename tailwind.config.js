@@ -19,6 +19,8 @@ export default {
         'dark:bg-surface-dark4',
         'dark:bg-surface-light',
         'dark:bg-surface-dark/90',
+        'dark:bg-surface-dark/80',
+        'dark:bg-surface-dark2/90',
         'dark:bg-surface-dark2/95',
         'dark:border-white/8',
         'dark:border-white/10',

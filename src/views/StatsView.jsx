@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import CategoryIcon from '../components/CategoryIcon';
 import {
@@ -56,16 +57,18 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 /* ─── Time filter button ─── */
 const TimeBtn = ({ value, label, active, onClick }) => (
-    <button
+    <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => onClick(value)}
-        className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-300
+        className={`flex-1 py-2 px-3 rounded-xl text-xs font-black whitespace-nowrap transition-all duration-300
                     ${active
-                ? 'bg-white dark:bg-white/15 text-violet-700 dark:text-white shadow-sm scale-[1.02]'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-white/10'
+                ? 'bg-violet-600 text-white shadow-glow-sm scale-[1.02]'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-white/5'
             }`}
     >
         {label}
-    </button>
+    </motion.button>
 );
 
 const StatsView = ({ transactions }) => {
@@ -177,10 +180,14 @@ const StatsView = ({ transactions }) => {
     ];
 
     return (
-        <div className="pb-28 animate-fade-in space-y-6">
+        <div className="pb-28 space-y-6">
             
             {/* ── Period Header ── */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-violet-600 to-indigo-700 dark:from-violet-600/20 dark:to-indigo-800/20 rounded-[2.5rem] p-6 text-white dark:text-violet-100 shadow-xl border border-white/10 dark:border-white/5">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="relative overflow-hidden bg-gradient-to-br from-violet-600 to-indigo-700 dark:from-violet-600/20 dark:to-indigo-800/20 rounded-[2.5rem] p-6 text-white dark:text-violet-100 shadow-xl border border-white/10 dark:border-white/5">
                 <div className="absolute top-0 right-0 -mr-8 -mt-8 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
                 <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 bg-cyan-400/10 rounded-full blur-2xl" />
                 
@@ -219,11 +226,11 @@ const StatsView = ({ transactions }) => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             {/* ── Time Filter ── */}
             <div className="sticky top-2 z-40 px-1">
-                <div className="glass-light dark:bg-surface-dark2/80 dark:backdrop-blur-xl rounded-2xl p-1.5 shadow-premium flex gap-1 border border-white/50 dark:border-white/5 overflow-x-auto scrollbar-hide">
+                <div className="bg-gray-100 dark:bg-black/40 backdrop-blur-xl rounded-2xl p-1.5 shadow-premium flex gap-1 border border-gray-200 dark:border-white/5 overflow-x-auto scrollbar-hide">
                     {TIME_FILTERS.map(f => (
                         <TimeBtn key={f.value} value={f.value} label={f.label}
                             active={timeRange === f.value} onClick={handleTimeRangeChange} />
@@ -232,8 +239,13 @@ const StatsView = ({ transactions }) => {
             </div>
 
             {/* ── Custom Picker ── */}
-            {timeRange === 'custom' && (
-                <div className="bg-white dark:bg-surface-dark3 p-5 rounded-[2rem] space-y-4 border border-gray-100 dark:border-white/5 shadow-premium animate-pop">
+            <AnimatePresence>
+                {timeRange === 'custom' && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="bg-white dark:bg-surface-dark3 p-5 rounded-[2rem] space-y-4 border border-gray-100 dark:border-white/5 shadow-premium overflow-hidden">
                     <div className="relative">
                         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide pr-10">
                             {availableYears.map(year => (
@@ -276,8 +288,9 @@ const StatsView = ({ transactions }) => {
                             </button>
                         ))}
                     </div>
-                </div>
+                </motion.div>
             )}
+            </AnimatePresence>
 
             {/* ── Top Categories List ── */}
             <div className="space-y-4">
@@ -292,18 +305,21 @@ const StatsView = ({ transactions }) => {
                         <p className="text-gray-400 text-sm">{t('stats_no_expenses')}</p>
                     </div>
                 ) : (
-                    <div className="space-y-3 stagger-children">
+                    <div className="space-y-3">
                         {categoryData.slice(0, 5).map((cat, i) => {
                             const pct = totalExpense > 0 ? (cat.value / totalExpense) * 100 : 0;
                             return (
-                                <button
+                                <motion.button
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.1 }}
                                     key={cat.name}
                                     onClick={() => setSelectedCategory(cat.name)}
                                     className="w-full bg-white dark:bg-surface-dark3
                                                border border-gray-100 dark:border-white/5
                                                rounded-[2rem] p-4 shadow-sm hover:shadow-md
                                                hover:bg-gray-50 dark:hover:bg-white/5
-                                               active:scale-[0.98] transition-all duration-300 group"
+                                               transition-all duration-300 group"
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center transition-transform group-hover:scale-110">
@@ -337,7 +353,7 @@ const StatsView = ({ transactions }) => {
                                             </div>
                                         </div>
                                     </div>
-                                </button>
+                                </motion.button>
                             );
                         })}
                     </div>
@@ -483,6 +499,7 @@ const StatsView = ({ transactions }) => {
             </div>
 
             {/* ── Category Drill-Down Bottom Sheet ── */}
+            <AnimatePresence>
             {selectedCategory && typeof document !== 'undefined' && createPortal((() => {
                 const catTxs = filteredTransactions
                     .filter(t => t.type === 'expense' && t.category === selectedCategory)
@@ -491,14 +508,23 @@ const StatsView = ({ transactions }) => {
                 const color = COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length] || '#7c3aed';
 
                 return (
-                    <div className="fixed inset-0 z-[100] flex items-end animate-fade-in">
-                        <div className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity"
+                    <div className="fixed inset-0 z-[100] flex items-end">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity"
                             onClick={() => setSelectedCategory(null)} />
-                        <div className="relative z-10 w-full
+                        <motion.div 
+                            initial={{ y: '100%' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className="relative z-10 w-full
                                         bg-white dark:bg-surface-dark2
                                         rounded-t-[3rem] shadow-2xl
                                         border-t border-x border-gray-100 dark:border-white/5
-                                        max-h-[85vh] flex flex-col animate-slide-up">
+                                        max-h-[85vh] flex flex-col">
 
                             {/* Handle */}
                             <div className="flex justify-center pt-4 pb-2">
@@ -565,10 +591,11 @@ const StatsView = ({ transactions }) => {
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 );
             })(), document.body)}
+            </AnimatePresence>
         </div>
     );
 };

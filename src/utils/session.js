@@ -1,11 +1,11 @@
 import { supabase } from '../supabase';
+import logger from './logger';
 
-// Fetch IP and location data with primary + fallback services
+// Fetch IP and location data with primary + multiple fallback services
 const fetchIpLocation = async () => {
     // Primary: ipwho.is
     try {
         const res = await fetch('https://ipwho.is/', { cache: 'no-store' });
-        if (res.status === 403) throw new Error('Forbidden');
         if (res.ok) {
             const data = await res.json();
             if (data?.success && data.ip) {
@@ -15,20 +15,44 @@ const fetchIpLocation = async () => {
                 return { ip: data.ip, location };
             }
         }
-    } catch (_) { /* fall through to backup */ }
+    } catch (_) { /* fall through */ }
 
-    // Fallback: ip-api.com (free, no key needed)
+    // Fallback 1: freeipapi.com (reliable, no key)
     try {
-        const res = await fetch('http://ip-api.com/json/?fields=status,query,city,countryCode', { cache: 'no-store' });
+        const res = await fetch('https://freeipapi.com/api/json', { cache: 'no-store' });
         if (res.ok) {
             const data = await res.json();
-            if (data?.status === 'success' && data.query) {
+            if (data?.ipAddress) {
                 let location = null;
-                if (data.city && data.countryCode) location = `${data.city}, ${data.countryCode}`;
-                return { ip: data.query, location };
+                if (data.cityName && data.countryCode) location = `${data.cityName}, ${data.countryCode}`;
+                return { ip: data.ipAddress, location };
             }
         }
-    } catch (_) { /* silent fail */ }
+    } catch (_) { /* fall through */ }
+
+    // Fallback 2: ipapi.co (popular, no key needed for basic usage)
+    try {
+        const res = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            if (data?.ip) {
+                let location = null;
+                if (data.city && data.country_code) location = `${data.city}, ${data.country_code}`;
+                return { ip: data.ip, location };
+            }
+        }
+    } catch (_) { /* fall through */ }
+
+    // Last Resort: ipify.org (IP only, very reliable)
+    try {
+        const res = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            if (data?.ip) return { ip: data.ip, location: null };
+        }
+    } catch (e) {
+        logger.warn('All IP tracking fallbacks failed', 'session');
+    }
 
     return { ip: null, location: null };
 };
@@ -61,21 +85,17 @@ export const trackSession = async (user) => {
     let ip = sessionStorage.getItem('myfinances_ip');
     let location = sessionStorage.getItem('myfinances_location');
     const lastAttempt = sessionStorage.getItem('myfinances_ip_last_attempt');
-    const isBlocked = sessionStorage.getItem('myfinances_ip_blocked');
 
-    if (!ip && !isBlocked) {
-        // Throttle retries: only re-attempt every 5 minutes after a failure
-        if (!lastAttempt || Date.now() - parseInt(lastAttempt) > 300000) {
+    if (!ip) {
+        // Retry every 2 minutes instead of 5 if we don't have an IP yet
+        if (!lastAttempt || Date.now() - parseInt(lastAttempt) > 120000) {
             sessionStorage.setItem('myfinances_ip_last_attempt', Date.now().toString());
             const result = await fetchIpLocation();
-            ip = result.ip;
-            location = result.location;
-            if (ip) {
+            if (result.ip) {
+                ip = result.ip;
+                location = result.location;
                 sessionStorage.setItem('myfinances_ip', ip);
                 if (location) sessionStorage.setItem('myfinances_location', location);
-            } else {
-                // Mark as blocked/unavailable to avoid hammering the APIs
-                sessionStorage.setItem('myfinances_ip_blocked', 'true');
             }
         }
     }

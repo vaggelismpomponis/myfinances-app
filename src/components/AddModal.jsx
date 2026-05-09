@@ -14,6 +14,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import ProBadge from '../components/ProBadge';
 import logger from '../utils/logger';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const NOTE_MAX_LENGTH = 200;
 const CATEGORY_NAME_MAX_LENGTH = 30;
@@ -439,47 +440,63 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4 animate-fade-in">
-            <div className="bg-white dark:bg-surface-dark2 w-full max-w-md h-[100dvh] sm:h-auto sm:max-h-[95vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-up relative transition-colors">
+        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
+            <motion.div
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="bg-white dark:bg-surface-dark2 w-full max-w-md h-[100dvh] sm:h-auto sm:max-h-[95vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col relative transition-colors"
+            >
 
                 {/* Voice Input Overlay */}
-                {isListening && (
-                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md animate-fade-in p-6 text-center">
-                        <div className="relative mb-8">
-                            <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20"></div>
-                            <div className="relative bg-gradient-to-tr from-red-500 to-pink-500 p-6 rounded-full shadow-xl shadow-red-200 dark:shadow-red-900/30">
-                                <Mic size={40} className="text-white" />
+                <AnimatePresence>
+                    {isListening && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md p-6 text-center"
+                        >
+                            <div className="relative mb-8">
+                                <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20"></div>
+                                <div className="relative bg-gradient-to-tr from-red-500 to-pink-500 p-6 rounded-full shadow-xl shadow-red-200 dark:shadow-red-900/30">
+                                    <Mic size={40} className="text-white" />
+                                </div>
                             </div>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">{t('listening')}</h3>
-                        <p className="text-lg text-gray-600 dark:text-gray-300 font-medium min-h-[4rem] flex items-center justify-center max-w-[80%]">
-                            {transcript || t('listening_example')}
-                        </p>
-                        <div className="flex gap-4 mt-8">
-                            <button
-                                onClick={stopListening}
-                                className="px-6 py-3 bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 active:bg-gray-300 rounded-full text-sm font-bold text-gray-500 dark:text-black transition-colors"
-                            >
-                                {t('cancel')}
-                            </button>
-                            <button
-                                onClick={() => {
-                                    if (transcript) processVoiceInput(transcript);
-                                    stopListening();
-                                }}
-                                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-full text-sm font-bold text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 transition-all"
-                            >
-                                {t('save')}
-                            </button>
-                        </div>
-                    </div>
-                )}
+                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">{t('listening')}</h3>
+                            <p className="text-lg text-gray-600 dark:text-gray-300 font-medium min-h-[4rem] flex items-center justify-center max-w-[80%]">
+                                {transcript || t('listening_example')}
+                            </p>
+                            <div className="flex gap-4 mt-8">
+                                <motion.button
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={stopListening}
+                                    className="px-6 py-3 bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 active:bg-gray-300 rounded-full text-sm font-bold text-gray-500 dark:text-black transition-colors"
+                                >
+                                    {t('cancel')}
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => {
+                                        if (transcript) processVoiceInput(transcript);
+                                        stopListening();
+                                    }}
+                                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-full text-sm font-bold text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 transition-all"
+                                >
+                                    {t('save')}
+                                </motion.button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* ── Header ── */}
                 <div className="px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] flex justify-between items-center border-b border-gray-100 dark:border-transparent flex-shrink-0">
-                    <button onClick={onClose} className="p-2 text-gray-400 dark:text-black bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full transition-colors">
+                    <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} className="p-2 text-gray-400 dark:text-black bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full transition-colors">
                         <X size={22} />
-                    </button>
+                    </motion.button>
                     <div className="text-center">
                         <h3 className="text-base font-bold text-gray-800 dark:text-white">
                             {initialData ? t('edit') : t('new_transaction')}
@@ -490,19 +507,20 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                             </p>
                         )}
                     </div>
-                    <button
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
                         type="button"
                         onClick={handleSubmit}
                         disabled={!amount || !category || isSubmitting}
                         className={`text-sm font-bold px-4 py-1.5 rounded-full transition-all ${!amount || !category
                             ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                            : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 active:scale-95'
+                            : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
                             }`}
                     >
                         {isSubmitting ? (
                             <div className="w-5 h-5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
                         ) : initialData ? t('update') : t('save')}
-                    </button>
+                    </motion.button>
                 </div>
 
                 {/* ── Content area (scrollable if needed) ── */}
@@ -536,13 +554,18 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
                     {/* Amount Display */}
                     <div className="px-5 py-4 text-center flex-1 flex items-center justify-center">
-                        <div className="flex items-baseline justify-center gap-1">
+                        <motion.div
+                            key={amount}
+                            initial={{ scale: 0.95, opacity: 0.8 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="flex items-baseline justify-center gap-1"
+                        >
                             {!privacyMode && <span className="text-2xl font-bold text-gray-300 dark:text-gray-500">€</span>}
                             <span className={`text-5xl font-extrabold tracking-tight transition-colors ${amount ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-600'
                                 }`}>
                                 {privacyMode ? '****' : (amount || '0')}
                             </span>
-                        </div>
+                        </motion.div>
                     </div>
 
                     {/* Category Chips with Icons */}
@@ -552,23 +575,25 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                 const Icon = categoryIcons[cat] || MoreHorizontal;
                                 const isSelected = category === cat;
                                 return (
-                                    <button
+                                    <motion.button
+                                        whileTap={{ scale: 0.9 }}
                                         key={cat}
                                         type="button"
                                         onClick={() => setCategory(cat)}
-                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all active:scale-95 ${isSelected
+                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all ${isSelected
                                             ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 shadow-sm'
                                             : 'border-gray-200 dark:border-transparent text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-surface-dark3'
                                             }`}
                                     >
                                         <Icon size={14} />
                                         <span>{getCategoryTranslation(cat)}</span>
-                                    </button>
+                                    </motion.button>
                                 );
                             })}
 
                             {!isAddingCategory ? (
-                                <button
+                                <motion.button
+                                    whileTap={{ scale: 0.9 }}
                                     type="button"
                                     onClick={() => {
                                         if (!isPro) {
@@ -577,14 +602,18 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                         }
                                         setIsAddingCategory(true);
                                     }}
-                                    className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all active:scale-95 border-dashed border-gray-300 dark:border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 bg-transparent"
+                                    className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all border-dashed border-gray-300 dark:border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 bg-transparent"
                                 >
                                     <Plus size={14} />
                                     <span>{t('new_category')}</span>
                                     {!isPro && <span className="text-[10px] ml-0.5">👑</span>}
-                                </button>
+                                </motion.button>
                             ) : (
-                                <div className="flex items-center gap-1 animate-fade-in">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="flex items-center gap-1"
+                                >
                                     <input
                                         type="text"
                                         value={newCategoryName}
@@ -606,7 +635,8 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                             }
                                         }}
                                     />
-                                    <button
+                                    <motion.button
+                                        whileTap={{ scale: 0.8 }}
                                         type="button"
                                         onClick={() => {
                                             if (newCategoryName.trim()) {
@@ -619,8 +649,9 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                         className="p-1.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
                                     >
                                         <Check size={14} />
-                                    </button>
-                                    <button
+                                    </motion.button>
+                                    <motion.button
+                                        whileTap={{ scale: 0.8 }}
                                         type="button"
                                         onClick={() => {
                                             setIsAddingCategory(false);
@@ -629,8 +660,8 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                         className="p-1.5 rounded-full bg-gray-100 dark:bg-surface-dark3 text-gray-500 dark:text-gray-400"
                                     >
                                         <X size={14} />
-                                    </button>
-                                </div>
+                                    </motion.button>
+                                </motion.div>
                             )}
 
                         </div>
@@ -638,57 +669,78 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
                     {/* Collapsible Note */}
                     <div className="px-5 pb-2 flex-shrink-0">
-                        {showNote ? (
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={note}
-                                    onChange={(e) => setNote(e.target.value.substring(0, NOTE_MAX_LENGTH))}
-                                    placeholder={t('note_placeholder')}
-                                    autoFocus
-                                    maxLength={NOTE_MAX_LENGTH}
-                                    className="w-full bg-gray-50 dark:bg-surface-dark3 border border-gray-200 dark:border-transparent rounded-xl px-4 py-2.5 pr-14 text-sm text-gray-800 dark:text-white/90 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                                    onBlur={() => { if (!note) setShowNote(false); }}
-                                />
-                                <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium tabular-nums ${
-                                    note.length >= NOTE_MAX_LENGTH ? 'text-rose-500' : 'text-gray-300 dark:text-gray-600'
-                                }`}>
-                                    {note.length}/{NOTE_MAX_LENGTH}
-                                </span>
-                            </div>
-                        ) : (
-                            <button
-                                type="button"
-                                onClick={() => setShowNote(true)}
-                                className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors w-full justify-center py-1"
-                            >
-                                <MessageSquare size={14} />
-                                <span>{t('note_placeholder')}</span>
-                            </button>
-                        )}
+                        <AnimatePresence mode="wait">
+                            {showNote ? (
+                                <motion.div
+                                    key="input"
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="relative"
+                                >
+                                    <input
+                                        type="text"
+                                        value={note}
+                                        onChange={(e) => setNote(e.target.value.substring(0, NOTE_MAX_LENGTH))}
+                                        placeholder={t('note_placeholder')}
+                                        autoFocus
+                                        maxLength={NOTE_MAX_LENGTH}
+                                        className="w-full bg-gray-50 dark:bg-surface-dark3 border border-gray-200 dark:border-transparent rounded-xl px-4 py-2.5 pr-14 text-sm text-gray-800 dark:text-white/90 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                                        onBlur={() => { if (!note) setShowNote(false); }}
+                                    />
+                                    <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium tabular-nums ${note.length >= NOTE_MAX_LENGTH ? 'text-rose-500' : 'text-gray-300 dark:text-gray-600'
+                                        }`}>
+                                        {note.length}/{NOTE_MAX_LENGTH}
+                                    </span>
+                                </motion.div>
+                            ) : (
+                                <motion.button
+                                    key="button"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    type="button"
+                                    onClick={() => setShowNote(true)}
+                                    className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors w-full justify-center py-1"
+                                >
+                                    <MessageSquare size={14} />
+                                    <span>{t('note_placeholder')}</span>
+                                </motion.button>
+                            )}
+                        </AnimatePresence>
                     </div>
 
                     {/* Amount validation error */}
-                    {amountError && (
-                        <div className="px-5 pb-2 flex-shrink-0">
-                            <div className="flex items-center gap-1.5 text-xs text-rose-500 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 px-3 py-2 rounded-xl">
-                                <AlertCircle size={12} />
-                                <span>{amountError}</span>
-                            </div>
-                        </div>
-                    )}
+                    <AnimatePresence>
+                        {amountError && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="px-5 pb-2 flex-shrink-0"
+                            >
+                                <div className="flex items-center gap-1.5 text-xs text-rose-500 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 px-3 py-2 rounded-xl">
+                                    <AlertCircle size={12} />
+                                    <span>{amountError}</span>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     {/* Tool Strip — voice, scan, bulk */}
                     <div className="px-5 pb-3 flex justify-center gap-3 flex-shrink-0">
-                        <button
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             type="button"
                             onClick={startListening}
-                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-white bg-gradient-to-r from-red-500 to-pink-500 shadow-md shadow-red-200/50 dark:shadow-red-900/30 hover:shadow-lg active:scale-95 transition-all"
+                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-white bg-gradient-to-r from-red-500 to-pink-500 shadow-md shadow-red-200/50 dark:shadow-red-900/30"
                         >
                             <Mic size={14} />
                             {t('voice')}
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             type="button"
                             onClick={() => {
                                 if (!isPro) {
@@ -697,13 +749,15 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                 }
                                 setShowScanner(true);
                             }}
-                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 active:scale-95 transition-all"
+                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20"
                         >
                             <Camera size={14} />
                             {t('scan')}
                             {!isPro && <span className="text-[10px] ml-0.5">👑</span>}
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             type="button"
                             onClick={() => {
                                 if (!isPro) {
@@ -712,24 +766,25 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                 }
                                 setShowBulkScanner(true);
                             }}
-                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/20 hover:bg-violet-100 dark:hover:bg-violet-500/30 active:scale-95 transition-all"
+                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/20"
                         >
                             <Layers size={14} />
                             {t('bulk')}
                             {!isPro && <span className="text-[10px] ml-0.5">👑</span>}
-                        </button>
+                        </motion.button>
                     </div>
 
                     {/* Batch Skip */}
                     {inBatchMode && (
                         <div className="px-5 pb-2 flex-shrink-0">
-                            <button
+                            <motion.button
+                                whileTap={{ scale: 0.98 }}
                                 type="button"
                                 onClick={handleSkipBatchItem}
                                 className="w-full py-2.5 rounded-xl text-gray-600 dark:text-gray-300 font-semibold bg-gray-100 dark:bg-surface-dark3 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm"
                             >
                                 {t('skip')}
-                            </button>
+                            </motion.button>
                         </div>
                     )}
                 </div>
@@ -739,28 +794,30 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                     {/* Digits 1-9 */}
                     <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
                         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(key => (
-                            <button
+                            <motion.button
                                 key={key}
+                                whileTap={{ scale: 0.9 }}
                                 type="button"
                                 onClick={() => handleNumpadPress(key)}
-                                className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent"
+                                className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent"
                             >
                                 {key}
-                            </button>
+                            </motion.button>
                         ))}
                     </div>
                     {/* Bottom row: .  0  ⌫  ✓ */}
                     <div className="grid grid-cols-4 gap-2 max-w-xs mx-auto mt-2">
-                        <button type="button" onClick={() => handleNumpadPress('.')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">.</button>
-                        <button type="button" onClick={() => handleNumpadPress('0')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">0</button>
-                        <button type="button" onClick={() => handleNumpadPress('backspace')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 bg-gray-200 dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
+                        <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('.')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">.</motion.button>
+                        <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('0')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">0</motion.button>
+                        <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('backspace')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-gray-200 dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
                             <Delete size={22} />
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
+                            whileTap={{ scale: 0.9 }}
                             type="button"
                             onClick={handleSubmit}
                             disabled={!amount || !category || isSubmitting}
-                            className={`h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all active:scale-95 ${!amount || !category
+                            className={`h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all ${!amount || !category
                                 ? 'bg-gray-200 dark:bg-surface-dark3 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                                 : 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30 hover:bg-indigo-700'
                                 }`}
@@ -770,13 +827,13 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                             ) : (
                                 <Check size={24} />
                             )}
-                        </button>
+                        </motion.button>
                     </div>
                 </div>
 
                 {showScanner && <ScannerModal onClose={() => setShowScanner(false)} onScanComplete={handleScanComplete} />}
                 {showBulkScanner && <BulkScannerModal onClose={() => setShowBulkScanner(false)} onScanComplete={handleBulkScanComplete} />}
-            </div>
+            </motion.div>
         </div>
     );
 };

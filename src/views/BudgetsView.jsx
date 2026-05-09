@@ -15,12 +15,12 @@ const EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφ
 
 const CATEGORY_META = {
     'Σούπερ Μάρκετ': { icon: ShoppingCart, color: 'from-green-500 to-emerald-600' },
-    'Φαγητό':        { icon: Utensils,     color: 'from-orange-500 to-amber-600' },
-    'Καφές':         { icon: Coffee,       color: 'from-amber-600 to-yellow-700' },
-    'Σπίτι':         { icon: HomeIcon,     color: 'from-blue-500 to-indigo-600' },
-    'Λογαριασμοί':   { icon: Receipt,      color: 'from-yellow-500 to-orange-500' },
-    'Διασκέδαση':    { icon: Gamepad2,     color: 'from-purple-500 to-violet-600' },
-    'Άλλο':          { icon: Package,      color: 'from-gray-500 to-slate-600' },
+    'Φαγητό': { icon: Utensils, color: 'from-orange-500 to-amber-600' },
+    'Καφές': { icon: Coffee, color: 'from-amber-600 to-yellow-700' },
+    'Σπίτι': { icon: HomeIcon, color: 'from-blue-500 to-indigo-600' },
+    'Λογαριασμοί': { icon: Receipt, color: 'from-yellow-500 to-orange-500' },
+    'Διασκέδαση': { icon: Gamepad2, color: 'from-purple-500 to-violet-600' },
+    'Άλλο': { icon: Package, color: 'from-gray-500 to-slate-600' },
 };
 
 const BudgetsView = ({ user, transactions, onBack }) => {
@@ -179,16 +179,16 @@ const BudgetsView = ({ user, transactions, onBack }) => {
 
     const getStatusColor = (pct) => {
         if (pct >= 100) return { bar: '#ef4444', badge: 'bg-red-500/15 text-red-500', ring: 'ring-red-500/30' };
-        if (pct >= 80)  return { bar: '#f97316', badge: 'bg-orange-500/15 text-orange-500', ring: 'ring-orange-500/30' };
+        if (pct >= 80) return { bar: '#f97316', badge: 'bg-orange-500/15 text-orange-500', ring: 'ring-orange-500/30' };
         return { bar: '#10b981', badge: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400', ring: 'ring-emerald-500/30' };
     };
 
     // ── Summary stats ──────────────────────────────────────────────────
     const totalLimit = budgets.reduce((s, b) => s + b.amount, 0);
     const totalSpent = budgets.reduce((s, b) => s + calculateSpent(b.category), 0);
-    const totalPct   = totalLimit > 0 ? Math.min(100, (totalSpent / totalLimit) * 100) : 0;
-    const overCount  = budgets.filter(b => calculateSpent(b.category) > b.amount).length;
-    const remaining  = Math.max(0, totalLimit - totalSpent);
+    const totalPct = totalLimit > 0 ? Math.min(100, (totalSpent / totalLimit) * 100) : 0;
+    const overCount = budgets.filter(b => calculateSpent(b.category) > b.amount).length;
+    const remaining = Math.max(0, totalLimit - totalSpent);
 
     return (
         <div className="flex flex-col h-full bg-gray-50 dark:bg-surface-dark animate-fade-in transition-colors duration-300">
@@ -209,7 +209,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                     <div className="pl-10">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none">{t('budgets')}</h2>
                         <p className="text-xs text-gray-400 mt-1">
-                            {!isPro ? `${budgets.length}/3 ` + t('active').toLowerCase() : `${budgets.length} ` + t('active').toLowerCase()} · {new Date().toLocaleString('el-GR', { month: 'long', year: 'numeric' })}
+                            {!isPro ? <span>{budgets.length}/3 {t('active').toLowerCase()} 👑</span> : `${budgets.length} ` + t('active').toLowerCase()} · {new Date().toLocaleString('el-GR', { month: 'long', year: 'numeric' })}
                         </p>
                     </div>
                 </div>
@@ -217,7 +217,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                     onClick={openAddModal}
                     className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95"
                 >
-                    {(!isPro && budgets.length >= 3) ? <span className="text-[14px]">👑</span> : <Plus size={16} />} {t('add_recurring')}
+                    {(!isPro && budgets.length >= 3) ? <span className="text-[14px]">👑</span> : <Plus size={16} />} {t('add_budget')}
                 </button>
             </div>
 
@@ -292,7 +292,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                         <div className="relative mt-4">
                             <div className="px-5 flex gap-2 overflow-x-auto pb-1 scrollbar-hide pr-10">
                                 {budgets.map(b => {
-                                    const sp  = calculateSpent(b.category);
+                                    const sp = calculateSpent(b.category);
                                     const pct = Math.min(100, (sp / b.amount) * 100);
                                     const { icon: Icon } = CATEGORY_META[b.category] || { icon: Package };
                                     const { badge } = getStatusColor(pct);
@@ -341,12 +341,12 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                     ) : (
                         <div className="space-y-3 stagger-children">
                             {budgets.map((budget, idx) => {
-                                const spent      = calculateSpent(budget.category);
+                                const spent = calculateSpent(budget.category);
                                 const percentage = Math.min(100, (spent / budget.amount) * 100);
-                                const isOver     = spent > budget.amount;
+                                const isOver = spent > budget.amount;
                                 const { bar, badge, ring } = getStatusColor(percentage);
-                                const meta       = CATEGORY_META[budget.category] || { emoji: '📦', color: 'from-gray-500 to-slate-600' };
-                                const leftover   = Math.max(0, budget.amount - spent);
+                                const meta = CATEGORY_META[budget.category] || { emoji: '📦', color: 'from-gray-500 to-slate-600' };
+                                const leftover = Math.max(0, budget.amount - spent);
 
                                 return (
                                     <div
@@ -455,7 +455,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                                 </div>
                                 <button
                                     onClick={closeModal}
-                                    className="p-2 text-gray-400 dark:text-black hover:text-gray-600 rounded-xl bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 transition-colors"
+                                    className="p-2 text-gray-400 dark:text-white/50 hover:text-gray-600 dark:hover:text-white/80 rounded-xl bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
                                 >
                                     <X size={18} />
                                 </button>
@@ -544,7 +544,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                                     <button
                                         type="button"
                                         onClick={closeModal}
-                                        className="flex-1 py-3.5 bg-gray-100 dark:bg-white text-gray-600 dark:text-black font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-100 transition-colors active:scale-95 text-sm"
+                                        className="flex-1 py-3.5 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/80 font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-white/15 transition-colors active:scale-95 text-sm"
                                     >
                                         {t('cancel')}
                                     </button>
@@ -582,7 +582,7 @@ const BudgetsView = ({ user, transactions, onBack }) => {
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setDeletingBudget(null)}
-                                    className="flex-1 py-3.5 bg-gray-100 dark:bg-white text-gray-700 dark:text-black font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-100 transition-colors active:scale-95 text-sm"
+                                    className="flex-1 py-3.5 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80 font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-white/15 transition-colors active:scale-95 text-sm"
                                 >
                                     {t('cancel')}
                                 </button>

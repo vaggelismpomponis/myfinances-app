@@ -33,6 +33,8 @@ serve(async (req) => {
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
       automatic_payment_methods: { enabled: true },
+      automatic_tax: { enabled: true },
+      tax_id_collection: { enabled: true },
       line_items: [
         {
           price: priceId,
@@ -41,7 +43,7 @@ serve(async (req) => {
       ],
       mode: "subscription",
       success_url: `${origin}/?upgraded=true`,
-      cancel_url: `${origin}/profile`,
+      cancel_url: `${origin}/?canceled=true`,
       client_reference_id: userId,
       customer_email: email, // Pre-fill email
     })

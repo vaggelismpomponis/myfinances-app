@@ -127,9 +127,9 @@ const GuideView = ({ onBack }) => {
         <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300 overflow-hidden">
             {/* ─────── Sticky Header ─────── */}
             <div className="shrink-0 sticky top-0 z-20 
-                            bg-gray-50/90 dark:bg-surface-dark/90 
+                            bg-gray-50 dark:bg-surface-dark 
                             backdrop-blur-xl 
-                            border-b border-gray-200/60 dark:border-transparent
+                            border-b border-gray-100 dark:border-transparent
                             px-4 pb-3 transition-colors duration-300"
                 style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
             >
@@ -167,7 +167,7 @@ const GuideView = ({ onBack }) => {
                         </div>
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-2">
-                                <Sparkles size={16} className="text-violet-200" />
+                                <img src="/spendwise-logo.png" alt="SpendWise" className="w-5 h-5 rounded-md object-contain" />
                                 <span className="text-[11px] font-bold uppercase tracking-wider text-violet-100">Welcome to SpendWise</span>
                             </div>
                             <h2 className="text-xl font-bold mb-2">{translate('guide_intro_title')}</h2>

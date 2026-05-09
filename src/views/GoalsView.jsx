@@ -266,7 +266,7 @@ const GoalsView = ({ user, onBack }) => {
                     <div className="pl-10">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none">{t('goals')}</h2>
                         <p className="text-xs text-gray-400 mt-1">
-                            {!isPro ? `${goals.length}/2 ` + t('active').toLowerCase() : `${goals.length} ` + t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
+                            {!isPro ? <span>{goals.length}/2 {t('active').toLowerCase()} 👑</span> : `${goals.length} ` + t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
                         </p>
                     </div>
                 </div>
@@ -278,7 +278,7 @@ const GoalsView = ({ user, onBack }) => {
                                shadow-lg shadow-violet-500/25
                                transition-all active:scale-95"
                 >
-                    {(!isPro && goals.length >= 2) ? <span className="text-[14px]">👑</span> : <Plus size={16} />} {t('add_recurring')}
+                    {(!isPro && goals.length >= 2) ? <span className="text-[14px]">👑</span> : <Plus size={16} />} {t('add_goal')}
                 </button>
             </div>
 
