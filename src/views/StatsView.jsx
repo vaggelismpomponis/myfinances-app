@@ -113,6 +113,17 @@ const StatsView = ({ transactions }) => {
         });
     }, [transactions, timeRange, selectedYear, selectedMonth]);
 
+    const drillDownTransactions = useMemo(() => {
+        if (!selectedCategory) return [];
+        return filteredTransactions
+            .filter(t => t.type === 'expense' && t.category?.toLowerCase() === selectedCategory.toLowerCase())
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+    }, [filteredTransactions, selectedCategory]);
+
+    const drillDownTotal = useMemo(() => {
+        return drillDownTransactions.reduce((s, t) => s + t.amount, 0);
+    }, [drillDownTransactions]);
+
     /* ── Aggregations ── */
     const { totalIncome, totalExpense, categoryData, trendData } = useMemo(() => {
         let inc = 0, exp = 0;
@@ -499,103 +510,102 @@ const StatsView = ({ transactions }) => {
             </div>
 
             {/* ── Category Drill-Down Bottom Sheet ── */}
-            <AnimatePresence>
-            {selectedCategory && typeof document !== 'undefined' && createPortal((() => {
-                const catTxs = filteredTransactions
-                    .filter(t => t.type === 'expense' && t.category === selectedCategory)
-                    .sort((a, b) => new Date(b.date) - new Date(a.date));
-                const total = catTxs.reduce((s, t) => s + t.amount, 0);
-                const color = COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length] || '#7c3aed';
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {selectedCategory && (
+                        <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none">
+                            {/* Backdrop */}
+                            <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-auto"
+                                onClick={() => setSelectedCategory(null)} 
+                            />
+                            
+                            {/* Sheet */}
+                            <motion.div 
+                                initial={{ y: '100%' }}
+                                animate={{ y: 0 }}
+                                exit={{ y: '100%' }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                                className="relative z-10 w-full max-w-md
+                                            bg-white dark:bg-surface-dark2
+                                            rounded-t-[3rem] shadow-2xl
+                                            border-t border-x border-gray-100 dark:border-white/5
+                                            max-h-[85vh] flex flex-col pointer-events-auto">
 
-                return (
-                    <div className="fixed inset-0 z-[100] flex items-end">
-                        <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity"
-                            onClick={() => setSelectedCategory(null)} />
-                        <motion.div 
-                            initial={{ y: '100%' }}
-                            animate={{ y: 0 }}
-                            exit={{ y: '100%' }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="relative z-10 w-full
-                                        bg-white dark:bg-surface-dark2
-                                        rounded-t-[3rem] shadow-2xl
-                                        border-t border-x border-gray-100 dark:border-white/5
-                                        max-h-[85vh] flex flex-col">
-
-                            {/* Handle */}
-                            <div className="flex justify-center pt-4 pb-2">
-                                <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full" />
-                            </div>
-
-                            {/* Header */}
-                            <div className="px-6 py-4 flex items-center justify-between border-b border-gray-50 dark:border-white/5">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center shadow-sm"
-                                        style={{ backgroundColor: color + '15' }}>
-                                        <CategoryIcon category={selectedCategory} type="expense" size={28} />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-black text-xl text-gray-900 dark:text-white capitalize">
-                                            {t('cat_' + selectedCategory.toLowerCase()) === 'cat_' + selectedCategory.toLowerCase() ? selectedCategory : t('cat_' + selectedCategory.toLowerCase())}
-                                        </h3>
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                            {catTxs.length} {t('stats_transactions')}
-                                        </p>
-                                    </div>
+                                {/* Handle */}
+                                <div className="flex justify-center pt-4 pb-2">
+                                    <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full" />
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-2xl font-black" style={{ color }}>
-                                        <Amount value={total} />
-                                    </div>
-                                    <button onClick={() => setSelectedCategory(null)}
-                                        className="mt-1 text-[10px] font-black text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 uppercase tracking-widest transition-colors">
-                                        {t('close')}
-                                    </button>
-                                </div>
-                            </div>
 
-                            {/* List */}
-                            <div className="overflow-y-auto flex-1 px-4 py-6 space-y-3 pb-[calc(2rem+env(safe-area-inset-bottom))] custom-scrollbar">
-                                {catTxs.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-20 text-gray-400 opacity-50">
-                                        <Activity size={48} className="mb-4" />
-                                        <p className="font-bold">{t('stats_no_records')}</p>
-                                    </div>
-                                ) : catTxs.map(tx => (
-                                    <div key={tx.id}
-                                        className="flex justify-between items-center
-                                                    bg-gray-50 dark:bg-white/[0.03]
-                                                    p-4 rounded-3xl border border-gray-100 dark:border-white/5
-                                                    hover:bg-gray-100 dark:hover:bg-white/10
-                                                    hover:border-violet-200 dark:hover:border-violet-500/30 transition-colors group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-white/5 shadow-sm group-hover:scale-110 transition-transform">
-                                                <ArrowDownLeft size={18} className="text-rose-500" />
-                                            </div>
-                                            <div>
-                                                <p className="font-bold text-gray-800 dark:text-white">
-                                                    {tx.note || (t('cat_' + tx.category.toLowerCase()) === 'cat_' + tx.category.toLowerCase() ? tx.category : t('cat_' + tx.category.toLowerCase()))}
-                                                </p>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                    {new Date(tx.date).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                </p>
-                                            </div>
+                                {/* Header */}
+                                <div className="px-6 py-4 flex items-center justify-between border-b border-gray-50 dark:border-white/5">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center shadow-sm"
+                                            style={{ backgroundColor: (COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length] || '#7c3aed') + '15' }}>
+                                            <CategoryIcon category={selectedCategory} type="expense" size={28} />
                                         </div>
-                                        <span className="font-black text-rose-500 text-lg">
-                                            <Amount value={tx.amount} prefix="−" />
-                                        </span>
+                                        <div>
+                                            <h3 className="font-black text-xl text-gray-900 dark:text-white capitalize">
+                                                {t('cat_' + selectedCategory.toLowerCase()) === 'cat_' + selectedCategory.toLowerCase() ? selectedCategory : t('cat_' + selectedCategory.toLowerCase())}
+                                            </h3>
+                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                                {drillDownTransactions.length} {t('stats_transactions')}
+                                            </p>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        </motion.div>
-                    </div>
-                );
-            })(), document.body)}
-            </AnimatePresence>
+                                    <div className="text-right">
+                                        <div className="text-2xl font-black" style={{ color: COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length] || '#7c3aed' }}>
+                                            <Amount value={drillDownTotal} />
+                                        </div>
+                                        <button onClick={() => setSelectedCategory(null)}
+                                            className="mt-1 text-[10px] font-black text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 uppercase tracking-widest transition-colors">
+                                            {t('close')}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* List */}
+                                <div className="overflow-y-auto flex-1 px-4 py-6 space-y-3 pb-[calc(2rem+env(safe-area-inset-bottom))] custom-scrollbar">
+                                    {drillDownTransactions.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center py-20 text-gray-400 opacity-50">
+                                            <Activity size={48} className="mb-4" />
+                                            <p className="font-bold">{t('stats_no_records')}</p>
+                                        </div>
+                                    ) : drillDownTransactions.map(tx => (
+                                        <div key={tx.id}
+                                            className="flex justify-between items-center
+                                                        bg-gray-50 dark:bg-white/[0.03]
+                                                        p-4 rounded-3xl border border-gray-100 dark:border-white/5
+                                                        hover:bg-gray-100 dark:hover:bg-white/10
+                                                        hover:border-violet-200 dark:hover:border-violet-500/30 transition-colors group">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-white/5 shadow-sm group-hover:scale-110 transition-transform">
+                                                    <ArrowDownLeft size={18} className="text-rose-500" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-gray-800 dark:text-white">
+                                                        {tx.note || (t('cat_' + tx.category.toLowerCase()) === 'cat_' + tx.category.toLowerCase() ? tx.category : t('cat_' + tx.category.toLowerCase()))}
+                                                    </p>
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                        {new Date(tx.date).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <span className="font-black text-rose-500 text-lg">
+                                                <Amount value={tx.amount} prefix="−" />
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     );
 };

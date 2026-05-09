@@ -69,41 +69,65 @@ const AdminView = ({ onBack }) => {
                 { data: upData },
                 { count: fCount },
                 { count: tCount },
-                { data: sessData },
-                { data: profRes }
+                { data: profRes, error: profInvokeError }
             ] = await Promise.all([
                 supabase.from('feedback').select('*').order('created_at', { ascending: false }),
                 supabase.from('app_updates').select('*').order('created_at', { ascending: false }),
                 supabase.from('feedback').select('*', { count: 'exact', head: true }),
                 supabase.from('transactions').select('*', { count: 'exact', head: true }),
-                supabase.from('sessions').select('*').order('last_active', { ascending: false }),
                 supabase.functions.invoke('admin-get-profiles')
             ]);
 
+            if (profInvokeError) {
+                console.error('Invoke error:', profInvokeError);
+                showToast(`Function error: ${profInvokeError.message}`, 'error');
+            }
+
+            if (profRes?.error) {
+                console.error('Admin API error:', profRes.error);
+                showToast(`Admin API: ${profRes.error}`, 'error');
+            }
+
             const profData = profRes?.profiles || [];
+            const sessData = profRes?.sessions || [];
 
             setFeedback(fbData || []);
             setUpdates(upData || []);
             setSessions(sessData || []);
             
-            // Render unique profiles with their latest session info
+            // Create a set of all unique user IDs from both profiles and sessions
+            const allUserIds = new Set([
+                ...(profData || []).map(p => p.id),
+                ...(sessData || []).map(s => s.user_id)
+            ].filter(id => !!id));
+
             const latestSessionsMap = (sessData || []).reduce((acc, s) => {
-                // Keep the most recent session for each user
                 if (!acc[s.user_id] || new Date(s.last_active) > new Date(acc[s.user_id].last_active)) {
                     acc[s.user_id] = s;
                 }
                 return acc;
             }, {});
 
-            const enhancedProfiles = (profData || []).map((p, index) => ({
-                ...p,
-                displayId: index + 1, // 1, 2, 3, etc.
-                latest_session: latestSessionsMap[p.id] || null
-            }));
+            const enhancedProfiles = Array.from(allUserIds).map((uid, index) => {
+                const profile = (profData || []).find(p => p.id === uid);
+                const latestSession = latestSessionsMap[uid];
+                
+                return {
+                    id: uid,
+                    email: profile?.email || latestSession?.email || 'Unknown',
+                    display_name: profile?.display_name || latestSession?.display_name || null,
+                    subscription_status: profile?.subscription_status || 'free',
+                    stripe_customer_id: profile?.stripe_customer_id || null,
+                    admin_notes: profile?.admin_notes || null,
+                    displayId: index + 1,
+                    latest_session: latestSession || null,
+                    is_virtual: !profile 
+                };
+            });
             
             setProfiles(enhancedProfiles);
 
-            const uniqueUsers = profData?.length || 0;
+            const uniqueUsers = allUserIds.size;
             setStats({
                 users: uniqueUsers,
                 transactions: tCount || 0,
@@ -112,20 +136,20 @@ const AdminView = ({ onBack }) => {
             });
 
             // Calculate extra metrics
-            const proUsers = profData.filter(p => p.subscription_status === 'pro').length;
-            const freeUsers = profData.filter(p => p.subscription_status === 'free').length;
-            const canceledUsers = profData.filter(p => p.subscription_status === 'canceled' || p.subscription_status === 'cancelled').length;
+            const proUsers = enhancedProfiles.filter(p => p.subscription_status === 'pro').length;
+            const freeUsers = enhancedProfiles.filter(p => p.subscription_status === 'free').length;
+            const canceledUsers = enhancedProfiles.filter(p => p.subscription_status === 'canceled' || p.subscription_status === 'cancelled').length;
 
             const now = new Date();
             const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-            const active7Days = profData.filter(p => {
+            const active7Days = enhancedProfiles.filter(p => {
                 const session = latestSessionsMap[p.id];
                 return session && new Date(session.last_active) >= sevenDaysAgo;
             }).length;
 
-            const active30Days = profData.filter(p => {
+            const active30Days = enhancedProfiles.filter(p => {
                 const session = latestSessionsMap[p.id];
                 return session && new Date(session.last_active) >= thirtyDaysAgo;
             }).length;
@@ -135,7 +159,7 @@ const AdminView = ({ onBack }) => {
                 return acc;
             }, {});
 
-            const mostActiveUsers = profData
+            const mostActiveUsers = enhancedProfiles
                 .map(p => ({
                     ...p,
                     sessionCount: sessionCounts[p.id] || 0
