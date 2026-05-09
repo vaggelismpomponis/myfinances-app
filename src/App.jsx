@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Context
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
-import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import { SubscriptionProvider, useSubscription } from './contexts/SubscriptionContext';
 import { trackSession } from './utils/session';
 import { setupNotificationListener } from './utils/notificationListener';
 
@@ -61,6 +61,16 @@ function useWindowWidth() {
     }, []);
     return width;
 }
+
+const ProtectedAdvisorView = ({ transactions, goals, onBack }) => {
+    const { isPro } = useSubscription();
+    return isPro ? <FinancialAdvisorView transactions={transactions} goals={goals} onBack={onBack} /> : null;
+};
+
+const ProtectedRecurringView = ({ user, onBack }) => {
+    const { isPro } = useSubscription();
+    return isPro ? <RecurringView user={user} onBack={onBack} /> : null;
+};
 
 function MainContent() {
     const { isLocked, theme, toggleTheme, t: translate, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode } = useSettings();
@@ -974,8 +984,8 @@ function MainContent() {
                 {activeTab === 'budgets' && (
                     <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />
                 )}
-                {activeTab === 'advisor' && isPro && (
-                    <FinancialAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />
+                {activeTab === 'advisor' && (
+                    <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />
                 )}
                 {activeTab === 'profile' && (
                     <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
@@ -995,8 +1005,8 @@ function MainContent() {
                 {activeTab === 'guide' && (
                     <GuideView onBack={() => setActiveTab('profile')} />
                 )}
-                {activeTab === 'recurring' && isPro && (
-                    <RecurringView user={user} onBack={() => setActiveTab(previousTab)} />
+                {activeTab === 'recurring' && (
+                    <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} />
                 )}
                 {activeTab === 'general' && (
                     <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} />
@@ -1286,7 +1296,7 @@ function MainContent() {
                             <GuideView onBack={() => setActiveTab('profile')} />
                         </motion.div>
                     )}
-                    {activeTab === 'recurring' && isPro && (
+                    {activeTab === 'recurring' && (
                         <motion.div
                             variants={overlayVariants}
                             initial="initial"
@@ -1294,7 +1304,7 @@ function MainContent() {
                             exit="exit"
                             className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
                         >
-                            <RecurringView user={user} onBack={() => setActiveTab(previousTab)} />
+                            <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} />
                         </motion.div>
                     )}
                     {activeTab === 'general' && (
@@ -1385,7 +1395,7 @@ function MainContent() {
                             <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />
                         </motion.div>
                     )}
-                    {activeTab === 'advisor' && isPro && (
+                    {activeTab === 'advisor' && (
                         <motion.div
                             variants={overlayVariants}
                             initial="initial"
@@ -1393,7 +1403,7 @@ function MainContent() {
                             exit="exit"
                             className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col"
                         >
-                            <FinancialAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />
+                            <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />
                         </motion.div>
                     )}
                 </AnimatePresence>
