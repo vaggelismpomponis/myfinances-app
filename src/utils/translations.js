@@ -91,7 +91,7 @@ export const translations = {
         recurring: 'Επαναλαμβανόμενα',
         backup: 'Αντίγραφο Ασφαλείας',
         guide: 'Οδηγός',
-        add_transaction: 'Προσθήκη',
+        add_transaction: 'Προσθήκη Συναλλαγής',
         balance: 'Υπόλοιπο',
         support: 'Υποστήριξη',
         administrator: 'Διαχειριστής',
