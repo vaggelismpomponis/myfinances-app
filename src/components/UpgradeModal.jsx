@@ -112,7 +112,7 @@ const UpgradeModal = () => {
                 className="animate-slide-up md:animate-pop scrollbar-hide w-full md:max-w-[900px] md:m-4"
                 style={{
                     background: tok.sheetBg,
-                    borderRadius: window.innerWidth >= 768 ? '32px' : '26px 26px 0 0',
+                    borderRadius: window.innerWidth >= 768 ? '32px' : '0',
                     borderTop: `1px solid ${tok.cardBorder}`,
                     border: window.innerWidth >= 768 ? `1px solid ${tok.cardBorder}` : undefined,
                     boxShadow: dk

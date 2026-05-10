@@ -332,7 +332,7 @@ const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin }) => {
                         onClick={() => setShowForgotModal(false)} />
                     <div className="relative z-10 w-full max-w-md
                                     bg-white dark:bg-surface-dark2
-                                    rounded-t-[32px] p-7
+                                    rounded-none sm:rounded-t-[32px] p-7
                                     border-t border-x border-gray-200 dark:border-white/10
                                     shadow-2xl animate-slide-up">
                         {/* Handle */}

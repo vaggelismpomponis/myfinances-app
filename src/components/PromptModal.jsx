@@ -35,7 +35,7 @@ const PromptModal = ({
                  onClick={onClose} />
             <div className="relative z-10 w-full max-w-md
                             bg-white dark:bg-surface-dark2
-                            rounded-t-[2rem] sm:rounded-2xl p-7
+                            rounded-none sm:rounded-2xl p-7
                             border-t border-x sm:border border-gray-200 dark:border-transparent
                             shadow-2xl animate-slide-up sm:animate-pop">
                 <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-5 sm:hidden" />

@@ -58,24 +58,31 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
             </div>
 
             {/* Amount and Arrow */}
-            <div className="shrink-0 flex items-center gap-2">
+            <motion.div 
+                animate={{ 
+                    opacity: showActions ? 0 : 1,
+                    scale: showActions ? 0.9 : 1,
+                    pointerEvents: showActions ? 'none' : 'auto'
+                }}
+                className="shrink-0 flex items-center gap-2"
+            >
                 <span className={`text-sm font-semibold tabular-nums ${isIncome ? 'text-emerald-500' : 'text-rose-500'}`}>
                     <Amount value={transaction.amount} prefix={isIncome ? '+' : '-'} />
                 </span>
                 <ChevronRight size={18} className="text-gray-400" />
-            </div>
+            </motion.div>
 
             {/* Click actions */}
             <AnimatePresence>
                 {showActions && (
                     <motion.div 
-                        initial={{ opacity: 0, scale: 0.9, x: 20 }}
-                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, x: 20 }}
-                        className="absolute right-4 top-1/2 -translate-y-1/2
+                        initial={{ opacity: 0, scale: 0.9, x: 20, y: '-50%' }}
+                        animate={{ opacity: 1, scale: 1, x: 0, y: '-50%' }}
+                        exit={{ opacity: 0, scale: 0.9, x: 20, y: '-50%' }}
+                        className="absolute right-4 top-1/2
                                     flex items-center gap-1
                                     bg-white dark:bg-surface-dark3
-                                    rounded-xl px-2 py-1.5
+                                    rounded-xl px-2 py-1
                                     shadow-lg border border-gray-100 dark:border-transparent
                                     z-10"
                     >
@@ -87,7 +94,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                                 setShowActions(false);
                             }}
                             title={t('edit_tooltip')}
-                            className="p-1.5 text-violet-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/30 rounded-lg transition-colors"
+                            className="p-1 text-violet-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/30 rounded-lg transition-colors"
                         >
                             <Pencil size={18} />
                         </motion.button>
@@ -100,7 +107,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                                 setShowActions(false);
                             }}
                             title={t('delete_tooltip')}
-                            className="p-1.5 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-colors"
+                            className="p-1 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-colors"
                         >
                             <Trash2 size={18} />
                         </motion.button>

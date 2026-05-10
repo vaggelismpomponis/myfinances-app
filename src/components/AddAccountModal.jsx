@@ -52,7 +52,7 @@ const AddAccountModal = ({ onClose, user }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
-            <div className="w-full max-w-sm bg-white dark:bg-surface-dark2 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform transition-all animate-slide-up">
+            <div className="w-full max-w-sm bg-white dark:bg-surface-dark2 rounded-none sm:rounded-3xl p-6 shadow-2xl transform transition-all animate-slide-up">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">Νέος Λογαριασμός</h2>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">

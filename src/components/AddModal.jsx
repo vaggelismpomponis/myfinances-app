@@ -446,7 +446,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="bg-white dark:bg-surface-dark2 w-full max-w-md h-[100dvh] sm:h-auto sm:max-h-[95vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col relative transition-colors"
+                className="bg-white dark:bg-surface-dark2 w-full max-w-md h-[100dvh] sm:h-auto sm:max-h-[95vh] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col relative transition-colors"
             >
 
                 {/* Voice Input Overlay */}

@@ -504,7 +504,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-5 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
                          onClick={closeAdd} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-3xl w-full max-w-sm
+                    <div className="bg-white dark:bg-surface-dark3 rounded-none sm:rounded-3xl w-full max-w-sm
                                     relative z-10 shadow-2xl overflow-hidden animate-pop">
 
                         {/* Accent stripe */}
@@ -593,7 +593,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                 <div className="fixed inset-0 z-[200] flex items-end justify-center p-5 pb-8 animate-fade-in sm:items-center">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
                          onClick={() => setDeletingGoal(null)} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-3xl w-full max-w-sm
+                    <div className="bg-white dark:bg-surface-dark3 rounded-none sm:rounded-3xl w-full max-w-sm
                                     relative z-10 shadow-2xl overflow-hidden animate-slide-up">
                         <div className="h-1 bg-gradient-to-r from-red-500 to-rose-500" />
                         <div className="p-6">
@@ -642,7 +642,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                 <div className="fixed inset-0 z-[200] flex items-end justify-center animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
                          onClick={closeMoney} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-t-3xl w-full max-w-sm
+                    <div className="bg-white dark:bg-surface-dark3 rounded-none sm:rounded-3xl w-full max-w-sm
                                     relative z-10 shadow-2xl overflow-hidden animate-slide-up">
 
                         {/* Handle */}

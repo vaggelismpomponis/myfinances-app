@@ -531,7 +531,7 @@ const StatsView = ({ transactions }) => {
                                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                                 className="relative z-10 w-full max-w-md
                                             bg-white dark:bg-surface-dark2
-                                            rounded-t-[3rem] shadow-2xl
+                                            rounded-none sm:rounded-t-[3rem] shadow-2xl
                                             border-t border-x border-gray-100 dark:border-white/5
                                             max-h-[85vh] flex flex-col pointer-events-auto">
 
