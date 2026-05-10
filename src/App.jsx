@@ -114,6 +114,7 @@ function MainContent() {
     const [budgets, setBudgets] = useState([]);
     const [goals, setGoals] = useState([]);
     const [user, setUser] = useState(null);
+    const [isVerifying, setIsVerifying] = useState(false);
     const [imgError, setImgError] = useState(false);
 
     // Whats New Modal
@@ -559,12 +560,15 @@ function MainContent() {
                 }
             });
             if (error) throw error;
-
-            if (data?.user && !data?.session) {
-                showToast("Ελέγξτε το email σας για επιβεβαίωση!", 'info');
-            } else {
-                showToast("Ο λογαριασμός δημιουργήθηκε!", 'success');
+            
+            // Handle "fake success" when email enumeration protection is ON
+            // If the user already exists, Supabase returns a user object but with empty identities
+            if (data?.user && data.user.identities && data.user.identities.length === 0) {
+                throw new Error('User already registered');
             }
+
+            setIsVerifying(true);
+            return data;
         } catch (error) {
             const isAlreadyRegistered = error.message?.includes('already registered') || error.message?.includes('User already registered');
 
@@ -582,6 +586,38 @@ function MainContent() {
             }
             showToast(msg, 'error');
             throw error;
+        }
+    };
+
+    const handleVerifyOtp = async (email, token) => {
+        try {
+            const { data, error } = await supabase.auth.verifyOtp({
+                email,
+                token,
+                type: 'signup'
+            });
+            if (error) throw error;
+            setIsVerifying(false);
+            showToast(translate('account_created_successfully') || "Ο λογαριασμός δημιουργήθηκε!", 'success');
+            return data;
+        } catch (error) {
+            logger.error('OTP verification failed', error, 'App');
+            showToast(translate('invalid_code'), 'error');
+            throw error;
+        }
+    };
+
+    const handleResendOtp = async (email) => {
+        try {
+            const { error } = await supabase.auth.resend({
+                type: 'signup',
+                email
+            });
+            if (error) throw error;
+            showToast(translate('email_sent_title') || "Ο κωδικός στάλθηκε!", 'success');
+        } catch (error) {
+            logger.error('Resend OTP failed', error, 'App');
+            showToast(translate('email_send_error'), 'error');
         }
     };
 
@@ -1147,11 +1183,15 @@ function MainContent() {
                 >
                     {user && isLocked ? (
                         <LockScreen onSignOut={handleSignOut} user={user} />
-                    ) : !user ? (
+                    ) : (!user || isVerifying) ? (
                         <LoginView
                             onEmailLogin={handleEmailLogin}
                             onRegister={handleRegister}
                             onGoogleLogin={handleGoogleLogin}
+                            onVerifyOtp={handleVerifyOtp}
+                            onResendOtp={handleResendOtp}
+                            isVerifying={isVerifying}
+                            onCancelVerification={() => setIsVerifying(false)}
                         />
                     ) : (
                         <SubscriptionProvider key={user?.id} user={user}>
@@ -1264,7 +1304,7 @@ function MainContent() {
                                                 <div className="flex items-center justify-center relative min-h-[40px]">
                                                     {activeTab === 'home' ? (
                                                         <>
-                                                            <div className="absolute left-4 flex items-center gap-3">
+                                                            <div className="absolute left-4 right-16 flex items-center gap-3">
                                                                 {/* Avatar */}
                                                                 <motion.button
                                                                     whileHover={{ scale: 1.05 }}
@@ -1287,14 +1327,17 @@ function MainContent() {
                                                                     )}
                                                                 </motion.button>
 
-                                                                <div className="flex flex-col">
-                                                                    <h2 className="text-[14px] font-bold text-gray-700 dark:text-gray-300 leading-tight flex items-center gap-1.5">
-                                                                        {(() => {
-                                                                            const hour = new Date().getHours();
-                                                                            if (hour < 12) return translate('good_morning');
-                                                                            if (hour < 18) return translate('good_afternoon');
-                                                                            return translate('good_evening');
-                                                                        })()}, {displayName.split(' ')[0]} <span className="animate-wave origin-bottom-right">👋</span>
+                                                                <div className="flex flex-col min-w-0">
+                                                                    <h2 className="text-[14px] font-bold text-gray-700 dark:text-gray-300 leading-tight flex items-center gap-1.5 min-w-0">
+                                                                        <span className="truncate">
+                                                                            {(() => {
+                                                                                const hour = new Date().getHours();
+                                                                                if (hour < 12) return translate('good_morning');
+                                                                                if (hour < 18) return translate('good_afternoon');
+                                                                                return translate('good_evening');
+                                                                            })()}, {displayName.split(' ')[0]}
+                                                                        </span>
+                                                                        <span className="animate-wave origin-bottom-right flex-shrink-0">👋</span>
                                                                     </h2>
                                                                 </div>
                                                             </div>

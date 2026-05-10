@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wallet, Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff, X, Check, Sparkles } from 'lucide-react';
+import { Wallet, Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff, X, Check, Sparkles, ShieldCheck } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useSettings } from '../contexts/SettingsContext';
 import { Capacitor } from '@capacitor/core';
 import { validateEmail } from '../utils/emailValidation';
 import PasswordInput from '../components/PasswordInput';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const InputField = ({ label, type, value, onChange, placeholder, icon: Icon, rightElement }) => (
     <div>
-        <label className="block text-xs font-bold text-gray-500 dark:text-gray-300 mb-1.5 ml-0.5 uppercase tracking-wider">
+        <label className="block text-center text-xs font-bold text-gray-500 dark:text-gray-300 mb-1.5 uppercase tracking-wider w-full">
             {label}
         </label>
         <div className="relative">
@@ -35,7 +36,7 @@ const InputField = ({ label, type, value, onChange, placeholder, icon: Icon, rig
     </div>
 );
 
-const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin }) => {
+const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin, onVerifyOtp, onResendOtp, isVerifying, onCancelVerification }) => {
     const { t } = useSettings();
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
@@ -44,12 +45,97 @@ const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showEmailForm, setShowEmailForm] = useState(false);
 
+    // Verification State
+    const [showVerification, setShowVerification] = useState(false);
+    const [verificationEmail, setVerificationEmail] = useState('');
+    const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '', '', '']);
+    const [resendTimer, setResendTimer] = useState(0);
+    const codeRefs = useRef([]);
+
+    // Sync with App-level verification state
+    useEffect(() => {
+        if (isVerifying) {
+            setShowVerification(true);
+            if (email && !verificationEmail) {
+                setVerificationEmail(email);
+            }
+        }
+    }, [isVerifying, email]);
+
+    const handleCodeChange = (idx, val) => {
+        if (!/^\d*$/.test(val)) return;
+        
+        const newCode = [...verificationCode];
+        newCode[idx] = val.slice(-1);
+        setVerificationCode(newCode);
+
+        // Auto-focus next
+        if (val && idx < 7) {
+            codeRefs.current[idx + 1]?.focus();
+        }
+
+        // Auto-submit if all 8 filled
+        if (newCode.every(v => v !== '') && val) {
+            const finalCode = newCode.join('');
+            onVerifyOtp(verificationEmail, finalCode).catch(() => {
+                // Error is handled by onVerifyOtp showing a toast
+                setVerificationCode(['', '', '', '', '', '', '', '']);
+                codeRefs.current[0]?.focus();
+            });
+        }
+    };
+
+    const handleKeyDown = (idx, e) => {
+        if (e.key === 'Backspace' && !verificationCode[idx] && idx > 0) {
+            codeRefs.current[idx - 1]?.focus();
+        }
+    };
+
+    const handlePaste = (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').trim();
+        const digits = pastedData.replace(/\D/g, '').slice(0, 8);
+        
+        if (digits.length > 0) {
+            const newCode = [...verificationCode];
+            digits.split('').forEach((digit, i) => {
+                if (i < 8) newCode[i] = digit;
+            });
+            setVerificationCode(newCode);
+            
+            // Focus last filled or next empty
+            const nextIdx = Math.min(digits.length, 7);
+            codeRefs.current[nextIdx]?.focus();
+
+            if (digits.length === 8) {
+                onVerifyOtp(verificationEmail, digits).catch(() => {
+                    // Error is handled by onVerifyOtp showing a toast
+                    setVerificationCode(['', '', '', '', '', '', '', '']);
+                    codeRefs.current[0]?.focus();
+                });
+            }
+        }
+    };
+
+    useEffect(() => {
+        let timer;
+        if (resendTimer > 0) {
+            timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+        }
+        return () => clearTimeout(timer);
+    }, [resendTimer]);
+
+    const handleResend = async () => {
+        if (resendTimer > 0) return;
+        await onResendOtp(verificationEmail || email);
+        setResendTimer(60); // 60 seconds cooldown
+    };
+
     const [showForgotModal, setShowForgotModal] = useState(false);
     const [resetEmail, setResetEmail] = useState('');
     const [resetStatus, setResetStatus] = useState({ loading: false, success: false, error: '' });
     const [formError, setFormError] = useState('');
     const [gsiFailed, setGsiFailed] = useState(false);
-    const gsiBtnRef = useRef(null);
 
     // Detect if the GSI button fails to render (e.g. blocked by ad blocker)
     useEffect(() => {
@@ -71,13 +157,11 @@ const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin }) => {
         // Comprehensive email validation
         const emailValidation = validateEmail(email);
         if (!emailValidation.isValid) {
-            // Block disposable only on registration. Allow login for existing accounts (even if disposable).
             if (!isLogin || emailValidation.errorKey === 'invalid_email_format') {
                 setFormError(t(emailValidation.errorKey));
                 return;
             }
         }
-        // Minimum password length check before hitting the API
         if (!isLogin && password.length < 8) {
             setFormError(t('password_length_error'));
             return;
@@ -89,11 +173,12 @@ const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin }) => {
                 await onEmailLogin(email, password);
             } else {
                 await onRegister(email, password);
+                setVerificationEmail(email);
+                setShowVerification(true);
             }
             setIsLoading(false);
         } catch (err) {
             setIsLoading(false);
-            // Show server errors inline for better UX
             let msg = t('error_prefix') + (err.message || t('something_went_wrong'));
             if (err.message?.includes('Invalid login credentials') || err.message?.includes('invalid_credentials')) {
                 msg = t('wrong_password');
@@ -103,6 +188,23 @@ const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin }) => {
                 msg = t('rate_limit_error');
             }
             setFormError(msg);
+        }
+    };
+
+    const handleVerify = async (e) => {
+        if (e) e.preventDefault();
+        const code = verificationCode.join('');
+        if (code.length !== 8) return;
+
+        setIsLoading(true);
+        try {
+            await onVerifyOtp(verificationEmail, code);
+            setIsLoading(false);
+        } catch (err) {
+            setIsLoading(false);
+            // Error is handled by onVerifyOtp showing a toast, but we can clear the code
+            setVerificationCode(['', '', '', '', '', '', '', '']);
+            codeRefs.current[0]?.focus();
         }
     };
 
@@ -142,18 +244,20 @@ const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin }) => {
 
             <div className="w-full max-w-sm flex flex-col justify-center my-auto py-4">
                 {/* Logo area */}
-                <div className="flex flex-col items-center mb-10 animate-slide-in-up">
+                <div className="flex flex-col items-center mb-6 sm:mb-10 animate-slide-in-up">
                     <div className="relative mb-6">
                         <div className="absolute inset-0 rounded-3xl bg-violet-600/30 blur-xl scale-125 animate-glow-pulse" />
-                        <div className="relative w-24 h-24 flex items-center justify-center z-10 transition-transform hover:scale-105 duration-300">
-                            <img src="/spendwise-logo.png" alt="SpendWise Icon" className="w-20 h-20 drop-shadow-2xl object-contain" />
+                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center z-10 transition-transform hover:scale-105 duration-300">
+                            <img src="/spendwise-logo.png" alt="SpendWise Icon" className="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-2xl object-contain" />
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <h1 className="text-4xl font-black gradient-text tracking-tighter">SpendWise</h1>
+                        <h1 className="text-3xl sm:text-4xl font-black gradient-text tracking-tighter">SpendWise</h1>
                     </div>
                     <p className="text-gray-400 text-sm mt-3 font-medium opacity-80 uppercase tracking-widest">
-                        {isLogin ? t('login_welcome_back') : t('login_start_free')}
+                        {showVerification 
+                            ? t('verification_title') 
+                            : (isLogin ? t('login_welcome_back') : t('login_start_free'))}
                     </p>
                 </div>
 
@@ -162,165 +266,268 @@ const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin }) => {
                     style={{ animationDelay: '0.08s' }}>
 
                     {/* Glass form card */}
-                    <div className="glass-light dark:glass rounded-3xl p-6 shadow-glass">
+                    <div className="glass-light dark:glass rounded-3xl p-5 sm:p-6 shadow-glass">
                         
-                        {/* Initial Option Buttons (Hidden when email form is active) */}
-                        <div className={`space-y-4 animate-fade-in ${showEmailForm ? 'hidden' : 'block'}`}>
-                                {/* Google Sign-In */}
-                                {Capacitor.isNativePlatform() ? (
-                                    <button
-                                        type="button"
-                                        onClick={onGoogleLogin}
-                                        className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl 
-                                                border border-gray-200 dark:border-white/10 
-                                                bg-white dark:bg-white/5 
-                                                text-gray-700 dark:text-white font-bold text-sm 
-                                                transition-all hover:bg-gray-50 dark:hover:bg-white/10 active:scale-[0.98] shadow-sm"
-                                    >
-                                        <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                                        </svg>
-                                        {isLogin ? 'Σύνδεση με Google' : 'Εγγραφή με Google'}
-                                    </button>
-                                ) : gsiFailed ? (
-                                    <button
-                                        type="button"
-                                        onClick={() => window.__googleOAuthPopup?.()}
-                                        className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl
-                                                border border-gray-200 dark:border-white/10
-                                                bg-white dark:bg-white/5
-                                                text-gray-700 dark:text-white font-bold text-sm
-                                                transition-all hover:bg-gray-50 dark:hover:bg-white/10 active:scale-[0.98] shadow-sm"
-                                    >
-                                        <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                                        </svg>
-                                        {isLogin ? 'Σύνδεση με Google' : 'Εγγραφή με Google'}
-                                    </button>
-                                ) : (
-                                    <div
-                                        id="google-signin-button"
-                                        className="w-full flex items-center justify-center rounded-xl overflow-hidden"
-                                        style={{ minHeight: '44px' }}
-                                    />
-                                )}
-
-                                {/* Divider */}
-                                <div className="flex items-center gap-3 my-5">
-                                    <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
-                                    <span className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{t('or_divider')}</span>
-                                    <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
-                                </div>
-
-                                {/* Email Button */}
-                                <button
-                                    type="button"
-                                    onClick={() => setShowEmailForm(true)}
-                                    className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl
-                                            bg-gray-900 dark:bg-white
-                                            text-white dark:text-gray-900 font-bold text-sm
-                                            transition-all hover:opacity-90 active:scale-[0.98] shadow-md"
+                        <AnimatePresence mode="wait">
+                            {showVerification ? (
+                                <motion.div 
+                                    key="verification"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-6"
                                 >
-                                    <Mail size={18} />
-                                    {isLogin ? 'Σύνδεση με Email' : 'Εγγραφή με Email'}
-                                </button>
-                            </div>
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            setShowVerification(false);
+                                            if (onCancelVerification) onCancelVerification();
+                                        }}
+                                        className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors"
+                                    >
+                                        <ArrowLeft size={16} /> {t('back')}
+                                    </button>
 
-                        {/* Email Form (Hidden when initial options are active) */}
-                        <div className={`animate-fade-in ${!showEmailForm ? 'hidden' : 'block'}`}>
-                                <button 
-                                    type="button"
-                                    onClick={() => setShowEmailForm(false)}
-                                    className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors mb-5"
-                                >
-                                    <ArrowLeft size={16} /> Πίσω
-                                </button>
-                                <form onSubmit={handleSubmit} className="space-y-4">
-                                    <InputField
-                                        label="Email"
-                                        type="email"
-                                        value={email}
-                                        onChange={e => { setEmail(e.target.value); setFormError(''); }}
-                                        placeholder={t('email_placeholder')}
-                                        icon={Mail}
-                                    />
-                                    <PasswordInput
-                                        label={t('password')}
-                                        value={password}
-                                        onChange={e => { setPassword(e.target.value); setFormError(''); }}
-                                        placeholder={t('password_placeholder')}
-                                        icon={Lock}
-                                        required
-                                    />
-
-                                    {formError && (
-                                        <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-xs p-3 rounded-xl border border-rose-100 dark:border-rose-900/30">
-                                            {formError}
+                                    <div className="text-center space-y-2">
+                                        <div className="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mx-auto text-violet-600 mb-4 shadow-sm">
+                                            <ShieldCheck size={28} />
                                         </div>
-                                    )}
+                                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('verification_code')}</h2>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed px-4">
+                                            {t('check_email_for_code').replace('{email}', verificationEmail)}
+                                        </p>
+                                    </div>
 
-                                    {isLogin && (
-                                        <div className="flex items-center justify-between">
-                                            <label
-                                                className="flex items-center gap-2 cursor-pointer group"
-                                                onClick={() => setRememberMe(!rememberMe)}
-                                            >
-                                                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all
-                                                            ${rememberMe
-                                                        ? 'bg-violet-600 border-violet-600'
-                                                        : 'border-gray-300 group-hover:border-violet-500'}`}>
-                                                    {rememberMe && <Check size={10} className="text-white" strokeWidth={3} />}
-                                                </div>
-                                                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 select-none">{t('remember_me')}</span>
-                                            </label>
-                                            <button type="button" onClick={() => setShowForgotModal(true)}
-                                                className="text-xs font-bold text-violet-600 dark:text-violet-400
-                                                        hover:text-violet-500 transition-colors">
-                                                {t('forgot_password')}
-                                            </button>
-                                        </div>
-                                    )}
+                                    <div className="flex justify-center gap-1 sm:gap-1.5 py-4">
+                                        {verificationCode.map((digit, idx) => (
+                                            <input
+                                                key={idx}
+                                                ref={el => codeRefs.current[idx] = el}
+                                                type="text"
+                                                inputMode="numeric"
+                                                maxLength={1}
+                                                value={digit}
+                                                onChange={e => handleCodeChange(idx, e.target.value)}
+                                                onKeyDown={e => handleKeyDown(idx, e)}
+                                                onPaste={handlePaste}
+                                                className="w-8 h-11 sm:w-9 sm:h-12 text-center text-base sm:text-lg font-bold rounded-xl
+                                                         bg-gray-50 dark:bg-white/5 border-2 border-transparent
+                                                         focus:border-violet-500 focus:bg-white dark:focus:bg-white/10
+                                                         text-gray-900 dark:text-white outline-none transition-all shadow-sm"
+                                            />
+                                        ))}
+                                    </div>
 
-                                    <button type="submit" disabled={isLoading}
+                                    <button
+                                        onClick={handleVerify}
+                                        disabled={isLoading || verificationCode.some(d => !d)}
                                         className="w-full py-3.5 rounded-xl font-bold text-sm text-white
                                                 bg-gradient-to-r from-violet-600 to-violet-700
                                                 hover:from-violet-500 hover:to-violet-600
                                                 shadow-glow-sm active:scale-[0.98]
                                                 flex items-center justify-center gap-2
-                                                transition-all duration-200 mt-2
-                                                disabled:opacity-60 disabled:cursor-not-allowed">
+                                                transition-all duration-200
+                                                disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
                                         {isLoading ? (
                                             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                         ) : (
                                             <>
-                                                {isLogin ? t('login_btn') : t('register_btn')}
+                                                {t('verify_btn')}
                                                 <ArrowRight size={16} />
                                             </>
                                         )}
                                     </button>
-                                </form>
-                            </div>
 
-                        {/* Toggle Mode Footer */}
-                        {!showEmailForm && (
-                            <div className="mt-8 text-center animate-fade-in">
-                                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                                    {isLogin ? "Δεν έχεις λογαριασμό;" : "Έχεις ήδη λογαριασμό;"}
-                                    <button 
-                                        onClick={() => { setIsLogin(!isLogin); setShowEmailForm(false); }}
-                                        className="ml-2 font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 dark:hover:text-violet-300 hover:underline transition-colors"
-                                    >
-                                        {isLogin ? "Εγγραφή" : "Σύνδεση"}
-                                    </button>
-                                </p>
-                            </div>
-                        )}
+                                    <div className="text-center">
+                                        <button 
+                                            type="button"
+                                            disabled={resendTimer > 0}
+                                            className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:underline disabled:opacity-50 disabled:no-underline"
+                                            onClick={handleResend}
+                                        >
+                                            {resendTimer > 0 
+                                                ? `${t('resend_code')} (${resendTimer}s)` 
+                                                : t('resend_code')}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="auth-forms"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 20 }}
+                                >
+                                    {/* Initial Option Buttons (Hidden when email form is active) */}
+                                    <div className={`space-y-4 animate-fade-in ${showEmailForm ? 'hidden' : 'block'}`}>
+                                            {/* Google Sign-In */}
+                                            {Capacitor.isNativePlatform() ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={onGoogleLogin}
+                                                    className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl 
+                                                            border border-gray-200 dark:border-white/10 
+                                                            bg-white dark:bg-white/5 
+                                                            text-gray-700 dark:text-white font-bold text-sm 
+                                                            transition-all hover:bg-gray-50 dark:hover:bg-white/10 active:scale-[0.98] shadow-sm"
+                                                >
+                                                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                                    </svg>
+                                                    {isLogin ? 'Σύνδεση με Google' : 'Εγγραφή με Google'}
+                                                </button>
+                                            ) : gsiFailed ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => window.__googleOAuthPopup?.()}
+                                                    className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl
+                                                            border border-gray-200 dark:border-white/10
+                                                            bg-white dark:bg-white/5
+                                                            text-gray-700 dark:text-white font-bold text-sm
+                                                            transition-all hover:bg-gray-50 dark:hover:bg-white/10 active:scale-[0.98] shadow-sm"
+                                                >
+                                                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                                    </svg>
+                                                    {isLogin ? 'Σύνδεση με Google' : 'Εγγραφή με Google'}
+                                                </button>
+                                            ) : (
+                                                <div
+                                                    id="google-signin-button"
+                                                    className="w-full flex items-center justify-center rounded-xl overflow-hidden"
+                                                    style={{ minHeight: '44px' }}
+                                                />
+                                            )}
+
+                                            {/* Divider */}
+                                            <div className="flex items-center gap-3 my-5">
+                                                <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+                                                <span className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{t('or_divider')}</span>
+                                                <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+                                            </div>
+
+                                            {/* Email Button */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowEmailForm(true)}
+                                                className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl
+                                                        bg-gray-900 dark:bg-white
+                                                        text-white dark:text-gray-900 font-bold text-sm
+                                                        transition-all hover:opacity-90 active:scale-[0.98] shadow-md"
+                                            >
+                                                <Mail size={18} />
+                                                {isLogin ? 'Σύνδεση με Email' : 'Εγγραφή με Email'}
+                                            </button>
+                                        </div>
+
+                                    {/* Email Form (Hidden when initial options are active) */}
+                                    <div className={`animate-fade-in ${!showEmailForm ? 'hidden' : 'block'}`}>
+                                            <button 
+                                                type="button"
+                                                onClick={() => setShowEmailForm(false)}
+                                                className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors mb-5"
+                                            >
+                                                <ArrowLeft size={16} /> Πίσω
+                                            </button>
+                                            <form onSubmit={handleSubmit} className="space-y-4">
+                                                <InputField
+                                                    label="Email"
+                                                    type="email"
+                                                    value={email}
+                                                    onChange={e => { setEmail(e.target.value); setFormError(''); }}
+                                                    placeholder={t('email_placeholder')}
+                                                    icon={Mail}
+                                                />
+                                                <PasswordInput
+                                                    label={t('password')}
+                                                    value={password}
+                                                    onChange={e => { setPassword(e.target.value); setFormError(''); }}
+                                                    placeholder={t('password_placeholder')}
+                                                    icon={Lock}
+                                                    required
+                                                />
+
+                                                {formError && (
+                                                    <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-xs p-3 rounded-xl border border-rose-100 dark:border-rose-900/30 flex flex-col gap-2">
+                                                        <span>{formError}</span>
+                                                         {formError === t('email_in_use') && (
+                                                             <button 
+                                                                 type="button"
+                                                                 onClick={() => { setIsLogin(true); setFormError(''); }}
+                                                                 className="text-violet-600 dark:text-violet-400 font-bold hover:underline self-start mt-0.5"
+                                                             >
+                                                                 {t('login_now')}
+                                                             </button>
+                                                         )}
+                                                    </div>
+                                                )}
+
+                                                {isLogin && (
+                                                    <div className="flex items-center justify-between">
+                                                        <label
+                                                            className="flex items-center gap-2 cursor-pointer group"
+                                                            onClick={() => setRememberMe(!rememberMe)}
+                                                        >
+                                                            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all
+                                                                        ${rememberMe
+                                                                    ? 'bg-violet-600 border-violet-600'
+                                                                    : 'border-gray-300 group-hover:border-violet-500'}`}>
+                                                                {rememberMe && <Check size={10} className="text-white" strokeWidth={3} />}
+                                                            </div>
+                                                            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 select-none">{t('remember_me')}</span>
+                                                        </label>
+                                                        <button type="button" onClick={() => setShowForgotModal(true)}
+                                                            className="text-xs font-bold text-violet-600 dark:text-violet-400
+                                                                    hover:text-violet-500 transition-colors">
+                                                            {t('forgot_password')}
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                <button type="submit" disabled={isLoading}
+                                                    className="w-full py-3.5 rounded-xl font-bold text-sm text-white
+                                                            bg-gradient-to-r from-violet-600 to-violet-700
+                                                            hover:from-violet-500 hover:to-violet-600
+                                                            shadow-glow-sm active:scale-[0.98]
+                                                            flex items-center justify-center gap-2
+                                                            transition-all duration-200 mt-2
+                                                            disabled:opacity-60 disabled:cursor-not-allowed">
+                                                    {isLoading ? (
+                                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    ) : (
+                                                        <>
+                                                            {isLogin ? t('login_btn') : t('register_btn')}
+                                                            <ArrowRight size={16} />
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    {/* Toggle Mode Footer */}
+                                    {!showEmailForm && (
+                                        <div className="mt-8 text-center animate-fade-in">
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                                                {isLogin ? "Δεν έχεις λογαριασμό;" : "Έχεις ήδη λογαριασμό;"}
+                                                <button 
+                                                    onClick={() => { setIsLogin(!isLogin); setShowEmailForm(false); }}
+                                                    className="ml-2 font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 dark:hover:text-violet-300 hover:underline transition-colors"
+                                                >
+                                                    {isLogin ? "Εγγραφή" : "Σύνδεση"}
+                                                </button>
+                                            </p>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </div>
             </div>
@@ -358,7 +565,7 @@ const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin }) => {
                             </div>
                         ) : (
                             <form onSubmit={handleForgotPassword} className="space-y-4">
-                                <p className="text-sm text-gray-600 dark:text-gray-200 leading-relaxed">
+                                <p className="text-sm text-gray-600 dark:text-gray-200 leading-relaxed text-center">
                                     {t('reset_email_instruction')}
                                 </p>
                                 {resetStatus.error && (

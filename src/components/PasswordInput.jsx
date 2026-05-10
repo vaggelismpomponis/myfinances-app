@@ -7,7 +7,7 @@ const PasswordInput = ({ label, value, onChange, placeholder = '•••••�
     return (
         <div className="space-y-1.5">
             {label && (
-                <label className="block text-[11px] font-semibold text-gray-400 dark:text-white/60 uppercase tracking-wide ml-0.5">
+                <label className="block text-center text-[11px] font-semibold text-gray-400 dark:text-white/60 uppercase tracking-wide w-full">
                     {label}
                 </label>
             )}
