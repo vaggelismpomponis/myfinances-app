@@ -157,7 +157,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
     };
 
     const handleDeleteAccount = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setIsDeleting(true);
         try {
             if (isPasswordUser) {
@@ -167,20 +167,41 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                 });
                 if (authError) throw new Error('wrong_password');
             }
+
+            // 1. Delete all user data from public tables first
             const tables = ['transactions', 'recurring_transactions', 'goals', 'budgets', 'sessions'];
             for (const table of tables) {
-                await supabase.from(table).delete().eq('user_id', user.id);
+                try {
+                    await supabase.from(table).delete().eq('user_id', user.id);
+                } catch (e) {
+                    console.warn(`Failed to delete from ${table}:`, e);
+                }
             }
-            await supabase.rpc('delete_user');
+
+            // 2. Call RPC to delete the auth user
+            const { error: rpcError } = await supabase.rpc('delete_user');
+            if (rpcError) throw rpcError;
+
+            // 3. Clear session and local data
+            await supabase.auth.signOut();
+            localStorage.clear();
+            
             showToast(translate('account_deleted_successfully') || 'Account deleted', 'success');
+            
+            // 4. Force reload to landing page
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1500);
         } catch (error) {
+            console.error('Delete error:', error);
             if (error.message === 'wrong_password') {
                 showToast(translate('current_password_error') || 'Wrong password', 'error');
             } else {
-                showToast(translate('error_message_generic') || 'Error', 'error');
+                showToast(translate('error_message_generic') || 'Error during deletion', 'error');
             }
         } finally {
             setIsDeleting(false);
+            setShowDeleteModal(false);
         }
     };
 

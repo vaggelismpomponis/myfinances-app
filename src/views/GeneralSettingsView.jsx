@@ -104,7 +104,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
     };
 
     const handleDeleteAccount = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setIsDeleting(true);
         try {
             const isPasswordUser = user?.app_metadata?.provider === 'email' || user?.identities?.some(i => i.provider === 'email');
@@ -116,18 +116,31 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                 });
                 if (authError) throw new Error('wrong_password');
             }
-            // Delete all user data from each table (RLS ensures only user's own rows)
+
+            // 1. Delete all user data from each table
             const tables = ['transactions', 'recurring_transactions', 'goals', 'budgets', 'sessions'];
             for (const table of tables) {
-                await supabase.from(table).delete().eq('user_id', user.id);
+                try {
+                    await supabase.from(table).delete().eq('user_id', user.id);
+                } catch (e) {
+                    console.warn(`Failed to delete from ${table}:`, e);
+                }
             }
-            // Delete the auth user via admin — Supabase client can only delete the current user
-            const { error: deleteError = null } = await supabase.rpc('delete_user');
-            if (deleteError) {
-                // Fallback: just sign out and show message
-                await supabase.auth.signOut();
-            }
-            showToast(translate('account_deleted_successfully'), 'success');
+
+            // 2. Call RPC to delete the auth user
+            const { error: rpcError } = await supabase.rpc('delete_user');
+            if (rpcError) throw rpcError;
+
+            // 3. Clear session and local data
+            await supabase.auth.signOut();
+            localStorage.clear();
+            
+            showToast(translate('account_deleted_successfully') || 'Account deleted', 'success');
+            
+            // 4. Force reload to landing page
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1500);
         } catch (error) {
             console.error("Delete account error:", error);
             if (error.message === 'wrong_password') {
@@ -137,6 +150,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
             }
         } finally {
             setIsDeleting(false);
+            setShowDeleteModal(false);
         }
     };
 
