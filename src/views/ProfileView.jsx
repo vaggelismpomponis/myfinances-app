@@ -4,9 +4,12 @@ import {
     ShieldAlert as Shield, ArrowLeft, Moon,
     Sparkles, Smartphone, HardDriveDownload,
     Languages, LayoutDashboard, MessageSquare, BookOpen,
-    Settings, Info, Trash2, UserX
+    Settings, Info, Trash2, UserX,
+    Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
+import PasswordInput from '../components/PasswordInput';
+import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -50,20 +53,11 @@ const SettingRow = ({
                     hover:bg-black/[0.025] dark:hover:bg-white/[0.05]
                     ${!last ? 'border-b border-gray-100 dark:border-transparent' : ''}`}
     >
-        {/* Icon */}
-        <Icon
-            size={18}
-            className={danger ? 'text-rose-500' : color}
-            strokeWidth={1.9}
-        />
-
-        {/* Label */}
+        <Icon size={18} className={danger ? 'text-rose-500' : color} strokeWidth={1.9} />
         <span className={`flex-1 text-[14.5px] font-medium leading-snug
                           ${danger ? 'text-rose-500' : 'text-gray-800 dark:text-white/90'}`}>
             {label}
         </span>
-
-        {/* Trailing */}
         <div className="flex-shrink-0 ml-1">
             {right !== undefined ? right : (
                 <ChevronRight
@@ -73,6 +67,17 @@ const SettingRow = ({
                                transition-colors duration-150"
                 />
             )}
+        </div>
+    </div>
+);
+
+const InfoRow = ({ icon: Icon, label, value, last = false }) => (
+    <div className={`flex items-center gap-3.5 px-4 py-[14px]
+                     ${!last ? 'border-b border-gray-100 dark:border-transparent' : ''}`}>
+        <Icon size={18} className="text-gray-400 dark:text-white/60 flex-shrink-0" strokeWidth={1.9} />
+        <div className="flex-1 min-w-0">
+            <p className="text-[11px] text-gray-400 dark:text-white/60 mb-0.5">{label}</p>
+            <p className="text-[14px] font-medium text-gray-800 dark:text-white/90 truncate">{value}</p>
         </div>
     </div>
 );
@@ -101,7 +106,7 @@ const SectionLabel = ({ children }) => (
 /* ═══════════════════════════════════════════════════════════
    MAIN COMPONENT
  ═══════════════════════════════════════════════════════════ */
-const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecurity, onBackup, onAdmin, onFeedback, onGuide, onProfileDetails }) => {
+const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecurity, onBackup, onAdmin, onFeedback, onGuide, hideHeader }) => {
     const { theme, toggleTheme, language, updateLanguage, t: translate } = useSettings();
     const { isPro, openUpgradeModal, openBillingPortal } = useSubscription();
     const isDark = theme === 'dark';
@@ -114,20 +119,80 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name
         || user?.displayName || user?.email?.split('@')[0]
         || translate('anonymous_user');
+    const provider = user?.app_metadata?.provider === 'google' ? 'Google' : 'Email / Password';
+    const createdAt = user?.created_at
+        ? new Date(user.created_at).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' })
+        : '—';
+
+    // Edit name
+    const [editingName, setEditingName] = useState(false);
+    const [nameInput, setNameInput] = useState(displayName);
+    const [savingName, setSavingName] = useState(false);
+
+    // Delete account
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deletePassword, setDeletePassword] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const isPasswordUser = user?.app_metadata?.provider === 'email'
+        || user?.identities?.some(i => i.provider === 'email');
 
     useEffect(() => { setImgError(false); }, [photoURL]);
 
+    const handleSaveName = async () => {
+        if (!nameInput.trim() || nameInput === displayName) { setEditingName(false); return; }
+        setSavingName(true);
+        try {
+            const { error } = await supabase.auth.updateUser({
+                data: { full_name: nameInput.trim(), name: nameInput.trim() }
+            });
+            if (error) throw error;
+            showToast(translate('name_updated_success') || 'Το όνομα ενημερώθηκε!', 'success');
+            setEditingName(false);
+        } catch (e) {
+            showToast(translate('name_update_error') || 'Αποτυχία ενημέρωσης.', 'error');
+        } finally {
+            setSavingName(false);
+        }
+    };
+
+    const handleDeleteAccount = async (e) => {
+        e.preventDefault();
+        setIsDeleting(true);
+        try {
+            if (isPasswordUser) {
+                const { error: authError } = await supabase.auth.signInWithPassword({
+                    email: user.email,
+                    password: deletePassword
+                });
+                if (authError) throw new Error('wrong_password');
+            }
+            const tables = ['transactions', 'recurring_transactions', 'goals', 'budgets', 'sessions'];
+            for (const table of tables) {
+                await supabase.from(table).delete().eq('user_id', user.id);
+            }
+            await supabase.rpc('delete_user');
+            showToast(translate('account_deleted_successfully') || 'Account deleted', 'success');
+        } catch (error) {
+            if (error.message === 'wrong_password') {
+                showToast(translate('current_password_error') || 'Wrong password', 'error');
+            } else {
+                showToast(translate('error_message_generic') || 'Error', 'error');
+            }
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     return (
         <div className="h-full bg-gray-50 dark:bg-surface-dark animate-fade-in flex flex-col transition-colors duration-300 overflow-hidden">
-
             {/* ─────── Sticky Header ─────── */}
             <div
-                className="shrink-0 sticky top-0 z-20
-                            bg-gray-50 dark:bg-surface-dark
-                            backdrop-blur-xl
-                            border-b border-gray-100 dark:border-transparent
-                            px-4 pb-3 transition-colors duration-300"
-                style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+                className={`shrink-0 sticky top-0 z-20 transition-colors duration-300
+                            ${hideHeader 
+                                ? 'bg-transparent border-none px-4 pt-4 pb-2' 
+                                : 'bg-gray-50 dark:bg-surface-dark backdrop-blur-xl border-b border-gray-100 dark:border-transparent px-4 pb-3'}`}
+                style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' } : {}}
             >
                 <div className="flex items-center justify-center relative min-h-[32px]">
                     <button
@@ -142,9 +207,11 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                     >
                         <ArrowLeft size={15} strokeWidth={2.5} />
                     </button>
-                    <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center">
-                        {translate('settings_title') || 'Settings'}
-                    </h1>
+                    {!hideHeader && (
+                        <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center">
+                            {translate('settings_title') || 'Settings'}
+                        </h1>
+                    )}
                 </div>
             </div>
 
@@ -152,58 +219,97 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
             <div className="flex-1 overflow-y-auto">
                 <div className="p-4 pb-12 space-y-5">
 
-                    {/* ════ Profile Row Card ════ */}
-                    <Card>
-                        <div
-                            role="button"
-                            onClick={onProfileDetails}
-                            className="flex items-center gap-3.5 px-4 py-4 cursor-pointer
-                                       hover:bg-black/[0.025] dark:hover:bg-white/[0.03]
-                                       active:bg-black/[0.04] dark:active:bg-white/[0.05]
-                                       transition-all duration-150"
-                        >
-                            {/* Avatar */}
-                            <div className="relative flex-shrink-0">
-                                <div className="w-[52px] h-[52px] rounded-full overflow-hidden
-                                                bg-violet-100 dark:bg-violet-500/20
-                                                border-2 border-violet-200 dark:border-violet-500/30
-                                                shadow-[0_2px_12px_rgba(109,40,217,0.2)]">
-                                    {photoURL && !imgError ? (
-                                        <img
-                                            src={photoURL}
-                                            alt="Profile"
-                                            className="w-full h-full object-cover"
-                                            onError={() => setImgError(true)}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center">
-                                            <User size={22} strokeWidth={1.5} className="text-violet-500 dark:text-violet-400" />
-                                        </div>
-                                    )}
-                                </div>
-                                {/* Online dot */}
-                                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full
-                                                bg-emerald-400 border-2 border-white dark:border-surface-dark
-                                                shadow-[0_0_6px_rgba(52,211,153,0.5)]" />
+                    {/* ════ Avatar + Name Hero ════ */}
+                    <div className="flex flex-col items-center pt-4 pb-2 gap-3">
+                        <div className="relative">
+                            <div className="w-[80px] h-[80px] rounded-full overflow-hidden
+                                            bg-violet-100 dark:bg-violet-500/20
+                                            border-2 border-violet-200 dark:border-violet-500/30
+                                            shadow-[0_4px_20px_rgba(109,40,217,0.2)]">
+                                {photoURL && !imgError ? (
+                                    <img
+                                        src={photoURL}
+                                        alt="Profile"
+                                        className="w-full h-full object-cover"
+                                        onError={() => setImgError(true)}
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <User size={32} strokeWidth={1.5} className="text-violet-500 dark:text-violet-400" />
+                                    </div>
+                                )}
                             </div>
-
-                            {/* Name & email */}
-                            <div className="flex-1 min-w-0">
-                                <p className="font-bold text-[15px] text-gray-900 dark:text-white leading-tight truncate">
-                                    {displayName}
-                                </p>
-                                <p className="text-[12px] text-gray-400 dark:text-white/60 truncate mt-0.5">
-                                    {user?.email}
-                                </p>
-                            </div>
-
-                            <ChevronRight size={16} className="text-gray-300 dark:text-white/40 flex-shrink-0" />
+                            <div className="absolute bottom-0.5 right-0.5 w-4 h-4 rounded-full
+                                            bg-emerald-400 border-2 border-white dark:border-surface-dark
+                                            shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
                         </div>
-                    </Card>
 
-                    {/* ════ Subscription Card — Premium Redesign ════ */}
+                        {editingName ? (
+                            <div className="flex items-center gap-2 w-full max-w-[300px]">
+                                <div className="relative flex-1">
+                                    <input
+                                        autoFocus
+                                        value={nameInput}
+                                        onChange={e => setNameInput(e.target.value)}
+                                        onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false); }}
+                                        className="w-full text-center text-[17px] font-bold
+                                                   bg-white dark:bg-white/[0.07]
+                                                   border border-violet-200 dark:border-violet-500/30
+                                                   rounded-2xl px-4 py-2.5
+                                                   text-gray-900 dark:text-white
+                                                   focus:outline-none focus:ring-4 focus:ring-violet-500/15
+                                                   transition-all shadow-sm"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                    <button
+                                        onClick={handleSaveName}
+                                        disabled={savingName}
+                                        className="w-10 h-10 rounded-xl bg-violet-600 
+                                                   flex items-center justify-center
+                                                   text-white shadow-lg shadow-violet-500/30
+                                                   active:scale-90 hover:scale-105 transition-all disabled:opacity-50"
+                                    >
+                                        {savingName
+                                            ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            : <CheckCircle2 size={18} />
+                                        }
+                                    </button>
+                                    <button
+                                        onClick={() => { setEditingName(false); setNameInput(displayName); }}
+                                        className="w-10 h-10 rounded-xl bg-white dark:bg-white/[0.08]
+                                                   border border-gray-100 dark:border-transparent
+                                                   flex items-center justify-center
+                                                   text-gray-400 dark:text-white/60
+                                                   shadow-sm active:scale-90 hover:scale-105 transition-all"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setEditingName(true)}
+                                className="group flex items-center gap-2"
+                            >
+                                <span className="text-[19px] font-bold text-gray-900 dark:text-white">
+                                    {displayName}
+                                </span>
+                                <Pencil
+                                    size={13}
+                                    className="text-gray-300 dark:text-white/40
+                                               group-hover:text-violet-500 dark:group-hover:text-violet-400
+                                               transition-colors duration-150"
+                                />
+                            </button>
+                        )}
+                        <p className="text-[12.5px] text-gray-400 dark:text-white/35">
+                            {user?.email}
+                        </p>
+                    </div>
+
+                    {/* ════ Subscription Card ════ */}
                     {!isPro ? (
-                        /* ── Upgrade to Pro ── */
                         <div
                             className="relative overflow-hidden rounded-2xl border-none"
                             style={{
@@ -211,7 +317,6 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                 boxShadow: '0 8px 32px rgba(109, 40, 217, 0.45), 0 2px 8px rgba(0,0,0,0.2)'
                             }}
                         >
-                            {/* Animated shine sweep */}
                             <div
                                 className="absolute inset-0 pointer-events-none"
                                 style={{
@@ -219,12 +324,10 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                     animation: 'shine-sweep 3.5s ease-in-out infinite'
                                 }}
                             />
-                            {/* Glow orbs */}
                             <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-indigo-400/30 blur-2xl pointer-events-none" />
                             <div className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full bg-violet-300/20 blur-xl pointer-events-none" />
 
                             <div className="relative px-5 pt-5 pb-4">
-                                {/* Header row */}
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
@@ -244,8 +347,6 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                         </p>
                                     </div>
                                 </div>
-
-                                {/* Feature pills */}
                                 <div className="flex flex-wrap gap-1.5 mt-3 mb-4">
                                     {[
                                         { icon: '∞', label: translate('unlimited_budgets') || 'Απεριόριστα Budgets' },
@@ -262,8 +363,6 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                         </span>
                                     ))}
                                 </div>
-
-                                {/* CTA row */}
                                 <div className="flex items-center justify-between gap-3">
                                     <p className="text-violet-200/80 text-[11px] font-medium">
                                         {translate('pro_price_hint') || 'από €2.99 / μήνα'}
@@ -279,14 +378,13 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                     >
                                         {translate('go_pro') || 'Αναβάθμιση'}
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                                            <path d="M5 12h14M12 5l7 7-7 7" />
                                         </svg>
                                     </button>
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        /* ── Pro Active ── */
                         <div
                             className="relative overflow-hidden rounded-2xl border-none"
                             style={{
@@ -296,18 +394,18 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                         >
                             <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-teal-300/20 blur-2xl pointer-events-none" />
                             <div className="relative px-5 py-5 flex items-center justify-between gap-3">
-                                <div className="flex-1">
+                                <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
                                         <span className="text-[10px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full"
                                             style={{ background: 'rgba(255,255,255,0.2)', color: '#d1fae5' }}>
-                                            ✓ Ενεργό
+                                            ✓ {translate('status_active') || 'Active'}
                                         </span>
                                     </div>
-                                    <h3 className="text-white font-extrabold text-[16px] flex items-center gap-2">
+                                    <h3 className="text-white font-extrabold text-[17px] leading-tight mb-1 pr-2">
                                         {translate('pro_plan_active') || 'Pro Plan Active'}
-                                        <span className="text-[15px]">👑</span>
+                                        <span className="text-[15px] ml-1.5"></span>
                                     </h3>
-                                    <p className="text-emerald-100/80 text-[12px] mt-0.5">
+                                    <p className="text-emerald-100/80 text-[12px] truncate">
                                         {translate('manage_billing') || 'Διαχειρίσου τη συνδρομή σου'}
                                     </p>
                                 </div>
@@ -322,25 +420,22 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                         </div>
                     )}
 
+                    {/* ════ Account Info ════ */}
+                    <div>
+                        <SectionLabel>{translate('account_info') || 'Account info'}</SectionLabel>
+                        <Card>
+                            <InfoRow icon={Mail} label={translate('email') || 'Email'} value={user?.email || '—'} />
+                            <InfoRow icon={Shield} label={translate('login_method') || 'Login method'} value={provider} />
+                            <InfoRow icon={Calendar} label={translate('member_since') || 'Member since'} value={createdAt} last />
+                        </Card>
+                    </div>
+
                     {/* ════ Other Settings ════ */}
                     <div>
                         <SectionLabel>{translate('other_settings') || 'Other settings'}</SectionLabel>
                         <Card>
-                            <SettingRow
-                                icon={User}
-                                label={translate('profile_details') || 'Profile details'}
-                                onClick={onProfileDetails}
-                            />
-                            <SettingRow
-                                icon={Shield}
-                                label={translate('security') || 'Security'}
-                                onClick={onSecurity}
-                            />
-                            <SettingRow
-                                icon={Settings}
-                                label={translate('general') || 'General'}
-                                onClick={onGeneral}
-                            />
+                            <SettingRow icon={Shield} label={translate('security') || 'Security'} onClick={onSecurity} />
+                            <SettingRow icon={Settings} label={translate('general') || 'General'} onClick={onGeneral} />
                             <SettingRow
                                 icon={Languages}
                                 label={translate('language') || 'Language'}
@@ -361,62 +456,49 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                     </div>
                                 }
                             />
-                            <SettingRow
-                                icon={Moon}
-                                label={translate('dark_mode') || 'Dark mode'}
-                                onClick={toggleTheme}
-                                right={<Toggle enabled={isDark} onChange={toggleTheme} />}
-                                last
-                            />
+                            <SettingRow icon={Moon} label={translate('dark_mode') || 'Dark mode'} onClick={toggleTheme} right={<Toggle enabled={isDark} onChange={toggleTheme} />} last />
                         </Card>
                     </div>
 
                     {/* ════ More ════ */}
                     <div>
                         <Card>
-                            <SettingRow
-                                icon={HardDriveDownload}
-                                label={translate('backup_restore') || 'Backup & Restore'}
-                                onClick={onBackup}
-                            />
-                            <SettingRow
-                                icon={BookOpen}
-                                label={translate('user_guide') || 'User Guide'}
-                                onClick={onGuide}
-                            />
-                            <SettingRow
-                                icon={MessageSquare}
-                                label={translate('feedback') || 'Feedback & Ideas'}
-                                onClick={onFeedback}
-                            />
-                            <SettingRow
-                                icon={Smartphone}
-                                label={translate('install_android') || 'Install App (Android)'}
-                                onClick={() => setShowApkModal(true)}
-                            />
-
-
-                            {/* Admin — only for admin user */}
+                            <SettingRow icon={HardDriveDownload} label={translate('backup_restore') || 'Backup & Restore'} onClick={onBackup} />
+                            <SettingRow icon={BookOpen} label={translate('user_guide') || 'User Guide'} onClick={onGuide} />
+                            <SettingRow icon={MessageSquare} label={translate('feedback') || 'Feedback & Ideas'} onClick={onFeedback} />
+                            <SettingRow icon={Smartphone} label={translate('install_android') || 'Install App (Android)'} onClick={() => setShowApkModal(true)} />
                             {user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
-                                <SettingRow
-                                    icon={LayoutDashboard}
-                                    label={translate('control_panel') || 'Control Panel'}
-                                    onClick={onAdmin}
-                                />
+                                <SettingRow icon={LayoutDashboard} label={translate('control_panel') || 'Control Panel'} onClick={onAdmin} />
                             )}
-
-                            <SettingRow
-                                icon={LogOut}
-                                label={translate('logout') || 'Sign out'}
-                                danger
-                                onClick={() => setShowLogoutModal(true)}
-                                last
-                            />
+                            <SettingRow icon={LogOut} label={translate('logout') || 'Sign out'} danger onClick={() => setShowLogoutModal(true)} last />
                         </Card>
                     </div>
 
+                    {/* ════ Danger Zone ════ */}
+                    <div>
+                        <SectionLabel>{translate('danger_zone') || 'Danger zone'}</SectionLabel>
+                        <Card>
+                            <button
+                                onClick={() => setShowDeleteModal(true)}
+                                className="w-full flex items-center gap-3.5 px-4 py-[14px] text-left
+                                           hover:bg-rose-50/50 dark:hover:bg-rose-500/[0.06]
+                                           active:bg-rose-50 dark:active:bg-rose-500/10
+                                           transition-all duration-150"
+                            >
+                                <Trash2 size={18} className="text-rose-500 flex-shrink-0" strokeWidth={1.9} />
+                                <span className="flex-1 text-[14.5px] font-medium text-rose-500">
+                                    {translate('deactivate_account') || 'Deactivate my account'}
+                                </span>
+                                <ChevronRight size={16} className="text-rose-300 dark:text-rose-500/40 flex-shrink-0" />
+                            </button>
+                        </Card>
+                        <p className="text-[11px] text-gray-400 dark:text-white/25 mt-2 px-2">
+                            {translate('data_deletion_warning') || 'Data deletion is irreversible.'}
+                        </p>
+                    </div>
+
                     {/* ════ Footer ════ */}
-                    <div className="flex flex-col items-center gap-1.5 pt-1 pb-2">
+                    <div className="flex flex-col items-center gap-1.5 pt-1 pb-2 mt-4">
                         <div className="flex items-center gap-1.5">
                             <Sparkles size={10} className="text-violet-400" />
                             <span className="text-[11px] font-bold gradient-text">SpendWise</span>
@@ -425,7 +507,6 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                             {translate('version') || 'v1.0.0'} · 2026
                         </p>
                     </div>
-
                 </div>
             </div>
 
@@ -456,17 +537,79 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                 confirmText={translate('logout')}
                 type="danger"
             />
+
+            {/* Delete Account Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center animate-fade-in">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDeleteModal(false)} />
+                    <div className="relative z-10 w-full max-w-sm mx-4 mb-4 sm:mb-0
+                                    bg-white dark:bg-surface-dark2 rounded-3xl p-6
+                                    shadow-2xl border border-gray-100 dark:border-transparent
+                                    animate-slide-up">
+                        <div className="flex flex-col items-center mb-6 text-center">
+                            <div className="w-16 h-16 bg-rose-100 dark:bg-rose-500/15 rounded-2xl
+                                            flex items-center justify-center mb-4
+                                            shadow-[0_0_24px_rgba(239,68,68,0.15)]">
+                                <AlertTriangle size={28} className="text-rose-500" strokeWidth={1.5} />
+                            </div>
+                            <h3 className="text-[18px] font-bold text-gray-900 dark:text-white mb-2">
+                                {translate('delete_account') || 'Delete Account'}
+                            </h3>
+                            <p className="text-[13px] text-gray-500 dark:text-white/60 leading-relaxed">
+                                {translate('delete_account_confirm_message') || 'Are you sure you want to delete your account?'}
+                            </p>
+                        </div>
+
+                        <form onSubmit={handleDeleteAccount} className="space-y-4">
+                            {isPasswordUser ? (
+                                <PasswordInput
+                                    label={translate('confirm_password_instruction')}
+                                    value={deletePassword}
+                                    onChange={e => setDeletePassword(e.target.value)}
+                                    placeholder={translate('password_input_placeholder')}
+                                    required
+                                />
+                            ) : (
+                                <div className="bg-gray-50 dark:bg-white/[0.04] rounded-xl p-4
+                                                border border-gray-100 dark:border-transparent
+                                                text-[13px] text-gray-600 dark:text-white/50">
+                                    {translate('google_reauth_instruction')}
+                                </div>
+                            )}
+                            <div className="flex gap-3 pt-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowDeleteModal(false)}
+                                    disabled={isDeleting}
+                                    className="flex-1 py-3.5 bg-gray-100 dark:bg-white/[0.06]
+                                               text-gray-700 dark:text-white/60 font-bold rounded-xl
+                                               hover:bg-gray-200 dark:hover:bg-white/[0.1]
+                                               active:scale-95 transition-all text-[14px]"
+                                >
+                                    {translate('cancel') || 'Cancel'}
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isDeleting}
+                                    className="flex-1 py-3.5 bg-rose-500 hover:bg-rose-600
+                                               text-white font-bold rounded-xl
+                                               shadow-[0_4px_16px_rgba(239,68,68,0.35)]
+                                               active:scale-95 transition-all disabled:opacity-50 text-[14px]"
+                                >
+                                    {isDeleting ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                                            {translate('deleting') || 'Deleting...'}
+                                        </span>
+                                    ) : (translate('delete_btn') || 'Delete')}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
 export default ProfileView;
-
-
-
-
-
-
-
-
-

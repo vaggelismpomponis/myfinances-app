@@ -55,7 +55,7 @@ const SettingRow = ({ icon: Icon, iconColor, iconBg, label, sublabel, right, onC
     </button>
 );
 
-const GeneralSettingsView = ({ user, onBack, onPrivacy }) => {
+const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
     const { language, updateLanguage, t: translate } = useSettings();
     const { showToast } = useToast();
     const { isPro, openUpgradeModal } = useSubscription();
@@ -145,11 +145,11 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy }) => {
 
             {/* ───────── Header ───────── */}
             <div
-                className="shrink-0 bg-gray-50 dark:bg-surface-dark
-                            border-b border-gray-100 dark:border-transparent
-                            px-4 pb-3 sticky top-0 z-10
-                            backdrop-blur-xl transition-colors duration-300"
-                style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+                className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
+                            ${hideHeader 
+                                ? 'bg-transparent border-none px-4 pt-4 pb-2' 
+                                : 'bg-gray-50 dark:bg-surface-dark backdrop-blur-xl border-b border-gray-100 dark:border-transparent px-4 pb-3'}`}
+                style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' } : {}}
             >
                 <div className="flex items-center justify-center relative min-h-[32px]">
                     <button
@@ -162,9 +162,11 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy }) => {
                     >
                         <ArrowLeft size={15} strokeWidth={2.5} />
                     </button>
-                    <h2 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center">
-                        {translate('general_settings')}
-                    </h2>
+                    {!hideHeader && (
+                        <h2 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center">
+                            {translate('general_settings')}
+                        </h2>
+                    )}
                 </div>
             </div>
 

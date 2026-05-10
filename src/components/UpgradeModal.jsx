@@ -299,20 +299,22 @@ const UpgradeModal = () => {
 
                     {/* ─── PRO card ───────────────────────────────────────── */}
                     <div className="flex-1" style={{ position: 'relative', marginTop: window.innerWidth >= 768 ? 0 : 15 }}>
-                        <div style={{
-                            position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)',
-                            background: `linear-gradient(135deg, ${PURPLE} 0%, ${PURPLE_DARK} 100%)`,
-                            color: '#fff', fontSize: 12, fontWeight: 800,
-                            borderRadius: 99, padding: '6px 20px',
-                            whiteSpace: 'nowrap',
-                            boxShadow: `0 6px 20px ${PURPLE}55`,
-                            letterSpacing: '0.4px',
-                            display: 'flex', alignItems: 'center', gap: 6,
-                            zIndex: 1,
-                        }}>
-                            <Star size={12} fill="#fff" strokeWidth={0} />
-                            {t('most_popular_badge', 'Πιο δημοφιλές')}
-                        </div>
+                        {billing === 'yearly' && (
+                            <div style={{
+                                position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)',
+                                background: `linear-gradient(135deg, ${PURPLE} 0%, ${PURPLE_DARK} 100%)`,
+                                color: '#fff', fontSize: 12, fontWeight: 800,
+                                borderRadius: 99, padding: '6px 20px',
+                                whiteSpace: 'nowrap',
+                                boxShadow: `0 6px 20px ${PURPLE}55`,
+                                letterSpacing: '0.4px',
+                                display: 'flex', alignItems: 'center', gap: 6,
+                                zIndex: 1,
+                            }}>
+                                <Star size={12} fill="#fff" strokeWidth={0} />
+                                {t('most_popular_badge', 'Πιο δημοφιλές')}
+                            </div>
+                        )}
 
                         <div style={{
                             background: dk
@@ -364,7 +366,7 @@ const UpgradeModal = () => {
                                 )}
 
                                 <p style={{ fontSize: 13, color: tok.txtB, margin: '0 0 20px', lineHeight: 1.6 }}>
-                                    {t('pro_plan_desc', '14 ημέρες δωρεάν δοκιμή. Για όσους θέλουν πλήρη έλεγχο των οικονομικών τους.')}
+                                    {t('pro_plan_desc', '7 ημέρες δωρεάν δοκιμή. Για όσους θέλουν πλήρη έλεγχο των οικονομικών τους.')}
                                 </p>
 
                                 <div style={{ height: 1, background: dk ? 'rgba(124,58,237,0.15)' : 'rgba(124,58,237,0.10)', margin: '0 0 20px' }} />
@@ -412,10 +414,7 @@ const UpgradeModal = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <Zap size={18} fill="#fff" strokeWidth={0} />
-                                            {billing === 'monthly'
-                                                ? `Δωρεάν δοκιμή 14 ημερών`
-                                                : `Δωρεάν δοκιμή 14 ημερών`}
+                                            {t('upgrade_cta_checkout', 'Δωρεάν δοκιμή 7 ημερών')}
                                         </>
                                     )}
                                 </button>
@@ -424,7 +423,7 @@ const UpgradeModal = () => {
                                     textAlign: 'center', fontSize: 12,
                                     color: tok.txtD, marginTop: 12, lineHeight: 1.5,
                                 }}>
-                                    Ακυρώνεις όποτε θες · Τιμή με ΦΠΑ
+                                    {t('cancel_anytime', 'Ακυρώνεις όποτε θες · Τιμή με ΦΠΑ')}
                                 </p>
                             </div>
                         </div>

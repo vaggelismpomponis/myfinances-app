@@ -44,6 +44,9 @@ serve(async (req) => {
       mode: "subscription",
       success_url: `${origin}/?upgraded=true`,
       cancel_url: `${origin}/?canceled=true`,
+      subscription_data: {
+        trial_period_days: 7,
+      },
       client_reference_id: userId,
       customer_email: email, // Pre-fill email
     })

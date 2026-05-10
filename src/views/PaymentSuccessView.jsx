@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, ArrowRight, Crown, Sparkles, BarChart2, Target, Lock, ScanLine } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 
 const PRO_FEATURES = [
     { icon: BarChart2, label: 'Full Analytics & History', color: '#a78bfa' },
@@ -25,8 +26,10 @@ const PARTICLES = [
 
 const PaymentSuccessView = ({ onContinue }) => {
     const { t } = useSettings();
+    const { refreshSubscription } = useSubscription();
     const hasAnimated = useRef(false);
     const [visible, setVisible] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     useEffect(() => {
         if (!hasAnimated.current) {
@@ -145,7 +148,17 @@ const PaymentSuccessView = ({ onContinue }) => {
 
                 {/* CTA Button */}
                 <button
-                    onClick={onContinue}
+                    onClick={async () => {
+                        if (isRefreshing) return;
+                        setIsRefreshing(true);
+                        try {
+                            await refreshSubscription();
+                        } catch (e) {
+                            console.error('Refresh failed', e);
+                        }
+                        onContinue();
+                    }}
+                    disabled={isRefreshing}
                     style={{
                         ...styles.cta,
                         opacity:    visible ? 1 : 0,

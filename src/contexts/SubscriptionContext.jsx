@@ -13,9 +13,25 @@ export const useSubscription = () => {
 };
 
 export const SubscriptionProvider = ({ user, children }) => {
-  const [isPro, setIsPro] = useState(false);
-  const [subscriptionStatus, setSubscriptionStatus] = useState('free');
-  const [subscriptionExpiry, setSubscriptionExpiry] = useState(null);
+  const [isPro, setIsPro] = useState(() => {
+    if (user) {
+      const cached = localStorage.getItem(`isPro_${user.id}`);
+      return cached === 'true';
+    }
+    return false;
+  });
+  const [subscriptionStatus, setSubscriptionStatus] = useState(() => {
+    if (user) {
+      return localStorage.getItem(`subStatus_${user.id}`) || 'free';
+    }
+    return 'free';
+  });
+  const [subscriptionExpiry, setSubscriptionExpiry] = useState(() => {
+    if (user) {
+      return localStorage.getItem(`subExpiry_${user.id}`);
+    }
+    return null;
+  });
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [upgradeFeatureKey, setUpgradeFeatureKey] = useState(null);
 
@@ -27,6 +43,33 @@ export const SubscriptionProvider = ({ user, children }) => {
     return false;
   };
 
+  const updateSubscriptionState = (status, expiry) => {
+    const pro = checkProStatus(status, expiry);
+    setSubscriptionStatus(status);
+    setSubscriptionExpiry(expiry);
+    setIsPro(pro);
+
+    if (user) {
+      localStorage.setItem(`isPro_${user.id}`, pro.toString());
+      localStorage.setItem(`subStatus_${user.id}`, status || 'free');
+      if (expiry) localStorage.setItem(`subExpiry_${user.id}`, expiry);
+      else localStorage.removeItem(`subExpiry_${user.id}`);
+    }
+  };
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('subscription_status, subscription_expiry')
+      .eq('id', user.id)
+      .single();
+    
+    if (data) {
+      updateSubscriptionState(data.subscription_status, data.subscription_expiry);
+    }
+  };
+
   useEffect(() => {
     if (!user) {
       setIsPro(false);
@@ -34,20 +77,6 @@ export const SubscriptionProvider = ({ user, children }) => {
       setSubscriptionExpiry(null);
       return;
     }
-
-    const fetchProfile = async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('subscription_status, subscription_expiry')
-        .eq('id', user.id)
-        .single();
-      
-      if (data) {
-        setSubscriptionStatus(data.subscription_status);
-        setSubscriptionExpiry(data.subscription_expiry);
-        setIsPro(checkProStatus(data.subscription_status, data.subscription_expiry));
-      }
-    };
 
     fetchProfile();
 
@@ -60,9 +89,7 @@ export const SubscriptionProvider = ({ user, children }) => {
         filter: `id=eq.${user.id}`
       }, (payload) => {
         const { subscription_status, subscription_expiry } = payload.new;
-        setSubscriptionStatus(subscription_status);
-        setSubscriptionExpiry(subscription_expiry);
-        setIsPro(checkProStatus(subscription_status, subscription_expiry));
+        updateSubscriptionState(subscription_status, subscription_expiry);
       })
       .subscribe();
 
@@ -99,7 +126,8 @@ export const SubscriptionProvider = ({ user, children }) => {
       openBillingPortal,
       isUpgradeModalOpen,
       closeUpgradeModal,
-      upgradeFeatureKey
+      upgradeFeatureKey,
+      refreshSubscription: fetchProfile
     }}>
       {children}
     </SubscriptionContext.Provider>

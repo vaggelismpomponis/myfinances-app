@@ -44,7 +44,6 @@ import Navbar from './components/Navbar';
 import UpgradeModal from './components/UpgradeModal';
 import FinancialAdvisorView from './views/FinancialAdvisorView';
 import GuideView from './views/GuideView';
-import UserProfileView from './views/UserProfileView';
 import BroadcastModal from './components/BroadcastModal';
 import DesktopLayout from './components/DesktopLayout';
 
@@ -62,14 +61,14 @@ function useWindowWidth() {
     return width;
 }
 
-const ProtectedAdvisorView = ({ transactions, goals, onBack }) => {
+const ProtectedAdvisorView = ({ transactions, goals, onBack, hideHeader }) => {
     const { isPro } = useSubscription();
-    return isPro ? <FinancialAdvisorView transactions={transactions} goals={goals} onBack={onBack} /> : null;
+    return isPro ? <FinancialAdvisorView transactions={transactions} goals={goals} onBack={onBack} hideHeader={hideHeader} /> : null;
 };
 
-const ProtectedRecurringView = ({ user, onBack }) => {
+const ProtectedRecurringView = ({ user, onBack, hideHeader }) => {
     const { isPro } = useSubscription();
-    return isPro ? <RecurringView user={user} onBack={onBack} /> : null;
+    return isPro ? <RecurringView user={user} onBack={onBack} hideHeader={hideHeader} /> : null;
 };
 
 function MainContent() {
@@ -77,8 +76,36 @@ function MainContent() {
     const { showToast } = useToast();
     const windowWidth = useWindowWidth();
     const isDesktop = windowWidth >= 1024;
-    const [activeTab, setActiveTab] = useState('home');
-    const [previousTab, setPreviousTab] = useState('home');
+    const [activeTab, setActiveTab] = useState(() => {
+        if (typeof window !== 'undefined' && window.history.state?.tab) {
+            return window.history.state.tab;
+        }
+        return localStorage.getItem('lastActiveTab') || 'home';
+    });
+    const [previousTab, setPreviousTab] = useState(() => {
+        return localStorage.getItem('lastPreviousTab') || 'home';
+    });
+    const [loading, setLoading] = useState(true);
+    const [loaderMessage, setLoaderMessage] = useState('INITIALIZING CORE MODULES...');
+
+    // --- Loading Message Rotation ---
+    useEffect(() => {
+        if (!loading) return;
+        const messages = [
+            'INITIALIZING CORE MODULES...',
+            'ESTABLISHING SECURE SESSION...',
+            'HYDRATING USER PROFILE...',
+            'SYNCING FINANCIAL RECORDS...',
+            'OPTIMIZING DASHBOARD VIEW...'
+        ];
+        let idx = 0;
+        const interval = setInterval(() => {
+            idx = (idx + 1) % messages.length;
+            setLoaderMessage(messages[idx]);
+        }, 800);
+        return () => clearInterval(interval);
+    }, [loading]);
+
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
@@ -87,7 +114,6 @@ function MainContent() {
     const [budgets, setBudgets] = useState([]);
     const [goals, setGoals] = useState([]);
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [imgError, setImgError] = useState(false);
 
     // Whats New Modal
@@ -111,7 +137,9 @@ function MainContent() {
     const gsiInitialized = useRef(false);
 
     useEffect(() => {
-        window.history.replaceState({ tab: 'home' }, '', '');
+        if (!window.history.state?.tab) {
+            window.history.replaceState({ tab: activeTab }, '', '');
+        }
 
         const handlePopState = (event) => {
             if (event.state && event.state.tab) {
@@ -128,12 +156,17 @@ function MainContent() {
     }, []);
 
     useEffect(() => {
+        localStorage.setItem('lastActiveTab', activeTab);
         if (isPopping.current) {
             isPopping.current = false;
             return;
         }
         window.history.pushState({ tab: activeTab }, '', '');
     }, [activeTab]);
+
+    useEffect(() => {
+        localStorage.setItem('lastPreviousTab', previousTab);
+    }, [previousTab]);
 
     // Reset image error when user photo changes
     useEffect(() => {
@@ -229,13 +262,13 @@ function MainContent() {
                         console.error('[Broadcast] Fetch error:', error);
                         return;
                     }
-                    
+
                     if (data && data.length > 0) {
                         const broadcast = data[0];
                         const lastSeenId = localStorage.getItem(`broadcast_seen_${user.id}`);
-                        
+
                         console.log('[Broadcast] Latest:', broadcast.id, 'Last Seen:', lastSeenId);
-                        
+
                         if (lastSeenId !== broadcast.id.toString()) {
                             setCurrentBroadcast(broadcast);
                             setShowBroadcast(true);
@@ -252,10 +285,20 @@ function MainContent() {
     const sessionTracked = useRef(false);
 
     useEffect(() => {
+        const authTimeout = setTimeout(() => {
+            setLoading(false);
+        }, 3500); // Safety fallback
+
         supabase.auth.getSession().then(({ data: { session } }) => {
             const currentUser = session?.user ?? null;
             setUser(currentUser);
-            setLoading(false);
+
+            // If no user, stop loading immediately to show LoginView
+            if (!currentUser) {
+                setLoading(false);
+                clearTimeout(authTimeout);
+            }
+
             // Always track on app open so device/location is refreshed every session
             if (currentUser && !sessionTracked.current) {
                 sessionTracked.current = true;
@@ -266,34 +309,28 @@ function MainContent() {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             const currentUser = session?.user ?? null;
             setUser(currentUser);
-            setLoading(false);
 
             if (event === 'SIGNED_IN' && currentUser) {
-                // Always track on sign-in to capture device/location for new and returning users
+                // When signing in, wait for fetchTransactions to handle setLoading(false)
                 sessionTracked.current = true;
                 trackSession(currentUser);
             } else if (event === 'SIGNED_OUT') {
+                setLoading(false);
+                clearTimeout(authTimeout);
                 sessionTracked.current = false;
+                setActiveTab('home');
+                localStorage.removeItem('lastActiveTab');
+                localStorage.removeItem('lastPreviousTab');
             }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            subscription.unsubscribe();
+            clearTimeout(authTimeout);
+        };
     }, []);
 
-    // Remove initial loader when app is ready
-    useEffect(() => {
-        if (!loading) {
-            const loader = document.getElementById('initial-loader');
-            if (loader) {
-                loader.classList.add('fade-out');
-                setTimeout(() => {
-                    if (loader.parentNode) {
-                        loader.remove();
-                    }
-                }, 500);
-            }
-        }
-    }, [loading]);
+
 
     const GOOGLE_CLIENT_ID = '345124628478-9dfooug409in2o115t5fdcolhfl9ojnk.apps.googleusercontent.com';
 
@@ -511,8 +548,8 @@ function MainContent() {
 
     const handleRegister = async (email, password) => {
         try {
-            const { data, error } = await supabase.auth.signUp({ 
-                email, 
+            const { data, error } = await supabase.auth.signUp({
+                email,
                 password,
                 options: {
                     data: {
@@ -522,7 +559,7 @@ function MainContent() {
                 }
             });
             if (error) throw error;
-            
+
             if (data?.user && !data?.session) {
                 showToast("Ελέγξτε το email σας για επιβεβαίωση!", 'info');
             } else {
@@ -530,7 +567,7 @@ function MainContent() {
             }
         } catch (error) {
             const isAlreadyRegistered = error.message?.includes('already registered') || error.message?.includes('User already registered');
-            
+
             if (isAlreadyRegistered) {
                 logger.warn(`Registration attempt for existing user: ${error.message}`, 'App');
             } else {
@@ -563,8 +600,10 @@ function MainContent() {
                 .order('date', { ascending: false });
             if (error) {
                 logger.error('Failed to fetch transactions', error, 'App');
+                setLoading(false);
             } else {
                 setTransactions(data || []);
+                setLoading(false);
             }
         };
 
@@ -917,22 +956,6 @@ function MainContent() {
         supabase.auth.signOut();
     };
 
-    // --- Layout Render ---
-
-    if (loading) return null;
-
-    if (user && isLocked) {
-        return <LockScreen onSignOut={handleSignOut} user={user} />;
-    }
-
-    if (!user && !loading) return (
-        <LoginView
-            onEmailLogin={handleEmailLogin}
-            onRegister={handleRegister}
-            onGoogleLogin={handleGoogleLogin}
-        />
-    );
-
     // Derive display name and photo from Supabase user_metadata
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
     const photoURL = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
@@ -979,13 +1002,13 @@ function MainContent() {
                 {activeTab === 'stats' && <StatsView transactions={transactions} />}
                 {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
                 {activeTab === 'goals' && (
-                    <GoalsView user={user} onBack={() => setActiveTab('home')} />
+                    <GoalsView user={user} onBack={() => setActiveTab('home')} hideHeader={isDesktop} />
                 )}
                 {activeTab === 'budgets' && (
-                    <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />
+                    <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} hideHeader={isDesktop} />
                 )}
                 {activeTab === 'advisor' && (
-                    <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />
+                    <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} hideHeader={isDesktop} />
                 )}
                 {activeTab === 'profile' && (
                     <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
@@ -996,511 +1019,452 @@ function MainContent() {
                         onAdmin={() => setActiveTab('admin')}
                         onFeedback={() => setActiveTab('feedback')}
                         onGuide={() => setActiveTab('guide')}
-                        onProfileDetails={() => setActiveTab('profile-details')}
+                        hideHeader={isDesktop}
                     />
                 )}
-                {activeTab === 'profile-details' && (
-                    <UserProfileView user={user} onBack={() => setActiveTab('profile')} onSignOut={handleSignOut} />
-                )}
                 {activeTab === 'guide' && (
-                    <GuideView onBack={() => setActiveTab('profile')} />
+                    <GuideView onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
                 )}
                 {activeTab === 'recurring' && (
-                    <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} />
+                    <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} hideHeader={isDesktop} />
                 )}
                 {activeTab === 'general' && (
-                    <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} />
+                    <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} hideHeader={isDesktop} />
                 )}
                 {activeTab === 'privacy' && (
-                    <PrivacyPolicyView onBack={() => setActiveTab('general')} />
+                    <PrivacyPolicyView onBack={() => setActiveTab('general')} hideHeader={isDesktop} />
                 )}
                 {activeTab === 'feedback' && (
-                    <FeedbackView user={user} onBack={() => setActiveTab('profile')} />
+                    <FeedbackView user={user} onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
                 )}
                 {activeTab === 'security' && (
-                    <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} />
+                    <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
                 )}
                 {activeTab === 'backup' && (
-                    <BackupView user={user} onBack={() => setActiveTab('profile')} />
+                    <BackupView user={user} onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
                 )}
                 {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
-                    <AdminView onBack={() => setActiveTab('profile')} />
+                    <AdminView onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
                 )}
             </motion.div>
         </AnimatePresence>
     );
 
-    // ── DESKTOP LAYOUT (≥1024px) ──
-    if (isDesktop) {
-        return (
-            <SubscriptionProvider user={user}>
-                <div className="h-full w-full font-sans text-gray-900 dark:text-white
-                                selection:bg-violet-100 dark:selection:bg-violet-900
-                                transition-colors duration-300">
+    // --- Layout Render ---
 
-                    {/* Payment Success/Cancel Overlay */}
-                    {showPaymentSuccess && (
-                        <PaymentSuccessView
-                            onContinue={() => {
-                                setShowPaymentSuccess(false);
-                                setActiveTab('home');
-                            }}
-                        />
-                    )}
-                    {showPaymentCanceled && (
-                        <PaymentCanceledView
-                            onContinue={() => {
-                                setShowPaymentCanceled(false);
-                                setActiveTab('home');
-                            }}
-                            onRetry={() => {
-                                setShowPaymentCanceled(false);
-                                setActiveTab('profile');
-                            }}
-                        />
-                    )}
-
-                    <DesktopLayout
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}
-                        setPreviousTab={setPreviousTab}
-                        user={user}
-                        displayName={displayName}
-                        photoURL={photoURL}
-                        balance={balance}
-                        totalIncome={totalIncome}
-                        totalExpense={totalExpense}
-                        transactions={transactions}
-                        budgets={budgets}
-                        onSignOut={handleSignOut}
-                        onAdd={openAddModal}
-                    >
-                        {renderActiveView()}
-                    </DesktopLayout>
-
-                    {/* Shared Modals */}
-                    {showAddModal && (
-                        <AddModal
-                            onClose={() => { setShowAddModal(false); setEditingTransaction(null); }}
-                            onAdd={addTransaction}
-                            initialData={editingTransaction}
-                        />
-                    )}
-                    <ConfirmationModal
-                        isOpen={showDeleteModal}
-                        onClose={() => setShowDeleteModal(false)}
-                        onConfirm={confirmDelete}
-                        title="Διαγραφή Συναλλαγής"
-                        message="Θέλεις σίγουρα να διαγράψεις αυτή τη συναλλαγή;"
-                        confirmText="Διαγραφή"
-                        type="danger"
-                    />
-                    <WhatsNewModal
-                        isOpen={showWhatsNew}
-                        onClose={() => {
-                            if (latestUpdate) {
-                                localStorage.setItem(`whatsnew_seen_${latestUpdate.version}_${user?.id}`, 'true');
-                            }
-                            setShowWhatsNew(false);
-                        }}
-                        data={latestUpdate}
-                    />
-                    <BroadcastModal
-                        isOpen={showBroadcast}
-                        onClose={() => {
-                            if (currentBroadcast) {
-                                localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id);
-                            }
-                            setShowBroadcast(false);
-                        }}
-                        data={currentBroadcast}
-                    />
-                    <UpgradeModal />
-                </div>
-            </SubscriptionProvider>
-        );
-    }
-
-    // ── MOBILE LAYOUT (<1024px) ──
     return (
-        <SubscriptionProvider user={user}>
-        <div className="h-full w-full bg-surface-light dark:bg-surface-dark
-                        font-sans text-gray-900 dark:text-white
-                        selection:bg-violet-100 dark:selection:bg-violet-900
-                        flex justify-center items-start transition-colors duration-300">
-
-            {/* Mobile container */}
-            <div className="w-full max-w-md bg-gray-50 dark:bg-surface-dark
-                            h-full overflow-hidden
-                            shadow-2xl relative flex flex-col
-                            transition-colors duration-300">
-
-                {/* ── Main Scroll Area ── */}
-                <div className="flex-1 overflow-y-auto overflow-x-hidden px-4">
-
-                    {/* ── Top Bar ── */}
-                    <div className="shrink-0 sticky top-0 z-20
-                                    bg-gray-50 dark:bg-surface-dark backdrop-blur-md
-                                    border-b border-gray-100 dark:border-white/5
-                                    px-4 pb-3 -mx-4 transition-all duration-300"
-                         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
-                        
-                        <div className="flex items-center justify-center relative min-h-[40px]">
-                            {activeTab === 'home' ? (
-                                <>
-                                    <div className="absolute left-4 flex items-center gap-3">
-                                        {/* Avatar */}
-                                        <motion.button
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            onClick={() => setActiveTab('profile')}
-                                            className="w-10 h-10 rounded-full overflow-hidden
-                                                       bg-gradient-to-br from-violet-500 to-violet-700
-                                                       border-2 border-violet-200 dark:border-violet-900/50
-                                                       flex items-center justify-center flex-shrink-0
-                                                       text-white shadow-md
-                                                       transition-all duration-200"
-                                            title={translate('nav_profile')}
-                                        >
-                                            {photoURL && !imgError ? (
-                                                <img src={photoURL} alt="Profile"
-                                                    className="w-full h-full object-cover"
-                                                    onError={() => setImgError(true)} />
-                                            ) : (
-                                                <User size={18} />
-                                            )}
-                                        </motion.button>
-
-                                        <div className="flex flex-col">
-                                            <h2 className="text-[14px] font-bold text-gray-700 dark:text-gray-300 leading-tight flex items-center gap-1.5">
-                                                {(() => {
-                                                    const hour = new Date().getHours();
-                                                    if (hour < 12) return translate('good_morning');
-                                                    if (hour < 18) return translate('good_afternoon');
-                                                    return translate('good_evening');
-                                                })()}, {displayName.split(' ')[0]} <span className="animate-wave origin-bottom-right">👋</span>
-                                            </h2>
-                                        </div>
-                                    </div>
-
-                                    {/* Privacy toggle */}
-                                    <motion.button
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={togglePrivacyMode}
-                                        className="absolute right-4 w-9 h-9 rounded-full
-                                                   bg-gray-100 dark:bg-white/[0.08]
-                                                   flex items-center justify-center flex-shrink-0
-                                                   text-gray-500 dark:text-white/50
-                                                   hover:bg-gray-200 dark:hover:bg-white/[0.14]
-                                                   transition-all duration-150"
-                                        title={privacyMode ? "Disable Privacy Mode" : "Enable Privacy Mode"}
-                                    >
-                                        {privacyMode ? <EyeOff size={16} /> : <Eye size={16} />}
-                                    </motion.button>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="text-center">
-                                        <h2 className="text-[16px] font-bold text-gray-900 dark:text-white">
-                                            {activeTab === 'history' && translate('nav_history')}
-                                            {activeTab === 'stats' && translate('nav_stats')}
-                                            {activeTab === 'goals' && translate('goals')}
-                                            {activeTab === 'budgets' && translate('budgets')}
-                                            {activeTab === 'feedback' && translate('feedback')}
-                                            {activeTab === 'admin' && 'Admin Panel'}
-                                        </h2>
-                                    </div>
-                                    <div className="absolute right-4 flex items-center">
-                                        <button
-                                            onClick={togglePrivacyMode}
-                                            className="w-9 h-9 rounded-full
-                                                       bg-gray-100 dark:bg-white/[0.08]
-                                                       flex items-center justify-center
-                                                       text-gray-500 dark:text-white/50
-                                                       hover:bg-gray-200 dark:hover:bg-white/[0.14]
-                                                       active:scale-90 transition-all duration-150"
-                                            title={privacyMode ? "Disable Privacy Mode" : "Enable Privacy Mode"}
-                                        >
-                                            {privacyMode ? <EyeOff size={16} /> : <Eye size={16} />}
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Spacer to replace the previous mb-5 */}
-                    <div className="h-4 shrink-0" />
-
-                    {/* ── Mobile View Switcher ── */}
-                    {activeTab === 'home' && (
-                        <HomeView
-                            balance={balance}
-                            totalIncome={totalIncome}
-                            totalExpense={totalExpense}
-                            transactions={transactions}
-                            budgets={budgets}
-                            onDelete={deleteTransaction}
-                            onEdit={handleEdit}
-                            setActiveTab={setActiveTab}
-                            onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
+        <AnimatePresence>
+            {loading ? (
+                <motion.div
+                    key="app-loader"
+                    initial={{ opacity: 1 }}
+                    exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] } }}
+                    className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
+                    style={{ backgroundColor: '#0B0B0F' }}
+                >
+                    {/* Premium Ambient Background */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <motion.div
+                            animate={{
+                                x: [0, 30, 0],
+                                y: [0, 20, 0],
+                                scale: [1, 1.1, 1]
+                            }}
+                            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] opacity-20"
+                            style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%)', filter: 'blur(80px)' }}
                         />
-                    )}
-                    {activeTab === 'stats' && <StatsView transactions={transactions} />}
-                    {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
-                </div>
-
-                {/* ── Overlays ── */}
-                <AnimatePresence>
-                    {activeTab === 'profile' && (
                         <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
-                        >
-                            <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
-                                onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
-                                onGeneral={() => setActiveTab('general')}
-                                onSecurity={() => setActiveTab('security')}
-                                onBackup={() => setActiveTab('backup')}
-                                onAdmin={() => setActiveTab('admin')}
-                                onFeedback={() => setActiveTab('feedback')}
-                                onGuide={() => setActiveTab('guide')}
-                                onProfileDetails={() => setActiveTab('profile-details')}
+                            animate={{
+                                x: [0, -40, 0],
+                                y: [0, -30, 0],
+                                scale: [1, 1.2, 1]
+                            }}
+                            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] opacity-20"
+                            style={{ background: 'radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%)', filter: 'blur(60px)' }}
+                        />
+                    </div>
+
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="relative z-10 flex flex-col items-center"
+                    >
+                        {/* Glowing Logo Container */}
+                        <div className="relative mb-10">
+                            <motion.div
+                                animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                                className="absolute -inset-5 rounded-full blur-xl"
+                                style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.5) 0%, transparent 70%)' }}
                             />
-                        </motion.div>
-                    )}
-                    {activeTab === 'profile-details' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
-                        >
-                            <UserProfileView user={user} onBack={() => setActiveTab('profile')} onSignOut={handleSignOut} />
-                        </motion.div>
-                    )}
-
-                    {activeTab === 'guide' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
-                        >
-                            <GuideView onBack={() => setActiveTab('profile')} />
-                        </motion.div>
-                    )}
-                    {activeTab === 'recurring' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
-                        >
-                            <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} />
-                        </motion.div>
-                    )}
-                    {activeTab === 'general' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
-                        >
-                            <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} />
-                        </motion.div>
-                    )}
-                    {activeTab === 'privacy' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
-                        >
-                            <PrivacyPolicyView onBack={() => setActiveTab('general')} />
-                        </motion.div>
-                    )}
-                    {activeTab === 'feedback' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
-                        >
-                            <FeedbackView user={user} onBack={() => setActiveTab('profile')} />
-                        </motion.div>
-                    )}
-                    {activeTab === 'security' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
-                        >
-                            <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} />
-                        </motion.div>
-                    )}
-                    {activeTab === 'backup' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
-                        >
-                            <BackupView user={user} onBack={() => setActiveTab('profile')} />
-                        </motion.div>
-                    )}
-                    {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark"
-                        >
-                            <AdminView onBack={() => setActiveTab('profile')} />
-                        </motion.div>
-                    )}
-                    {activeTab === 'goals' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col"
-                        >
-                            <GoalsView user={user} onBack={() => setActiveTab('home')} />
-                        </motion.div>
-                    )}
-                    {activeTab === 'budgets' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col"
-                        >
-                            <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />
-                        </motion.div>
-                    )}
-                    {activeTab === 'advisor' && (
-                        <motion.div
-                            variants={overlayVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col"
-                        >
-                            <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {/* ── Payment Success/Cancel Overlay ── */}
-                {showPaymentSuccess && (
-                    <PaymentSuccessView
-                        onContinue={() => {
-                            setShowPaymentSuccess(false);
-                            setActiveTab('home');
-                        }}
-                    />
-                )}
-                {showPaymentCanceled && (
-                    <PaymentCanceledView
-                        onContinue={() => {
-                            setShowPaymentCanceled(false);
-                            setActiveTab('home');
-                        }}
-                        onRetry={() => {
-                            setShowPaymentCanceled(false);
-                            setActiveTab('profile');
-                        }}
-                    />
-                )}
-
-                {/* ── Navbar + FAB wrapper ── */}
-                {!['goals', 'budgets', 'profile', 'profile-details', 'recurring', 'general', 'security', 'backup', 'feedback', 'admin', 'privacy', 'advisor', 'guide'].includes(activeTab) && (
-
-                    <div className="relative z-[45]">
-                        {/* FAB — floats above the navbar */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
-                            {/* Pulse ring */}
-                            <div className="absolute inset-0 rounded-full bg-violet-600/30 animate-ping-pulse scale-110" />
-                            <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={openAddModal}
-                                className="relative w-16 h-16 rounded-full
-                                           bg-violet-500
-                                           hover:bg-violet-600
-                                           text-white shadow-lg shadow-violet-500/40
-                                           flex items-center justify-center
-                                           transition-all duration-200"
-                            >
-                                <Plus size={32} strokeWidth={2.5} />
-                            </motion.button>
+                            <div className="relative w-[100px] h-[100px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[30px] flex items-center justify-center shadow-2xl">
+                                <img src="/spendwise-logo.png" alt="Logo" className="w-[65px] h-[65px] object-contain drop-shadow-lg" />
+                            </div>
                         </div>
 
-                        {/* ── Navbar ── */}
-                        <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-                    </div>
-                )}
+                        <div className="text-center">
+                            <h1 className="text-5xl font-black tracking-tighter m-0 bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent filter drop-shadow-2xl">
+                                SpendWise
+                            </h1>
+                            <p className="mt-3 text-[10px] text-white/40 font-bold tracking-[0.4em] uppercase">
+                                Mastering Finances
+                            </p>
+                        </div>
 
-                {/* ── Modals ── */}
-                {showAddModal && (
-                    <AddModal
-                        onClose={() => { setShowAddModal(false); setEditingTransaction(null); }}
-                        onAdd={addTransaction}
-                        initialData={editingTransaction}
-                    />
-                )}
-                <ConfirmationModal
-                    isOpen={showDeleteModal}
-                    onClose={() => setShowDeleteModal(false)}
-                    onConfirm={confirmDelete}
-                    title="Διαγραφή Συναλλαγής"
-                    message="Θέλεις σίγουρα να διαγράψεις αυτή τη συναλλαγή;"
-                    confirmText="Διαγραφή"
-                    type="danger"
-                />
-            </div>
+                        {/* Elegant Glowing Progress */}
+                        <div className="w-56 h-[3px] bg-white/5 rounded-full overflow-hidden mt-14 border border-white/5">
+                            <motion.div
+                                initial={{ width: "95%" }}
+                                className="h-full bg-gradient-to-r from-violet-600 via-cyan-400 to-violet-600 bg-[length:200%]"
+                                style={{ backgroundSize: '200% 100%' }}
+                                animate={{ backgroundPosition: ['-200% 0', '200% 0'] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                            />
+                        </div>
 
-            <WhatsNewModal
-                isOpen={showWhatsNew}
-                onClose={() => {
-                    if (latestUpdate) {
-                        localStorage.setItem(`whatsnew_seen_${latestUpdate.version}_${user?.id}`, 'true');
-                    }
-                    setShowWhatsNew(false);
-                }}
-                data={latestUpdate}
-            />
+                        <AnimatePresence mode="wait">
+                            <motion.p
+                                key={loaderMessage}
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className="mt-6 text-[9px] text-white/30 font-mono font-medium tracking-widest"
+                            >
+                                {loaderMessage}
+                            </motion.p>
+                        </AnimatePresence>
+                    </motion.div>
+                </motion.div>
+            ) : (
+                <motion.div
+                    key="app-content"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4 }}
+                    className="h-full w-full"
+                >
+                    {user && isLocked ? (
+                        <LockScreen onSignOut={handleSignOut} user={user} />
+                    ) : !user ? (
+                        <LoginView
+                            onEmailLogin={handleEmailLogin}
+                            onRegister={handleRegister}
+                            onGoogleLogin={handleGoogleLogin}
+                        />
+                    ) : (
+                        <SubscriptionProvider key={user?.id} user={user}>
+                            {isDesktop ? (
+                                <div className="h-full w-full font-sans text-gray-900 dark:text-white
+                                                selection:bg-violet-100 dark:selection:bg-violet-900
+                                                transition-colors duration-300">
 
-            <BroadcastModal
-                isOpen={showBroadcast}
-                onClose={() => {
-                    if (currentBroadcast) {
-                        localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id);
-                    }
-                    setShowBroadcast(false);
-                }}
-                data={currentBroadcast}
-            />
-            <UpgradeModal />
-        </div>
-        </SubscriptionProvider>
+                                    {/* Payment Success/Cancel Overlay */}
+                                    {showPaymentSuccess && (
+                                        <PaymentSuccessView
+                                            onContinue={() => {
+                                                setShowPaymentSuccess(false);
+                                                setActiveTab('home');
+                                            }}
+                                        />
+                                    )}
+                                    {showPaymentCanceled && (
+                                        <PaymentCanceledView
+                                            onContinue={() => {
+                                                setShowPaymentCanceled(false);
+                                                setActiveTab('home');
+                                            }}
+                                            onRetry={() => {
+                                                setShowPaymentCanceled(false);
+                                                setActiveTab('profile');
+                                            }}
+                                        />
+                                    )}
+
+                                    <DesktopLayout
+                                        activeTab={activeTab}
+                                        setActiveTab={setActiveTab}
+                                        setPreviousTab={setPreviousTab}
+                                        user={user}
+                                        displayName={displayName}
+                                        photoURL={photoURL}
+                                        balance={balance}
+                                        totalIncome={totalIncome}
+                                        totalExpense={totalExpense}
+                                        transactions={transactions}
+                                        budgets={budgets}
+                                        onSignOut={handleSignOut}
+                                        onAdd={openAddModal}
+                                    >
+                                        {renderActiveView()}
+                                    </DesktopLayout>
+
+                                    {/* Shared Modals */}
+                                    {showAddModal && (
+                                        <AddModal
+                                            onClose={() => { setShowAddModal(false); setEditingTransaction(null); }}
+                                            onAdd={addTransaction}
+                                            initialData={editingTransaction}
+                                        />
+                                    )}
+                                    <ConfirmationModal
+                                        isOpen={showDeleteModal}
+                                        onClose={() => setShowDeleteModal(false)}
+                                        onConfirm={confirmDelete}
+                                        title="Διαγραφή Συναλλαγής"
+                                        message="Θέλεις σίγουρα να διαγράψεις αυτή τη συναλλαγή;"
+                                        confirmText="Διαγραφή"
+                                        type="danger"
+                                    />
+                                    <WhatsNewModal
+                                        isOpen={showWhatsNew}
+                                        onClose={() => {
+                                            if (latestUpdate) {
+                                                localStorage.setItem(`whatsnew_seen_${latestUpdate.version}_${user?.id}`, 'true');
+                                            }
+                                            setShowWhatsNew(false);
+                                        }}
+                                        data={latestUpdate}
+                                    />
+                                    <BroadcastModal
+                                        isOpen={showBroadcast}
+                                        onClose={() => {
+                                            if (currentBroadcast) {
+                                                localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id);
+                                            }
+                                            setShowBroadcast(false);
+                                        }}
+                                        data={currentBroadcast}
+                                    />
+                                    <UpgradeModal />
+                                </div>
+                            ) : (
+                                <div className="h-full w-full bg-surface-light dark:bg-surface-dark
+                                                font-sans text-gray-900 dark:text-white
+                                                selection:bg-violet-100 dark:selection:bg-violet-900
+                                                flex justify-center items-start transition-colors duration-300">
+
+                                    {/* Mobile container */}
+                                    <div className="w-full max-w-md bg-gray-50 dark:bg-surface-dark
+                                                    h-full overflow-hidden
+                                                    shadow-2xl relative flex flex-col
+                                                    transition-colors duration-300">
+
+                                        {/* ── Main Scroll Area ── */}
+                                        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4">
+
+                                            {/* ── Top Bar ── */}
+                                            <div className="shrink-0 sticky top-0 z-20
+                                                            bg-gray-50 dark:bg-surface-dark backdrop-blur-md
+                                                            border-b border-gray-100 dark:border-white/5
+                                                            px-4 pb-3 -mx-4 transition-all duration-300"
+                                                style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
+
+                                                <div className="flex items-center justify-center relative min-h-[40px]">
+                                                    {activeTab === 'home' ? (
+                                                        <>
+                                                            <div className="absolute left-4 flex items-center gap-3">
+                                                                {/* Avatar */}
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.05 }}
+                                                                    whileTap={{ scale: 0.95 }}
+                                                                    onClick={() => setActiveTab('profile')}
+                                                                    className="w-10 h-10 rounded-full overflow-hidden
+                                                                            bg-gradient-to-br from-violet-500 to-violet-700
+                                                                            border-2 border-violet-200 dark:border-violet-900/50
+                                                                            flex items-center justify-center flex-shrink-0
+                                                                            text-white shadow-md
+                                                                            transition-all duration-200"
+                                                                    title={translate('nav_profile')}
+                                                                >
+                                                                    {photoURL && !imgError ? (
+                                                                        <img src={photoURL} alt="Profile"
+                                                                            className="w-full h-full object-cover"
+                                                                            onError={() => setImgError(true)} />
+                                                                    ) : (
+                                                                        <User size={18} />
+                                                                    )}
+                                                                </motion.button>
+
+                                                                <div className="flex flex-col">
+                                                                    <h2 className="text-[14px] font-bold text-gray-700 dark:text-gray-300 leading-tight flex items-center gap-1.5">
+                                                                        {(() => {
+                                                                            const hour = new Date().getHours();
+                                                                            if (hour < 12) return translate('good_morning');
+                                                                            if (hour < 18) return translate('good_afternoon');
+                                                                            return translate('good_evening');
+                                                                        })()}, {displayName.split(' ')[0]} <span className="animate-wave origin-bottom-right">👋</span>
+                                                                    </h2>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Privacy toggle */}
+                                                            <motion.button
+                                                                whileHover={{ scale: 1.1 }}
+                                                                whileTap={{ scale: 0.9 }}
+                                                                onClick={togglePrivacyMode}
+                                                                className="absolute right-4 w-9 h-9 rounded-full
+                                                                        bg-gray-100 dark:bg-white/[0.08]
+                                                                        flex items-center justify-center flex-shrink-0
+                                                                        text-gray-500 dark:text-white/50
+                                                                        hover:bg-gray-200 dark:hover:bg-white/[0.14]
+                                                                        transition-all duration-150"
+                                                                title={privacyMode ? "Disable Privacy Mode" : "Enable Privacy Mode"}
+                                                            >
+                                                                {privacyMode ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                            </motion.button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <div className="text-center">
+                                                                <h2 className="text-[16px] font-bold text-gray-900 dark:text-white">
+                                                                    {activeTab === 'history' && translate('nav_history')}
+                                                                    {activeTab === 'stats' && translate('nav_stats')}
+                                                                    {activeTab === 'goals' && translate('goals')}
+                                                                    {activeTab === 'budgets' && translate('budgets')}
+                                                                    {activeTab === 'feedback' && translate('feedback')}
+                                                                    {activeTab === 'admin' && 'Admin Panel'}
+                                                                </h2>
+                                                            </div>
+                                                            <div className="absolute right-4 flex items-center">
+                                                                <button
+                                                                    onClick={togglePrivacyMode}
+                                                                    className="w-9 h-9 rounded-full
+                                                                            bg-gray-100 dark:bg-white/[0.08]
+                                                                            flex items-center justify-center
+                                                                            text-gray-500 dark:text-white/50
+                                                                            hover:bg-gray-200 dark:hover:bg-white/[0.14]
+                                                                            active:scale-90 transition-all duration-150"
+                                                                    title={privacyMode ? "Disable Privacy Mode" : "Enable Privacy Mode"}
+                                                                >
+                                                                    {privacyMode ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="h-4 shrink-0" />
+
+                                            {activeTab === 'home' && (
+                                                <HomeView
+                                                    balance={balance}
+                                                    totalIncome={totalIncome}
+                                                    totalExpense={totalExpense}
+                                                    transactions={transactions}
+                                                    budgets={budgets}
+                                                    onDelete={deleteTransaction}
+                                                    onEdit={handleEdit}
+                                                    setActiveTab={setActiveTab}
+                                                    onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
+                                                />
+                                            )}
+                                            {activeTab === 'stats' && <StatsView transactions={transactions} />}
+                                            {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
+                                        </div>
+
+                                        {/* Overlays */}
+                                        <AnimatePresence>
+                                            {activeTab === 'profile' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                    <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
+                                                        onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
+                                                        onGeneral={() => setActiveTab('general')}
+                                                        onSecurity={() => setActiveTab('security')}
+                                                        onBackup={() => setActiveTab('backup')}
+                                                        onAdmin={() => setActiveTab('admin')}
+                                                        onFeedback={() => setActiveTab('feedback')}
+                                                        onGuide={() => setActiveTab('guide')}
+                                                    />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'guide' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                    <GuideView onBack={() => setActiveTab('profile')} />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'recurring' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                    <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'general' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                    <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'privacy' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                    <PrivacyPolicyView onBack={() => setActiveTab('general')} />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'feedback' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                    <FeedbackView user={user} onBack={() => setActiveTab('profile')} />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'security' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                    <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'backup' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                    <BackupView user={user} onBack={() => setActiveTab('profile')} />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                    <AdminView onBack={() => setActiveTab('profile')} />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'goals' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
+                                                    <GoalsView user={user} onBack={() => setActiveTab('home')} />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'budgets' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
+                                                    <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />
+                                                </motion.div>
+                                            )}
+                                            {activeTab === 'advisor' && (
+                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
+                                                    <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+
+                                        {/* Mobile Modals/FAB */}
+                                        {!['goals', 'budgets', 'profile', 'recurring', 'general', 'security', 'backup', 'feedback', 'admin', 'privacy', 'advisor', 'guide'].includes(activeTab) && (
+                                            <div className="relative z-[45]">
+                                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
+                                                    <div className="absolute inset-0 rounded-full bg-violet-600/30 animate-ping-pulse scale-110" />
+                                                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={openAddModal} className="relative w-16 h-16 rounded-full bg-violet-500 text-white shadow-lg flex items-center justify-center">
+                                                        <Plus size={32} strokeWidth={2.5} />
+                                                    </motion.button>
+                                                </div>
+                                                <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+                                            </div>
+                                        )}
+
+                                        {showAddModal && (
+                                            <AddModal onClose={() => { setShowAddModal(false); setEditingTransaction(null); }} onAdd={addTransaction} initialData={editingTransaction} />
+                                        )}
+                                        <ConfirmationModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={confirmDelete} title="Διαγραφή Συναλλαγής" message="Θέλεις σίγουρα να διαγράψεις αυτή τη συναλλαγή;" confirmText="Διαγραφή" type="danger" />
+                                    </div>
+                                    <WhatsNewModal isOpen={showWhatsNew} onClose={() => { if (latestUpdate) localStorage.setItem(`whatsnew_seen_${latestUpdate.version}_${user?.id}`, 'true'); setShowWhatsNew(false); }} data={latestUpdate} />
+                                    <BroadcastModal isOpen={showBroadcast} onClose={() => { if (currentBroadcast) localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id); setShowBroadcast(false); }} data={currentBroadcast} />
+                                    <UpgradeModal />
+                                </div>
+                            )}
+                        </SubscriptionProvider>
+                    )}
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 }
 

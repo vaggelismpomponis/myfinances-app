@@ -12,7 +12,7 @@ import { supabase } from '../supabase';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 
-const FeedbackView = ({ user, onBack }) => {
+const FeedbackView = ({ user, onBack, hideHeader }) => {
     const { t: translate } = useSettings();
     const { showToast } = useToast();
     const [message, setMessage] = useState('');
@@ -58,10 +58,14 @@ const FeedbackView = ({ user, onBack }) => {
         <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col animate-fade-in transition-colors duration-300">
 
             {/* Header */}
-            <div className="shrink-0 bg-gray-50 dark:bg-surface-dark 
-                            border-b border-gray-100 dark:border-transparent
-                            px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 sticky top-0 z-10
-                            backdrop-blur-xl transition-colors duration-300">
+            {/* Header */}
+            <div
+                className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
+                            ${hideHeader 
+                                ? 'bg-transparent border-none px-4 pt-4 pb-2' 
+                                : 'bg-gray-50 dark:bg-surface-dark border-b border-gray-100 dark:border-transparent px-4 pb-4 backdrop-blur-xl'}`}
+                style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
+            >
                 <div className="flex items-center justify-center relative min-h-[36px]">
                     <button
                         onClick={onBack}
@@ -72,14 +76,16 @@ const FeedbackView = ({ user, onBack }) => {
                     >
                         <ArrowLeft size={15} strokeWidth={2.5} />
                     </button>
-                    <div className="text-center">
-                        <h2 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight">
-                            {translate('feedback') || 'Feedback & Ideas'}
-                        </h2>
-                        <p className="text-[11px] text-gray-400 dark:text-white/35">
-                            {translate('feedback_desc') || "Tell us how to improve"}
-                        </p>
-                    </div>
+                    {!hideHeader && (
+                        <div className="text-center">
+                            <h2 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight">
+                                {translate('feedback') || 'Feedback & Ideas'}
+                            </h2>
+                            <p className="text-[11px] text-gray-400 dark:text-white/35">
+                                {translate('feedback_desc') || "Tell us how to improve"}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 

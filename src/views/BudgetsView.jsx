@@ -23,7 +23,7 @@ const CATEGORY_META = {
     'Άλλο': { icon: Package, color: 'from-gray-500 to-slate-600' },
 };
 
-const BudgetsView = ({ user, transactions, onBack }) => {
+const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
     const { t, privacyMode } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
 
@@ -194,31 +194,39 @@ const BudgetsView = ({ user, transactions, onBack }) => {
         <div className="flex flex-col h-full bg-gray-50 dark:bg-surface-dark animate-fade-in transition-colors duration-300">
 
             {/* ── Sticky Header ── */}
-            <div className="bg-white dark:bg-surface-dark px-5 pt-12 pb-4 shadow-sm border-b border-gray-100 dark:border-transparent flex items-center justify-between sticky top-0 z-10 min-h-[70px] relative">
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={onBack}
-                        className="absolute left-5 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08]
-                                   flex items-center justify-center
-                                   text-gray-500 dark:text-white/50
-                                   hover:bg-gray-200 dark:hover:bg-white/[0.14]
-                                   active:scale-90 transition-all duration-150"
-                    >
-                        <ArrowLeft size={15} strokeWidth={2.5} />
-                    </button>
-                    <div className="pl-10">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none">{t('budgets')}</h2>
-                        <p className="text-xs text-gray-400 mt-1">
-                            {!isPro ? <span>{budgets.length}/3 {t('active').toLowerCase()} 👑</span> : `${budgets.length} ` + t('active').toLowerCase()} · {new Date().toLocaleString('el-GR', { month: 'long', year: 'numeric' })}
-                        </p>
+            <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
+                            ${hideHeader 
+                                ? 'bg-transparent border-none px-5 pt-4 pb-2' 
+                                : 'bg-white dark:bg-surface-dark px-5 pt-12 pb-4 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
+            >
+                <div className="flex items-center justify-between min-h-[40px] relative">
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={onBack}
+                            className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08]
+                                       flex items-center justify-center
+                                       text-gray-500 dark:text-white/50
+                                       hover:bg-gray-200 dark:hover:bg-white/[0.14]
+                                       active:scale-90 transition-all duration-150"
+                        >
+                            <ArrowLeft size={15} strokeWidth={2.5} />
+                        </button>
+                        {!hideHeader && (
+                            <div className="pl-10">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none">{t('budgets')}</h2>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    {!isPro ? <span>{budgets.length}/3 {t('active').toLowerCase()} 👑</span> : `${budgets.length} ` + t('active').toLowerCase()} · {new Date().toLocaleString('el-GR', { month: 'long', year: 'numeric' })}
+                                </p>
+                            </div>
+                        )}
                     </div>
+                    <button
+                        onClick={openAddModal}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95"
+                    >
+                        {(!isPro && budgets.length >= 3) ? <span className="text-[14px]">👑</span> : <Plus size={16} />} {t('add_budget')}
+                    </button>
                 </div>
-                <button
-                    onClick={openAddModal}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95"
-                >
-                    {(!isPro && budgets.length >= 3) ? <span className="text-[14px]">👑</span> : <Plus size={16} />} {t('add_budget')}
-                </button>
             </div>
 
             {/* ── Scrollable Content ── */}

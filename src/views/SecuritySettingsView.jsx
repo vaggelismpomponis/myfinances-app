@@ -4,6 +4,7 @@ import {
     ArrowLeft,
     Smartphone,
     ShieldCheck,
+    ChevronLeft,
     ChevronRight,
     KeyRound,
     X,
@@ -49,7 +50,7 @@ const Toggle = ({ enabled, onClick, disabled }) => (
 );
 
 
-const SecuritySettingsView = ({ user, onBack }) => {
+const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
     const { isBiometricsEnabled, toggleBiometrics, isPinEnabled, setPin, removePin, appPin,
         isPrivacyScreenEnabled, togglePrivacyScreen, t: translate } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
@@ -63,6 +64,8 @@ const SecuritySettingsView = ({ user, onBack }) => {
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const SESSIONS_PER_PAGE = 5;
 
     const [showPinModal, setShowPinModal] = useState(false);
     const [pinInput, setPinInput] = useState('');
@@ -251,11 +254,11 @@ const SecuritySettingsView = ({ user, onBack }) => {
 
             {/* ───────── Header ───────── */}
             <div
-                className="shrink-0 bg-gray-50 dark:bg-surface-dark
-                            border-b border-gray-100 dark:border-transparent
-                            px-4 pb-3 sticky top-0 z-10
-                            backdrop-blur-xl transition-colors duration-300"
-                style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+                className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
+                            ${hideHeader 
+                                ? 'bg-transparent border-none px-4 pt-4 pb-2' 
+                                : 'bg-gray-50 dark:bg-surface-dark backdrop-blur-xl border-b border-gray-100 dark:border-transparent px-4 pb-3'}`}
+                style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' } : {}}
             >
                 <div className="flex items-center justify-center relative min-h-[32px]">
                     <button
@@ -264,149 +267,201 @@ const SecuritySettingsView = ({ user, onBack }) => {
                                    flex items-center justify-center
                                    text-gray-500 dark:text-white/50
                                    hover:bg-gray-200 dark:hover:bg-white/[0.14]
-                                   active:scale-90 transition-all"
+                                   active:scale-90 transition-all duration-150"
                     >
                         <ArrowLeft size={15} strokeWidth={2.5} />
                     </button>
-                    <h2 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center">
-                        {translate('security_title')}
-                    </h2>
+                    {!hideHeader && (
+                        <h2 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center">
+                            {translate('security_title')}
+                        </h2>
+                    )}
                 </div>
             </div>
 
             {/* ───────── Content ───────── */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-5 pb-10">
+            <div className="flex-1 overflow-y-auto p-4 pb-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto items-start">
+                    
+                    {/* Left Column: Login Security */}
+                    <div className="space-y-6">
+                        <div>
+                            <SectionLabel>{translate('login_auth')}</SectionLabel>
+                            <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
+                                            shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
+                                            border border-gray-100 dark:border-transparent">
 
-                {/* Login Security */}
-                <div>
-                    <SectionLabel>{translate('login_auth')}</SectionLabel>
-                    <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
-                                    shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
-                                    border border-gray-100 dark:border-transparent">
+                                {/* Change Password — only for email users */}
+                                {isPasswordUser && (
+                                    <button
+                                        onClick={() => setShowPasswordModal(true)}
+                                        className="w-full flex items-center gap-3.5 px-4 py-3.5 text-left
+                                                   border-b border-gray-100/80 dark:border-transparent
+                                                   hover:bg-black/[0.03] dark:hover:bg-white/[0.04]
+                                                   active:scale-[0.98] transition-all duration-150"
+                                    >
+                                        <div className="w-9 h-9 rounded-[11px] bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center flex-shrink-0">
+                                            <KeyRound size={16} className="text-violet-600 dark:text-violet-400" strokeWidth={2.2} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <span className="block font-semibold text-[13.5px] text-gray-800 dark:text-white/90">{translate('change_password')}</span>
+                                            <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('change_password_desc') || "Update your account password"}</span>
+                                        </div>
+                                        <ChevronRight size={14} className="text-gray-300 dark:text-white/40" />
+                                    </button>
+                                )}
 
-                        {/* Change Password — only for email users */}
-                        {isPasswordUser && (
-                            <button
-                                onClick={() => setShowPasswordModal(true)}
-                                className="w-full flex items-center gap-3.5 px-4 py-3.5 text-left
-                                           border-b border-gray-100/80 dark:border-transparent
-                                           hover:bg-black/[0.03] dark:hover:bg-white/[0.04]
-                                           active:scale-[0.98] transition-all duration-150"
-                            >
-                                <div className="w-9 h-9 rounded-[11px] bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center flex-shrink-0">
-                                    <KeyRound size={16} className="text-violet-600 dark:text-violet-400" strokeWidth={2.2} />
+                                {/* PIN Toggle */}
+                                <div className="flex items-center gap-3.5 px-4 py-3.5 border-b border-gray-100/80 dark:border-transparent">
+                                    <div className="w-9 h-9 rounded-[11px] bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                                        <Lock size={16} className="text-emerald-600 dark:text-emerald-400" strokeWidth={2.2} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <span className="block font-semibold text-[13.5px] text-gray-800 dark:text-white/90">{translate('app_pin')}</span>
+                                        <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('lock_screen')}</span>
+                                    </div>
+                                    <Toggle enabled={isPinEnabled} onClick={handleTogglePin} />
                                 </div>
-                                <div className="flex-1">
-                                    <span className="block font-semibold text-[13.5px] text-gray-800 dark:text-white/90">{translate('change_password')}</span>
-                                    <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('change_password_desc') || "Update your account password"}</span>
+
+                                {/* Biometrics Toggle */}
+                                <div className="flex items-center gap-3.5 px-4 py-3.5 border-b border-gray-100/80 dark:border-transparent">
+                                    <div className="w-9 h-9 rounded-[11px] bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
+                                        <Smartphone size={16} className="text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <span className="flex items-center gap-2 font-semibold text-[13.5px] text-gray-800 dark:text-white/90">
+                                            {translate('biometrics')}
+                                            {!isPro && <ProBadge />}
+                                        </span>
+                                        <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('biometrics_desc')}</span>
+                                    </div>
+                                    <Toggle enabled={isBiometricsEnabled} onClick={handleToggleBiometrics} disabled={!isPro} />
                                 </div>
-                                <ChevronRight size={14} className="text-gray-300 dark:text-white/40" />
-                            </button>
-                        )}
 
-                        {/* PIN Toggle */}
-                        <div className="flex items-center gap-3.5 px-4 py-3.5 border-b border-gray-100/80 dark:border-transparent">
-                            <div className="w-9 h-9 rounded-[11px] bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                                <Lock size={16} className="text-emerald-600 dark:text-emerald-400" strokeWidth={2.2} />
+                                {/* Privacy Screen Toggle */}
+                                <div className="flex items-center gap-3.5 px-4 py-3.5">
+                                    <div className="w-9 h-9 rounded-[11px] bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                                        <EyeOff size={16} className="text-orange-600 dark:text-orange-400" strokeWidth={2.2} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <span className="block font-semibold text-[13.5px] text-gray-800 dark:text-white/90">{translate('privacy_screen')}</span>
+                                        <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('privacy_screen_desc')}</span>
+                                    </div>
+                                    <Toggle enabled={isPrivacyScreenEnabled} onClick={() => togglePrivacyScreen(!isPrivacyScreenEnabled)} />
+                                </div>
                             </div>
-                            <div className="flex-1">
-                                <span className="block font-semibold text-[13.5px] text-gray-800 dark:text-white/90">{translate('app_pin')}</span>
-                                <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('lock_screen')}</span>
-                            </div>
-                            <Toggle enabled={isPinEnabled} onClick={handleTogglePin} />
-                        </div>
-
-                        {/* Biometrics Toggle */}
-                        <div className="flex items-center gap-3.5 px-4 py-3.5 border-b border-gray-100/80 dark:border-transparent">
-                            <div className="w-9 h-9 rounded-[11px] bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
-                                <Smartphone size={16} className="text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
-                            </div>
-                            <div className="flex-1">
-                                <span className="flex items-center gap-2 font-semibold text-[13.5px] text-gray-800 dark:text-white/90">
-                                    {translate('biometrics')}
-                                    {!isPro && <ProBadge />}
-                                </span>
-                                <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('biometrics_desc')}</span>
-                            </div>
-                            <Toggle enabled={isBiometricsEnabled} onClick={handleToggleBiometrics} disabled={!isPro} />
-                        </div>
-
-                        {/* Privacy Screen Toggle */}
-                        <div className="flex items-center gap-3.5 px-4 py-3.5">
-                            <div className="w-9 h-9 rounded-[11px] bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center flex-shrink-0">
-                                <EyeOff size={16} className="text-orange-600 dark:text-orange-400" strokeWidth={2.2} />
-                            </div>
-                            <div className="flex-1">
-                                <span className="block font-semibold text-[13.5px] text-gray-800 dark:text-white/90">{translate('privacy_screen')}</span>
-                                <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('privacy_screen_desc')}</span>
-                            </div>
-                            <Toggle enabled={isPrivacyScreenEnabled} onClick={() => togglePrivacyScreen(!isPrivacyScreenEnabled)} />
                         </div>
                     </div>
-                </div>
 
-                {/* Active Sessions */}
-                <div>
-                    <SectionLabel>{translate('active_sessions')}</SectionLabel>
-                    <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
-                                    shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
-                                    border border-gray-100 dark:border-transparent">
-                        {sessions.length === 0 ? (
-                            <div className="p-8 flex flex-col items-center justify-center gap-2">
-                                <Monitor size={24} className="text-gray-200 dark:text-white/15" />
-                                <p className="text-[13px] text-gray-400 dark:text-white/50">{translate('loading_sessions')}</p>
-                            </div>
-                        ) : (
-                            sessions.map((session, index) => {
-                                const isCurrent = session.id === currentSessionId;
-                                const DeviceIcon = getDeviceIcon(session.device);
-                                const dateStr = new Date(session.last_active).toLocaleString('el-GR', {
-                                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                                });
-                                return (
-                                    <div
-                                        key={session.id}
-                                        className={`flex items-center gap-3.5 px-4 py-3.5
-                                                    ${index !== sessions.length - 1 ? 'border-b border-gray-100/80 dark:border-transparent' : ''}`}
-                                    >
-                                        <div className={`w-9 h-9 rounded-[11px] flex items-center justify-center flex-shrink-0
-                                                          ${isCurrent
-                                                ? 'bg-violet-50 dark:bg-violet-500/10'
-                                                : 'bg-gray-100 dark:bg-white/[0.05]'}`}>
-                                            <DeviceIcon size={16}
-                                                className={isCurrent ? 'text-violet-600 dark:text-violet-400' : 'text-gray-500 dark:text-white/60'}
-                                                strokeWidth={2.2}
-                                            />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-semibold text-[13.5px] text-gray-800 dark:text-white/90 truncate">
-                                                    {session.device && !session.device.includes('Unknown') ? session.device : translate('unknown_device')}
-                                                </span>
-                                                {isCurrent && (
-                                                    <span className="shrink-0 px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-500/15
-                                                                     text-emerald-700 dark:text-emerald-400 text-[9px] uppercase font-bold rounded-md">
-                                                        {translate('this_device')}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                                {session.location && !session.location.includes('Unknown') && (
-                                                    <span className="flex items-center gap-1 text-[11px] text-gray-400 dark:text-white/35">
-                                                        <MapPin size={9} />
-                                                        {session.location}
-                                                    </span>
-                                                )}
-                                                <span className="flex items-center gap-1 text-[11px] text-gray-400 dark:text-white/35">
-                                                    <Clock size={9} />
-                                                    {dateStr}
-                                                </span>
-                                            </div>
-                                        </div>
+                    {/* Right Column: Active Sessions */}
+                    <div className="space-y-6">
+                        <div>
+                            <SectionLabel>{translate('active_sessions')}</SectionLabel>
+                            <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
+                                            shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
+                                            border border-gray-100 dark:border-transparent">
+                                {sessions.length === 0 ? (
+                                    <div className="p-8 flex flex-col items-center justify-center gap-2">
+                                        <Monitor size={24} className="text-gray-200 dark:text-white/15" />
+                                        <p className="text-[13px] text-gray-400 dark:text-white/50">{translate('loading_sessions')}</p>
                                     </div>
-                                );
-                            })
-                        )}
+                                ) : (
+                                    <>
+                                        <div className="divide-y divide-gray-100/80 dark:divide-white/[0.04]">
+                                            {sessions
+                                                .slice((currentPage - 1) * SESSIONS_PER_PAGE, currentPage * SESSIONS_PER_PAGE)
+                                                .map((session) => {
+                                                    const isCurrent = session.id === currentSessionId;
+                                                    const DeviceIcon = getDeviceIcon(session.device);
+                                                    const dateStr = new Date(session.last_active).toLocaleString('el-GR', {
+                                                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                    });
+                                                    return (
+                                                        <div
+                                                            key={session.id}
+                                                            className="flex items-center gap-3.5 px-4 py-3.5"
+                                                        >
+                                                            <div className={`w-9 h-9 rounded-[11px] flex items-center justify-center flex-shrink-0
+                                                                              ${isCurrent
+                                                                    ? 'bg-violet-50 dark:bg-violet-500/10'
+                                                                    : 'bg-gray-100 dark:bg-white/[0.05]'}`}>
+                                                                <DeviceIcon size={16}
+                                                                    className={isCurrent ? 'text-violet-600 dark:text-violet-400' : 'text-gray-500 dark:text-white/60'}
+                                                                    strokeWidth={2.2}
+                                                                />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="font-semibold text-[13.5px] text-gray-800 dark:text-white/90 truncate">
+                                                                        {session.device && !session.device.includes('Unknown') ? session.device : translate('unknown_device')}
+                                                                    </span>
+                                                                    {isCurrent && (
+                                                                        <span className="shrink-0 px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-500/15
+                                                                                         text-emerald-700 dark:text-emerald-400 text-[9px] uppercase font-bold rounded-md">
+                                                                            {translate('this_device')}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex items-center gap-2 mt-0.5">
+                                                                    {session.location && !session.location.includes('Unknown') && (
+                                                                        <span className="flex items-center gap-1 text-[11px] text-gray-400 dark:text-white/35">
+                                                                            <MapPin size={9} />
+                                                                            {session.location}
+                                                                        </span>
+                                                                    )}
+                                                                    <span className="flex items-center gap-1 text-[11px] text-gray-400 dark:text-white/35">
+                                                                        <Clock size={9} />
+                                                                        {dateStr}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                        </div>
+
+                                        {/* Pagination Controls */}
+                                        {sessions.length > SESSIONS_PER_PAGE && (
+                                            <div className="px-4 py-3 bg-gray-50/50 dark:bg-white/[0.02] border-t border-gray-100 dark:border-white/[0.05] flex items-center justify-between">
+                                                <p className="text-[11px] text-gray-400 dark:text-white/30 font-medium">
+                                                    {translate('showing')} <span className="text-gray-600 dark:text-white/60">{(currentPage - 1) * SESSIONS_PER_PAGE + 1}</span> - <span className="text-gray-600 dark:text-white/60">{Math.min(currentPage * SESSIONS_PER_PAGE, sessions.length)}</span> {translate('of')} <span className="text-gray-600 dark:text-white/60">{sessions.length}</span>
+                                                </p>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                                        disabled={currentPage === 1}
+                                                        className="w-8 h-8 rounded-lg bg-white dark:bg-white/[0.05] border border-gray-100 dark:border-white/[0.05]
+                                                                   flex items-center justify-center text-gray-500 dark:text-white/60
+                                                                   disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-white/[0.1] transition-all"
+                                                    >
+                                                        <ChevronLeft size={14} />
+                                                    </button>
+                                                    <div className="flex items-center gap-1">
+                                                        {[...Array(Math.ceil(sessions.length / SESSIONS_PER_PAGE))].map((_, i) => (
+                                                            <div 
+                                                                key={i} 
+                                                                className={`h-1 rounded-full transition-all duration-300 ${
+                                                                    currentPage === i + 1 ? 'w-4 bg-violet-600' : 'w-1 bg-gray-200 dark:bg-white/10'
+                                                                }`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    <button
+                                                        onClick={() => setCurrentPage(prev => Math.min(Math.ceil(sessions.length / SESSIONS_PER_PAGE), prev + 1))}
+                                                        disabled={currentPage === Math.ceil(sessions.length / SESSIONS_PER_PAGE)}
+                                                        className="w-8 h-8 rounded-lg bg-white dark:bg-white/[0.05] border border-gray-100 dark:border-white/[0.05]
+                                                                   flex items-center justify-center text-gray-500 dark:text-white/60
+                                                                   disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-white/[0.1] transition-all"
+                                                    >
+                                                        <ChevronRight size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -18,7 +18,7 @@ import {
 } from 'recharts';
 import { useSettings } from '../contexts/SettingsContext';
 
-const FinancialAdvisorView = ({ transactions, goals = [], onBack }) => {
+const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) => {
     const { t } = useSettings();
 
     // Mapping categories to 50-30-20 buckets
@@ -136,20 +136,28 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack }) => {
     return (
         <div className="flex flex-col h-full bg-gray-50 dark:bg-surface-dark animate-fade-in">
             {/* Header */}
-            <div className="px-5 pt-12 pb-4 bg-white dark:bg-surface-dark2 shadow-sm border-b border-gray-100 dark:border-transparent flex items-center justify-center relative sticky top-0 z-10 min-h-[70px]">
-                <button
-                    onClick={onBack}
-                    className="absolute left-5 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08]
-                               flex items-center justify-center
-                               text-gray-500 dark:text-white/50
-                               hover:bg-gray-200 dark:hover:bg-white/[0.14]
-                               active:scale-90 transition-all duration-150"
-                >
-                    <ArrowLeft size={15} strokeWidth={2.5} />
-                </button>
-                <div className="text-center">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none">{t('advisor_title')}</h2>
-                    <p className="text-xs text-gray-400 mt-1">{t('advisor_subtitle')}</p>
+            <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
+                            ${hideHeader 
+                                ? 'bg-transparent border-none px-5 pt-4 pb-2' 
+                                : 'px-5 pt-12 pb-4 bg-white dark:bg-surface-dark2 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
+            >
+                <div className="flex items-center justify-center min-h-[40px] relative">
+                    <button
+                        onClick={onBack}
+                        className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08]
+                                   flex items-center justify-center
+                                   text-gray-500 dark:text-white/50
+                                   hover:bg-gray-200 dark:hover:bg-white/[0.14]
+                                   active:scale-90 transition-all duration-150"
+                    >
+                        <ArrowLeft size={15} strokeWidth={2.5} />
+                    </button>
+                    {!hideHeader && (
+                        <div className="text-center">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none">{t('advisor_title')}</h2>
+                            <p className="text-xs text-gray-400 mt-1">{t('advisor_subtitle')}</p>
+                        </div>
+                    )}
                 </div>
             </div>
 

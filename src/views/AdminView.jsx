@@ -10,7 +10,7 @@ import { useToast } from '../contexts/ToastContext';
 import { useSettings } from '../contexts/SettingsContext';
 import ConfirmationModal from '../components/ConfirmationModal';
 
-const AdminView = ({ onBack }) => {
+const AdminView = ({ onBack, hideHeader }) => {
     const [activeSection, setActiveSection] = useState('overview');
     const [loading, setLoading] = useState(true);
 
@@ -127,6 +127,13 @@ const AdminView = ({ onBack }) => {
             
             setProfiles(enhancedProfiles);
 
+            // Update selected profile if currently viewing one
+            setSelectedProfile(prev => {
+                if (!prev) return null;
+                const updated = enhancedProfiles.find(p => p.id === prev.id);
+                return updated ? { ...prev, ...updated } : prev;
+            });
+
             const uniqueUsers = allUserIds.size;
             setStats({
                 users: uniqueUsers,
@@ -218,15 +225,26 @@ const AdminView = ({ onBack }) => {
     const confirmSubscriptionChange = async () => {
         if (!subTarget) return;
         const { profile, status } = subTarget;
+        
+        // Optimistic update
+        setProfiles(prev => prev.map(p => 
+            p.id === profile.id ? { ...p, subscription_status: status } : p
+        ));
+        if (selectedProfile && selectedProfile.id === profile.id) {
+            setSelectedProfile(prev => ({ ...prev, subscription_status: status }));
+        }
+
         try {
             const { error } = await supabase.functions.invoke('admin-manage-subscription', {
                 body: { targetUserId: profile.id, status }
             });
             if (error) throw error;
             showToast(`User updated to ${status.toUpperCase()}`, 'success');
-            fetchAllData(); // refresh list
+            await fetchAllData(); // refresh list to ensure consistency
         } catch (err) {
             showToast(`Error: ${err.message}`, 'error');
+            // Rollback on error
+            fetchAllData();
         } finally {
             setShowSubModal(false);
             setSubTarget(null);
@@ -370,12 +388,19 @@ const AdminView = ({ onBack }) => {
     return (
         <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col animate-fade-in transition-colors duration-300">
             {/* Header */}
-            <div className="shrink-0 bg-gray-50 dark:bg-surface-dark border-b border-gray-100 dark:border-transparent px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 sticky top-0 z-10 backdrop-blur-xl transition-colors duration-300">
+            <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
+                            ${hideHeader 
+                                ? 'bg-transparent border-none px-4 pt-4 pb-2' 
+                                : 'bg-gray-50 dark:bg-surface-dark border-b border-gray-100 dark:border-transparent px-4 pb-4 backdrop-blur-xl'}`}
+                style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
+            >
                 <div className="flex items-center justify-center relative mb-4 min-h-[36px]">
                     <button onClick={onBack} className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center text-gray-500 dark:text-white/50 hover:bg-gray-200 dark:hover:bg-white/[0.14] active:scale-90 transition-all duration-150">
                         <ArrowLeft size={15} strokeWidth={2.5} />
                     </button>
-                    <h2 className="text-[17px] font-bold text-gray-900 dark:text-white text-center">{translate('admin_dashboard_title')}</h2>
+                    {!hideHeader && (
+                        <h2 className="text-[17px] font-bold text-gray-900 dark:text-white text-center">{translate('admin_dashboard_title')}</h2>
+                    )}
                     <button onClick={fetchAllData} className="absolute right-0 w-9 h-9 rounded-full bg-violet-100 dark:bg-violet-500/10 flex items-center justify-center text-violet-600 dark:text-violet-400 active:rotate-180 transition-all duration-500">
                         <RefreshCw size={17} />
                     </button>
@@ -419,55 +444,55 @@ const AdminView = ({ onBack }) => {
                             />
                         </div>
                         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                            {['all', 'idea', 'bug', 'other'].map(t => (
-                                <button
-                                    key={t}
-                                    onClick={() => setFilter(t)}
-                                    className={`px-4 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all
-                                                ${filter === t ? 'bg-violet-600 text-white shadow-md' : 'bg-white dark:bg-white/[0.06] text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent'}`}
-                                >
-                                    {translate(t)}
-                                </button>
-                            ))}
+                                {['all', 'idea', 'bug', 'other'].map(t => (
+                                    <button
+                                        key={t}
+                                        onClick={() => setFilter(t)}
+                                        className={`px-4 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all
+                                                    ${filter === t ? 'bg-violet-600 text-white shadow-md' : 'bg-white dark:bg-white/[0.06] text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent'}`}
+                                    >
+                                        {translate(t)}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Search & Filters (Users Only) */}
-                {activeSection === 'users' && !selectedProfile && (
-                    <div className="space-y-3 animate-fade-in">
-                        <div className="relative">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder={translate('search_users') || 'Αναζήτηση email...'}
-                                value={userSearchTerm}
-                                onChange={(e) => setUserSearchTerm(e.target.value)}
-                                className="w-full pl-9 pr-4 py-2.5 bg-gray-50 dark:bg-white/[0.05] border border-gray-100 dark:border-transparent rounded-xl text-[13px] text-gray-900 dark:text-white focus:outline-none"
-                            />
+                    {/* Search & Filters (Users Only) */}
+                    {activeSection === 'users' && !selectedProfile && (
+                        <div className="space-y-3 animate-fade-in">
+                            <div className="relative">
+                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder={translate('search_users') || 'Αναζήτηση email...'}
+                                    value={userSearchTerm}
+                                    onChange={(e) => setUserSearchTerm(e.target.value)}
+                                    className="w-full pl-9 pr-4 py-2.5 bg-gray-50 dark:bg-white/[0.05] border border-gray-100 dark:border-transparent rounded-xl text-[13px] text-gray-900 dark:text-white focus:outline-none"
+                                />
+                            </div>
+                            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                                {['all', 'pro', 'free'].map(t => (
+                                    <button
+                                        key={t}
+                                        onClick={() => setUserFilter(t)}
+                                        className={`px-4 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all
+                                                    ${userFilter === t ? 'bg-violet-600 text-white shadow-md' : 'bg-white dark:bg-white/[0.06] text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent'}`}
+                                    >
+                                        {t === 'all' ? (translate('all') || 'Όλοι') : t === 'pro' ? 'Pro' : 'Free'}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                            {['all', 'pro', 'free'].map(t => (
-                                <button
-                                    key={t}
-                                    onClick={() => setUserFilter(t)}
-                                    className={`px-4 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all
-                                                ${userFilter === t ? 'bg-violet-600 text-white shadow-md' : 'bg-white dark:bg-white/[0.06] text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent'}`}
-                                >
-                                    {t === 'all' ? (translate('all') || 'Όλοι') : t === 'pro' ? 'Pro' : 'Free'}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Create Update Button (Updates Only) */}
-                {activeSection === 'updates' && (
-                    <button onClick={() => setShowUpdateModal(true)} className="w-full py-2.5 bg-violet-600 text-white text-[13px] font-bold rounded-xl shadow-lg active:scale-95 transition-all animate-fade-in">
-                        + {translate('admin_create_update')}
-                    </button>
-                )}
-            </div>
+                    {/* Create Update Button (Updates Only) */}
+                    {activeSection === 'updates' && (
+                        <button onClick={() => setShowUpdateModal(true)} className="w-full py-2.5 bg-violet-600 text-white text-[13px] font-bold rounded-xl shadow-lg active:scale-95 transition-all animate-fade-in">
+                            + {translate('admin_create_update')}
+                        </button>
+                    )}
+                </div>
 
             {/* Content Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-10">

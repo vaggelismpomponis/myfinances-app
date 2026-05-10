@@ -33,7 +33,7 @@ const Section = ({ icon: Icon, title, description, items, color, bg }) => (
     </div>
 );
 
-const GuideView = ({ onBack }) => {
+const GuideView = ({ onBack, hideHeader }) => {
     const { t: translate } = useSettings();
 
     const sections = [
@@ -126,12 +126,11 @@ const GuideView = ({ onBack }) => {
     return (
         <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300 overflow-hidden">
             {/* ─────── Sticky Header ─────── */}
-            <div className="shrink-0 sticky top-0 z-20 
-                            bg-gray-50 dark:bg-surface-dark 
-                            backdrop-blur-xl 
-                            border-b border-gray-100 dark:border-transparent
-                            px-4 pb-3 transition-colors duration-300"
-                style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+            <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-20
+                            ${hideHeader 
+                                ? 'bg-transparent border-none px-4 pt-4 pb-2' 
+                                : 'bg-gray-50 dark:bg-surface-dark backdrop-blur-xl border-b border-gray-100 dark:border-transparent px-4 pb-3'}`}
+                style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' } : {}}
             >
                 <div className="flex items-center justify-center relative min-h-[36px]">
                     <button
@@ -145,14 +144,16 @@ const GuideView = ({ onBack }) => {
                     >
                         <ArrowLeft size={15} strokeWidth={2.5} />
                     </button>
-                    <div className="text-center">
-                        <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight">
-                            {translate('user_guide') || 'User Guide'}
-                        </h1>
-                        <p className="text-[11px] text-gray-400 dark:text-white/50 leading-none mt-0.5">
-                            Everything you need to know
-                        </p>
-                    </div>
+                    {!hideHeader && (
+                        <div className="text-center">
+                            <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight">
+                                {translate('user_guide') || 'User Guide'}
+                            </h1>
+                            <p className="text-[11px] text-gray-400 dark:text-white/50 leading-none mt-0.5">
+                                Everything you need to know
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 

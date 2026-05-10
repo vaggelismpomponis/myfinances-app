@@ -20,6 +20,13 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     });
 }
 
+// Unregister any stale service workers in dev mode (prevents old cached index.html from showing)
+if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(registration => registration.unregister());
+    });
+}
+
 // Suppress console logs in production
 if (import.meta.env.PROD) {
     console.log = () => { };
