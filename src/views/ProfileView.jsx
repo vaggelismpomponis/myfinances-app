@@ -229,7 +229,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                         <ArrowLeft size={15} strokeWidth={2.5} />
                     </button>
                     {!hideHeader && (
-                        <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center">
+                        <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center truncate px-10">
                             {translate('settings_title') || 'Settings'}
                         </h1>
                     )}

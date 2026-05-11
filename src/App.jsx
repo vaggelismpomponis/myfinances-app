@@ -1360,8 +1360,8 @@ function MainContent() {
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <div className="text-center">
-                                                                <h2 className="text-[16px] font-bold text-gray-900 dark:text-white">
+                                                            <div className="flex-1 min-w-0 px-12 text-center">
+                                                                <h2 className="text-[16px] font-bold text-gray-900 dark:text-white truncate">
                                                                     {activeTab === 'history' && translate('nav_history')}
                                                                     {activeTab === 'stats' && translate('nav_stats')}
                                                                     {activeTab === 'goals' && translate('goals')}

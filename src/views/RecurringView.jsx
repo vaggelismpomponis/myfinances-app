@@ -214,7 +214,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                 : 'bg-gray-50 dark:bg-surface-dark border-b border-gray-100 dark:border-transparent px-4 pb-4 backdrop-blur-xl min-h-[70px]'}`}
                 style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
             >
-                <div className="flex items-center relative">
+                <div className="flex items-center gap-4 relative">
                     <button
                         onClick={onBack}
                         className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08]
@@ -227,7 +227,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                     </button>
 
                     {/* Title — takes all available space, truncates if needed */}
-                    <div className={`flex-1 min-w-0 ${hideHeader ? 'pl-10' : 'pl-10'}`}>
+                    <div className={`flex-1 min-w-0 pl-10`}>
                         {!hideHeader && (
                             <>
                                 <h2 className="text-sm font-bold text-gray-900 dark:text-white leading-tight truncate">

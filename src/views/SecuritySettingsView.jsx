@@ -272,7 +272,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                         <ArrowLeft size={15} strokeWidth={2.5} />
                     </button>
                     {!hideHeader && (
-                        <h2 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center">
+                        <h2 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center truncate px-10">
                             {translate('security_title')}
                         </h2>
                     )}
