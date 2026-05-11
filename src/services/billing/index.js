@@ -1,12 +1,9 @@
-import { isNative, isAndroid, isIOS } from '../../utils/platform';
+// Platform imports removed as we currently default to Stripe for all platforms.
 
 export const getBillingService = async () => {
-  if (isNative()) {
-    if (isAndroid() || isIOS()) {
-      const { GooglePlayBilling } = await import('./googlePlay');
-      return GooglePlayBilling;
-    }
-  }
+  // For now, we use StripeBilling for all platforms (Web and Native)
+  // as GooglePlayBilling is not yet implemented.
   const { StripeBilling } = await import('./stripe');
   return StripeBilling;
 };
+

@@ -1,4 +1,6 @@
 import { supabase } from '../../supabase';
+import { Browser } from '@capacitor/browser';
+import { isNative } from '../../utils/platform';
 
 export const StripeBilling = {
   subscribe: async (priceId, userId, email) => {
@@ -9,7 +11,11 @@ export const StripeBilling = {
       if (error) throw error;
       const url = data?.url;
       if (url) {
-        window.location.href = url;
+        if (isNative()) {
+          await Browser.open({ url });
+        } else {
+          window.open(url, '_blank');
+        }
       }
     } catch (error) {
       console.error('Error starting subscription:', error);
@@ -24,7 +30,11 @@ export const StripeBilling = {
       if (error) throw error;
       const url = data?.url;
       if (url) {
-        window.location.href = url;
+        if (isNative()) {
+          await Browser.open({ url });
+        } else {
+          window.open(url, '_blank');
+        }
       }
     } catch (error) {
       console.error('Error opening portal:', error);
