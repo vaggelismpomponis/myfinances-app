@@ -90,8 +90,8 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, type: 'spring' }}
                 className="relative overflow-hidden rounded-[2.5rem]
-                            bg-white dark:bg-surface-dark3
-                            p-8 pt-12 pb-10 text-center shadow-sm border border-gray-100 dark:border-transparent
+                            bg-white dark:bg-surface-dark3/90 backdrop-blur-xl
+                            p-8 pt-12 pb-10 text-center shadow-premium border border-slate-200/60 dark:border-white/5
                             transition-all duration-300">
 
                 {/* Subtle top glow */}
@@ -143,9 +143,9 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                         setActiveTab('advisor');
                     }
                 }}
-                className="w-full relative overflow-hidden bg-gray-100 dark:bg-surface-dark3
-                           p-4 rounded-[2rem] border border-violet-100/80 dark:border-violet-900/30
-                           shadow-sm flex items-center gap-4 group transition-all"
+                className="w-full relative overflow-hidden bg-violet-50 dark:bg-surface-dark3/70 backdrop-blur-md
+                           p-4 rounded-[2rem] border border-violet-200/50 dark:border-violet-900/30
+                           shadow-premium flex items-center gap-4 group transition-all"
             >
                 {!isPro && (
                     <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10 z-10">

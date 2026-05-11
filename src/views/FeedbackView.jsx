@@ -127,7 +127,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                                         className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all duration-200
                                                     ${isSelected
                                                 ? 'bg-white dark:bg-white/[0.08] border-violet-500/50 shadow-lg scale-105'
-                                                : 'bg-white/50 dark:bg-white/[0.03] border-transparent hover:bg-white dark:hover:bg-white/[0.05]'}`}
+                                                : 'bg-white dark:bg-white/[0.03] border-slate-100 dark:border-transparent hover:bg-white dark:hover:bg-white/[0.05] shadow-sm'}`}
                                     >
                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${t.bg}`}>
                                             <Icon size={20} className={t.color} />
@@ -151,11 +151,11 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder={translate('feedback_placeholder') || "Describe your idea or the issue..."}
                             className="w-full h-40 px-4 py-4 bg-white dark:bg-white/[0.04] 
-                                       border border-gray-100 dark:border-transparent
+                                       border border-slate-200/60 dark:border-transparent
                                        rounded-2xl text-[14px] text-gray-900 dark:text-white
-                                       placeholder:text-gray-300 dark:placeholder:text-white/10
+                                       placeholder:text-gray-400 dark:placeholder:text-white/20 placeholder:font-medium
                                        focus:outline-none focus:ring-2 focus:ring-violet-500/30
-                                       resize-none transition-all shadow-sm"
+                                       resize-none transition-all shadow-premium"
                             required
                         />
                     </div>

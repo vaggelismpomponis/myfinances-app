@@ -685,7 +685,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                         placeholder={t('note_placeholder')}
                                         autoFocus
                                         maxLength={NOTE_MAX_LENGTH}
-                                        className="w-full bg-gray-50 dark:bg-surface-dark3 border border-gray-200 dark:border-transparent rounded-xl px-4 py-2.5 pr-14 text-sm text-gray-800 dark:text-white/90 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                                        className="w-full bg-white dark:bg-surface-dark3 border border-slate-200/60 dark:border-transparent rounded-xl px-4 py-2.5 pr-14 text-sm text-gray-800 dark:text-white/90 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:font-medium shadow-premium"
                                         onBlur={() => { if (!note) setShowNote(false); }}
                                     />
                                     <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium tabular-nums ${note.length >= NOTE_MAX_LENGTH ? 'text-rose-500' : 'text-gray-300 dark:text-gray-600'

@@ -433,9 +433,9 @@ body {
 /* ── Custom Utilities ── */
 .shadow-premium {
   box-shadow:
-    0 10px 25px -5px rgba(0, 0, 0, 0.04),
-    0 8px 10px -6px rgba(0, 0, 0, 0.04),
-    0 0 1px 0 rgba(0, 0, 0, 0.12);
+    0 10px 30px -5px rgba(0, 0, 0, 0.08),
+    0 8px 12px -6px rgba(0, 0, 0, 0.06),
+    0 0 1px 0 rgba(0, 0, 0, 0.15);
 }
 
 .dark .shadow-premium {

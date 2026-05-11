@@ -83,12 +83,12 @@ const Field = ({ label, ...props }) => (
         </label>
         <input
             {...props}
-            className="w-full p-3.5 bg-gray-50 dark:bg-white/5
-                       border border-gray-200 dark:border-transparent
+            className="w-full p-3.5 bg-white dark:bg-white/5
+                       border border-slate-200/60 dark:border-transparent
                        rounded-2xl text-sm font-medium text-gray-900 dark:text-white
-                       placeholder:text-gray-300 dark:placeholder:text-gray-600
+                       placeholder:text-gray-400 dark:placeholder:text-gray-500
                        focus:outline-none focus:ring-2 focus:ring-violet-500
-                       dark:focus:ring-violet-400 transition-all"
+                       dark:focus:ring-violet-400 transition-all shadow-premium placeholder:font-medium"
         />
     </div>
 );

@@ -478,7 +478,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             value={formCategory}
                                             onChange={(e) => setFormCategory(e.target.value)}
                                             disabled={!!editingBudget}
-                                            className={`w-full py-3.5 pr-3.5 ${formCategory ? 'pl-10' : 'pl-3.5'} bg-gray-50 dark:bg-surface-dark2 border border-gray-200 dark:border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white disabled:opacity-50 appearance-none text-sm font-medium`}
+                                            className={`w-full py-3.5 pr-3.5 ${formCategory ? 'pl-10' : 'pl-3.5'} bg-white dark:bg-surface-dark2 border border-slate-200/60 dark:border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white shadow-premium disabled:opacity-50 appearance-none text-sm font-medium`}
                                             required
                                         >
                                             <option value="" disabled>{t('select_category')}</option>
@@ -515,7 +515,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             placeholder="300"
                                             value={formAmount}
                                             onChange={(e) => setFormAmount(e.target.value)}
-                                            className={`w-full ${!privacyMode ? 'pl-10' : 'pl-4'} pr-4 py-3.5 bg-gray-50 dark:bg-surface-dark2 border border-gray-200 dark:border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-sm font-medium`}
+                                            className={`w-full ${!privacyMode ? 'pl-10' : 'pl-4'} pr-4 py-3.5 bg-white dark:bg-surface-dark2 border border-slate-200/60 dark:border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-sm font-medium shadow-premium placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:font-medium`}
                                             required
                                             min="1"
                                         />
