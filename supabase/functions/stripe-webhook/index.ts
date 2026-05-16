@@ -49,6 +49,7 @@ serve(async (req) => {
             .update({
               subscription_status: "pro",
               stripe_customer_id: customerId,
+              has_used_trial: true,
             })
             .eq("id", userId)
 
