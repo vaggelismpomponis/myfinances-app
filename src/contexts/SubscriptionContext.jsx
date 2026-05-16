@@ -81,7 +81,7 @@ export const SubscriptionProvider = ({ user, children }) => {
     fetchProfile();
 
     const channel = supabase
-      .channel('profile_updates')
+      .channel(`profile_updates_${user.id}`)
       .on('postgres_changes', {
         event: 'UPDATE',
         schema: 'public',

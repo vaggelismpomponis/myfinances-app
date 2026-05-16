@@ -43,6 +43,34 @@ const PaymentSuccessView = ({ onContinue }) => {
         return () => cancelAnimationFrame(raf);
     }, []);
 
+    // Poll Supabase until the webhook has flipped subscription_status → 'pro'.
+    // Retries every 2 s, gives up after 15 s (8 attempts).
+    useEffect(() => {
+        let attempts = 0;
+        const MAX_ATTEMPTS = 8;
+
+        const poll = async () => {
+            attempts += 1;
+            try {
+                await refreshSubscription();
+            } catch (_) { /* ignore transient errors */ }
+        };
+
+        // First attempt immediately
+        poll();
+
+        const interval = setInterval(async () => {
+            if (attempts >= MAX_ATTEMPTS) {
+                clearInterval(interval);
+                return;
+            }
+            await poll();
+        }, 2000);
+
+        return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
         <div style={styles.root}>
 
