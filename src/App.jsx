@@ -601,7 +601,12 @@ function MainContent() {
             showToast(translate('account_created_successfully') || "Ο λογαριασμός δημιουργήθηκε!", 'success');
             return data;
         } catch (error) {
-            logger.error('OTP verification failed', error, 'App');
+            const isInvalidToken = error.message?.includes('Token has expired or is invalid');
+            if (isInvalidToken) {
+                logger.warn(`OTP verification failed: ${error.message}`, 'App');
+            } else {
+                logger.error('OTP verification failed', error, 'App');
+            }
             showToast(translate('invalid_code'), 'error');
             throw error;
         }
@@ -616,7 +621,12 @@ function MainContent() {
             if (error) throw error;
             showToast(translate('email_sent_title') || "Ο κωδικός στάλθηκε!", 'success');
         } catch (error) {
-            logger.error('Resend OTP failed', error, 'App');
+            const isRateLimit = error.message?.includes('security purposes') || error.status === 429;
+            if (isRateLimit) {
+                logger.warn(`Resend OTP blocked: ${error.message}`, 'App');
+            } else {
+                logger.error('Resend OTP failed', error, 'App');
+            }
             showToast(translate('email_send_error'), 'error');
         }
     };

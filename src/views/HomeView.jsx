@@ -90,7 +90,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, type: 'spring' }}
                 className="relative overflow-hidden rounded-[2.5rem]
-                            bg-white dark:bg-surface-dark3/90 backdrop-blur-xl
+                            bg-white dark:bg-surface-dark3 backdrop-blur-xl
                             p-8 pt-12 pb-10 text-center shadow-premium border border-slate-200/60 dark:border-white/5
                             transition-all duration-300">
 
@@ -143,7 +143,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                         setActiveTab('advisor');
                     }
                 }}
-                className="w-full relative overflow-hidden bg-violet-50 dark:bg-surface-dark3/70 backdrop-blur-md
+                className="w-full relative overflow-hidden bg-violet-50 dark:bg-surface-dark3 backdrop-blur-md
                            p-4 rounded-[2rem] border border-violet-200/50 dark:border-violet-900/30
                            shadow-premium flex items-center gap-4 group transition-all"
             >

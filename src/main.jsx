@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary'
+import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 
 // Initialize Sentry (only when DSN is configured)
@@ -24,6 +25,14 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 if (import.meta.env.DEV && 'serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(registrations => {
         registrations.forEach(registration => registration.unregister());
+    });
+} else if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    // Manually register to catch unhandled promise rejections on unsupported browsers/crawlers
+    registerSW({
+        immediate: true,
+        onRegisterError(error) {
+            console.error('Service worker registration failed:', error);
+        }
     });
 }
 

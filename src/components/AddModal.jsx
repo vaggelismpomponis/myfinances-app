@@ -456,7 +456,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md p-6 text-center"
+                            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-surface-dark backdrop-blur-md p-6 text-center"
                         >
                             <div className="relative mb-8">
                                 <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20"></div>

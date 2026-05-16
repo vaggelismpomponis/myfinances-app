@@ -79,7 +79,20 @@ const logger = {
                 Sentry.captureException(error);
             } else {
                 // No Error object — capture as a plain message
-                Sentry.captureMessage(`${message}${error ? `: ${String(error)}` : ''}`, 'error');
+                let errString = '';
+                if (error) {
+                    scope.setExtra('raw_error', error);
+                    try {
+                        errString = typeof error === 'object' && error.message 
+                            ? error.message 
+                            : typeof error === 'object' 
+                                ? JSON.stringify(error) 
+                                : String(error);
+                    } catch (e) {
+                        errString = 'Unserializable object';
+                    }
+                }
+                Sentry.captureMessage(`${message}${errString ? `: ${errString}` : ''}`, 'error');
             }
         });
     },

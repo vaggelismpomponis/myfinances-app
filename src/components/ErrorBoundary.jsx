@@ -24,33 +24,6 @@ class ErrorBoundaryClass extends React.Component {
         });
     }
 
-    componentDidMount() {
-        this.handleGlobalError = (event) => {
-            console.error("Global error caught:", event.error);
-            this.setState({ hasError: true, error: event.error });
-            Sentry.withScope((scope) => {
-                scope.setTag('context', 'GlobalError');
-                Sentry.captureException(event.error ?? new Error('Unknown global error'));
-            });
-        };
-        this.handlePromiseRejection = (event) => {
-            console.error("Unhandled promise rejection caught:", event.reason);
-            this.setState({ hasError: true, error: event.reason });
-            Sentry.withScope((scope) => {
-                scope.setTag('context', 'UnhandledRejection');
-                const err = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
-                Sentry.captureException(err);
-            });
-        };
-
-        window.addEventListener('error', this.handleGlobalError);
-        window.addEventListener('unhandledrejection', this.handlePromiseRejection);
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('error', this.handleGlobalError);
-        window.removeEventListener('unhandledrejection', this.handlePromiseRejection);
-    }
 
     render() {
         const { t } = this.props.settings;
