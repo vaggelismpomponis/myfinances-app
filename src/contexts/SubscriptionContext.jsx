@@ -70,6 +70,25 @@ export const SubscriptionProvider = ({ user, children }) => {
     }
   };
 
+  // Directly queries Stripe and writes to DB — bypasses webhook entirely.
+  // Use this after a successful payment to guarantee Pro is applied.
+  const syncSubscription = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-subscription', {
+        body: { userId: user.id },
+      });
+      if (error) throw error;
+      // The edge function already updated the DB; re-fetch to sync local state.
+      await fetchProfile();
+      return data;
+    } catch (e) {
+      console.error('syncSubscription failed:', e);
+      // Fallback: try a plain DB read in case the edge function had a transient error
+      await fetchProfile();
+    }
+  };
+
   useEffect(() => {
     if (!user) {
       setIsPro(false);
@@ -127,7 +146,8 @@ export const SubscriptionProvider = ({ user, children }) => {
       isUpgradeModalOpen,
       closeUpgradeModal,
       upgradeFeatureKey,
-      refreshSubscription: fetchProfile
+      refreshSubscription: fetchProfile,
+      syncSubscription,
     }}>
       {children}
     </SubscriptionContext.Provider>

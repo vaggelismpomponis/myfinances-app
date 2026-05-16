@@ -26,7 +26,7 @@ const PARTICLES = [
 
 const PaymentSuccessView = ({ onContinue }) => {
     const { t } = useSettings();
-    const { refreshSubscription } = useSubscription();
+    const { syncSubscription } = useSubscription();
     const hasAnimated = useRef(false);
     const [visible, setVisible] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -43,31 +43,10 @@ const PaymentSuccessView = ({ onContinue }) => {
         return () => cancelAnimationFrame(raf);
     }, []);
 
-    // Poll Supabase until the webhook has flipped subscription_status → 'pro'.
-    // Retries every 2 s, gives up after 15 s (8 attempts).
+    // Call syncSubscription on mount — this directly queries Stripe, updates the
+    // DB, then re-reads it. No dependency on webhooks.
     useEffect(() => {
-        let attempts = 0;
-        const MAX_ATTEMPTS = 8;
-
-        const poll = async () => {
-            attempts += 1;
-            try {
-                await refreshSubscription();
-            } catch (_) { /* ignore transient errors */ }
-        };
-
-        // First attempt immediately
-        poll();
-
-        const interval = setInterval(async () => {
-            if (attempts >= MAX_ATTEMPTS) {
-                clearInterval(interval);
-                return;
-            }
-            await poll();
-        }, 2000);
-
-        return () => clearInterval(interval);
+        syncSubscription().catch(console.error);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -180,9 +159,9 @@ const PaymentSuccessView = ({ onContinue }) => {
                         if (isRefreshing) return;
                         setIsRefreshing(true);
                         try {
-                            await refreshSubscription();
+                            await syncSubscription();
                         } catch (e) {
-                            console.error('Refresh failed', e);
+                            console.error('Sync failed', e);
                         }
                         onContinue();
                     }}
