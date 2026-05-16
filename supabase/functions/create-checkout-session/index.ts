@@ -19,7 +19,7 @@ serve(async (req) => {
   }
 
   try {
-    const { priceId, userId, email } = await req.json()
+    const { priceId, userId, email, platform } = await req.json()
 
     if (!priceId || !userId) {
       return new Response(JSON.stringify({ error: "Missing priceId or userId" }), { 
@@ -28,8 +28,17 @@ serve(async (req) => {
       })
     }
 
-    // Determine return URLs based on the origin
-    const origin = req.headers.get("origin") || "http://localhost:5173"
+    // Determine return URLs based on the origin/platform
+    let origin = req.headers.get("origin") || "http://localhost:5173"
+    
+    // For mobile, we use the app's custom scheme
+    const isMobile = platform === 'mobile'
+    const successUrl = isMobile 
+      ? `com.bomponis.spendwise://payment-success?upgraded=true`
+      : `${origin}/?upgraded=true`
+    const cancelUrl = isMobile 
+      ? `com.bomponis.spendwise://payment-cancel?canceled=true`
+      : `${origin}/?canceled=true`
 
     // Setup Supabase Client
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || ""
@@ -60,8 +69,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/?upgraded=true`,
-      cancel_url: `${origin}/?canceled=true`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       client_reference_id: userId,
       customer_email: email, // Pre-fill email
     }

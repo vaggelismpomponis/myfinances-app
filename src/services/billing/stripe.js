@@ -6,7 +6,7 @@ export const StripeBilling = {
   subscribe: async (priceId, userId, email) => {
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { priceId, userId, email }
+        body: { priceId, userId, email, platform: isNative() ? 'mobile' : 'web' }
       });
       if (error) throw error;
       const url = data?.url;

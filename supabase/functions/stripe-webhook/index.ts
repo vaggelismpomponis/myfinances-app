@@ -43,11 +43,23 @@ serve(async (req) => {
         const customerId = session.customer
 
         if (userId) {
+          // Get subscription details to find expiry
+          let expiry = null;
+          if (session.subscription) {
+            try {
+              const sub = await stripe.subscriptions.retrieve(session.subscription as string);
+              expiry = new Date(sub.current_period_end * 1000).toISOString();
+            } catch (e) {
+              console.error("Error fetching subscription for expiry:", e);
+            }
+          }
+
           // Grant Pro status
           const { error } = await supabase
             .from("profiles")
             .update({
               subscription_status: "pro",
+              subscription_expiry: expiry,
               stripe_customer_id: customerId,
               has_used_trial: true,
             })
@@ -81,11 +93,15 @@ serve(async (req) => {
         const status = subscription.status // 'active', 'past_due', 'canceled', etc.
 
         if (status === 'active' || status === 'trialing') {
+          const expiry = new Date(subscription.current_period_end * 1000).toISOString()
           await supabase
             .from("profiles")
-            .update({ subscription_status: "pro" })
+            .update({ 
+              subscription_status: "pro",
+              subscription_expiry: expiry 
+            })
             .eq("stripe_customer_id", customerId)
-        } else if (status === 'canceled' || status === 'unpaid') {
+        } else if (status === 'canceled' || status === 'unpaid' || status === 'past_due') {
           await supabase
             .from("profiles")
             .update({ subscription_status: "free" })

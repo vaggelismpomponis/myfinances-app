@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { supabase } from './supabase';
 import { Capacitor } from '@capacitor/core';
+import { App as CapApp } from '@capacitor/app';
+import { Browser } from '@capacitor/browser';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { PrivacyScreen } from '@capacitor/privacy-screen';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
@@ -220,6 +222,40 @@ function MainContent() {
         };
         apply();
     }, [isPrivacyScreenEnabled]);
+
+    // Deep Link Listener for Stripe Redirection
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        const handleDeepLink = (data) => {
+            const url = new URL(data.url);
+            
+            // Check for payment success
+            if (url.searchParams.get('upgraded') === 'true' || url.pathname.includes('payment-success')) {
+                setShowPaymentSuccess(true);
+                Browser.close().catch(() => {}); // Close the in-app browser if it's still open
+            }
+            
+            // Check for payment cancellation
+            if (url.searchParams.get('canceled') === 'true' || url.pathname.includes('payment-cancel')) {
+                setShowPaymentCanceled(true);
+                Browser.close().catch(() => {});
+            }
+        };
+
+        const listener = CapApp.addListener('appUrlOpen', handleDeepLink);
+        
+        // Also check if the app was started via a deep link
+        CapApp.getLaunchUrl().then((launchUrl) => {
+            if (launchUrl) {
+                handleDeepLink(launchUrl);
+            }
+        });
+
+        return () => {
+            listener.remove();
+        };
+    }, []);
 
     // 1. Initialize Auth via Supabase
     useEffect(() => {
@@ -1300,6 +1336,28 @@ function MainContent() {
                                                     h-full overflow-hidden
                                                     shadow-2xl relative flex flex-col
                                                     transition-colors duration-300">
+
+                                        {/* Payment Success/Cancel Overlay (Mobile) */}
+                                        {showPaymentSuccess && (
+                                            <PaymentSuccessView
+                                                onContinue={() => {
+                                                    setShowPaymentSuccess(false);
+                                                    setActiveTab('home');
+                                                }}
+                                            />
+                                        )}
+                                        {showPaymentCanceled && (
+                                            <PaymentCanceledView
+                                                onContinue={() => {
+                                                    setShowPaymentCanceled(false);
+                                                    setActiveTab('home');
+                                                }}
+                                                onRetry={() => {
+                                                    setShowPaymentCanceled(false);
+                                                    setActiveTab('profile');
+                                                }}
+                                            />
+                                        )}
 
                                         {/* ── Main Scroll Area ── */}
                                         <div className="flex-1 overflow-y-auto overflow-x-hidden px-4">
