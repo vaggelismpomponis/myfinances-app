@@ -1,15 +1,14 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4"
-import Stripe from "https://esm.sh/stripe@14.14.0?target=deno"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0"
+import Stripe from "https://esm.sh/stripe@15.1.0?target=deno"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-  apiVersion: "2023-10-16",
+  apiVersion: "2024-04-10",
   httpClient: Stripe.createFetchHttpClient(),
 })
 
 const cryptoProvider = Stripe.createSubtleCryptoProvider()
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   const signature = req.headers.get("Stripe-Signature")
   const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")
 
@@ -18,11 +17,11 @@ serve(async (req) => {
   }
 
   try {
-    const body = await req.text()
+    const body = await req.arrayBuffer()
     
     // Verify webhook signature to prevent spoofing
     const event = await stripe.webhooks.constructEventAsync(
-      body,
+      new Uint8Array(body),
       signature,
       webhookSecret,
       undefined,
@@ -94,18 +93,22 @@ serve(async (req) => {
 
         if (status === 'active' || status === 'trialing') {
           const expiry = new Date(subscription.current_period_end * 1000).toISOString()
-          await supabase
+          const { error } = await supabase
             .from("profiles")
             .update({ 
               subscription_status: "pro",
               subscription_expiry: expiry 
             })
             .eq("stripe_customer_id", customerId)
+          
+          if (error) throw error
         } else if (status === 'canceled' || status === 'unpaid' || status === 'past_due') {
-          await supabase
+          const { error } = await supabase
             .from("profiles")
             .update({ subscription_status: "free" })
             .eq("stripe_customer_id", customerId)
+          
+          if (error) throw error
         }
         break
       }
