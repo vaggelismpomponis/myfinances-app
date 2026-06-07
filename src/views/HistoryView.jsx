@@ -125,6 +125,7 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                         <input
                             type="text"
                             placeholder={t('search_placeholder')}
+                            aria-label={t('search_placeholder')}
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             className="input-glow w-full pl-10 pr-10 py-3 rounded-xl text-sm

@@ -9,5 +9,22 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(
   supabaseUrl || '',
-  supabaseAnonKey || ''
+  supabaseAnonKey || '',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storageKey: 'sb-session',
+      storage: window.localStorage,
+      cookieOptions: {
+        name: 'sb-cookie',
+        lifetime: 60 * 60 * 24 * 7,
+        domain: window.location.hostname,
+        path: '/',
+        sameSite: 'Lax',
+        secure: window.location.protocol === 'https:',
+      }
+    }
+  }
 );

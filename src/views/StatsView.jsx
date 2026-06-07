@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import CategoryIcon from '../components/CategoryIcon';
+import CalendarSection from '../components/CalendarSection';
 import {
     AreaChart, Area,
     BarChart, Bar,
@@ -16,8 +17,6 @@ import {
 } from 'lucide-react';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
-import { useSubscription } from '../contexts/SubscriptionContext';
-import ProBadge from '../components/ProBadge';
 
 /* ─── Premium Palette ─── */
 const COLORS = [
@@ -73,11 +72,87 @@ const TimeBtn = ({ value, label, active, onClick }) => (
 
 const StatsView = ({ transactions }) => {
     const { t, language, privacyMode } = useSettings();
-    const { isPro, openUpgradeModal } = useSubscription();
     const [timeRange, setTimeRange] = useState('thisMonth');
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+
+    // Calendar view state
+    const [calendarYear, setCalendarYear] = useState(() => selectedYear || new Date().getFullYear());
+    const [calendarMonth, setCalendarMonth] = useState(() => (selectedMonth !== null && selectedMonth !== undefined) ? selectedMonth : new Date().getMonth());
+
+    // Sync calendar view with parent period selection
+    useEffect(() => {
+        const now = new Date();
+        if (timeRange === 'thisMonth') {
+            setCalendarYear(now.getFullYear());
+            setCalendarMonth(now.getMonth());
+        } else if (timeRange === 'lastMonth') {
+            const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            setCalendarYear(lm.getFullYear());
+            setCalendarMonth(lm.getMonth());
+        } else if (timeRange === 'custom' && selectedMonth !== null) {
+            setCalendarYear(selectedYear);
+            setCalendarMonth(selectedMonth);
+        }
+    }, [timeRange, selectedYear, selectedMonth]);
+
+    // Calendar Insights calculations
+    const calendarInsights = useMemo(() => {
+        const numDays = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+        const dailyTotals = {};
+        let monthlyExpenseTotal = 0;
+
+        transactions.forEach(tx => {
+            if (tx.type !== 'expense') return;
+            const d = new Date(tx.date);
+            if (d.getFullYear() === calendarYear && d.getMonth() === calendarMonth) {
+                const day = d.getDate();
+                dailyTotals[day] = (dailyTotals[day] || 0) + tx.amount;
+                monthlyExpenseTotal += tx.amount;
+            }
+        });
+
+        let maxStreak = 0;
+        let currentStreak = 0;
+        let noExpenseDaysCount = 0;
+
+        for (let day = 1; day <= numDays; day++) {
+            const hasExpense = dailyTotals[day] !== undefined && dailyTotals[day] > 0;
+            if (!hasExpense) {
+                currentStreak++;
+                noExpenseDaysCount++;
+                if (currentStreak > maxStreak) {
+                    maxStreak = currentStreak;
+                }
+            } else {
+                currentStreak = 0;
+            }
+        }
+
+        let highestDayAmount = 0;
+        let highestDayNum = null;
+        for (let day = 1; day <= numDays; day++) {
+            const dayAmt = dailyTotals[day] || 0;
+            if (dayAmt > highestDayAmount) {
+                highestDayAmount = dayAmt;
+                highestDayNum = day;
+            }
+        }
+        const highestDayDate = highestDayNum ? new Date(calendarYear, calendarMonth, highestDayNum) : null;
+
+        const activeDaysCount = numDays - noExpenseDaysCount;
+        const activeDayAverage = activeDaysCount > 0 ? monthlyExpenseTotal / activeDaysCount : 0;
+
+        return {
+            maxStreak,
+            noExpenseDaysCount,
+            totalDays: numDays,
+            highestDayAmount,
+            highestDayDate,
+            activeDayAverage
+        };
+    }, [transactions, calendarYear, calendarMonth]);
 
     const locale = language === 'el' ? 'el-GR' : 'en-US';
 
@@ -176,18 +251,14 @@ const StatsView = ({ transactions }) => {
     const cashFlow = totalIncome - totalExpense;
 
     const handleTimeRangeChange = (val) => {
-        if (!isPro && val !== 'thisMonth') {
-            openUpgradeModal('stats');
-            return;
-        }
         setTimeRange(val);
     };
 
     const TIME_FILTERS = [
         { value: 'thisMonth', label: t('stats_this_month') },
-        { value: 'lastMonth', label: !isPro ? <span className="flex items-center justify-center gap-1">{t('stats_last_month')} <span className="text-[10px]">👑</span></span> : t('stats_last_month') },
-        { value: 'year', label: !isPro ? <span className="flex items-center justify-center gap-1">{t('stats_year')} <span className="text-[10px]">👑</span></span> : t('stats_year') },
-        { value: 'custom', label: !isPro ? <span className="flex items-center justify-center gap-1">{t('stats_history')} <span className="text-[10px]">👑</span></span> : t('stats_history') },
+        { value: 'lastMonth', label: t('stats_last_month') },
+        { value: 'year', label: t('stats_year') },
+        { value: 'custom', label: t('stats_history') },
     ];
 
     return (
@@ -302,6 +373,91 @@ const StatsView = ({ transactions }) => {
                 </motion.div>
             )}
             </AnimatePresence>
+
+            {/* ── Expense Calendar ── */}
+            <CalendarSection 
+                transactions={transactions} 
+                calendarYear={calendarYear}
+                calendarMonth={calendarMonth}
+                setCalendarYear={setCalendarYear}
+                setCalendarMonth={setCalendarMonth}
+            />
+
+            {/* ── Calendar Insights ── */}
+            <div className="bg-white dark:bg-surface-dark3 rounded-[2.5rem] p-6 shadow-premium border border-gray-100 dark:border-white/5 space-y-4">
+                <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/20 flex items-center justify-center text-violet-600 dark:text-violet-400">
+                        <TrendingUp size={20} />
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider">
+                            {t('calendar_insights')}
+                        </h3>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mt-0.5">
+                            {months[calendarMonth]?.name} {calendarYear}
+                        </p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    {/* Saving Streak */}
+                    <div className="bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl p-4 flex flex-col justify-between">
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                            {t('saving_streak')}
+                        </span>
+                        <span className="text-lg font-black text-violet-600 dark:text-violet-400 mt-2">
+                            {t('streak_days', { days: calendarInsights.maxStreak })}
+                        </span>
+                    </div>
+
+                    {/* Expense-Free Days */}
+                    <div className="bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl p-4 flex flex-col justify-between">
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                            {t('expense_free_days')}
+                        </span>
+                        <div className="mt-2 flex items-baseline gap-1">
+                            <span className="text-lg font-black text-emerald-500">
+                                {calendarInsights.noExpenseDaysCount}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">
+                                / {calendarInsights.totalDays}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Highest Expense Day */}
+                    <div className="bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl p-4 flex flex-col justify-between">
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                            {t('highest_spend_day')}
+                        </span>
+                        <div className="mt-2 flex flex-col">
+                            <span className="text-lg font-black text-rose-500">
+                                <Amount value={calendarInsights.highestDayAmount} />
+                            </span>
+                            {calendarInsights.highestDayDate && (
+                                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase mt-0.5">
+                                    {calendarInsights.highestDayDate.toLocaleDateString(locale, { day: '2-digit', month: 'short' })}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Active Day Average */}
+                    <div className="bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl p-4 flex flex-col justify-between">
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                            {t('active_day_avg')}
+                        </span>
+                        <div className="mt-2 flex flex-col">
+                            <span className="text-lg font-black text-cyan-500">
+                                <Amount value={calendarInsights.activeDayAverage} />
+                            </span>
+                            <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase mt-0.5">
+                                {t('spent') || 'spent'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {/* ── Top Categories List ── */}
             <div className="space-y-4">

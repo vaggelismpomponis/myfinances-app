@@ -273,6 +273,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                         value={nameInput}
                                         onChange={e => setNameInput(e.target.value)}
                                         onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false); }}
+                                        aria-label="Edit display name"
                                         className="w-full text-center text-[17px] font-bold
                                                    bg-white dark:bg-white/[0.07]
                                                    border border-violet-200 dark:border-violet-500/30

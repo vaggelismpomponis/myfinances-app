@@ -52,7 +52,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                 <p className="font-semibold text-sm text-gray-800 dark:text-white truncate capitalize">
                     {transaction.note || transaction.category}
                 </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 truncate">
                     {new Date(transaction.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </p>
             </div>
@@ -69,7 +69,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                 <span className={`text-sm font-semibold tabular-nums ${isIncome ? 'text-emerald-500' : 'text-rose-500'}`}>
                     <Amount value={transaction.amount} prefix={isIncome ? '+' : '-'} />
                 </span>
-                <ChevronRight size={18} className="text-gray-400" />
+                <ChevronRight size={18} className="text-gray-600 dark:text-gray-400" />
             </motion.div>
 
             {/* Click actions */}

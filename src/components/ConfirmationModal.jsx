@@ -10,7 +10,12 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
     const isDanger = type === 'danger';
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in">
+        <div
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirm-modal-title"
+        >
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
@@ -24,7 +29,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
                         {isDanger ? <AlertTriangle size={32} /> : <CheckCircle2 size={32} />}
                     </div>
 
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    <h3 id="confirm-modal-title" className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                         {title}
                     </h3>
                     <p className="text-gray-500 dark:text-gray-400 mb-6">

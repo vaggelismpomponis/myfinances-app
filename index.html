@@ -4,12 +4,24 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/spendwise-logo.png" />
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#4f46e5" />
-  <link rel="apple-touch-icon" href="/spendwise-logo.png">
+  <meta name="description" content="SpendWise - Track your income and expenses easily. Manage your personal finances with smart budgets, goals, and real-time insights." />
+
+  <!-- Preconnect to font origins to reduce latency -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Load Google Fonts asynchronously (non-render-blocking) -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" media="print" onload="this.media='all'" crossorigin />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" /></noscript>
+
+  <!-- Preload the logo — it is the LCP element on the loading screen -->
+  <link rel="preload" as="image" href="/spendwise-logo.webp" fetchpriority="high" />
+
+  <link rel="apple-touch-icon" href="/spendwise-logo.webp">
   <title>SpendWise</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
@@ -20,7 +32,269 @@
       color: white;
     }
   </style>
+  <main>
+  <!-- Inline Loading Screen — OUTSIDE #root so React doesn't remove it.
+       The useEffect in App.jsx fades it out when the app is ready. -->
+  <div id="inline-loader" style="
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background-color: #08080D;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: white;
+    ">
+      <!-- Dot-grid texture overlay -->
+      <div style="
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.06;
+        background-image: radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px);
+        background-size: 28px 28px;
+      "></div>
+
+      <!-- Ambient glow orbs -->
+      <div style="
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+      ">
+        <!-- Top-left purple orb (soft gradient — no runtime blur for mobile perf) -->
+        <div style="
+          position: absolute;
+          top: -20%;
+          left: -20%;
+          width: 80%;
+          height: 80%;
+          background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, rgba(124,58,237,0.08) 35%, transparent 60%);
+        "></div>
+        <!-- Bottom-right cyan orb (soft gradient — no runtime blur) -->
+        <div style="
+          position: absolute;
+          bottom: -20%;
+          right: -20%;
+          width: 70%;
+          height: 70%;
+          background: radial-gradient(circle, rgba(6,182,212,0.16) 0%, rgba(6,182,212,0.06) 35%, transparent 60%);
+        "></div>
+        <!-- Center subtle pink orb (soft gradient — no runtime blur) -->
+        <div style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 55%;
+          height: 55%;
+          background: radial-gradient(circle, rgba(168,85,247,0.10) 0%, rgba(168,85,247,0.04) 35%, transparent 65%);
+        "></div>
+      </div>
+
+      <!-- Main content -->
+      <div style="
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      ">
+        <!-- Logo + spinning ring -->
+        <div style="
+          position: relative;
+          margin-bottom: 40px;
+        ">
+          <!-- Conic rotating gradient ring -->
+          <div class="conic-ring" style="
+            position: absolute;
+            inset: -12px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent 60%, rgba(124,58,237,0.8) 80%, rgba(6,182,212,0.9) 95%, transparent 100%);
+            mask: radial-gradient(farthest-side, transparent calc(100% - 2px), white calc(100% - 2px));
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), white calc(100% - 2px));
+            animation: spin 6s linear infinite;
+          "></div>
+          
+          <!-- Inner counter-spin ring -->
+          <div class="conic-ring-inner" style="
+            position: absolute;
+            inset: -18px;
+            border-radius: 50%;
+            background: conic-gradient(from 180deg, transparent 70%, rgba(124,58,237,0.3) 90%, transparent 100%);
+            mask: radial-gradient(farthest-side, transparent calc(100% - 1px), white calc(100% - 1px));
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1px), white calc(100% - 1px));
+            animation: spin-reverse 10s linear infinite;
+          "></div>
+
+          <!-- Purple glow pulse behind logo -->
+          <div style="
+            position: absolute;
+            inset: -16px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(124,58,237,0.5) 0%, transparent 70%);
+            filter: blur(12px);
+            animation: pulse-glow 2.5s ease-in-out infinite;
+          "></div>
+
+          <!-- Logo container -->
+          <div style="
+            position: relative;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">
+            <img
+              src="/spendwise-logo.webp"
+              alt="SpendWise Logo"
+              width="72"
+              height="72"
+              style="
+                width: 72px;
+                height: 72px;
+                object-fit: contain;
+                filter: drop-shadow(0 0 18px rgba(124,58,237,0.7)) drop-shadow(0 0 6px rgba(6,182,212,0.4));
+              "
+            />
+          </div>
+        </div>
+
+        <!-- Brand Name -->
+        <div style="text-align: center;">
+          <h1 style="
+            font-size: 46px;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            margin: 0;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(167,139,250,0.9) 50%, rgba(6,182,212,0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px rgba(124,58,237,0.4));
+          ">SpendWise</h1>
+          <p style="
+            margin-top: 8px;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.45em;
+            color: rgba(255,255,255,0.35);
+          ">Master Your Finances</p>
+        </div>
+
+        <!-- Divider line -->
+        <div style="
+          margin-top: 40px;
+          width: 192px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(124,58,237,0.6), rgba(6,182,212,0.6), transparent);
+        "></div>
+
+        <!-- Shimmer progress bar -->
+        <div style="
+          margin-top: 24px;
+          width: 224px;
+          position: relative;
+        ">
+          <!-- Track -->
+          <div style="
+            width: 100%;
+            height: 3px;
+            border-radius: 9999px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.06);
+          ">
+            <!-- Shimmer fill -->
+            <div class="shimmer-fill" style="
+              height: 100%;
+              border-radius: 9999px;
+              width: 100%;
+              background: linear-gradient(90deg, rgba(124,58,237,0.6), rgba(167,139,250,1) 40%, rgba(6,182,212,0.9) 70%, rgba(124,58,237,0.6));
+              background-size: 200% 100%;
+              animation: shimmer-pos 1.8s linear infinite;
+            "></div>
+          </div>
+          <!-- Glow under bar -->
+          <div style="
+            position: absolute;
+            bottom: -4px;
+            left: 10%;
+            right: 10%;
+            height: 8px;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, transparent, rgba(124,58,237,0.4), rgba(6,182,212,0.3), transparent);
+            filter: blur(4px);
+          "></div>
+        </div>
+
+        <!-- Status message -->
+        <div style="
+          margin-top: 20px;
+          height: 16px;
+        ">
+          <p style="
+            margin: 0;
+            font-size: 9px;
+            font-family: monospace;
+            font-weight: 500;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+          ">INITIALIZING CORE MODULES...</p>
+        </div>
+      </div>
+
+      <!-- Bottom brand stamp -->
+      <div style="
+        position: absolute;
+        bottom: 32px;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      ">
+        <div style="width: 16px; height: 1px; background: rgba(255,255,255,0.15);"></div>
+        <span style="
+          font-size: 8px;
+          letter-spacing: 0.35em;
+          text-transform: uppercase;
+          font-weight: 500;
+          color: rgba(255,255,255,0.2);
+        ">Powered by SpendWise</span>
+        <div style="width: 16px; height: 1px; background: rgba(255,255,255,0.15);"></div>
+      </div>
+    </div>
+
+    <!-- Inline loading keyframes/animations -->
+    <style>
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes spin-reverse {
+        from { transform: rotate(360deg); }
+        to { transform: rotate(0deg); }
+      }
+      @keyframes pulse-glow {
+        0%, 100% { transform: scale(0.9); opacity: 0.4; }
+        50% { transform: scale(1.15); opacity: 0.9; }
+      }
+      @keyframes shimmer-pos {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+    </style>
+  </div>
+  <!-- React mounts here — inline-loader stays visible on top until App.jsx fades it out -->
   <div id="root"></div>
+  </main>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 

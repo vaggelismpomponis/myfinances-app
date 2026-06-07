@@ -7,34 +7,38 @@ import { validateEmail } from '../utils/emailValidation';
 import PasswordInput from '../components/PasswordInput';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const InputField = ({ label, type, value, onChange, placeholder, icon: Icon, rightElement }) => (
-    <div>
-        <label className="block text-center text-xs font-bold text-gray-500 dark:text-gray-300 mb-1.5 uppercase tracking-wider w-full">
-            {label}
-        </label>
-        <div className="relative">
-            <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" size={18} />
-            <input
-                type={type}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                required
-                className="input-glow w-full pl-10 pr-4 py-3 rounded-xl text-sm font-medium
-                           bg-gray-50 dark:bg-white/5
-                           border border-gray-200 dark:border-transparent
-                           text-gray-800 dark:text-white
-                           placeholder-gray-500 dark:placeholder-gray-400
-                           transition-all duration-200"
-            />
-            {rightElement && (
-                <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                    {rightElement}
-                </div>
-            )}
+const InputField = ({ label, type, value, onChange, placeholder, icon: Icon, rightElement }) => {
+    const inputId = `input-${label.toLowerCase().replace(/\s+/g, '-')}`;
+    return (
+        <div>
+            <label htmlFor={inputId} className="block text-center text-xs font-bold text-gray-500 dark:text-gray-300 mb-1.5 uppercase tracking-wider w-full">
+                {label}
+            </label>
+            <div className="relative">
+                <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" size={18} />
+                <input
+                    id={inputId}
+                    type={type}
+                    value={value}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    required
+                    className="input-glow w-full pl-10 pr-4 py-3 rounded-xl text-sm font-medium
+                               bg-gray-50 dark:bg-white/5
+                               border border-gray-200 dark:border-transparent
+                               text-gray-800 dark:text-white
+                               placeholder-gray-500 dark:placeholder-gray-400
+                               transition-all duration-200"
+                />
+                {rightElement && (
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                        {rightElement}
+                    </div>
+                )}
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin, onVerifyOtp, onResendOtp, isVerifying, onCancelVerification }) => {
     const { t } = useSettings();
@@ -310,6 +314,7 @@ const LoginView = ({ onEmailLogin, onRegister, onGoogleLogin, onVerifyOtp, onRes
                                                 onChange={e => handleCodeChange(idx, e.target.value)}
                                                 onKeyDown={e => handleKeyDown(idx, e)}
                                                 onPaste={handlePaste}
+                                                aria-label={`Digit ${idx + 1}`}
                                                 className="w-8 h-11 sm:w-9 sm:h-12 text-center text-base sm:text-lg font-bold rounded-xl
                                                          bg-gray-50 dark:bg-white/5 border-2 border-transparent
                                                          focus:border-violet-500 focus:bg-white dark:focus:bg-white/10

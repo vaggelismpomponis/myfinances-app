@@ -76,22 +76,26 @@ const Ring = ({ pct, color, size = 72, stroke = 7, children }) => {
 /* ─────────────────────────────────────────────────────────────
    Styled input
 ───────────────────────────────────────────────────────────── */
-const Field = ({ label, ...props }) => (
-    <div>
-        <label className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
-            {label}
-        </label>
-        <input
-            {...props}
-            className="w-full p-3.5 bg-white dark:bg-white/5
-                       border border-slate-200/60 dark:border-transparent
-                       rounded-2xl text-sm font-medium text-gray-900 dark:text-white
-                       placeholder:text-gray-400 dark:placeholder:text-gray-500
-                       focus:outline-none focus:ring-2 focus:ring-violet-500
-                       dark:focus:ring-violet-400 transition-all shadow-premium placeholder:font-medium"
-        />
-    </div>
-);
+const Field = ({ label, ...props }) => {
+    const id = React.useId();
+    return (
+        <div>
+            <label htmlFor={id} className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
+                {label}
+            </label>
+            <input
+                id={id}
+                {...props}
+                className="w-full p-3.5 bg-white dark:bg-white/5
+                           border border-slate-200/60 dark:border-transparent
+                           rounded-2xl text-sm font-medium text-gray-900 dark:text-white
+                           placeholder:text-gray-400 dark:placeholder:text-gray-500
+                           focus:outline-none focus:ring-2 focus:ring-violet-500
+                           dark:focus:ring-violet-400 transition-all shadow-premium placeholder:font-medium"
+            />
+        </div>
+    );
+};
 
 /* ═══════════════════════════════════════════════════════════
    Main Component

@@ -339,6 +339,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                 ref={fileInputRef}
                                 type="file"
                                 accept=".json,application/json"
+                                aria-label={translate('backup_choose_file')}
                                 className="hidden"
                                 onChange={handleFilePick}
                             />

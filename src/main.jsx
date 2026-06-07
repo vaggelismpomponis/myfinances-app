@@ -7,18 +7,26 @@ import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 
 // Initialize Sentry (only when DSN is configured)
+// Deferred behind requestIdleCallback to keep it off the critical render path
 if (import.meta.env.VITE_SENTRY_DSN) {
-    Sentry.init({
-        dsn: import.meta.env.VITE_SENTRY_DSN,
-        environment: import.meta.env.MODE,           // 'development' | 'production'
-        release: import.meta.env.VITE_APP_VERSION,  // optional — set in .env
-        // Capture 100% of errors, 10% of performance traces
-        tracesSampleRate: 0.1,
-        // Automatically capture unhandled promise rejections & global errors
-        integrations: [
-            Sentry.browserTracingIntegration(),
-        ],
-    });
+    const initSentry = () => {
+        Sentry.init({
+            dsn: import.meta.env.VITE_SENTRY_DSN,
+            environment: import.meta.env.MODE,           // 'development' | 'production'
+            release: import.meta.env.VITE_APP_VERSION,  // optional — set in .env
+            // Capture 100% of errors, 10% of performance traces
+            tracesSampleRate: 0.1,
+            // Automatically capture unhandled promise rejections & global errors
+            integrations: [
+                Sentry.browserTracingIntegration(),
+            ],
+        });
+    };
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initSentry);
+    } else {
+        setTimeout(initSentry, 200);
+    }
 }
 
 // Unregister any stale service workers in dev mode (prevents old cached index.html from showing)
@@ -36,13 +44,12 @@ if (import.meta.env.DEV && 'serviceWorker' in navigator) {
     });
 }
 
-// Suppress console logs in production
+// Suppress console logs in production (keep console.error for Sentry + browser error reporting)
 if (import.meta.env.PROD) {
     console.log = () => { };
     console.debug = () => { };
     console.info = () => { };
     console.warn = () => { };
-    console.error = () => { };
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(

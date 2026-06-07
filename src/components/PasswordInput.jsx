@@ -3,11 +3,12 @@ import { Eye, EyeOff } from 'lucide-react';
 
 const PasswordInput = ({ label, value, onChange, placeholder = '••••••••', required = false, error = '', icon: Icon }) => {
     const [show, setShow] = useState(false);
+    const inputId = label ? `password-input-${label.toLowerCase().replace(/\s+/g, '-')}` : 'password-input';
     
     return (
         <div className="space-y-1.5">
             {label && (
-                <label className="block text-center text-[11px] font-semibold text-gray-400 dark:text-white/60 uppercase tracking-wide w-full">
+                <label htmlFor={inputId} className="block text-center text-[11px] font-semibold text-gray-400 dark:text-white/60 uppercase tracking-wide w-full">
                     {label}
                 </label>
             )}
@@ -16,6 +17,7 @@ const PasswordInput = ({ label, value, onChange, placeholder = '•••••�
                     <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors group-focus-within:text-violet-500" size={16} />
                 )}
                 <input
+                    id={inputId}
                     type={show ? 'text' : 'password'}
                     value={value}
                     onChange={onChange}
@@ -33,6 +35,7 @@ const PasswordInput = ({ label, value, onChange, placeholder = '•••••�
                 <button
                     type="button"
                     onClick={() => setShow(s => !s)}
+                    aria-label={show ? 'Hide password' : 'Show password'}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 
                                text-gray-400 dark:text-white/40
                                hover:text-gray-600 dark:hover:text-white/60 

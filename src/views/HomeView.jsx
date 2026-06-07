@@ -98,7 +98,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                 <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-violet-500/10 dark:bg-violet-500/5 blur-[80px] pointer-events-none rounded-full" />
 
                 <div className="relative z-10 space-y-2">
-                    <p className="text-gray-400 dark:text-gray-500 text-sm font-medium tracking-tight">
+                    <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-tight">
                         {t('this_month_spend')}
                     </p>
 
@@ -119,7 +119,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                         <div className={`flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold
                                        ${stats.trend === 'below' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' :
                                 stats.trend === 'above' ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' :
-                                    'text-gray-400 bg-gray-50 dark:bg-surface-dark2'}`}>
+                                    'text-gray-600 bg-gray-50 dark:bg-surface-dark2'}`}>
                             {stats.trend === 'below' && <TrendingDown size={14} />}
                             {stats.trend === 'above' && <TrendingUp size={14} />}
                             <span>
@@ -161,7 +161,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                 </div>
                 <div className="flex-1 text-left min-w-0">
                     <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
-                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium truncate italic mt-0.5">
+                    <p className="text-[11px] text-gray-700 dark:text-gray-300 font-medium truncate italic mt-0.5">
                         {t('advisor_subtitle')}
                     </p>
                 </div>
@@ -172,7 +172,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
 
             {/* ── ④ Quick Actions ── */}
             <div>
-                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 ml-2">
+                <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest mb-3 ml-2">
                     {t('quick_access')}
                 </p>
                 <div className="grid grid-cols-4 gap-3">
@@ -225,7 +225,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                 <div className="flex justify-between items-center mb-3">
                     <h2 className="text-base font-bold text-gray-800 dark:text-white flex items-center gap-2">
                         {t('recent')}
-                        <span className="bg-gray-100 dark:bg-surface-dark3 text-gray-500 dark:text-gray-400 text-[10px] px-2 py-0.5 rounded-full">
+                        <span className="bg-gray-100 dark:bg-surface-dark3 text-gray-700 dark:text-gray-300 text-[10px] px-2 py-0.5 rounded-full font-bold">
                             {transactions.length}
                         </span>
                     </h2>
@@ -249,7 +249,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                         <p className="font-bold text-gray-700 dark:text-white/90 text-sm">
                             {t('no_transactions')}
                         </p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5 max-w-[200px] mx-auto">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 max-w-[200px] mx-auto">
                             {t('tap_to_add')}
                         </p>
                     </div>

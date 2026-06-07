@@ -5,7 +5,12 @@ const BroadcastModal = ({ isOpen, onClose, data }) => {
     if (!isOpen || !data) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="broadcast-modal-title"
+        >
             {/* Backdrop */}
             <div 
                 className="absolute inset-0 bg-black/60 backdrop-blur-md animate-fade-in" 
@@ -29,6 +34,7 @@ const BroadcastModal = ({ isOpen, onClose, data }) => {
                     
                     <button 
                         onClick={onClose}
+                        aria-label="Close"
                         className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors"
                     >
                         <X size={18} />
@@ -38,7 +44,7 @@ const BroadcastModal = ({ isOpen, onClose, data }) => {
                 <div className="p-8 text-center space-y-4">
                     <div className="space-y-1">
                         <span className="text-[10px] font-black text-violet-500 uppercase tracking-[0.2em]">Ανακοίνωση</span>
-                        <h3 className="text-xl font-black text-gray-900 dark:text-white leading-tight">
+                        <h3 id="broadcast-modal-title" className="text-xl font-black text-gray-900 dark:text-white leading-tight">
                             {data.title}
                         </h3>
                     </div>

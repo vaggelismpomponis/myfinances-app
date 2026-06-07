@@ -30,7 +30,12 @@ const PromptModal = ({
     };
 
     return (
-        <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center sm:p-4 animate-fade-in">
+        <div
+            className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center sm:p-4 animate-fade-in"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="prompt-modal-title"
+        >
             <div className="absolute inset-0 bg-black/60 sm:bg-black/50 backdrop-blur-sm transition-opacity"
                  onClick={onClose} />
             <div className="relative z-10 w-full max-w-md
@@ -41,9 +46,11 @@ const PromptModal = ({
                 <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-5 sm:hidden" />
                 
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
-                    <button onClick={onClose}
-                            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-colors">
+                    <h3 id="prompt-modal-title" className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
+                    <button
+                        onClick={onClose}
+                        aria-label="Close"
+                        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-colors">
                         <X size={18} />
                     </button>
                 </div>
@@ -62,10 +69,12 @@ const PromptModal = ({
                     )}
                     <div className="relative">
                         <input
+                            id="prompt-modal-input"
                             type={inputType === 'password' ? (showPassword ? 'text' : 'password') : inputType}
                             value={inputValue}
                             onChange={e => setInputValue(e.target.value)}
                             placeholder={placeholder}
+                            aria-label={placeholder || title}
                             required
                             className="input-glow w-full px-4 py-3 rounded-xl text-sm
                                        bg-gray-50 dark:bg-white/8 
@@ -79,6 +88,7 @@ const PromptModal = ({
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                             >
                                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}

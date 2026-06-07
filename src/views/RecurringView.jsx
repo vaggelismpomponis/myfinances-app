@@ -34,46 +34,54 @@ const FREQ_COLORS = {
 const getFreqMeta = (freq) => FREQ_COLORS[freq] || FREQ_COLORS.monthly;
 
 /* ── Styled input ── */
-const Field = ({ label, ...props }) => (
-    <div>
-        <label className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
-            {label}
-        </label>
-        <input
-            {...props}
-            className="w-full p-3.5 bg-white dark:bg-white/5
-                       border border-slate-200/60 dark:border-transparent
-                       rounded-2xl text-sm font-medium text-gray-900 dark:text-white
-                       placeholder:text-gray-400 dark:placeholder:text-gray-500
-                       focus:outline-none focus:ring-2 focus:ring-violet-500
-                       dark:focus:ring-violet-400 transition-all shadow-premium placeholder:font-medium"
-        />
-    </div>
-);
-
-/* ── Styled select ── */
-const SelectField = ({ label, value, onChange, children }) => (
-    <div>
-        <label className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
-            {label}
-        </label>
-        <div className="relative">
-            <select
-                value={value}
-                onChange={onChange}
+const Field = ({ label, ...props }) => {
+    const id = React.useId();
+    return (
+        <div>
+            <label htmlFor={id} className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
+                {label}
+            </label>
+            <input
+                id={id}
+                {...props}
                 className="w-full p-3.5 bg-white dark:bg-white/5
                            border border-slate-200/60 dark:border-transparent
                            rounded-2xl text-sm font-medium text-gray-900 dark:text-white
+                           placeholder:text-gray-400 dark:placeholder:text-gray-500
                            focus:outline-none focus:ring-2 focus:ring-violet-500
-                           dark:focus:ring-violet-400 transition-all
-                           appearance-none pr-8 cursor-pointer shadow-premium"
-            >
-                {children}
-            </select>
-            <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 dark:text-white/50 pointer-events-none" />
+                           dark:focus:ring-violet-400 transition-all shadow-premium placeholder:font-medium"
+            />
         </div>
-    </div>
-);
+    );
+};
+
+/* ── Styled select ── */
+const SelectField = ({ label, value, onChange, children }) => {
+    const id = React.useId();
+    return (
+        <div>
+            <label htmlFor={id} className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
+                {label}
+            </label>
+            <div className="relative">
+                <select
+                    id={id}
+                    value={value}
+                    onChange={onChange}
+                    className="w-full p-3.5 bg-white dark:bg-white/5
+                               border border-slate-200/60 dark:border-transparent
+                               rounded-2xl text-sm font-medium text-gray-900 dark:text-white
+                               focus:outline-none focus:ring-2 focus:ring-violet-500
+                               dark:focus:ring-violet-400 transition-all
+                               appearance-none pr-8 cursor-pointer shadow-premium"
+                >
+                    {children}
+                </select>
+                <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 dark:text-white/50 pointer-events-none" />
+            </div>
+        </div>
+    );
+};
 
 /* ──────────────────────────────────────────────────────────────
    Main Component
@@ -478,12 +486,13 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
 
                                 {/* Amount */}
                                 <div>
-                                    <label className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
+                                    <label htmlFor="recurring-amount" className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
                                         {translate('amount') || 'Amount'} ({sym})
                                     </label>
                                     <div className="relative">
                                         {!privacyMode && <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">{sym}</span>}
                                         <input
+                                            id="recurring-amount"
                                             type="number"
                                             value={amount}
                                             onChange={e => setAmount(e.target.value)}

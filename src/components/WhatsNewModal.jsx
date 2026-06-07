@@ -23,7 +23,12 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
     const features = data.features || [];
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="whatsnew-modal-title"
+        >
             {/* Backdrop */}
             <div 
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
@@ -37,6 +42,7 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
                 <div className="relative h-28 bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 dark:from-[#2a1060] dark:via-[#1e0d45] dark:to-[#0d1a3a] flex items-center justify-center flex-shrink-0">
                     <button 
                         onClick={onClose}
+                        aria-label="Close"
                         className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/20 text-white/80 hover:bg-black/40 hover:text-white flex items-center justify-center transition-colors"
                     >
                         <X size={16} />
@@ -50,7 +56,7 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
                     <div className="relative z-10 flex flex-col items-center">
                         <div className="flex items-center gap-2 mb-1 text-center px-4">
                             <Sparkles size={20} className="text-amber-300 flex-shrink-0" />
-                            <h2 className="text-xl font-black text-white leading-tight">
+                            <h2 id="whatsnew-modal-title" className="text-xl font-black text-white leading-tight">
                                 {title || (isEL ? 'Τι νέο υπάρχει;' : "What's New?")}
                             </h2>
                         </div>

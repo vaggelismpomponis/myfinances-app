@@ -472,9 +472,10 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                             <form onSubmit={handleSubmit} className="space-y-5">
                                 {/* Category Select */}
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-white/60 mb-2 uppercase tracking-wide">{t('category_label')}</label>
+                                    <label htmlFor="budget-category" className="block text-xs font-bold text-gray-500 dark:text-white/60 mb-2 uppercase tracking-wide">{t('category_label')}</label>
                                     <div className="relative">
                                         <select
+                                            id="budget-category"
                                             value={formCategory}
                                             onChange={(e) => setFormCategory(e.target.value)}
                                             disabled={!!editingBudget}
@@ -501,7 +502,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
 
                                 {/* Amount Input */}
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-white/60 mb-2 uppercase tracking-wide">
+                                    <label htmlFor="budget-limit" className="block text-xs font-bold text-gray-500 dark:text-white/60 mb-2 uppercase tracking-wide">
                                         {t('monthly_limit')} {!privacyMode && '(€)'}
                                     </label>
                                     <div className="relative">
@@ -511,6 +512,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             </div>
                                         )}
                                         <input
+                                            id="budget-limit"
                                             type="number"
                                             placeholder="300"
                                             value={formAmount}
@@ -525,12 +527,13 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                 {/* Threshold Slider */}
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
-                                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">{t('alert_label')}</label>
+                                        <label htmlFor="budget-threshold" className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">{t('alert_label')}</label>
                                         <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-0.5 rounded-lg">
                                             {formThreshold}%
                                         </span>
                                     </div>
                                     <input
+                                        id="budget-threshold"
                                         type="range"
                                         min="10"
                                         max="100"

@@ -12,6 +12,19 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    // Remove modulepreload hints for non-critical vendor chunks.
+    // These chunks are still loaded when needed, but won't compete
+    // for bandwidth with the LCP-critical CSS and main JS bundle.
+    {
+      name: 'remove-non-critical-modulepreload',
+      enforce: 'post',
+      transformIndexHtml(html) {
+        return html.replace(
+          /\s*<link rel="modulepreload"[^>]*(vendor-sentry|vendor-supabase|vendor-motion)[^>]*>\n?/g,
+          ''
+        );
+      }
+    },
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
@@ -26,15 +39,20 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'spendwise-logo.png',
-            sizes: '1024x1024',
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
             type: 'image/png'
           },
           {
             src: 'spendwise-logo.png',
             sizes: '1024x1024',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'maskable'
           }
         ]
       },
@@ -46,15 +64,20 @@ export default defineConfig({
   build: {
     // Disable source maps in production (security — avoids exposing source code)
     sourcemap: false,
+    // Target modern browsers for smaller, faster output
+    target: 'esnext',
     // Raise warning threshold (Capacitor apps naturally bundle more)
     chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
-        // Manual chunk splitting for better caching
+        // Manual chunk splitting for better caching and smaller initial bundle
         manualChunks: {
           'vendor-react':    ['react', 'react-dom'],
+          'vendor-motion':   ['framer-motion'],
           'vendor-recharts': ['recharts'],
           'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-sentry':   ['@sentry/react'],
+          'vendor-tesseract': ['tesseract.js'],
         }
       }
     }
@@ -67,3 +90,4 @@ export default defineConfig({
     exclude: ['**/node_modules/**', '**/dist/**', '**/tests/**', '**/e2e/**'],
   }
 })
+

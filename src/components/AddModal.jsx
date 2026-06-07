@@ -440,7 +440,12 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
+        <div
+            className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-modal-title"
+        >
             <motion.div
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
@@ -494,11 +499,11 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
                 {/* ── Header ── */}
                 <div className="px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] flex justify-between items-center border-b border-gray-100 dark:border-transparent flex-shrink-0">
-                    <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} className="p-2 text-gray-400 dark:text-black bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full transition-colors">
+                    <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} aria-label="Close" className="p-2 text-gray-400 dark:text-black bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full transition-colors">
                         <X size={22} />
                     </motion.button>
                     <div className="text-center">
-                        <h3 className="text-base font-bold text-gray-800 dark:text-white">
+                        <h3 id="add-modal-title" className="text-base font-bold text-gray-800 dark:text-white">
                             {initialData ? t('edit') : t('new_transaction')}
                         </h3>
                         {inBatchMode && (
@@ -619,6 +624,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                         value={newCategoryName}
                                         onChange={(e) => setNewCategoryName(e.target.value.substring(0, CATEGORY_NAME_MAX_LENGTH))}
                                         placeholder={t('name_placeholder')}
+                                        aria-label={t('name_placeholder') || 'New category name'}
                                         autoFocus
                                         maxLength={CATEGORY_NAME_MAX_LENGTH}
                                         className="w-24 px-3 py-1.5 rounded-full text-xs border border-indigo-300 dark:border-transparent bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white focus:outline-none focus:border-indigo-500"
@@ -683,6 +689,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                         value={note}
                                         onChange={(e) => setNote(e.target.value.substring(0, NOTE_MAX_LENGTH))}
                                         placeholder={t('note_placeholder')}
+                                        aria-label={t('note_placeholder') || 'Note'}
                                         autoFocus
                                         maxLength={NOTE_MAX_LENGTH}
                                         className="w-full bg-white dark:bg-surface-dark3 border border-slate-200/60 dark:border-transparent rounded-xl px-4 py-2.5 pr-14 text-sm text-gray-800 dark:text-white/90 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:font-medium shadow-premium"

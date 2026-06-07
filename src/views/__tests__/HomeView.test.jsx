@@ -9,6 +9,13 @@ vi.mock('../../contexts/SettingsContext', () => ({
   useSettings: vi.fn(),
 }));
 
+vi.mock('../../contexts/SubscriptionContext', () => ({
+  useSubscription: vi.fn(() => ({
+    isPro: false,
+    openUpgradeModal: vi.fn(),
+  })),
+}));
+
 // Mock child components that might be complex
 vi.mock('../../components/TransactionItem', () => ({
   default: ({ transaction }) => <div data-testid="transaction-item">{transaction.name}</div>,
@@ -20,8 +27,8 @@ describe('HomeView', () => {
     totalIncome: 2345.67,
     totalExpense: 1111.11,
     transactions: [
-      { id: '1', name: 'Salary', amount: 2345.67, type: 'income' },
-      { id: '2', name: 'Rent', amount: 1111.11, type: 'expense' },
+      { id: '1', name: 'Salary', amount: 2345.67, type: 'income', date: new Date().toISOString() },
+      { id: '2', name: 'Rent', amount: 1111.11, type: 'expense', date: new Date().toISOString() },
     ],
     onDelete: vi.fn(),
     onEdit: vi.fn(),
@@ -31,7 +38,7 @@ describe('HomeView', () => {
 
   const mockT = vi.fn((key) => key);
 
-  it('renders balance information correctly', () => {
+  it('renders spend information correctly', () => {
     useSettings.mockReturnValue({
       t: mockT,
       privacyMode: false,
@@ -41,11 +48,11 @@ describe('HomeView', () => {
 
     render(<HomeView {...defaultProps} />);
 
-    expect(screen.getByText('total_balance')).toBeInTheDocument();
-    expect(screen.getByText(/1,234\.56/)).toBeInTheDocument();
+    expect(screen.getByText('this_month_spend')).toBeInTheDocument();
+    expect(screen.getByText(/1,111\.11/)).toBeInTheDocument();
   });
 
-  it('renders income and expense totals', () => {
+  it('renders AI Advisor CTA', () => {
     useSettings.mockReturnValue({
       t: mockT,
       privacyMode: false,
@@ -55,10 +62,8 @@ describe('HomeView', () => {
 
     render(<HomeView {...defaultProps} />);
 
-    expect(screen.getByText('income')).toBeInTheDocument();
-    expect(screen.getByText('expense')).toBeInTheDocument();
-    expect(screen.getByText(/2,345/)).toBeInTheDocument();
-    expect(screen.getByText(/1,111/)).toBeInTheDocument();
+    expect(screen.getByText('advisor_title')).toBeInTheDocument();
+    expect(screen.getByText('advisor_subtitle')).toBeInTheDocument();
   });
 
   it('renders transaction list', () => {

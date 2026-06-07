@@ -24,33 +24,33 @@ import { setupNotificationListener } from './utils/notificationListener';
 
 // Components
 import LoginView from './views/LoginView';
-import ProfileView from './views/ProfileView';
-import RecurringView from './views/RecurringView';
-import GeneralSettingsView from './views/GeneralSettingsView';
-import SecuritySettingsView from './views/SecuritySettingsView';
 import LockScreen from './views/LockScreen';
 import HomeView from './views/HomeView';
-import StatsView from './views/StatsView';
-import HistoryView from './views/HistoryView';
-import GoalsView from './views/GoalsView';
-import BudgetsView from './views/BudgetsView';
-import BackupView from './views/BackupView';
-import FeedbackView from './views/FeedbackView';
-import AdminView from './views/AdminView';
-import PrivacyPolicyView from './views/PrivacyPolicyView';
-import PaymentSuccessView from './views/PaymentSuccessView';
-import PaymentCanceledView from './views/PaymentCanceledView';
-import AddModal from './components/AddModal';
-import WhatsNewModal from './components/WhatsNewModal';
 import Navbar from './components/Navbar';
-import UpgradeModal from './components/UpgradeModal';
-import FinancialAdvisorView from './views/FinancialAdvisorView';
-import GuideView from './views/GuideView';
-import BroadcastModal from './components/BroadcastModal';
-import DesktopLayout from './components/DesktopLayout';
-
 import ConfirmationModal from './components/ConfirmationModal';
 import ErrorBoundary from './components/ErrorBoundary';
+
+const ProfileView = React.lazy(() => import('./views/ProfileView'));
+const RecurringView = React.lazy(() => import('./views/RecurringView'));
+const GeneralSettingsView = React.lazy(() => import('./views/GeneralSettingsView'));
+const SecuritySettingsView = React.lazy(() => import('./views/SecuritySettingsView'));
+const StatsView = React.lazy(() => import('./views/StatsView'));
+const HistoryView = React.lazy(() => import('./views/HistoryView'));
+const GoalsView = React.lazy(() => import('./views/GoalsView'));
+const BudgetsView = React.lazy(() => import('./views/BudgetsView'));
+const BackupView = React.lazy(() => import('./views/BackupView'));
+const FeedbackView = React.lazy(() => import('./views/FeedbackView'));
+const AdminView = React.lazy(() => import('./views/AdminView'));
+const PrivacyPolicyView = React.lazy(() => import('./views/PrivacyPolicyView'));
+const PaymentSuccessView = React.lazy(() => import('./views/PaymentSuccessView'));
+const PaymentCanceledView = React.lazy(() => import('./views/PaymentCanceledView'));
+const AddModal = React.lazy(() => import('./components/AddModal'));
+const WhatsNewModal = React.lazy(() => import('./components/WhatsNewModal'));
+const UpgradeModal = React.lazy(() => import('./components/UpgradeModal'));
+const FinancialAdvisorView = React.lazy(() => import('./views/FinancialAdvisorView'));
+const GuideView = React.lazy(() => import('./views/GuideView'));
+const BroadcastModal = React.lazy(() => import('./components/BroadcastModal'));
+const DesktopLayout = React.lazy(() => import('./components/DesktopLayout'));
 
 // Hook to detect desktop viewport
 function useWindowWidth() {
@@ -71,6 +71,11 @@ const ProtectedAdvisorView = ({ transactions, goals, onBack, hideHeader }) => {
 const ProtectedRecurringView = ({ user, onBack, hideHeader }) => {
     const { isPro } = useSubscription();
     return isPro ? <RecurringView user={user} onBack={onBack} hideHeader={hideHeader} /> : null;
+};
+
+const ProtectedStatsView = ({ transactions }) => {
+    const { isPro } = useSubscription();
+    return isPro ? <StatsView transactions={transactions} /> : null;
 };
 
 function MainContent() {
@@ -324,7 +329,7 @@ function MainContent() {
     useEffect(() => {
         const authTimeout = setTimeout(() => {
             setLoading(false);
-        }, 3500); // Safety fallback
+        }, 1500); // Safety fallback — keep short so FCP isn't blocked
 
         supabase.auth.getSession().then(({ data: { session } }) => {
             const currentUser = session?.user ?? null;
@@ -446,7 +451,26 @@ function MainContent() {
                 // without a valid nonce, causing 500 errors. The rendered button is sufficient.
             };
 
-            if (window.google) {
+            let script = document.getElementById('google-gsi-client');
+            if (!script) {
+                const loadGSI = () => {
+                    script = document.createElement('script');
+                    script.id = 'google-gsi-client';
+                    script.src = 'https://accounts.google.com/gsi/client';
+                    script.async = true;
+                    script.defer = true;
+                    script.onload = () => {
+                        initGSI();
+                    };
+                    document.head.appendChild(script);
+                };
+                // Defer GSI script off the critical path for faster LCP
+                if ('requestIdleCallback' in window) {
+                    requestIdleCallback(loadGSI);
+                } else {
+                    setTimeout(loadGSI, 300);
+                }
+            } else if (window.google) {
                 initGSI();
             } else {
                 const interval = setInterval(() => {
@@ -1081,7 +1105,7 @@ function MainContent() {
                         onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
                     />
                 )}
-                {activeTab === 'stats' && <StatsView transactions={transactions} />}
+                {activeTab === 'stats' && <ProtectedStatsView transactions={transactions} />}
                 {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
                 {activeTab === 'goals' && (
                     <GoalsView user={user} onBack={() => setActiveTab('home')} hideHeader={isDesktop} />
@@ -1134,91 +1158,26 @@ function MainContent() {
 
     // --- Layout Render ---
 
+    // Hide the inline HTML loader when React is ready to show content
+    React.useEffect(() => {
+        if (!loading) {
+            const inlineLoader = document.getElementById('inline-loader');
+            if (inlineLoader) {
+                inlineLoader.style.transition = 'opacity 0.5s ease, filter 0.5s ease';
+                inlineLoader.style.opacity = '0';
+                inlineLoader.style.filter = 'blur(8px)';
+                setTimeout(() => inlineLoader.remove(), 550);
+            }
+        }
+    }, [loading]);
+
     return (
         <AnimatePresence>
             {loading ? (
-                <motion.div
-                    key="app-loader"
-                    initial={{ opacity: 1 }}
-                    exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] } }}
-                    className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
-                    style={{ backgroundColor: '#0B0B0F' }}
-                >
-                    {/* Premium Ambient Background */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <motion.div
-                            animate={{
-                                x: [0, 30, 0],
-                                y: [0, 20, 0],
-                                scale: [1, 1.1, 1]
-                            }}
-                            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] opacity-20"
-                            style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%)', filter: 'blur(80px)' }}
-                        />
-                        <motion.div
-                            animate={{
-                                x: [0, -40, 0],
-                                y: [0, -30, 0],
-                                scale: [1, 1.2, 1]
-                            }}
-                            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] opacity-20"
-                            style={{ background: 'radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%)', filter: 'blur(60px)' }}
-                        />
-                    </div>
-
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="relative z-10 flex flex-col items-center"
-                    >
-                        {/* Glowing Logo Container */}
-                        <div className="relative mb-10">
-                            <motion.div
-                                animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                                className="absolute -inset-5 rounded-full blur-xl"
-                                style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.5) 0%, transparent 70%)' }}
-                            />
-                            <div className="relative w-[100px] h-[100px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[30px] flex items-center justify-center shadow-2xl">
-                                <img src="/spendwise-logo.png" alt="Logo" className="w-[65px] h-[65px] object-contain drop-shadow-lg" />
-                            </div>
-                        </div>
-
-                        <div className="text-center">
-                            <h1 className="text-5xl font-black tracking-tighter m-0 bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent filter drop-shadow-2xl">
-                                SpendWise
-                            </h1>
-                            <p className="mt-3 text-[10px] text-white/40 font-bold tracking-[0.4em] uppercase">
-                                Mastering Finances
-                            </p>
-                        </div>
-
-                        {/* Elegant Glowing Progress */}
-                        <div className="w-56 h-[3px] bg-white/5 rounded-full overflow-hidden mt-14 border border-white/5">
-                            <motion.div
-                                initial={{ width: "95%" }}
-                                className="h-full bg-gradient-to-r from-violet-600 via-cyan-400 to-violet-600 bg-[length:200%]"
-                                style={{ backgroundSize: '200% 100%' }}
-                                animate={{ backgroundPosition: ['-200% 0', '200% 0'] }}
-                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                            />
-                        </div>
-
-                        <AnimatePresence mode="wait">
-                            <motion.p
-                                key={loaderMessage}
-                                initial={{ opacity: 0, y: 5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -5 }}
-                                className="mt-6 text-[9px] text-white/30 font-mono font-medium tracking-widest"
-                            >
-                                {loaderMessage}
-                            </motion.p>
-                        </AnimatePresence>
-                    </motion.div>
-                </motion.div>
+                // Keep the inline HTML loader visible — don't render a React loading screen.
+                // This prevents a second LCP event from being triggered at ~4.5s.
+                // The inline-loader in index.html is already showing the premium loading experience.
+                <div key="app-loader" className="fixed inset-0 z-[9998]" />
             ) : (
                 <motion.div
                     key="app-content"
@@ -1242,7 +1201,7 @@ function MainContent() {
                     ) : (
                         <SubscriptionProvider key={user?.id} user={user}>
                             {isDesktop ? (
-                                <div className="h-full w-full font-sans text-gray-900 dark:text-white
+                                <main className="h-full w-full font-sans text-gray-900 dark:text-white
                                                 selection:bg-violet-100 dark:selection:bg-violet-900
                                                 transition-colors duration-300">
 
@@ -1324,9 +1283,9 @@ function MainContent() {
                                         data={currentBroadcast}
                                     />
                                     <UpgradeModal />
-                                </div>
+                                </main>
                             ) : (
-                                <div className="h-full w-full bg-surface-light dark:bg-surface-dark
+                                <main className="h-full w-full bg-surface-light dark:bg-surface-dark
                                                 font-sans text-gray-900 dark:text-white
                                                 selection:bg-violet-100 dark:selection:bg-violet-900
                                                 flex justify-center items-start transition-colors duration-300">
@@ -1410,11 +1369,12 @@ function MainContent() {
                                                                 </div>
                                                             </div>
 
-                                                            {/* Privacy toggle */}
+                                                             {/* Privacy toggle */}
                                                             <motion.button
                                                                 whileHover={{ scale: 1.1 }}
                                                                 whileTap={{ scale: 0.9 }}
                                                                 onClick={togglePrivacyMode}
+                                                                aria-label={privacyMode ? 'Disable Privacy Mode' : 'Enable Privacy Mode'}
                                                                 className="absolute right-4 w-9 h-9 rounded-full
                                                                         bg-gray-100 dark:bg-white/[0.08]
                                                                         flex items-center justify-center flex-shrink-0
@@ -1441,6 +1401,7 @@ function MainContent() {
                                                             <div className="absolute right-4 flex items-center">
                                                                 <button
                                                                     onClick={togglePrivacyMode}
+                                                                    aria-label={privacyMode ? 'Disable Privacy Mode' : 'Enable Privacy Mode'}
                                                                     className="w-9 h-9 rounded-full
                                                                             bg-gray-100 dark:bg-white/[0.08]
                                                                             flex items-center justify-center
@@ -1472,7 +1433,7 @@ function MainContent() {
                                                     onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
                                                 />
                                             )}
-                                            {activeTab === 'stats' && <StatsView transactions={transactions} />}
+                                            {activeTab === 'stats' && <ProtectedStatsView transactions={transactions} />}
                                             {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
                                         </div>
 
@@ -1553,9 +1514,14 @@ function MainContent() {
                                             <div className="relative z-[45]">
                                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
                                                     <div className="absolute inset-0 rounded-full bg-violet-600/30 animate-ping-pulse scale-110" />
-                                                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={openAddModal} className="relative w-16 h-16 rounded-full bg-violet-500 text-white shadow-lg flex items-center justify-center">
-                                                        <Plus size={32} strokeWidth={2.5} />
-                                                    </motion.button>
+                                                <motion.button
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    onClick={openAddModal}
+                                                    aria-label="Add transaction"
+                                                    className="relative w-16 h-16 rounded-full bg-violet-500 text-white shadow-lg flex items-center justify-center">
+                                                    <Plus size={32} strokeWidth={2.5} />
+                                                </motion.button>
                                                 </div>
                                                 <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
                                             </div>
@@ -1569,7 +1535,7 @@ function MainContent() {
                                     <WhatsNewModal isOpen={showWhatsNew} onClose={() => { if (latestUpdate) localStorage.setItem(`whatsnew_seen_${latestUpdate.version}_${user?.id}`, 'true'); setShowWhatsNew(false); }} data={latestUpdate} />
                                     <BroadcastModal isOpen={showBroadcast} onClose={() => { if (currentBroadcast) localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id); setShowBroadcast(false); }} data={currentBroadcast} />
                                     <UpgradeModal />
-                                </div>
+                                </main>
                             )}
                         </SubscriptionProvider>
                     )}
@@ -1584,7 +1550,9 @@ export default function App() {
         <SettingsProvider>
             <ToastProvider>
                 <ErrorBoundary>
-                    <MainContent />
+                    <React.Suspense fallback={null}>
+                        <MainContent />
+                    </React.Suspense>
                 </ErrorBoundary>
             </ToastProvider>
         </SettingsProvider>

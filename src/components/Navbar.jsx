@@ -1,5 +1,6 @@
-import { Home, BarChart, Wallet, User } from 'lucide-react';
+import { Home, BarChart, Wallet, User, Crown } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 
 const NAV_ITEMS_LEFT = [
     { id: 'home',  Icon: Home,     labelKey: 'nav_home'  },
@@ -13,27 +14,45 @@ const NAV_ITEMS_RIGHT = [
 
 const Navbar = ({ activeTab, setActiveTab }) => {
     const { t: translate } = useSettings();
+    const { isPro, openUpgradeModal } = useSubscription();
+
+    const handleNavClick = (id) => {
+        if (id === 'stats' && !isPro) {
+            openUpgradeModal('stats');
+            return;
+        }
+        setActiveTab(id);
+    };
 
     const renderItem = ({ id, Icon, labelKey }) => {
         const active = activeTab === id;
+        const isProLocked = id === 'stats' && !isPro;
+        const label = translate(labelKey);
         return (
             <button
                 key={id}
                 id={`nav-${id}`}
-                onClick={() => setActiveTab(id)}
-                className={`flex flex-col items-center justify-center flex-1 h-full gap-1
+                onClick={() => handleNavClick(id)}
+                aria-label={label}
+                aria-current={active ? 'page' : undefined}
+                className={`flex flex-col items-center justify-center flex-1 h-full gap-1 relative
                             transition-all duration-300 ease-out`}
             >
                 <div className={`relative flex items-center justify-center transition-all duration-300 ${active ? 'scale-110' : ''}`}>
                     {id === 'home' && active ? (
                         <Icon size={22} strokeWidth={2.5} className="text-violet-600 fill-violet-600" />
                     ) : (
-                        <Icon size={22} strokeWidth={2.5} className={active ? 'text-violet-600' : 'text-gray-400 hover:text-gray-500 dark:text-gray-500'} />
+                        <Icon size={22} strokeWidth={2.5} className={active ? 'text-violet-600' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'} />
+                    )}
+                    {isProLocked && (
+                        <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-amber-400 rounded-full flex items-center justify-center">
+                            <Crown size={8} className="text-white" strokeWidth={2.5} />
+                        </span>
                     )}
                 </div>
                 <span className={`text-[10px] font-semibold tracking-wide transition-all duration-300
-                                 ${active ? 'text-violet-600 opacity-100' : 'text-gray-400 dark:text-gray-500 opacity-70'}`}>
-                    {translate(labelKey)}
+                                 ${active ? 'text-violet-600' : 'text-gray-500 dark:text-gray-400'}`}>
+                    {label}
                 </span>
             </button>
         );
@@ -44,7 +63,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
     const notchSvg = "data:image/svg+xml;charset=UTF-8,%3csvg width='110' height='72' viewBox='0 0 110 72' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M0 0 C 12 0 18 5 25 18 C 35 42 75 42 85 18 C 92 5 98 0 110 0 V 72 H 0 Z' fill='black'/%3e%3c/svg%3e";
 
     return (
-        <div className="relative z-20 pb-[env(safe-area-inset-bottom)] pointer-events-none w-full">
+        <nav aria-label="Main navigation" className="relative z-20 pb-[env(safe-area-inset-bottom)] pointer-events-none w-full">
             {/* 
                 Wrapper with CSS drop-shadow. 
                 Using drop-shadow instead of box-shadow so the shadow perfectly traces the SVG mask cutout!
@@ -80,7 +99,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                     {NAV_ITEMS_RIGHT.map(renderItem)}
                 </div>
             </div>
-        </div>
+        </nav>
     );
 };
 

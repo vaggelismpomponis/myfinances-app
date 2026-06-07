@@ -60,7 +60,7 @@ const DesktopSidebar = ({
     const greeting = hour < 12 ? t('good_morning') : hour < 18 ? t('good_afternoon') : t('good_evening');
 
     const navTo = (tab) => {
-        if ((tab === 'advisor' || tab === 'recurring') && !isPro) {
+        if ((tab === 'advisor' || tab === 'recurring' || tab === 'stats') && !isPro) {
             openUpgradeModal(tab);
             return;
         }
@@ -127,7 +127,7 @@ const DesktopSidebar = ({
                 <SectionLabel label={t('nav_main') || 'Main'} />
 
                 <NavItem icon={Home} label={t('nav_home')} active={activeTab === 'home'} onClick={() => navTo('home')} />
-                <NavItem icon={BarChart2} label={t('nav_stats')} active={activeTab === 'stats'} onClick={() => navTo('stats')} />
+                <NavItem icon={BarChart2} label={t('nav_stats')} active={activeTab === 'stats'} onClick={() => navTo('stats')} showCrown={!isPro} />
                 <NavItem icon={Wallet} label={t('nav_history')} active={activeTab === 'history'} onClick={() => navTo('history')} />
 
                 <SectionLabel label={t('quick_access') || 'Tools'} />
