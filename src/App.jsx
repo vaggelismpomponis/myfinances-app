@@ -329,7 +329,7 @@ function MainContent() {
     useEffect(() => {
         const authTimeout = setTimeout(() => {
             setLoading(false);
-        }, 1500); // Safety fallback — keep short so FCP isn't blocked
+        }, 800); // Safety fallback — keep short so FCP isn't blocked
 
         supabase.auth.getSession().then(({ data: { session } }) => {
             const currentUser = session?.user ?? null;
@@ -1103,6 +1103,7 @@ function MainContent() {
                         onEdit={handleEdit}
                         setActiveTab={setActiveTab}
                         onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
+                        isDesktop={isDesktop}
                     />
                 )}
                 {activeTab === 'stats' && <ProtectedStatsView transactions={transactions} />}
@@ -1163,10 +1164,10 @@ function MainContent() {
         if (!loading) {
             const inlineLoader = document.getElementById('inline-loader');
             if (inlineLoader) {
-                inlineLoader.style.transition = 'opacity 0.5s ease, filter 0.5s ease';
+                inlineLoader.style.transition = 'opacity 0.3s ease, filter 0.3s ease';
                 inlineLoader.style.opacity = '0';
-                inlineLoader.style.filter = 'blur(8px)';
-                setTimeout(() => inlineLoader.remove(), 550);
+                inlineLoader.style.filter = 'blur(4px)';
+                setTimeout(() => inlineLoader.remove(), 350);
             }
         }
     }, [loading]);

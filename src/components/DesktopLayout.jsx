@@ -305,7 +305,7 @@ const DesktopLayout = ({
     const { t } = useSettings();
 
     // Tabs that should NOT show the right panel (full-width sub-pages)
-    const hideRightPanel = ['profile', 'profile-details', 'general', 'security', 'backup',
+    const hideRightPanel = ['home', 'profile', 'profile-details', 'general', 'security', 'backup',
         'feedback', 'guide', 'admin', 'privacy', 'recurring'].includes(activeTab);
 
     return (

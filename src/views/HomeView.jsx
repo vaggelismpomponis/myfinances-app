@@ -2,14 +2,51 @@ import React, { useMemo } from 'react';
 import {
     Target, Wallet, RefreshCw, BarChart,
     ChevronRight, Sparkles, ArrowUpRight, ArrowDownRight, TrendingUp,
-    ArrowRight, TrendingDown, Crown
+    ArrowRight, TrendingDown, Crown, Minus
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 import Amount from '../components/Amount';
+import CategoryIcon from '../components/CategoryIcon';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { motion } from 'framer-motion';
 
+/* ─────────────────────────────────────────────
+   Desktop Quick Action Chip
+───────────────────────────────────────────── */
+const DesktopQuickChip = ({ icon: Icon, label, onClick, isPro, userIsPro, delay }) => (
+    <motion.button
+        whileHover={{ scale: 1.04, y: -2 }}
+        whileTap={{ scale: 0.97 }}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: parseFloat(delay) / 1000 }}
+        onClick={onClick}
+        className="flex items-center gap-3 px-5 py-3.5 rounded-2xl
+                   bg-white dark:bg-surface-dark3
+                   border-2 border-gray-100 dark:border-white/[0.07]
+                   shadow-sm
+                   hover:bg-violet-600 dark:hover:bg-violet-600
+                   hover:border-violet-600 dark:hover:border-violet-500
+                   hover:shadow-lg hover:shadow-violet-500/25
+                   transition-all duration-200 group relative flex-1"
+    >
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0
+                        bg-violet-100 dark:bg-violet-900/50
+                        group-hover:bg-white/20
+                        transition-colors duration-200">
+            <Icon size={17} className="text-violet-600 dark:text-violet-400 group-hover:text-white transition-colors duration-200" />
+        </div>
+        <span className="text-sm font-bold text-gray-700 dark:text-gray-200 group-hover:text-white transition-colors duration-200">{label}</span>
+        {isPro && !userIsPro && (
+            <Crown size={11} className="text-amber-400 group-hover:text-amber-300 ml-auto flex-shrink-0 transition-colors" />
+        )}
+    </motion.button>
+);
+
+/* ─────────────────────────────────────────────
+   Mobile Quick Action Button (original style)
+───────────────────────────────────────────── */
 const QuickAction = ({ icon: Icon, label, color, bg, onClick, delay, isPro, userIsPro }) => (
     <motion.button
         whileHover={{ scale: 1.05, y: -2 }}
@@ -34,7 +71,163 @@ const QuickAction = ({ icon: Icon, label, color, bg, onClick, delay, isPro, user
     </motion.button>
 );
 
-const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, onDelete, onEdit, setActiveTab, onRecurring }) => {
+/* ─────────────────────────────────────────────
+   Desktop Financial Summary Card
+───────────────────────────────────────────── */
+const FinancialSummaryCard = ({ totalIncome, totalExpense, t }) => {
+    const netFlow = totalIncome - totalExpense;
+    const isPositive = netFlow >= 0;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="bg-white dark:bg-surface-dark3 rounded-[2rem]
+                       border border-gray-100 dark:border-white/[0.05]
+                       shadow-sm p-6 space-y-4"
+        >
+            <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                {t('this_month_spend') || 'This Month'}
+            </h3>
+
+            {/* Income */}
+            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/70 dark:bg-white/10 text-emerald-600 dark:text-emerald-400 flex-shrink-0">
+                    <ArrowUpRight size={17} />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('stats_income')}</p>
+                    <p className="text-base font-black text-gray-900 dark:text-white truncate tabular-nums">
+                        <Amount value={totalIncome} />
+                    </p>
+                </div>
+            </div>
+
+            {/* Expense */}
+            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-900/20">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/70 dark:bg-white/10 text-rose-600 dark:text-rose-400 flex-shrink-0">
+                    <ArrowDownRight size={17} />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('stats_expense')}</p>
+                    <p className="text-base font-black text-gray-900 dark:text-white truncate tabular-nums">
+                        <Amount value={totalExpense} />
+                    </p>
+                </div>
+            </div>
+
+            {/* Net Flow */}
+            <div className={`flex items-center justify-between px-4 py-3 rounded-2xl
+                            ${isPositive
+                                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+                                : 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400'
+                            }`}>
+                <div className="flex items-center gap-2">
+                    {isPositive ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
+                    <span className="text-xs font-black uppercase tracking-wider">Net Flow</span>
+                </div>
+                <span className="text-base font-black tabular-nums">
+                    {isPositive ? '+' : '−'}<Amount value={Math.abs(netFlow)} showSign={false} />
+                </span>
+            </div>
+        </motion.div>
+    );
+};
+
+/* ─────────────────────────────────────────────
+   Desktop Budget Progress Card
+───────────────────────────────────────────── */
+const BudgetProgressCard = ({ budgets, transactions, setActiveTab, t }) => {
+    const activeBudgets = useMemo(() => budgets.slice(0, 5), [budgets]);
+
+    if (activeBudgets.length === 0) return null;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="bg-white dark:bg-surface-dark3 rounded-[2rem]
+                       border border-gray-100 dark:border-white/[0.05]
+                       shadow-sm p-6 space-y-4"
+        >
+            <div className="flex items-center justify-between">
+                <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                    {t('budgets')}
+                </h3>
+                <button
+                    onClick={() => setActiveTab('budgets')}
+                    className="text-[10px] font-black text-violet-600 dark:text-violet-400 hover:text-violet-500 transition-colors flex items-center gap-0.5"
+                >
+                    {t('all')} <ChevronRight size={11} />
+                </button>
+            </div>
+
+            <div className="space-y-4">
+                {activeBudgets.map(budget => (
+                    <BudgetBar key={budget.id} budget={budget} transactions={transactions} t={t} />
+                ))}
+            </div>
+        </motion.div>
+    );
+};
+
+/* ─────────────────────────────────────────────
+   Budget Bar (inline, no separate component needed)
+───────────────────────────────────────────── */
+const BudgetBar = ({ budget, transactions, t }) => {
+    const spent = useMemo(() => {
+        const now = new Date();
+        return transactions
+            .filter(tx =>
+                tx.type === 'expense' &&
+                tx.category?.toLowerCase() === budget.category?.toLowerCase() &&
+                new Date(tx.date).getMonth() === now.getMonth() &&
+                new Date(tx.date).getFullYear() === now.getFullYear()
+            )
+            .reduce((s, tx) => s + tx.amount, 0);
+    }, [transactions, budget]);
+
+    const pct = Math.min((spent / budget.amount) * 100, 100);
+    const isWarning = pct >= 75;
+    const isDanger = pct >= 100;
+
+    const categoryLabel = t('cat_' + budget.category?.toLowerCase());
+    const displayCategory = categoryLabel === 'cat_' + budget.category?.toLowerCase()
+        ? budget.category
+        : categoryLabel;
+
+    return (
+        <div className="space-y-2">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <CategoryIcon category={budget.category} type="expense" size={14} />
+                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 capitalize">{displayCategory}</span>
+                </div>
+                <span className={`text-[10px] font-black ${isDanger ? 'text-rose-500' : isWarning ? 'text-amber-500' : 'text-gray-400 dark:text-gray-500'}`}>
+                    {pct.toFixed(0)}%
+                </span>
+            </div>
+            <div className="h-1.5 bg-gray-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
+                <div
+                    className={`h-full rounded-full transition-all duration-700
+                                ${isDanger ? 'bg-rose-500' : isWarning ? 'bg-amber-400' : 'bg-violet-500'}`}
+                    style={{ width: `${pct}%` }}
+                />
+            </div>
+            <div className="flex justify-between text-[9px] font-bold text-gray-400 dark:text-gray-600">
+                <span><Amount value={spent} /></span>
+                <span><Amount value={budget.amount} /></span>
+            </div>
+        </div>
+    );
+};
+
+/* ─────────────────────────────────────────────
+   Main HomeView
+───────────────────────────────────────────── */
+const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, onDelete, onEdit, setActiveTab, onRecurring, isDesktop }) => {
     const { t, privacyMode } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
 
@@ -79,207 +272,268 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
         return { curSpent, lastSpent, diffPct, trend };
     }, [transactions]);
 
+    const quickActions = [
+        {
+            icon: Target, label: t('goals'), delay: '0',
+            onClick: () => setActiveTab('goals'),
+            isPro: false, userIsPro: isPro,
+            color: 'text-violet-600 dark:text-violet-400',
+            bg: 'bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20',
+        },
+        {
+            icon: Wallet, label: t('budgets'), delay: '50',
+            onClick: () => setActiveTab('budgets'),
+            isPro: false, userIsPro: isPro,
+            color: 'text-violet-600 dark:text-violet-400',
+            bg: 'bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20',
+        },
+        {
+            icon: RefreshCw, label: t('recurring_short'), delay: '100',
+            onClick: () => {
+                if (!isPro) { openUpgradeModal('recurring'); }
+                else { if (onRecurring) onRecurring(); else setActiveTab('recurring'); }
+            },
+            isPro: true, userIsPro: isPro,
+            color: 'text-violet-600 dark:text-violet-400',
+            bg: 'bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20',
+        },
+        {
+            icon: BarChart, label: t('stats_short'), delay: '150',
+            onClick: () => setActiveTab('stats'),
+            isPro: true, userIsPro: isPro,
+            color: 'text-violet-600 dark:text-violet-400',
+            bg: 'bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20',
+        },
+    ];
 
+    // ── Hero Card (shared between mobile & desktop) ──
+    const heroCard = (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.45, type: 'spring' }}
+            className="relative overflow-hidden rounded-[2.5rem]
+                        bg-white dark:bg-surface-dark3 backdrop-blur-xl
+                        p-8 pt-10 pb-8 text-center shadow-premium border border-slate-200/60 dark:border-white/5
+                        transition-all duration-300"
+        >
+            {/* Subtle top glow */}
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-violet-500/10 dark:bg-violet-500/5 blur-[80px] pointer-events-none rounded-full" />
 
+            <div className="relative z-10 space-y-2">
+                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium tracking-tight">
+                    {t('this_month_spend')}
+                </p>
+
+                <div className="flex flex-col items-center">
+                    <div className="flex items-start justify-center gap-1">
+                        {!privacyMode && <span className="text-3xl font-bold text-gray-900 dark:text-white mt-1">€</span>}
+                        <h1 className="text-6xl font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
+                            <Amount
+                                value={stats.curSpent}
+                                showCurrency={false}
+                                minimumFractionDigits={2}
+                                maximumFractionDigits={2}
+                            />
+                        </h1>
+                    </div>
+
+                    {/* Trend Indicator */}
+                    <div className={`flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold
+                                   ${stats.trend === 'below' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' :
+                            stats.trend === 'above' ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' :
+                                'text-gray-600 bg-gray-50 dark:bg-surface-dark2'}`}>
+                        {stats.trend === 'below' && <TrendingDown size={14} />}
+                        {stats.trend === 'above' && <TrendingUp size={14} />}
+                        {stats.trend === 'neutral' && <Minus size={14} />}
+                        <span>
+                            {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+
+    // ── AI Advisor CTA (shared) ──
+    const advisorCta = (
+        <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+                if (!isPro) { openUpgradeModal('advisor'); }
+                else { setActiveTab('advisor'); }
+            }}
+            className="w-full relative overflow-hidden bg-violet-50 dark:bg-surface-dark3 backdrop-blur-md
+                       p-4 rounded-[2rem] border border-violet-200/50 dark:border-violet-900/30
+                       shadow-premium flex items-center gap-4 group transition-all"
+        >
+            {!isPro && (
+                <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10 z-10">
+                    <Crown size={12} className="text-amber-400" fill="currentColor" />
+                </div>
+            )}
+            <div className="absolute top-2 left-10 w-1.5 h-1.5 rounded-full bg-violet-400/30 animate-float" />
+            <div className="absolute bottom-3 right-20 w-2 h-2 rounded-full bg-indigo-400/20 animate-float" style={{ animationDelay: '1s' }} />
+
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white
+                            shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform duration-300">
+                <Sparkles size={22} fill="currentColor" className="animate-pulse" />
+            </div>
+            <div className="flex-1 text-left min-w-0">
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
+                <p className="text-[11px] text-gray-700 dark:text-gray-300 font-medium truncate italic mt-0.5">
+                    {t('advisor_subtitle')}
+                </p>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-500 group-hover:translate-x-1 transition-transform">
+                <ArrowRight size={16} />
+            </div>
+        </motion.button>
+    );
+
+    // ── Recent Transactions (shared) ──
+    const recentTransactions = (
+        <div>
+            <div className="flex justify-between items-center mb-3">
+                <h2 className="text-base font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                    {t('recent')}
+                    <span className="bg-gray-100 dark:bg-surface-dark3 text-gray-700 dark:text-gray-300 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                        {transactions.length}
+                    </span>
+                </h2>
+                <button
+                    onClick={() => setActiveTab('history')}
+                    className="flex items-center gap-1 text-xs font-bold text-violet-600 dark:text-violet-400
+                               hover:text-violet-500 transition-colors"
+                >
+                    {t('all')} <ChevronRight size={13} />
+                </button>
+            </div>
+
+            {transactions.length === 0 ? (
+                <div className="text-center py-14
+                                bg-white dark:bg-surface-dark3
+                                rounded-[2rem] border border-gray-100 dark:border-transparent shadow-sm">
+                    <div className="w-16 h-16 rounded-[1.5rem] bg-violet-50 dark:bg-violet-900/30
+                                    flex items-center justify-center mx-auto mb-4">
+                        <TrendingUp size={28} className="text-violet-400" />
+                    </div>
+                    <p className="font-bold text-gray-700 dark:text-white/90 text-sm">
+                        {t('no_transactions')}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 max-w-[200px] mx-auto">
+                        {t('tap_to_add')}
+                    </p>
+                </div>
+            ) : (
+                <div className="space-y-2.5">
+                    {transactions.slice(0, isDesktop ? 8 : 5).map((tx, idx) => (
+                        <motion.div
+                            key={tx.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 + (idx * 0.04) }}
+                            layout
+                        >
+                            <TransactionItem transaction={tx} onDelete={onDelete} onEdit={onEdit} />
+                        </motion.div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+
+    // ── DESKTOP LAYOUT ──
+    if (isDesktop) {
+        return (
+            <div className="space-y-5 pb-6">
+
+                {/* ── Quick Actions Row ── */}
+                <div>
+                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2.5 ml-1">
+                        {t('quick_access')}
+                    </p>
+                    <div className="flex gap-3">
+                        {quickActions.map((action) => (
+                            <DesktopQuickChip
+                                key={action.label}
+                                icon={action.icon}
+                                label={action.label}
+                                onClick={action.onClick}
+                                isPro={action.isPro}
+                                userIsPro={action.userIsPro}
+                                delay={action.delay}
+                            />
+                        ))}
+                    </div>
+                </div>
+
+                {/* ── 2-Column Dashboard Grid ── */}
+                <div className="grid grid-cols-5 gap-5 items-start">
+
+                    {/* LEFT COLUMN — main content (3/5 width) */}
+                    <div className="col-span-3 space-y-5">
+                        {heroCard}
+                        {advisorCta}
+                        {recentTransactions}
+                    </div>
+
+                    {/* RIGHT COLUMN — financial summary + budgets (2/5 width) */}
+                    <div className="col-span-2 space-y-5 sticky top-4">
+                        <FinancialSummaryCard
+                            totalIncome={totalIncome}
+                            totalExpense={totalExpense}
+                            t={t}
+                        />
+                        <BudgetProgressCard
+                            budgets={budgets}
+                            transactions={transactions}
+                            setActiveTab={setActiveTab}
+                            t={t}
+                        />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ── MOBILE LAYOUT (unchanged from original) ──
     return (
         <div className="space-y-6 pb-28">
 
-            {/* ── ① Redesigned Hero Card (Minimalist Centered) ── */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, type: 'spring' }}
-                className="relative overflow-hidden rounded-[2.5rem]
-                            bg-white dark:bg-surface-dark3 backdrop-blur-xl
-                            p-8 pt-12 pb-10 text-center shadow-premium border border-slate-200/60 dark:border-white/5
-                            transition-all duration-300">
+            {/* ── Hero Card ── */}
+            {heroCard}
 
-                {/* Subtle top glow */}
-                <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-violet-500/10 dark:bg-violet-500/5 blur-[80px] pointer-events-none rounded-full" />
+            {/* ── AI Advisor CTA ── */}
+            {advisorCta}
 
-                <div className="relative z-10 space-y-2">
-                    <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-tight">
-                        {t('this_month_spend')}
-                    </p>
-
-                    <div className="flex flex-col items-center">
-                        <div className="flex items-start justify-center gap-1">
-                            {!privacyMode && <span className="text-3xl font-bold text-gray-900 dark:text-white mt-1">€</span>}
-                            <h1 className="text-6xl font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
-                                <Amount
-                                    value={stats.curSpent}
-                                    showCurrency={false}
-                                    minimumFractionDigits={2}
-                                    maximumFractionDigits={2}
-                                />
-                            </h1>
-                        </div>
-
-                        {/* Trend Indicator */}
-                        <div className={`flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold
-                                       ${stats.trend === 'below' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' :
-                                stats.trend === 'above' ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' :
-                                    'text-gray-600 bg-gray-50 dark:bg-surface-dark2'}`}>
-                            {stats.trend === 'below' && <TrendingDown size={14} />}
-                            {stats.trend === 'above' && <TrendingUp size={14} />}
-                            <span>
-                                {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
-                            </span>
-                        </div>
-                    </div>
-
-                </div>
-            </motion.div>
-
-
-            {/* ── ③ AI Advisor CTA ── */}
-            <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                    if (!isPro) {
-                        openUpgradeModal('advisor');
-                    } else {
-                        setActiveTab('advisor');
-                    }
-                }}
-                className="w-full relative overflow-hidden bg-violet-50 dark:bg-surface-dark3 backdrop-blur-md
-                           p-4 rounded-[2rem] border border-violet-200/50 dark:border-violet-900/30
-                           shadow-premium flex items-center gap-4 group transition-all"
-            >
-                {!isPro && (
-                    <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10 z-10">
-                        <Crown size={12} className="text-amber-400" fill="currentColor" />
-                    </div>
-                )}
-                <div className="absolute top-2 left-10 w-1.5 h-1.5 rounded-full bg-violet-400/30 animate-float" />
-                <div className="absolute bottom-3 right-20 w-2 h-2 rounded-full bg-indigo-400/20 animate-float" style={{ animationDelay: '1s' }} />
-
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white
-                                shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform duration-300">
-                    <Sparkles size={22} fill="currentColor" className="animate-pulse" />
-                </div>
-                <div className="flex-1 text-left min-w-0">
-                    <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
-                    <p className="text-[11px] text-gray-700 dark:text-gray-300 font-medium truncate italic mt-0.5">
-                        {t('advisor_subtitle')}
-                    </p>
-                </div>
-                <div className="w-8 h-8 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-500 group-hover:translate-x-1 transition-transform">
-                    <ArrowRight size={16} />
-                </div>
-            </motion.button>
-
-            {/* ── ④ Quick Actions ── */}
+            {/* ── Quick Actions (mobile: big icon grid) ── */}
             <div>
                 <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest mb-3 ml-2">
                     {t('quick_access')}
                 </p>
                 <div className="grid grid-cols-4 gap-3">
-                    <QuickAction
-                        icon={Target}
-                        label={t('goals')}
-                        color="text-violet-600 dark:text-violet-400"
-                        bg="bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20"
-                        onClick={() => setActiveTab('goals')}
-                        delay="0ms"
-                    />
-                    <QuickAction
-                        icon={Wallet}
-                        label={t('budgets')}
-                        color="text-violet-600 dark:text-violet-400"
-                        bg="bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20"
-                        onClick={() => setActiveTab('budgets')}
-                        delay="50ms"
-                    />
-                    <QuickAction
-                        icon={RefreshCw}
-                        label={t('recurring_short')}
-                        color="text-violet-600 dark:text-violet-400"
-                        bg="bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20"
-                        onClick={() => {
-                            if (!isPro) {
-                                openUpgradeModal('recurring');
-                            } else {
-                                if (onRecurring) onRecurring();
-                                else setActiveTab('recurring');
-                            }
-                        }}
-                        delay="100ms"
-                        isPro
-                        userIsPro={isPro}
-                    />
-                    <QuickAction
-                        icon={BarChart}
-                        label={t('stats_short')}
-                        color="text-violet-600 dark:text-violet-400"
-                        bg="bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20"
-                        onClick={() => setActiveTab('stats')}
-                        delay="150ms"
-                    />
+                    {quickActions.map((action) => (
+                        <QuickAction
+                            key={action.label}
+                            icon={action.icon}
+                            label={action.label}
+                            color={action.color}
+                            bg={action.bg}
+                            onClick={action.onClick}
+                            delay={action.delay}
+                            isPro={action.isPro}
+                            userIsPro={action.userIsPro}
+                        />
+                    ))}
                 </div>
             </div>
 
-            {/* ── ⑤ Recent Transactions ── */}
-            <div>
-                <div className="flex justify-between items-center mb-3">
-                    <h2 className="text-base font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                        {t('recent')}
-                        <span className="bg-gray-100 dark:bg-surface-dark3 text-gray-700 dark:text-gray-300 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                            {transactions.length}
-                        </span>
-                    </h2>
-                    <button
-                        onClick={() => setActiveTab('history')}
-                        className="flex items-center gap-1 text-xs font-bold text-violet-600 dark:text-violet-400
-                                   hover:text-violet-500 transition-colors"
-                    >
-                        {t('all')} <ChevronRight size={13} />
-                    </button>
-                </div>
-
-                {transactions.length === 0 ? (
-                    <div className="text-center py-14
-                                    bg-white dark:bg-surface-dark3
-                                    rounded-[2rem] border border-gray-100 dark:border-transparent shadow-sm">
-                        <div className="w-16 h-16 rounded-[1.5rem] bg-violet-50 dark:bg-violet-900/30
-                                        flex items-center justify-center mx-auto mb-4">
-                            <TrendingUp size={28} className="text-violet-400" />
-                        </div>
-                        <p className="font-bold text-gray-700 dark:text-white/90 text-sm">
-                            {t('no_transactions')}
-                        </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 max-w-[200px] mx-auto">
-                            {t('tap_to_add')}
-                        </p>
-                    </div>
-                ) : (
-                    <div className="space-y-2.5">
-                        {transactions.slice(0, 5).map((tx, idx) => (
-                            <motion.div
-                                key={tx.id}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.2 + (idx * 0.05) }}
-                                layout
-                            >
-                                <TransactionItem transaction={tx} onDelete={onDelete} onEdit={onEdit} />
-                            </motion.div>
-                        ))}
-                    </div>
-                )}
-            </div>
+            {/* ── Recent Transactions ── */}
+            {recentTransactions}
         </div>
     );
 };
 
 export default HomeView;
-
-
-
-
-
-
-
-
-
