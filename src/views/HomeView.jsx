@@ -447,7 +447,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
     // ── DESKTOP LAYOUT ──
     if (isDesktop) {
         return (
-            <div className="space-y-5 pb-6">
+            <div className="space-y-6 p-6 lg:p-8">
 
                 {/* ── Quick Actions Row ── */}
                 <div>
