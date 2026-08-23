@@ -1070,12 +1070,6 @@ function MainContent() {
     // ── Helper: open add modal
     const openAddModal = () => { setEditingTransaction(null); setShowAddModal(true); };
 
-    const pageVariants = {
-        initial: { opacity: 0, x: 20 },
-        animate: { opacity: 1, x: 0, transition: { type: 'spring', damping: 25, stiffness: 200 } },
-        exit: { opacity: 0, x: -20, transition: { duration: 0.2 } }
-    };
-
     const overlayVariants = {
         initial: { y: '100%' },
         animate: { y: 0, transition: { type: 'spring', damping: 25, stiffness: 200 } },
@@ -1084,78 +1078,69 @@ function MainContent() {
 
     // ── Shared view renderer (used by both mobile + desktop)
     const renderActiveView = () => (
-        <AnimatePresence mode="wait">
-            <motion.div
-                key={activeTab}
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className="h-full w-full"
-            >
-                {activeTab === 'home' && (
-                    <HomeView
-                        balance={balance}
-                        totalIncome={totalIncome}
-                        totalExpense={totalExpense}
-                        transactions={transactions}
-                        budgets={budgets}
-                        onDelete={deleteTransaction}
-                        onEdit={handleEdit}
-                        setActiveTab={setActiveTab}
-                        onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
-                        isDesktop={isDesktop}
-                    />
-                )}
-                {activeTab === 'stats' && <ProtectedStatsView transactions={transactions} />}
-                {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
-                {activeTab === 'goals' && (
-                    <GoalsView user={user} onBack={() => setActiveTab('home')} hideHeader={isDesktop} />
-                )}
-                {activeTab === 'budgets' && (
-                    <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} hideHeader={isDesktop} />
-                )}
-                {activeTab === 'advisor' && (
-                    <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} hideHeader={isDesktop} />
-                )}
-                {activeTab === 'profile' && (
-                    <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
-                        onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
-                        onGeneral={() => setActiveTab('general')}
-                        onSecurity={() => setActiveTab('security')}
-                        onBackup={() => setActiveTab('backup')}
-                        onAdmin={() => setActiveTab('admin')}
-                        onFeedback={() => setActiveTab('feedback')}
-                        onGuide={() => setActiveTab('guide')}
-                        hideHeader={isDesktop}
-                    />
-                )}
-                {activeTab === 'guide' && (
-                    <GuideView onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
-                )}
-                {activeTab === 'recurring' && (
-                    <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} hideHeader={isDesktop} />
-                )}
-                {activeTab === 'general' && (
-                    <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} hideHeader={isDesktop} />
-                )}
-                {activeTab === 'privacy' && (
-                    <PrivacyPolicyView onBack={() => setActiveTab('general')} hideHeader={isDesktop} />
-                )}
-                {activeTab === 'feedback' && (
-                    <FeedbackView user={user} onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
-                )}
-                {activeTab === 'security' && (
-                    <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
-                )}
-                {activeTab === 'backup' && (
-                    <BackupView user={user} onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
-                )}
-                {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
-                    <AdminView onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
-                )}
-            </motion.div>
-        </AnimatePresence>
+        <div className="h-full w-full">
+            {activeTab === 'home' && (
+                <HomeView
+                    balance={balance}
+                    totalIncome={totalIncome}
+                    totalExpense={totalExpense}
+                    transactions={transactions}
+                    budgets={budgets}
+                    onDelete={deleteTransaction}
+                    onEdit={handleEdit}
+                    setActiveTab={setActiveTab}
+                    onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
+                    isDesktop={isDesktop}
+                />
+            )}
+            {activeTab === 'stats' && <ProtectedStatsView transactions={transactions} />}
+            {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
+            {activeTab === 'goals' && (
+                <GoalsView user={user} onBack={() => setActiveTab('home')} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'budgets' && (
+                <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'advisor' && (
+                <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'profile' && (
+                <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
+                    onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
+                    onGeneral={() => setActiveTab('general')}
+                    onSecurity={() => setActiveTab('security')}
+                    onBackup={() => setActiveTab('backup')}
+                    onAdmin={() => setActiveTab('admin')}
+                    onFeedback={() => setActiveTab('feedback')}
+                    onGuide={() => setActiveTab('guide')}
+                    hideHeader={isDesktop}
+                />
+            )}
+            {activeTab === 'guide' && (
+                <GuideView onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'recurring' && (
+                <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'general' && (
+                <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'privacy' && (
+                <PrivacyPolicyView onBack={() => setActiveTab('general')} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'feedback' && (
+                <FeedbackView user={user} onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'security' && (
+                <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'backup' && (
+                <BackupView user={user} onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
+                <AdminView onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
+            )}
+        </div>
     );
 
     // --- Layout Render ---
@@ -1244,7 +1229,9 @@ function MainContent() {
                                         onSignOut={handleSignOut}
                                         onAdd={openAddModal}
                                     >
-                                        {renderActiveView()}
+                                        <React.Suspense fallback={<div className="h-full w-full" />}>
+                                            {renderActiveView()}
+                                        </React.Suspense>
                                     </DesktopLayout>
 
                                     {/* Shared Modals */}
@@ -1425,27 +1412,29 @@ function MainContent() {
 
                                             <div className="h-4 shrink-0" />
 
-                                            {activeTab === 'home' && (
-                                                <HomeView
-                                                    balance={balance}
-                                                    totalIncome={totalIncome}
-                                                    totalExpense={totalExpense}
-                                                    transactions={transactions}
-                                                    budgets={budgets}
-                                                    onDelete={deleteTransaction}
-                                                    onEdit={handleEdit}
-                                                    setActiveTab={setActiveTab}
-                                                    onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
-                                                />
-                                            )}
-                                            {activeTab === 'stats' && <ProtectedStatsView transactions={transactions} />}
-                                            {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
+                                            <React.Suspense fallback={<div className="h-full w-full" />}>
+                                                {activeTab === 'home' && (
+                                                    <HomeView
+                                                        balance={balance}
+                                                        totalIncome={totalIncome}
+                                                        totalExpense={totalExpense}
+                                                        transactions={transactions}
+                                                        budgets={budgets}
+                                                        onDelete={deleteTransaction}
+                                                        onEdit={handleEdit}
+                                                        setActiveTab={setActiveTab}
+                                                        onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
+                                                    />
+                                                )}
+                                                {activeTab === 'stats' && <ProtectedStatsView transactions={transactions} />}
+                                                {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
+                                            </React.Suspense>
                                         </div>
 
                                         {/* Overlays */}
-                                        <AnimatePresence>
+                                        <React.Suspense fallback={<div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark" />}>
                                             {activeTab === 'profile' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
                                                         onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
                                                         onGeneral={() => setActiveTab('general')}
@@ -1455,64 +1444,64 @@ function MainContent() {
                                                         onFeedback={() => setActiveTab('feedback')}
                                                         onGuide={() => setActiveTab('guide')}
                                                     />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'guide' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <GuideView onBack={() => setActiveTab('profile')} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'recurring' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'general' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'privacy' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <PrivacyPolicyView onBack={() => setActiveTab('general')} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'feedback' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <FeedbackView user={user} onBack={() => setActiveTab('profile')} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'security' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'backup' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <BackupView user={user} onBack={() => setActiveTab('profile')} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <AdminView onBack={() => setActiveTab('profile')} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'goals' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
                                                     <GoalsView user={user} onBack={() => setActiveTab('home')} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'budgets' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
                                                     <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />
-                                                </motion.div>
+                                                </div>
                                             )}
                                             {activeTab === 'advisor' && (
-                                                <motion.div variants={overlayVariants} initial="initial" animate="animate" exit="exit" className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
                                                     <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />
-                                                </motion.div>
+                                                </div>
                                             )}
-                                        </AnimatePresence>
+                                        </React.Suspense>
 
                                         {/* Mobile Modals/FAB */}
                                         {!['goals', 'budgets', 'profile', 'recurring', 'general', 'security', 'backup', 'feedback', 'admin', 'privacy', 'advisor', 'guide'].includes(activeTab) && (

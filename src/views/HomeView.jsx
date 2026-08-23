@@ -451,7 +451,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
 
                 {/* ── Quick Actions Row ── */}
                 <div>
-                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2.5 ml-1">
+                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.15em] mb-2.5 ml-1">
                         {t('quick_access')}
                     </p>
                     <div className="flex gap-3">
@@ -469,23 +469,128 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                     </div>
                 </div>
 
+                {/* ── Premium Hero Card (wide) ── */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.97 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, type: 'spring' }}
+                    className="relative overflow-hidden rounded-[2rem] hero-gradient
+                                p-8 shadow-premium border border-violet-200/40 dark:border-white/[0.06]"
+                >
+                    {/* Decorative background orbs */}
+                    <div className="absolute -top-20 -right-20 w-56 h-56 bg-violet-400/[0.12] dark:bg-violet-500/[0.08] blur-[80px] rounded-full pointer-events-none" />
+                    <div className="absolute -bottom-16 -left-12 w-44 h-44 bg-indigo-400/[0.08] dark:bg-indigo-500/[0.06] blur-[60px] rounded-full pointer-events-none" />
+                    <div className="absolute top-10 right-1/3 w-32 h-32 bg-violet-300/[0.06] dark:bg-violet-400/[0.04] blur-[50px] rounded-full pointer-events-none" />
+
+                    <div className="relative z-10 flex items-end justify-between gap-8">
+                        {/* Left: Amount + Trend */}
+                        <div>
+                            <p className="text-violet-500/80 dark:text-violet-300/50 text-[10px] font-black uppercase tracking-[0.15em] mb-2">
+                                {t('this_month_spend')}
+                            </p>
+                            <div className="flex items-start gap-1.5">
+                                {!privacyMode && (
+                                    <span className="text-2xl font-bold text-gray-400 dark:text-gray-500 mt-2.5">€</span>
+                                )}
+                                <h1 className="text-[4rem] leading-none font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
+                                    <Amount
+                                        value={stats.curSpent}
+                                        showCurrency={false}
+                                        minimumFractionDigits={2}
+                                        maximumFractionDigits={2}
+                                    />
+                                </h1>
+                            </div>
+                            <div className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-[11px] font-bold
+                                ${stats.trend === 'below'
+                                    ? 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/[0.12]'
+                                    : stats.trend === 'above'
+                                        ? 'text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:bg-rose-500/[0.12]'
+                                        : 'text-gray-500 bg-gray-200/60 dark:text-gray-400 dark:bg-white/[0.06]'}`}
+                            >
+                                {stats.trend === 'below' && <TrendingDown size={13} />}
+                                {stats.trend === 'above' && <TrendingUp size={13} />}
+                                {stats.trend === 'neutral' && <Minus size={13} />}
+                                <span>
+                                    {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Right: Income / Expense cards */}
+                        <div className="flex gap-3 pb-1">
+                            <div className="flex items-center gap-3 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-4 py-3.5 border border-white/80 dark:border-white/[0.04] min-w-[170px]">
+                                <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
+                                    <ArrowUpRight size={16} className="text-emerald-600 dark:text-emerald-400" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('stats_income')}</p>
+                                    <p className="text-sm font-black text-gray-900 dark:text-white truncate tabular-nums">
+                                        <Amount value={totalIncome} />
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-4 py-3.5 border border-white/80 dark:border-white/[0.04] min-w-[170px]">
+                                <div className="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-500/15 flex items-center justify-center flex-shrink-0">
+                                    <ArrowDownRight size={16} className="text-rose-600 dark:text-rose-400" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('stats_expense')}</p>
+                                    <p className="text-sm font-black text-gray-900 dark:text-white truncate tabular-nums">
+                                        <Amount value={totalExpense} />
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
                 {/* ── 2-Column Dashboard Grid ── */}
                 <div className="grid grid-cols-5 gap-5 items-start">
 
-                    {/* LEFT COLUMN — main content (3/5 width) */}
+                    {/* LEFT COLUMN — advisor + transactions (3/5 width) */}
                     <div className="col-span-3 space-y-5">
-                        {heroCard}
-                        {advisorCta}
+                        {/* AI Advisor CTA */}
+                        <motion.button
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.08 }}
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => {
+                                if (!isPro) { openUpgradeModal('advisor'); }
+                                else { setActiveTab('advisor'); }
+                            }}
+                            className="w-full relative overflow-hidden glass-light dark:glass
+                                       p-4 rounded-[1.75rem]
+                                       shadow-sm hover:shadow-md
+                                       flex items-center gap-3.5 group transition-all duration-300"
+                        >
+                            {!isPro && (
+                                <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10 shadow-sm">
+                                    <Crown size={10} className="text-white" fill="currentColor" />
+                                </div>
+                            )}
+                            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
+                                            shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
+                                <Sparkles size={20} fill="currentColor" />
+                            </div>
+                            <div className="flex-1 text-left min-w-0">
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
+                                <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium truncate mt-0.5">
+                                    {t('advisor_subtitle')}
+                                </p>
+                            </div>
+                            <div className="w-7 h-7 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-500 group-hover:translate-x-0.5 transition-transform flex-shrink-0">
+                                <ArrowRight size={14} />
+                            </div>
+                        </motion.button>
+
                         {recentTransactions}
                     </div>
 
-                    {/* RIGHT COLUMN — financial summary + budgets (2/5 width) */}
+                    {/* RIGHT COLUMN — budgets (2/5 width) */}
                     <div className="col-span-2 space-y-5 sticky top-4">
-                        <FinancialSummaryCard
-                            totalIncome={totalIncome}
-                            totalExpense={totalExpense}
-                            t={t}
-                        />
                         <BudgetProgressCard
                             budgets={budgets}
                             transactions={transactions}
@@ -498,35 +603,157 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
         );
     }
 
-    // ── MOBILE LAYOUT (unchanged from original) ──
+    // ── MOBILE LAYOUT ──
     return (
-        <div className="space-y-6 pb-28">
+        <div className="space-y-5 pb-28">
 
-            {/* ── Hero Card ── */}
-            {heroCard}
+            {/* ── Premium Hero Card ── */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, type: 'spring' }}
+                className="relative overflow-hidden rounded-[2rem] hero-gradient
+                            p-6 pb-5 shadow-premium border border-violet-200/40 dark:border-white/[0.06]"
+            >
+                {/* Decorative background orbs */}
+                <div className="absolute -top-16 -right-16 w-44 h-44 bg-violet-400/[0.12] dark:bg-violet-500/[0.08] blur-[60px] rounded-full pointer-events-none" />
+                <div className="absolute -bottom-12 -left-8 w-36 h-36 bg-indigo-400/[0.08] dark:bg-indigo-500/[0.06] blur-[50px] rounded-full pointer-events-none" />
+
+                <div className="relative z-10">
+                    {/* Section label */}
+                    <p className="text-violet-500/80 dark:text-violet-300/50 text-[10px] font-black uppercase tracking-[0.15em] mb-1.5">
+                        {t('this_month_spend')}
+                    </p>
+
+                    {/* Main amount */}
+                    <div className="flex items-start gap-1">
+                        {!privacyMode && (
+                            <span className="text-xl font-bold text-gray-400 dark:text-gray-500 mt-2">€</span>
+                        )}
+                        <h1 className="text-[3.25rem] leading-none font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
+                            <Amount
+                                value={stats.curSpent}
+                                showCurrency={false}
+                                minimumFractionDigits={2}
+                                maximumFractionDigits={2}
+                            />
+                        </h1>
+                    </div>
+
+                    {/* Trend indicator */}
+                    <div className={`inline-flex items-center gap-1.5 mt-2.5 px-3 py-1 rounded-full text-[11px] font-bold
+                        ${stats.trend === 'below'
+                            ? 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/[0.12]'
+                            : stats.trend === 'above'
+                                ? 'text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:bg-rose-500/[0.12]'
+                                : 'text-gray-500 bg-gray-200/60 dark:text-gray-400 dark:bg-white/[0.06]'}`}
+                    >
+                        {stats.trend === 'below' && <TrendingDown size={13} />}
+                        {stats.trend === 'above' && <TrendingUp size={13} />}
+                        {stats.trend === 'neutral' && <Minus size={13} />}
+                        <span>
+                            {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
+                        </span>
+                    </div>
+
+                    {/* Inline Income / Expense */}
+                    <div className="flex gap-2.5 mt-5">
+                        <div className="flex-1 flex items-center gap-2.5 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-3 py-2.5 border border-white/80 dark:border-white/[0.04]">
+                            <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
+                                <ArrowUpRight size={15} className="text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('stats_income')}</p>
+                                <p className="text-[13px] font-black text-gray-900 dark:text-white truncate tabular-nums">
+                                    <Amount value={totalIncome} />
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex-1 flex items-center gap-2.5 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-3 py-2.5 border border-white/80 dark:border-white/[0.04]">
+                            <div className="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-500/15 flex items-center justify-center flex-shrink-0">
+                                <ArrowDownRight size={15} className="text-rose-600 dark:text-rose-400" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('stats_expense')}</p>
+                                <p className="text-[13px] font-black text-gray-900 dark:text-white truncate tabular-nums">
+                                    <Amount value={totalExpense} />
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
 
             {/* ── AI Advisor CTA ── */}
-            {advisorCta}
+            <motion.button
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                    if (!isPro) { openUpgradeModal('advisor'); }
+                    else { setActiveTab('advisor'); }
+                }}
+                className="w-full relative overflow-hidden glass-light dark:glass
+                           p-4 rounded-[1.75rem]
+                           shadow-sm hover:shadow-md
+                           flex items-center gap-3.5 group transition-all duration-300"
+            >
+                {!isPro && (
+                    <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10 shadow-sm">
+                        <Crown size={10} className="text-white" fill="currentColor" />
+                    </div>
+                )}
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
+                                shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
+                    <Sparkles size={20} fill="currentColor" />
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium truncate mt-0.5">
+                        {t('advisor_subtitle')}
+                    </p>
+                </div>
+                <div className="w-7 h-7 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-500 group-hover:translate-x-0.5 transition-transform flex-shrink-0">
+                    <ArrowRight size={14} />
+                </div>
+            </motion.button>
 
-            {/* ── Quick Actions (mobile: big icon grid) ── */}
+            {/* ── Quick Actions (pill buttons) ── */}
             <div>
-                <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest mb-3 ml-2">
+                <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.15em] mb-2.5 ml-1">
                     {t('quick_access')}
                 </p>
-                <div className="grid grid-cols-4 gap-3">
-                    {quickActions.map((action) => (
-                        <QuickAction
-                            key={action.label}
-                            icon={action.icon}
-                            label={action.label}
-                            color={action.color}
-                            bg={action.bg}
-                            onClick={action.onClick}
-                            delay={action.delay}
-                            isPro={action.isPro}
-                            userIsPro={action.userIsPro}
-                        />
-                    ))}
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+                    {quickActions.map((action) => {
+                        const ActionIcon = action.icon;
+                        return (
+                            <motion.button
+                                key={action.label}
+                                whileHover={{ scale: 1.03, y: -1 }}
+                                whileTap={{ scale: 0.96 }}
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: parseFloat(action.delay) / 1000 }}
+                                onClick={action.onClick}
+                                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl
+                                           bg-white dark:bg-surface-dark3
+                                           border border-gray-100 dark:border-white/[0.06]
+                                           shadow-sm hover:shadow-md
+                                           hover:border-violet-200 dark:hover:border-violet-800/50
+                                           transition-all duration-200 whitespace-nowrap relative flex-shrink-0"
+                            >
+                                <div className="w-7 h-7 rounded-xl bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0">
+                                    <ActionIcon size={14} className="text-violet-600 dark:text-violet-400" />
+                                </div>
+                                <span className="text-xs font-bold text-gray-700 dark:text-gray-200">{action.label}</span>
+                                {action.isPro && !action.userIsPro && (
+                                    <Crown size={10} className="text-amber-400 flex-shrink-0" fill="currentColor" />
+                                )}
+                            </motion.button>
+                        );
+                    })}
                 </div>
             </div>
 
