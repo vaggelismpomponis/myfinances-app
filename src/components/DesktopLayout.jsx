@@ -200,7 +200,8 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
    Desktop Top Header
 ───────────────────────────────────────────── */
 const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTab }) => {
-    const [imgError, setImgError] = useState(false);
+    const [imgRetries, setImgRetries] = useState(0);
+    const MAX_IMG_RETRIES = 3;
 
     const tabTitles = {
         home: t('nav_home'),
@@ -243,10 +244,13 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                                 bg-gradient-to-br from-violet-500 to-violet-700
                                 border-2 border-violet-200 dark:border-violet-900/60
                                 flex items-center justify-center text-white shadow-sm">
-                    {photoURL && !imgError ? (
-                        <img src={photoURL} alt="Profile"
+                    {photoURL && imgRetries < MAX_IMG_RETRIES ? (
+                        <img src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
+                            alt="Profile"
+                            referrerPolicy="no-referrer"
+                            crossOrigin="anonymous"
                             className="w-full h-full object-cover"
-                            onError={() => setImgError(true)} />
+                            onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)} />
                     ) : (
                         <User size={14} />
                     )}

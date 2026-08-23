@@ -113,7 +113,8 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
     const { showToast } = useToast();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showApkModal, setShowApkModal] = useState(false);
-    const [imgError, setImgError] = useState(false);
+    const [imgRetries, setImgRetries] = useState(0);
+    const MAX_IMG_RETRIES = 3;
 
     const photoURL = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.photoURL;
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name
@@ -137,7 +138,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
     const isPasswordUser = user?.app_metadata?.provider === 'email'
         || user?.identities?.some(i => i.provider === 'email');
 
-    useEffect(() => { setImgError(false); }, [photoURL]);
+    useEffect(() => { setImgRetries(0); }, [photoURL]);
 
     const handleSaveName = async () => {
         if (!nameInput.trim() || nameInput === displayName) { setEditingName(false); return; }
@@ -247,12 +248,14 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                             bg-violet-100 dark:bg-violet-500/20
                                             border-2 border-violet-200 dark:border-violet-500/30
                                             shadow-[0_4px_20px_rgba(109,40,217,0.2)]">
-                                {photoURL && !imgError ? (
+                                {photoURL && imgRetries < MAX_IMG_RETRIES ? (
                                     <img
-                                        src={photoURL}
+                                        src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
                                         alt="Profile"
+                                        referrerPolicy="no-referrer"
+                                        crossOrigin="anonymous"
                                         className="w-full h-full object-cover"
-                                        onError={() => setImgError(true)}
+                                        onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">

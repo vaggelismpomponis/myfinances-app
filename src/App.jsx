@@ -122,7 +122,8 @@ function MainContent() {
     const [goals, setGoals] = useState([]);
     const [user, setUser] = useState(null);
     const [isVerifying, setIsVerifying] = useState(false);
-    const [imgError, setImgError] = useState(false);
+    const [imgRetries, setImgRetries] = useState(0);
+    const MAX_IMG_RETRIES = 3;
 
     // Whats New Modal
     const [latestUpdate, setLatestUpdate] = useState(null);
@@ -176,10 +177,10 @@ function MainContent() {
         localStorage.setItem('lastPreviousTab', previousTab);
     }, [previousTab]);
 
-    // Reset image error when user photo changes
+    // Reset image retries when user photo changes
     useEffect(() => {
-        setImgError(false);
-    }, [user?.user_metadata?.avatar_url]);
+        setImgRetries(0);
+    }, [user?.user_metadata?.avatar_url, user?.user_metadata?.picture]);
 
     // Notification Listener
     useEffect(() => {
@@ -1346,10 +1347,13 @@ function MainContent() {
                                                                             transition-all duration-200"
                                                                     title={translate('nav_profile')}
                                                                 >
-                                                                    {photoURL && !imgError ? (
-                                                                        <img src={photoURL} alt="Profile"
+                                                                    {photoURL && imgRetries < MAX_IMG_RETRIES ? (
+                                                                        <img src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
+                                                                            alt="Profile"
+                                                                            referrerPolicy="no-referrer"
+                                                                            crossOrigin="anonymous"
                                                                             className="w-full h-full object-cover"
-                                                                            onError={() => setImgError(true)} />
+                                                                            onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)} />
                                                                     ) : (
                                                                         <User size={18} />
                                                                     )}
