@@ -2,8 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react'; // App Root
 import {
     Plus,
     User,
-    Eye,
-    EyeOff
+    Bell
 } from 'lucide-react';
 import { supabase } from './supabase';
 import { Capacitor } from '@capacitor/core';
@@ -19,6 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import { SubscriptionProvider, useSubscription } from './contexts/SubscriptionContext';
+import { NotificationProvider, useNotifications } from './contexts/NotificationContext';
 import { trackSession } from './utils/session';
 import { setupNotificationListener } from './utils/notificationListener';
 
@@ -29,6 +29,7 @@ import HomeView from './views/HomeView';
 import Navbar from './components/Navbar';
 import ConfirmationModal from './components/ConfirmationModal';
 import ErrorBoundary from './components/ErrorBoundary';
+import NotificationPanel from './components/NotificationPanel';
 
 const ProfileView = React.lazy(() => import('./views/ProfileView'));
 const RecurringView = React.lazy(() => import('./views/RecurringView'));
@@ -82,6 +83,7 @@ const ProtectedStatsView = ({ transactions }) => {
 function MainContent() {
     const { isLocked, theme, toggleTheme, t: translate, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode } = useSettings();
     const { showToast } = useToast();
+    const { addNotification, unreadCount } = useNotifications();
     const windowWidth = useWindowWidth();
     const isDesktop = windowWidth >= 1024;
     const [activeTab, setActiveTab] = useState(() => {
@@ -124,6 +126,7 @@ function MainContent() {
     const [user, setUser] = useState(null);
     const [isVerifying, setIsVerifying] = useState(false);
     const [imgRetries, setImgRetries] = useState(0);
+    const [showNotificationPanel, setShowNotificationPanel] = useState(false);
     const MAX_IMG_RETRIES = 3;
 
     // Whats New Modal
@@ -1000,6 +1003,10 @@ function MainContent() {
                     );
                     throw error;
                 }
+
+                // Notify edit
+                addNotification('edit',
+                    `${translate('notification_edited') || 'Transaction edited'}${transaction.category ? ' • ' + transaction.category : ''}`);
             } else {
                 const { data, error } = await supabase.from('transactions')
                     .insert({ ...newTx, user_id: user.id })
@@ -1010,6 +1017,13 @@ function MainContent() {
                 // Optimistic add: insert at the top immediately
                 setTransactions(prev => [{ ...newTx, id: txId, user_id: user.id }, ...prev]);
                 setShowAddModal(false);
+
+                // Notify
+                const typeLabel = newTx.type === 'expense'
+                    ? translate('notification_added_expense') || 'New expense recorded'
+                    : translate('notification_added_income') || 'New income recorded';
+                addNotification(newTx.type === 'expense' ? 'add' : 'add',
+                    `${typeLabel}${newTx.note ? ': ' + newTx.note : (newTx.category ? ' • ' + newTx.category : '')}`);
 
                 await checkBudgetThresholds({ ...newTx, id: txId });
             }
@@ -1043,6 +1057,10 @@ function MainContent() {
                 showToast('Σφάλμα διαγραφής. Προσπάθησε ξανά.', 'error');
                 throw error;
             }
+
+            // Notify delete
+            addNotification('delete',
+                `${translate('notification_deleted') || 'Transaction deleted'}${deletedTx?.category ? ' • ' + deletedTx.category : ''}`);
 
             if (deletedTx?.type === 'expense' && deletedTx.category) {
                 const affectedBudget = budgets.find(b =>
@@ -1336,102 +1354,89 @@ function MainContent() {
                                         <div className="flex-1 overflow-y-auto overflow-x-hidden px-4">
 
                                             {/* ── Top Bar ── */}
-                                            <div className="shrink-0 sticky top-0 z-20
+                                            <div className="shrink-0 sticky top-0 z-30
                                                             bg-gray-50 dark:bg-surface-dark backdrop-blur-md
                                                             border-b border-gray-100 dark:border-white/5
                                                             px-4 pb-3 -mx-4 transition-all duration-300"
                                                 style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
 
-                                                <div className="flex items-center justify-center relative min-h-[40px]">
+                                                <div className="flex items-center justify-between min-h-[40px]">
+                                                    {/* LEFT — Profile Avatar */}
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={() => setActiveTab('profile')}
+                                                        className="w-10 h-10 rounded-full overflow-hidden
+                                                                bg-gradient-to-br from-violet-500 to-violet-700
+                                                                border-2 border-violet-200 dark:border-violet-900/50
+                                                                flex items-center justify-center flex-shrink-0
+                                                                text-white shadow-md
+                                                                transition-all duration-200"
+                                                        title={translate('nav_profile')}
+                                                    >
+                                                        {photoURL && imgRetries < MAX_IMG_RETRIES ? (
+                                                            <img
+                                                                src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
+                                                                alt="Profile"
+                                                                referrerPolicy="no-referrer"
+                                                                crossOrigin="anonymous"
+                                                                className="w-full h-full object-cover"
+                                                                onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
+                                                            />
+                                                        ) : (
+                                                            <User size={18} />
+                                                        )}
+                                                    </motion.button>
+
+                                                    {/* CENTER — App Name */}
                                                     {activeTab === 'home' ? (
-                                                        <>
-                                                            <div className="absolute left-4 right-16 flex items-center gap-3">
-                                                                {/* Avatar */}
-                                                                <motion.button
-                                                                    whileHover={{ scale: 1.05 }}
-                                                                    whileTap={{ scale: 0.95 }}
-                                                                    onClick={() => setActiveTab('profile')}
-                                                                    className="w-10 h-10 rounded-full overflow-hidden
-                                                                            bg-gradient-to-br from-violet-500 to-violet-700
-                                                                            border-2 border-violet-200 dark:border-violet-900/50
-                                                                            flex items-center justify-center flex-shrink-0
-                                                                            text-white shadow-md
-                                                                            transition-all duration-200"
-                                                                    title={translate('nav_profile')}
-                                                                >
-                                                                    {photoURL && imgRetries < MAX_IMG_RETRIES ? (
-                                                                        <img src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
-                                                                            alt="Profile"
-                                                                            referrerPolicy="no-referrer"
-                                                                            crossOrigin="anonymous"
-                                                                            className="w-full h-full object-cover"
-                                                                            onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)} />
-                                                                    ) : (
-                                                                        <User size={18} />
-                                                                    )}
-                                                                </motion.button>
-
-                                                                <div className="flex flex-col min-w-0">
-                                                                    <h2 className="text-[14px] font-bold text-gray-700 dark:text-gray-300 leading-tight flex items-center gap-1.5 min-w-0">
-                                                                        <span className="truncate">
-                                                                            {(() => {
-                                                                                const hour = new Date().getHours();
-                                                                                if (hour < 12) return translate('good_morning');
-                                                                                if (hour < 18) return translate('good_afternoon');
-                                                                                return translate('good_evening');
-                                                                            })()}, {displayName.split(' ')[0]}
-                                                                        </span>
-                                                                        <span className="animate-wave origin-bottom-right flex-shrink-0">👋</span>
-                                                                    </h2>
-                                                                </div>
-                                                            </div>
-
-                                                             {/* Privacy toggle */}
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.1 }}
-                                                                whileTap={{ scale: 0.9 }}
-                                                                onClick={togglePrivacyMode}
-                                                                aria-label={privacyMode ? 'Disable Privacy Mode' : 'Enable Privacy Mode'}
-                                                                className="absolute right-4 w-9 h-9 rounded-full
-                                                                        bg-gray-100 dark:bg-white/[0.08]
-                                                                        flex items-center justify-center flex-shrink-0
-                                                                        text-gray-500 dark:text-white/50
-                                                                        hover:bg-gray-200 dark:hover:bg-white/[0.14]
-                                                                        transition-all duration-150"
-                                                                title={privacyMode ? "Disable Privacy Mode" : "Enable Privacy Mode"}
-                                                            >
-                                                                {privacyMode ? <EyeOff size={16} /> : <Eye size={16} />}
-                                                            </motion.button>
-                                                        </>
+                                                        <h1 className="absolute left-1/2 -translate-x-1/2
+                                                                       text-[17px] font-black tracking-tight
+                                                                       bg-gradient-to-r from-violet-600 to-indigo-500
+                                                                       dark:from-violet-400 dark:to-indigo-400
+                                                                       bg-clip-text text-transparent
+                                                                       select-none pointer-events-none">
+                                                            SpendWise
+                                                        </h1>
                                                     ) : (
-                                                        <>
-                                                            <div className="flex-1 min-w-0 px-12 text-center">
-                                                                <h2 className="text-[16px] font-bold text-gray-900 dark:text-white truncate">
-                                                                    {activeTab === 'history' && translate('nav_history')}
-                                                                    {activeTab === 'stats' && translate('nav_stats')}
-                                                                    {activeTab === 'goals' && translate('goals')}
-                                                                    {activeTab === 'budgets' && translate('budgets')}
-                                                                    {activeTab === 'feedback' && translate('feedback')}
-                                                                    {activeTab === 'admin' && 'Admin Panel'}
-                                                                </h2>
-                                                            </div>
-                                                            <div className="absolute right-4 flex items-center">
-                                                                <button
-                                                                    onClick={togglePrivacyMode}
-                                                                    aria-label={privacyMode ? 'Disable Privacy Mode' : 'Enable Privacy Mode'}
-                                                                    className="w-9 h-9 rounded-full
-                                                                            bg-gray-100 dark:bg-white/[0.08]
-                                                                            flex items-center justify-center
-                                                                            text-gray-500 dark:text-white/50
-                                                                            hover:bg-gray-200 dark:hover:bg-white/[0.14]
-                                                                            active:scale-90 transition-all duration-150"
-                                                                    title={privacyMode ? "Disable Privacy Mode" : "Enable Privacy Mode"}
-                                                                >
-                                                                    {privacyMode ? <EyeOff size={16} /> : <Eye size={16} />}
-                                                                </button>
-                                                            </div>
-                                                        </>
+                                                        <h2 className="absolute left-1/2 -translate-x-1/2
+                                                                       text-[16px] font-bold text-gray-900 dark:text-white
+                                                                       truncate max-w-[160px] text-center">
+                                                            {activeTab === 'history'  && translate('nav_history')}
+                                                            {activeTab === 'stats'    && translate('nav_stats')}
+                                                            {activeTab === 'goals'    && translate('goals')}
+                                                            {activeTab === 'budgets'  && translate('budgets')}
+                                                            {activeTab === 'feedback' && translate('feedback')}
+                                                            {activeTab === 'admin'    && 'Admin Panel'}
+                                                        </h2>
                                                     )}
+
+                                                    {/* RIGHT — Notification Bell */}
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={() => setShowNotificationPanel(prev => !prev)}
+                                                        className="relative w-10 h-10 rounded-full flex-shrink-0
+                                                                bg-gray-100 dark:bg-white/[0.08]
+                                                                flex items-center justify-center
+                                                                text-gray-500 dark:text-white/50
+                                                                hover:bg-violet-100 dark:hover:bg-violet-900/30
+                                                                hover:text-violet-600 dark:hover:text-violet-400
+                                                                transition-all duration-200"
+                                                        aria-label="Notifications"
+                                                    >
+                                                        <Bell size={18} />
+                                                        {unreadCount > 0 && (
+                                                            <span className="absolute -top-0.5 -right-0.5
+                                                                             w-4 h-4 rounded-full
+                                                                             bg-violet-600 text-white
+                                                                             text-[9px] font-black
+                                                                             flex items-center justify-center
+                                                                             shadow-sm">
+                                                                {unreadCount > 9 ? '9+' : unreadCount}
+                                                            </span>
+                                                        )}
+                                                    </motion.button>
                                                 </div>
                                             </div>
 
@@ -1554,6 +1559,7 @@ function MainContent() {
                                     <WhatsNewModal isOpen={showWhatsNew} onClose={() => { if (latestUpdate) localStorage.setItem(`whatsnew_seen_${latestUpdate.version}_${user?.id}`, 'true'); setShowWhatsNew(false); }} data={latestUpdate} />
                                     <BroadcastModal isOpen={showBroadcast} onClose={() => { if (currentBroadcast) localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id); setShowBroadcast(false); }} data={currentBroadcast} />
                                     <UpgradeModal />
+                                    <NotificationPanel isOpen={showNotificationPanel} onClose={() => setShowNotificationPanel(false)} />
                                     {showOnboarding && (
                                         <React.Suspense fallback={null}>
                                             <OnboardingTour onComplete={handleOnboardingComplete} />
@@ -1573,11 +1579,13 @@ export default function App() {
     return (
         <SettingsProvider>
             <ToastProvider>
-                <ErrorBoundary>
-                    <React.Suspense fallback={null}>
-                        <MainContent />
-                    </React.Suspense>
-                </ErrorBoundary>
+                <NotificationProvider>
+                    <ErrorBoundary>
+                        <React.Suspense fallback={null}>
+                            <MainContent />
+                        </React.Suspense>
+                    </ErrorBoundary>
+                </NotificationProvider>
             </ToastProvider>
         </SettingsProvider>
     );

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import {
     Target, Wallet, RefreshCw, BarChart,
     ChevronRight, Sparkles, ArrowUpRight, ArrowDownRight, TrendingUp,
-    ArrowRight, TrendingDown, Crown, Minus
+    ArrowRight, TrendingDown, Crown, Minus, Eye, EyeOff
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 import Amount from '../components/Amount';
@@ -228,7 +228,7 @@ const BudgetBar = ({ budget, transactions, t }) => {
    Main HomeView
 ───────────────────────────────────────────── */
 const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, onDelete, onEdit, setActiveTab, onRecurring, isDesktop }) => {
-    const { t, privacyMode } = useSettings();
+    const { t, privacyMode, togglePrivacyMode } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
 
     // ── Data Calculations ──
@@ -620,6 +620,23 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                 <div className="absolute -bottom-12 -left-8 w-36 h-36 bg-indigo-400/[0.08] dark:bg-indigo-500/[0.06] blur-[50px] rounded-full pointer-events-none" />
 
                 <div className="relative z-10">
+                    {/* Privacy toggle — top right of hero card */}
+                    <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={togglePrivacyMode}
+                        aria-label={privacyMode ? 'Disable Privacy Mode' : 'Enable Privacy Mode'}
+                        className="absolute -top-1 right-0 w-8 h-8 rounded-full
+                                   bg-white/40 dark:bg-white/[0.08] backdrop-blur-sm
+                                   flex items-center justify-center
+                                   text-gray-500/80 dark:text-white/40
+                                   hover:bg-white/60 dark:hover:bg-white/[0.14]
+                                   transition-all duration-150 z-20"
+                        title={privacyMode ? 'Show amounts' : 'Hide amounts'}
+                    >
+                        {privacyMode ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </motion.button>
+
                     {/* Section label */}
                     <p className="text-violet-500/80 dark:text-violet-300/50 text-[10px] font-black uppercase tracking-[0.15em] mb-1.5">
                         {t('this_month_spend')}
