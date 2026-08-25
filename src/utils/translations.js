@@ -79,6 +79,22 @@ export const translations = {
         guide_security_2: 'Απόκρυψη περιεχομένου από τον εναλλάκτη εφαρμογών.',
         guide_security_3: 'Δημιουργήστε κρυπτογραφημένα αντίγραφα ασφαλείας ανά πάσα στιγμή.',
 
+        // Onboarding Tour
+        onboarding_welcome_title: 'Καλώς ήρθες στο SpendWise!',
+        onboarding_welcome_desc: 'Ας δούμε μαζί τις βασικές λειτουργίες σε λίγα βήματα.',
+        onboarding_transactions_title: 'Πρόσθεσε Συναλλαγές',
+        onboarding_transactions_desc: 'Πάτα το + για να καταγράψεις έσοδα ή έξοδα. Σκάναρε αποδείξεις ή πρόσθεσε χειροκίνητα!',
+        onboarding_budgets_title: 'Budgets & Στόχοι',
+        onboarding_budgets_desc: 'Όρισε μηνιαία όρια και στόχους αποταμίευσης για να ελέγχεις τα οικονομικά σου.',
+        onboarding_analytics_title: 'Ανάλυση & Σύμβουλος',
+        onboarding_analytics_desc: 'Δες αναλυτικά στατιστικά και λάβε AI συμβουλές βασισμένες στις συνήθειές σου.',
+        onboarding_security_title: 'Ασφάλεια & Ξεκίνα!',
+        onboarding_security_desc: 'Τα δεδομένα σου είναι προστατευμένα. Ενεργοποίησε PIN ή Βιομετρικά για επιπλέον ασφάλεια.',
+        onboarding_skip: 'Παράλειψη',
+        onboarding_next: 'Επόμενο',
+        onboarding_back: 'Πίσω',
+        onboarding_finish: 'Ας Ξεκινήσουμε!',
+
         welcome_message: 'Γεια σου,',
         budgets: 'Προϋπολογισμοί',
 
@@ -787,6 +803,22 @@ export const translations = {
         guide_security_1: 'Enable App PIN or Biometrics for local protection.',
         guide_security_2: 'Hide content from the application switcher.',
         guide_security_3: 'Create encrypted backups of your data at any time.',
+
+        // Onboarding Tour
+        onboarding_welcome_title: 'Welcome to SpendWise!',
+        onboarding_welcome_desc: 'Let\'s walk through the key features in a few steps.',
+        onboarding_transactions_title: 'Add Transactions',
+        onboarding_transactions_desc: 'Tap + to log income or expenses. Scan receipts or add them manually!',
+        onboarding_budgets_title: 'Budgets & Goals',
+        onboarding_budgets_desc: 'Set monthly limits and savings goals to stay in control of your finances.',
+        onboarding_analytics_title: 'Analytics & Advisor',
+        onboarding_analytics_desc: 'View detailed statistics and get AI-powered tips based on your habits.',
+        onboarding_security_title: 'Security & Let\'s Go!',
+        onboarding_security_desc: 'Your data is protected. Enable PIN or Biometrics for extra security.',
+        onboarding_skip: 'Skip',
+        onboarding_next: 'Next',
+        onboarding_back: 'Back',
+        onboarding_finish: 'Let\'s Get Started!',
 
         welcome_message: 'Hello,',
         budgets: 'Budgets',

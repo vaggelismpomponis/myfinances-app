@@ -51,6 +51,7 @@ const FinancialAdvisorView = React.lazy(() => import('./views/FinancialAdvisorVi
 const GuideView = React.lazy(() => import('./views/GuideView'));
 const BroadcastModal = React.lazy(() => import('./components/BroadcastModal'));
 const DesktopLayout = React.lazy(() => import('./components/DesktopLayout'));
+const OnboardingTour = React.lazy(() => import('./components/OnboardingTour'));
 
 // Hook to detect desktop viewport
 function useWindowWidth() {
@@ -140,6 +141,25 @@ function MainContent() {
     const [showPaymentCanceled, setShowPaymentCanceled] = useState(
         () => new URLSearchParams(window.location.search).get('canceled') === 'true'
     );
+
+    // Onboarding Tour — show for first-time users
+    const [showOnboarding, setShowOnboarding] = useState(false);
+
+    useEffect(() => {
+        if (user && !loading && !isLocked) {
+            const key = `onboarding_completed_${user.id}`;
+            if (!localStorage.getItem(key)) {
+                setShowOnboarding(true);
+            }
+        }
+    }, [user, loading, isLocked]);
+
+    const handleOnboardingComplete = () => {
+        if (user) {
+            localStorage.setItem(`onboarding_completed_${user.id}`, 'true');
+        }
+        setShowOnboarding(false);
+    };
 
     // Browser History Navigation Logic
     const isPopping = useRef(false);
@@ -1272,6 +1292,11 @@ function MainContent() {
                                         data={currentBroadcast}
                                     />
                                     <UpgradeModal />
+                                    {showOnboarding && (
+                                        <React.Suspense fallback={null}>
+                                            <OnboardingTour onComplete={handleOnboardingComplete} />
+                                        </React.Suspense>
+                                    )}
                                 </main>
                             ) : (
                                 <main className="h-full w-full bg-surface-light dark:bg-surface-dark
@@ -1529,6 +1554,11 @@ function MainContent() {
                                     <WhatsNewModal isOpen={showWhatsNew} onClose={() => { if (latestUpdate) localStorage.setItem(`whatsnew_seen_${latestUpdate.version}_${user?.id}`, 'true'); setShowWhatsNew(false); }} data={latestUpdate} />
                                     <BroadcastModal isOpen={showBroadcast} onClose={() => { if (currentBroadcast) localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id); setShowBroadcast(false); }} data={currentBroadcast} />
                                     <UpgradeModal />
+                                    {showOnboarding && (
+                                        <React.Suspense fallback={null}>
+                                            <OnboardingTour onComplete={handleOnboardingComplete} />
+                                        </React.Suspense>
+                                    )}
                                 </main>
                             )}
                         </SubscriptionProvider>
