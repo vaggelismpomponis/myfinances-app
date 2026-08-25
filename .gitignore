@@ -57,3 +57,7 @@ notes.md
 
 #subscription plan
 SUBSCRIPTION_PLAN.md
+
+# Android Keystore files
+*.jks
+*.keystore
