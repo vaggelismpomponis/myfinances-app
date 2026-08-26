@@ -551,7 +551,8 @@ function MainContent() {
                 await GoogleAuth.initialize({
                     clientId: GOOGLE_CLIENT_ID,
                     scopes: ['profile', 'email'],
-                    grantOfflineAccess: true,
+                    // grantOfflineAccess removed: causes Play Store auth failure.
+                    // Supabase signInWithIdToken only needs the ID token, not a server auth code.
                 });
                 const googleUser = await GoogleAuth.signIn();
                 const idToken = googleUser?.authentication?.idToken;
