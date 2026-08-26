@@ -555,14 +555,16 @@ function MainContent() {
                     // Supabase signInWithIdToken only needs the ID token, not a server auth code.
                 });
                 const googleUser = await GoogleAuth.signIn();
+                console.log('[GoogleAuth] signIn result keys:', JSON.stringify(googleUser ? Object.keys(googleUser) : null));
+                console.log('[GoogleAuth] authentication keys:', JSON.stringify(googleUser?.authentication ? Object.keys(googleUser.authentication) : null));
                 const idToken = googleUser?.authentication?.idToken;
-                if (!idToken) throw new Error('Δεν ελήφθη Google ID token.');
+                if (!idToken) throw new Error('Δεν ελήφθη Google ID token. Response: ' + JSON.stringify(googleUser));
 
                 const { error } = await supabase.auth.signInWithIdToken({
                     provider: 'google',
                     token: idToken,
                 });
-                if (error) throw error;
+                if (error) throw new Error('Supabase signInWithIdToken: ' + (error.message || JSON.stringify(error)));
             } else {
                 // Web: Re-initialize and show Google One Tap as a popup
                 return new Promise((resolve, reject) => {
@@ -602,7 +604,8 @@ function MainContent() {
             }
         } catch (error) {
             logger.error('Google auth failed', error, 'App');
-            showToast("Η σύνδεση με Google απέτυχε.", 'error');
+            const errMsg = error?.message || error?.code || JSON.stringify(error) || 'Unknown error';
+            showToast(`Google auth error: ${errMsg}`, 'error');
             throw error;
         }
     };
