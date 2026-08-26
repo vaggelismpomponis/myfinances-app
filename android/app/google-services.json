@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "345124628478-bd7f88ni0bvvvnl0f0desb5p4ncj8jm6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bomponis.spendwise",
+            "certificate_hash": "6eccba5618d1b9418243a4007a32b305ce3b7f14"
+          }
+        },
+        {
+          "client_id": "345124628478-pgfvj4s0k041u4r0ieheqp2ukf5kq9lg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bomponis.spendwise",
+            "certificate_hash": "248683f0a42e419dbdbdd12f1ca5e850d8019965"
+          }
+        },
+        {
           "client_id": "345124628478-9dfooug409in2o115t5fdcolhfl9ojnk.apps.googleusercontent.com",
           "client_type": 3
         }

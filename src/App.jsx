@@ -723,16 +723,22 @@ function MainContent() {
         }
 
         const fetchTransactions = async () => {
-            const { data, error } = await supabase
-                .from('transactions')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('date', { ascending: false });
-            if (error) {
-                logger.error('Failed to fetch transactions', error, 'App');
-                setLoading(false);
-            } else {
-                setTransactions(data || []);
+            try {
+                const { data, error } = await supabase
+                    .from('transactions')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('date', { ascending: false });
+                if (error) {
+                    logger.error('Failed to fetch transactions', error, 'App');
+                } else {
+                    setTransactions(data || []);
+                }
+            } catch (err) {
+                // Catches network-level failures (e.g. TypeError: Failed to fetch)
+                // that are thrown when the device is offline or DNS resolution fails.
+                logger.error('Failed to fetch transactions', err, 'App');
+            } finally {
                 setLoading(false);
             }
         };
