@@ -548,23 +548,44 @@ function MainContent() {
     const handleGoogleLogin = async () => {
         try {
             if (Capacitor.isNativePlatform()) {
+                console.log('[GoogleLogin] Step 1: Initializing GoogleAuth...');
                 await GoogleAuth.initialize({
                     clientId: GOOGLE_CLIENT_ID,
+                    serverClientId: GOOGLE_CLIENT_ID,
                     scopes: ['profile', 'email'],
                     // grantOfflineAccess removed: causes Play Store auth failure.
                     // Supabase signInWithIdToken only needs the ID token, not a server auth code.
                 });
+                console.log('[GoogleLogin] Step 2: Calling GoogleAuth.signIn()...');
                 const googleUser = await GoogleAuth.signIn();
+<<<<<<< HEAD
                 console.log('[GoogleAuth] signIn result keys:', JSON.stringify(googleUser ? Object.keys(googleUser) : null));
                 console.log('[GoogleAuth] authentication keys:', JSON.stringify(googleUser?.authentication ? Object.keys(googleUser.authentication) : null));
+=======
+                console.log('[GoogleLogin] Step 3: googleUser received:', JSON.stringify({
+                    id: googleUser?.id,
+                    email: googleUser?.email,
+                    hasIdToken: !!googleUser?.authentication?.idToken,
+                    idTokenPreview: googleUser?.authentication?.idToken?.substring(0, 30) + '...',
+                }));
+>>>>>>> fad4860 (feat: implement primary application shell and routing logic with Capacitor integration)
                 const idToken = googleUser?.authentication?.idToken;
                 if (!idToken) throw new Error('Δεν ελήφθη Google ID token. Response: ' + JSON.stringify(googleUser));
 
-                const { error } = await supabase.auth.signInWithIdToken({
+                console.log('[GoogleLogin] Step 4: Calling supabase.signInWithIdToken...');
+                const { data: authData, error } = await supabase.auth.signInWithIdToken({
                     provider: 'google',
                     token: idToken,
                 });
+<<<<<<< HEAD
                 if (error) throw new Error('Supabase signInWithIdToken: ' + (error.message || JSON.stringify(error)));
+=======
+                console.log('[GoogleLogin] Step 5: Supabase response:', JSON.stringify({
+                    hasUser: !!authData?.user,
+                    error: error ? { message: error.message, status: error.status, code: error.code } : null,
+                }));
+                if (error) throw error;
+>>>>>>> fad4860 (feat: implement primary application shell and routing logic with Capacitor integration)
             } else {
                 // Web: Re-initialize and show Google One Tap as a popup
                 return new Promise((resolve, reject) => {
