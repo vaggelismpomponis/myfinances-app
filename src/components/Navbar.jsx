@@ -3,13 +3,13 @@ import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
 const NAV_ITEMS_LEFT = [
-    { id: 'home',  Icon: Home,     labelKey: 'nav_home'  },
+    { id: 'home', Icon: Home, labelKey: 'nav_home' },
     { id: 'stats', Icon: BarChart, labelKey: 'nav_stats' },
 ];
 
 const NAV_ITEMS_RIGHT = [
     { id: 'history', Icon: Wallet, labelKey: 'nav_history' },
-    { id: 'profile', Icon: User,   labelKey: 'nav_profile' },
+    { id: 'profile', Icon: User, labelKey: 'nav_profile' },
 ];
 
 const Navbar = ({ activeTab, setActiveTab }) => {
@@ -71,18 +71,18 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             <div className="absolute inset-0 pointer-events-none drop-shadow-[0_-8px_16px_rgba(0,0,0,0.06)]">
                 {/* The white background with the multi-part SVG mask cutout */}
                 <div className="absolute inset-0 bg-white dark:bg-surface-dark2 pointer-events-auto"
-                     style={{
-                         maskImage: `linear-gradient(black, black), url("${notchSvg}"), linear-gradient(black, black)`,
-                         WebkitMaskImage: `linear-gradient(black, black), url("${notchSvg}"), linear-gradient(black, black)`,
-                         maskPosition: 'left top, center top, right top',
-                         WebkitMaskPosition: 'left top, center top, right top',
-                         maskSize: 'calc(50% - 54px) 100%, 110px 72px, calc(50% - 54px) 100%',
-                         WebkitMaskSize: 'calc(50% - 54px) 100%, 110px 72px, calc(50% - 54px) 100%',
-                         maskRepeat: 'no-repeat, no-repeat, no-repeat',
-                         WebkitMaskRepeat: 'no-repeat, no-repeat, no-repeat',
-                         borderTopLeftRadius: '28px',
-                         borderTopRightRadius: '28px',
-                     }}
+                    style={{
+                        maskImage: `linear-gradient(black, black), url("${notchSvg}"), linear-gradient(black, black)`,
+                        WebkitMaskImage: `linear-gradient(black, black), url("${notchSvg}"), linear-gradient(black, black)`,
+                        maskPosition: 'left top, center top, right top',
+                        WebkitMaskPosition: 'left top, center top, right top',
+                        maskSize: 'calc(50% - 54px) 100%, 110px 72px, calc(50% - 54px) 100%',
+                        WebkitMaskSize: 'calc(50% - 54px) 100%, 110px 72px, calc(50% - 54px) 100%',
+                        maskRepeat: 'no-repeat, no-repeat, no-repeat',
+                        WebkitMaskRepeat: 'no-repeat, no-repeat, no-repeat',
+                        borderTopLeftRadius: '28px',
+                        borderTopRightRadius: '28px',
+                    }}
                 />
             </div>
 
@@ -91,10 +91,10 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                 <div className="flex-1 flex justify-around h-full items-center">
                     {NAV_ITEMS_LEFT.map(renderItem)}
                 </div>
-                
+
                 {/* Spacer for the FAB */}
                 <div className="w-[88px] h-full flex-shrink-0" />
-                
+
                 <div className="flex-1 flex justify-around h-full items-center">
                     {NAV_ITEMS_RIGHT.map(renderItem)}
                 </div>

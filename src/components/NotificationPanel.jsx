@@ -42,7 +42,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.18 }}
-                        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]"
+                        className="fixed inset-0 z-[50] bg-black/30 backdrop-blur-[2px]"
                         onClick={onClose}
                     />
 
@@ -53,7 +53,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -12, scale: 0.97 }}
                         transition={{ type: "spring", damping: 22, stiffness: 260 }}
-                        className="fixed top-[72px] right-3 left-3 z-50 max-w-sm ml-auto
+                        className="fixed top-[72px] right-3 left-3 z-[55] max-w-sm ml-auto
                                    bg-white dark:bg-surface-dark3
                                    rounded-[1.75rem] shadow-2xl shadow-black/15
                                    border border-gray-100 dark:border-white/[0.07]
@@ -106,15 +106,98 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                         {/* List */}
                         <div className="overflow-y-auto" style={{ maxHeight: "calc(70vh - 68px)" }}>
                             {notifications.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-14 px-6 text-center">
-                                    <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/[0.06]
-                                                    flex items-center justify-center mb-4">
-                                        <Bell size={24} className="text-gray-300 dark:text-gray-600" />
+                                <div className="flex flex-col items-center justify-center py-8 px-6 text-center">
+                                    <div className="relative mb-3">
+                                        {/* Inline SVG — always transparent, crisp at any size */}
+                                        <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            {/* Soft glow behind bell */}
+                                            <ellipse cx="70" cy="72" rx="42" ry="38" fill="url(#glowGrad)" opacity="0.35"/>
+
+                                            {/* Bell body */}
+                                            <path d="M70 22C52 22 38 37 38 56V82H102V56C102 37 88 22 70 22Z" fill="url(#bellGrad)"/>
+                                            {/* Bell bottom flare */}
+                                            <path d="M32 82H108C108 82 108 88 70 88C32 88 32 82 32 82Z" fill="url(#bellGrad2)" rx="4"/>
+                                            {/* Bell clapper */}
+                                            <ellipse cx="70" cy="91" rx="7" ry="5" fill="url(#bellGrad2)"/>
+                                            {/* Bell handle */}
+                                            <path d="M64 22C64 18.686 66.686 16 70 16C73.314 16 76 18.686 76 22" stroke="url(#bellGrad2)" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
+                                            {/* Highlight sheen */}
+                                            <ellipse cx="57" cy="44" rx="7" ry="12" fill="white" opacity="0.18" transform="rotate(-15 57 44)"/>
+
+                                            {/* Sleeping eyes */}
+                                            <path d="M60 64 Q63 61 66 64" stroke="#5B3FA0" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+                                            <path d="M74 64 Q77 61 80 64" stroke="#5B3FA0" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+                                            {/* Smile */}
+                                            <path d="M63 72 Q70 77 77 72" stroke="#5B3FA0" strokeWidth="2" strokeLinecap="round" fill="none"/>
+                                            {/* Cheek blush */}
+                                            <ellipse cx="58" cy="70" rx="4.5" ry="2.5" fill="#C084FC" opacity="0.35"/>
+                                            <ellipse cx="82" cy="70" rx="4.5" ry="2.5" fill="#C084FC" opacity="0.35"/>
+
+                                            {/* ZZZ */}
+                                            <text x="96" y="40" fontSize="9" fontWeight="700" fill="#A78BFA" opacity="0.9" fontFamily="sans-serif">z</text>
+                                            <text x="103" y="30" fontSize="11" fontWeight="700" fill="#A78BFA" opacity="0.75" fontFamily="sans-serif">z</text>
+                                            <text x="111" y="19" fontSize="13" fontWeight="700" fill="#A78BFA" opacity="0.6" fontFamily="sans-serif">z</text>
+
+                                            {/* Sparkles */}
+                                            <g opacity="0.8">
+                                                <path d="M28 38 L29.5 34 L31 38 L35 39.5 L31 41 L29.5 45 L28 41 L24 39.5Z" fill="#C4B5FD"/>
+                                                <path d="M108 52 L109 49 L110 52 L113 53 L110 54 L109 57 L108 54 L105 53Z" fill="#C4B5FD"/>
+                                                <path d="M40 20 L40.8 18 L41.6 20 L43.6 20.8 L41.6 21.6 L40.8 23.6 L40 21.6 L38 20.8Z" fill="#E9D5FF"/>
+                                                <path d="M115 75 L115.6 73.5 L116.2 75 L117.7 75.6 L116.2 76.2 L115.6 77.7 L115 76.2 L113.5 75.6Z" fill="#DDD6FE"/>
+                                            </g>
+
+                                            {/* Coins */}
+                                            <circle cx="38" cy="112" r="9" fill="#F9A8D4" opacity="0.9"/>
+                                            <circle cx="38" cy="112" r="9" fill="url(#coinGrad)" opacity="0.9"/>
+                                            <text x="35" y="116" fontSize="9" fill="#7C3AED" fontFamily="sans-serif" fontWeight="700">$</text>
+                                            <circle cx="52" cy="118" r="7" fill="url(#coinGrad)" opacity="0.75"/>
+                                            <text x="49.5" y="122" fontSize="7.5" fill="#7C3AED" fontFamily="sans-serif" fontWeight="700">$</text>
+
+                                            {/* Credit card */}
+                                            <rect x="58" y="108" width="30" height="20" rx="3.5" fill="url(#cardGrad)" opacity="0.9"/>
+                                            <rect x="58" y="113" width="30" height="4" fill="#7C3AED" opacity="0.25"/>
+                                            <rect x="61" y="120" width="8" height="2.5" rx="1" fill="white" opacity="0.55"/>
+
+                                            {/* Piggy bank */}
+                                            <ellipse cx="108" cy="116" rx="11" ry="9" fill="url(#piggyGrad)" opacity="0.9"/>
+                                            <circle cx="116" cy="112" r="3.5" fill="url(#piggyGrad)" opacity="0.9"/>
+                                            <ellipse cx="101" cy="117" rx="2" ry="2.5" fill="#A78BFA" opacity="0.5"/>
+                                            <circle cx="105" cy="112" r="2.5" fill="#7C3AED" opacity="0.3"/>
+                                            <rect x="106" y="105" width="4" height="2.5" rx="1" fill="#7C3AED" opacity="0.4"/>
+
+                                            {/* Gradient defs */}
+                                            <defs>
+                                                <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+                                                    <stop offset="0%" stopColor="#A78BFA" stopOpacity="0.5"/>
+                                                    <stop offset="100%" stopColor="#A78BFA" stopOpacity="0"/>
+                                                </radialGradient>
+                                                <linearGradient id="bellGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+                                                    <stop offset="0%" stopColor="#C4B5FD"/>
+                                                    <stop offset="100%" stopColor="#7C3AED"/>
+                                                </linearGradient>
+                                                <linearGradient id="bellGrad2" x1="50%" y1="0%" x2="50%" y2="100%">
+                                                    <stop offset="0%" stopColor="#8B5CF6"/>
+                                                    <stop offset="100%" stopColor="#6D28D9"/>
+                                                </linearGradient>
+                                                <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stopColor="#E9D5FF"/>
+                                                    <stop offset="100%" stopColor="#C4B5FD"/>
+                                                </linearGradient>
+                                                <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stopColor="#A78BFA"/>
+                                                    <stop offset="100%" stopColor="#7C3AED"/>
+                                                </linearGradient>
+                                                <linearGradient id="piggyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stopColor="#DDD6FE"/>
+                                                    <stop offset="100%" stopColor="#A78BFA"/>
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
                                     </div>
-                                    <p className="text-sm font-bold text-gray-700 dark:text-white/80 mb-1">
+                                    <p className="text-sm font-bold text-gray-800 dark:text-white/85 mb-1">
                                         {t("no_notifications") || "No notifications yet"}
                                     </p>
-                                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 max-w-[200px] leading-relaxed">
                                         {t("notifications_empty_desc") || "Actions you take will appear here"}
                                     </p>
                                 </div>
