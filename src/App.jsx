@@ -10,7 +10,7 @@ import { App as CapApp } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { PrivacyScreen } from '@capacitor/privacy-screen';
-import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { SocialLogin } from '@capgo/capacitor-social-login';
 import logger from './utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -258,22 +258,22 @@ function MainContent() {
 
         const handleDeepLink = (data) => {
             const url = new URL(data.url);
-            
+
             // Check for payment success
             if (url.searchParams.get('upgraded') === 'true' || url.pathname.includes('payment-success')) {
                 setShowPaymentSuccess(true);
-                Browser.close().catch(() => {}); // Close the in-app browser if it's still open
+                Browser.close().catch(() => { }); // Close the in-app browser if it's still open
             }
-            
+
             // Check for payment cancellation
             if (url.searchParams.get('canceled') === 'true' || url.pathname.includes('payment-cancel')) {
                 setShowPaymentCanceled(true);
-                Browser.close().catch(() => {});
+                Browser.close().catch(() => { });
             }
         };
 
         const listener = CapApp.addListener('appUrlOpen', handleDeepLink);
-        
+
         // Also check if the app was started via a deep link
         CapApp.getLaunchUrl().then((launchUrl) => {
             if (launchUrl) {
@@ -548,44 +548,36 @@ function MainContent() {
     const handleGoogleLogin = async () => {
         try {
             if (Capacitor.isNativePlatform()) {
-                console.log('[GoogleLogin] Step 1: Initializing GoogleAuth...');
-                await GoogleAuth.initialize({
-                    clientId: GOOGLE_CLIENT_ID,
-                    serverClientId: GOOGLE_CLIENT_ID,
-                    scopes: ['profile', 'email'],
-                    // grantOfflineAccess removed: causes Play Store auth failure.
-                    // Supabase signInWithIdToken only needs the ID token, not a server auth code.
+                console.log('[GoogleLogin] Step 1: Initializing SocialLogin (google)...');
+                await SocialLogin.initialize({
+                    google: {
+                        webClientId: GOOGLE_CLIENT_ID,
+                    },
                 });
-                console.log('[GoogleLogin] Step 2: Calling GoogleAuth.signIn()...');
-                const googleUser = await GoogleAuth.signIn();
-<<<<<<< HEAD
-                console.log('[GoogleAuth] signIn result keys:', JSON.stringify(googleUser ? Object.keys(googleUser) : null));
-                console.log('[GoogleAuth] authentication keys:', JSON.stringify(googleUser?.authentication ? Object.keys(googleUser.authentication) : null));
-=======
-                console.log('[GoogleLogin] Step 3: googleUser received:', JSON.stringify({
-                    id: googleUser?.id,
-                    email: googleUser?.email,
-                    hasIdToken: !!googleUser?.authentication?.idToken,
-                    idTokenPreview: googleUser?.authentication?.idToken?.substring(0, 30) + '...',
+                console.log('[GoogleLogin] Step 2: Calling SocialLogin.login(google)...');
+                const res = await SocialLogin.login({
+                    provider: 'google',
+                    options: {},
+                });
+                console.log('[GoogleLogin] Step 3: SocialLogin result received:', JSON.stringify({
+                    provider: res?.provider,
+                    email: res?.result?.profile?.email,
+                    hasIdToken: !!res?.result?.idToken,
+                    idTokenPreview: res?.result?.idToken?.substring(0, 30) + '...',
                 }));
->>>>>>> fad4860 (feat: implement primary application shell and routing logic with Capacitor integration)
-                const idToken = googleUser?.authentication?.idToken;
-                if (!idToken) throw new Error('Δεν ελήφθη Google ID token. Response: ' + JSON.stringify(googleUser));
+                const idToken = res?.result?.idToken;
+                if (!idToken) throw new Error('Δεν ελήφθη Google ID token. Response: ' + JSON.stringify(res));
 
                 console.log('[GoogleLogin] Step 4: Calling supabase.signInWithIdToken...');
                 const { data: authData, error } = await supabase.auth.signInWithIdToken({
                     provider: 'google',
                     token: idToken,
                 });
-<<<<<<< HEAD
-                if (error) throw new Error('Supabase signInWithIdToken: ' + (error.message || JSON.stringify(error)));
-=======
                 console.log('[GoogleLogin] Step 5: Supabase response:', JSON.stringify({
                     hasUser: !!authData?.user,
                     error: error ? { message: error.message, status: error.status, code: error.code } : null,
                 }));
                 if (error) throw error;
->>>>>>> fad4860 (feat: implement primary application shell and routing logic with Capacitor integration)
             } else {
                 // Web: Re-initialize and show Google One Tap as a popup
                 return new Promise((resolve, reject) => {
@@ -669,7 +661,7 @@ function MainContent() {
                 }
             });
             if (error) throw error;
-            
+
             // Handle "fake success" when email enumeration protection is ON
             // If the user already exists, Supabase returns a user object but with empty identities
             if (data?.user && data.user.identities && data.user.identities.length === 0) {
@@ -1433,12 +1425,12 @@ function MainContent() {
                                                         <h2 className="absolute left-1/2 -translate-x-1/2
                                                                        text-[16px] font-bold text-gray-900 dark:text-white
                                                                        truncate max-w-[160px] text-center">
-                                                            {activeTab === 'history'  && translate('nav_history')}
-                                                            {activeTab === 'stats'    && translate('nav_stats')}
-                                                            {activeTab === 'goals'    && translate('goals')}
-                                                            {activeTab === 'budgets'  && translate('budgets')}
+                                                            {activeTab === 'history' && translate('nav_history')}
+                                                            {activeTab === 'stats' && translate('nav_stats')}
+                                                            {activeTab === 'goals' && translate('goals')}
+                                                            {activeTab === 'budgets' && translate('budgets')}
                                                             {activeTab === 'feedback' && translate('feedback')}
-                                                            {activeTab === 'admin'    && 'Admin Panel'}
+                                                            {activeTab === 'admin' && 'Admin Panel'}
                                                         </h2>
                                                     )}
 
@@ -1569,14 +1561,14 @@ function MainContent() {
                                             <div className="relative z-[45]">
                                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
                                                     <div className="absolute inset-0 rounded-full bg-violet-600/30 animate-ping-pulse scale-110" />
-                                                <motion.button
-                                                    whileHover={{ scale: 1.1 }}
-                                                    whileTap={{ scale: 0.9 }}
-                                                    onClick={openAddModal}
-                                                    aria-label="Add transaction"
-                                                    className="relative w-16 h-16 rounded-full bg-violet-500 text-white shadow-lg flex items-center justify-center">
-                                                    <Plus size={32} strokeWidth={2.5} />
-                                                </motion.button>
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={openAddModal}
+                                                        aria-label="Add transaction"
+                                                        className="relative w-16 h-16 rounded-full bg-violet-500 text-white shadow-lg flex items-center justify-center">
+                                                        <Plus size={32} strokeWidth={2.5} />
+                                                    </motion.button>
                                                 </div>
                                                 <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
                                             </div>
