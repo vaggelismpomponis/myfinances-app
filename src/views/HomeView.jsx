@@ -356,6 +356,27 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
     );
 
     // ── AI Advisor CTA (shared) ──
+    const advisorLiveInsight = useMemo(() => {
+        const now = new Date();
+        const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - 7);
+        const thisMonthTxs = transactions.filter(tx => {
+            const d = new Date(tx.date);
+            return tx.type === 'expense' && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        });
+        const coffeeSpend = transactions
+            .filter(tx => tx.type === 'expense' && (tx.category?.toLowerCase() === 'coffee' || tx.category?.toLowerCase() === 'καφές') && new Date(tx.date) >= weekStart)
+            .reduce((a, tx) => a + tx.amount, 0);
+        const todayStr = now.toDateString();
+        const noExpToday = !transactions.some(tx => tx.type === 'expense' && new Date(tx.date).toDateString() === todayStr);
+        const catTotals = {};
+        thisMonthTxs.forEach(tx => { catTotals[tx.category || 'other'] = (catTotals[tx.category || 'other'] || 0) + tx.amount; });
+        const topCat = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
+        if (noExpToday && transactions.length > 0) return `🏆 ${t('insight_no_expenses_today')}`;
+        if (coffeeSpend > 8) return `☕ ${t('insight_coffee_up').replace('{amount}', coffeeSpend.toFixed(0))}`;
+        if (topCat) return `📊 ${t('insight_top_category').replace('{category}', topCat[0])}`;
+        return t('advisor_subtitle');
+    }, [transactions, t]);
+
     const advisorCta = (
         <motion.button
             whileHover={{ scale: 1.02 }}
@@ -364,33 +385,39 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                 if (!isPro) { openUpgradeModal('advisor'); }
                 else { setActiveTab('advisor'); }
             }}
-            className="w-full relative overflow-hidden bg-violet-50 dark:bg-surface-dark3 backdrop-blur-md
-                       p-4 rounded-[2rem] border border-violet-200/50 dark:border-violet-900/30
-                       shadow-premium flex items-center gap-4 group transition-all"
+            className="w-full relative overflow-hidden bg-gradient-to-br from-violet-50 to-indigo-50 dark:bg-surface-dark3 dark:from-transparent dark:to-transparent
+                       p-4 rounded-[2rem] border border-violet-200/60 dark:border-violet-900/30
+                       shadow-sm hover:shadow-md flex items-center gap-4 group transition-all duration-200"
         >
             {!isPro && (
                 <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10 z-10">
                     <Crown size={12} className="text-amber-400" fill="currentColor" />
                 </div>
             )}
-            <div className="absolute top-2 left-10 w-1.5 h-1.5 rounded-full bg-violet-400/30 animate-float" />
-            <div className="absolute bottom-3 right-20 w-2 h-2 rounded-full bg-indigo-400/20 animate-float" style={{ animationDelay: '1s' }} />
-
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white
-                            shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform duration-300">
-                <Sparkles size={22} fill="currentColor" className="animate-pulse" />
+            {/* Pulse dot — always-on freshness indicator */}
+            <div className="absolute top-3 right-3">
+                <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-50"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-violet-500"></span>
+                </span>
             </div>
-            <div className="flex-1 text-left min-w-0">
+
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
+                            shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                <Sparkles size={22} fill="currentColor" />
+            </div>
+            <div className="flex-1 text-left min-w-0 pr-6">
                 <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
-                <p className="text-[11px] text-gray-700 dark:text-gray-300 font-medium truncate italic mt-0.5">
-                    {t('advisor_subtitle')}
+                <p className="text-[11px] text-violet-600 dark:text-violet-300 font-semibold truncate mt-0.5 leading-snug">
+                    {advisorLiveInsight}
                 </p>
             </div>
-            <div className="w-8 h-8 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-500 group-hover:translate-x-1 transition-transform">
+            <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 group-hover:translate-x-1 transition-transform flex-shrink-0">
                 <ArrowRight size={16} />
             </div>
         </motion.button>
     );
+
 
     // ── Recent Transactions (shared) ──
     const recentTransactions = (
@@ -712,7 +739,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                     if (!isPro) { openUpgradeModal('advisor'); }
                     else { setActiveTab('advisor'); }
                 }}
-                className="w-full relative overflow-hidden glass-light dark:glass
+                className="w-full relative overflow-hidden bg-gradient-to-br from-violet-50 to-indigo-50 dark:bg-surface-dark3 dark:from-transparent dark:to-transparent border border-violet-200/60 dark:border-violet-900/30
                            p-4 rounded-[1.75rem]
                            shadow-sm hover:shadow-md
                            flex items-center gap-3.5 group transition-all duration-300"
@@ -726,13 +753,20 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                                 shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
                     <Sparkles size={20} fill="currentColor" />
                 </div>
-                <div className="flex-1 text-left min-w-0">
+                <div className="flex-1 text-left min-w-0 pr-5">
                     <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
-                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium truncate mt-0.5">
-                        {t('advisor_subtitle')}
+                    <p className="text-[11px] text-violet-600 dark:text-violet-300 font-semibold truncate mt-0.5">
+                        {advisorLiveInsight}
                     </p>
                 </div>
-                <div className="w-7 h-7 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-500 group-hover:translate-x-0.5 transition-transform flex-shrink-0">
+                {/* Pulse dot */}
+                <div className="absolute top-2.5 right-2.5 z-10">
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-60"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+                    </span>
+                </div>
+                <div className="w-7 h-7 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 group-hover:translate-x-0.5 transition-transform flex-shrink-0">
                     <ArrowRight size={14} />
                 </div>
             </motion.button>

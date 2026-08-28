@@ -712,6 +712,92 @@ export const translations = {
         goal_suggestion: 'Πρόταση Στόχου',
         suggest_save_more: 'Αν αποταμιεύεις {amount}€ επιπλέον, θα φτάσεις τον στόχο σας νωρίτερα!',
 
+        // Advisor Redesign — Score Labels
+        score_label_starter: 'Ξεκινάς',
+        score_label_building: 'Χτίζεις Ορμή',
+        score_label_good: 'Καλή Πορεία',
+        score_label_great: 'Εξαιρετικά',
+        score_label_pro: 'Οικονομικός Pro',
+        score_trend_up: '↑ {pts} μονάδες από τον προηγούμενο μήνα',
+        score_trend_down: '↓ {pts} μονάδες από τον προηγούμενο μήνα',
+        score_trend_same: 'Σταθερό σε σχέση με τον προηγούμενο μήνα',
+        score_positive_factor: 'Καλή αποταμίευση',
+        score_negative_factor: 'Υψηλές επιθυμίες',
+
+        // Advisor Redesign — Daily Insights
+        daily_insights_title: 'Σημερινές Αναλύσεις',
+        insight_no_data: 'Πρόσθεσε συναλλαγές για να δεις εξατομικευμένες αναλύσεις.',
+        insight_coffee_up: '☕ Ξόδεψες {amount}€ σε καφέ αυτή την εβδομάδα.',
+        insight_savings_improved: '🎉 Το ποσοστό αποταμίευσής σου βελτιώθηκε κατά {pct}% αυτόν τον μήνα!',
+        insight_top_category: '📊 Η κατηγορία {category} είναι η μεγαλύτερη δαπάνη σου αυτόν τον μήνα.',
+        insight_spending_down: '✅ Ξόδεψες {pct}% λιγότερο αυτήν την εβδομάδα σε σχέση με την προηγούμενη.',
+        insight_spending_up: '⚠️ Ξόδεψες {pct}% περισσότερο αυτήν την εβδομάδα σε σχέση με την προηγούμενη.',
+        insight_good_pace: '🌟 Τον τρέχοντα μήνα οι δαπάνες σου είναι σε καλό ρυθμό.',
+        insight_no_expenses_today: '🏆 Δεν έχεις καταγράψει δαπάνες σήμερα — ωραία δουλειά!',
+
+        // Advisor Redesign — Spending Breakdown
+        spending_breakdown_title: 'Ανάλυση Δαπανών',
+        breakdown_vs_last_month: 'vs προηγ. μήνα',
+        breakdown_tap_hint: 'Πάτα κάθε τμήμα για λεπτομέρειες',
+        breakdown_no_expenses: 'Δεν υπάρχουν δαπάνες αυτόν τον μήνα.',
+        breakdown_on_track: 'Σε καλό δρόμο',
+        breakdown_over_target: 'Πάνω από τον στόχο',
+        breakdown_under_target: 'Κάτω από τον στόχο',
+
+        // Advisor Redesign — Challenges
+        challenges_title: 'Εβδομαδιαίες Προκλήσεις',
+        challenge_days_left: '{days} μέρες',
+        challenge_completed: 'Ολοκληρώθηκε! 🎉',
+        challenge_no_spend_title: 'Ημέρα Χωρίς Δαπάνες',
+        challenge_no_spend_desc: 'Πέρασε 1 μέρα χωρίς μη-απαραίτητες δαπάνες.',
+        challenge_coffee_title: 'Μπάτζετ Καφέ',
+        challenge_coffee_desc: 'Κράτα τις δαπάνες για καφέ κάτω από 15€ αυτή την εβδομάδα.',
+        challenge_savings_title: 'Εβδομάδα Αποταμίευσης',
+        challenge_savings_desc: 'Αποταμίευσε 50€ επιπλέον αυτή την εβδομάδα.',
+        challenge_food_title: 'Μαγείρεψε στο Σπίτι',
+        challenge_food_desc: 'Περιόρισε τις δαπάνες φαγητού έξω κάτω από 20€ αυτή την εβδομάδα.',
+        challenge_view_progress: 'Δες την Πρόοδο',
+        challenge_complete_btn: 'Σημείωσε ως Ολοκληρωμένο',
+
+        // Advisor Redesign — Personalized Tips
+        tips_personalized_title: 'Συμβουλές για Σένα',
+        tip_action_set_budget: 'Θέσε Μπάτζετ →',
+        tip_action_review_now: 'Δες Τώρα →',
+        tip_action_create_goal: 'Δημιούργησε Στόχο →',
+        tip_action_see_details: 'Δες Λεπτομέρειες →',
+        tip_coffee_budget: 'Ξοδεύεις πολύ σε καφέ. Θέσε ένα εβδομαδιαίο μπάτζετ καφέ.',
+        tip_emergency_fund_action: 'Δεν έχεις αποταμίευση ανάγκης. Στόχος: 3 μισθοί.',
+        tip_wants_high_action: 'Οι επιθυμίες είναι {pct}% — πάνω από τον στόχο του 30%.',
+        tip_great_savings: 'Εξαιρετική αποταμίευση! Σκέψου να επενδύσεις μέρος αυτού.',
+        tip_subscriptions: 'Ελέγξε τις συνδρομές σου για ανενεργές πληρωμές.',
+
+        // Advisor Redesign — Monthly Progress
+        monthly_progress_title: 'Μηνιαία Πρόοδος',
+        monthly_best_category: 'Καλύτερη Κατηγορία',
+        monthly_watch_out: 'Πρόσεξε',
+        monthly_improved: 'Βελτιώθηκε',
+        monthly_increased: 'Αυξήθηκε',
+        monthly_no_history: 'Χρειάζονται δεδομένα 2+ μηνών για σύγκριση.',
+        monthly_vs: 'vs',
+
+        // Advisor Redesign — Empty State
+        advisor_empty_title: 'Ξεκίνα να Παρακολουθείς',
+        advisor_empty_desc: 'Πρόσθεσε μερικές συναλλαγές για να δεις αναλύσεις, σκορ και εξατομικευμένες συμβουλές.',
+        advisor_empty_cta: 'Πρόσθεσε Συναλλαγή',
+
+        // Advisor Redesign — Donut Chart
+        donut_center_label: 'Σύνολο',
+        allocation_detail_title: 'Ανάλυση Κατηγορίας',
+        allocation_amount_spent: 'Δαπανήθηκε',
+        allocation_target: 'Στόχος',
+        allocation_status_ok: '✓ Εντός Στόχου',
+        allocation_status_over: '↑ Πάνω από Στόχο',
+        allocation_status_under: '↓ Κάτω από Στόχο',
+        target_label: 'Στόχος',
+        current_label: 'Τρέχον',
+        month_short: 'Μήν.',
+        week_short: 'Εβδ.',
+
         // Error Boundary
         something_went_wrong: 'Κάτι πήγε στραβά',
         error_message_generic: 'Παρουσιάστηκε ένα απρόσμενο σφάλμα στην εφαρμογή. Παρακαλώ δοκιμάστε να την ανανεώσετε.',
@@ -1457,6 +1543,92 @@ export const translations = {
         tip_review_subscriptions: 'Review your subscriptions. Are you paying for things you don\'t use?',
         goal_suggestion: 'Goal Suggestion',
         suggest_save_more: 'If you save {amount}€ more, you will reach your goal sooner!',
+
+        // Advisor Redesign — Score Labels
+        score_label_starter: 'Getting Started',
+        score_label_building: 'Building Momentum',
+        score_label_good: 'On Track',
+        score_label_great: 'Great Shape',
+        score_label_pro: 'Financial Pro',
+        score_trend_up: '↑ {pts} pts from last month',
+        score_trend_down: '↓ {pts} pts from last month',
+        score_trend_same: 'Steady from last month',
+        score_positive_factor: 'Good savings rate',
+        score_negative_factor: 'High discretionary spend',
+
+        // Advisor Redesign — Daily Insights
+        daily_insights_title: "Today's Insights",
+        insight_no_data: 'Add transactions to see personalized insights.',
+        insight_coffee_up: '☕ You spent {amount}€ on coffee this week.',
+        insight_savings_improved: '🎉 Your savings rate improved by {pct}% this month!',
+        insight_top_category: '📊 {category} is your biggest expense this month.',
+        insight_spending_down: '✅ You spent {pct}% less this week vs last week.',
+        insight_spending_up: '⚠️ You spent {pct}% more this week vs last week.',
+        insight_good_pace: "🌟 This month's spending is at a healthy pace.",
+        insight_no_expenses_today: "🏆 No expenses logged today — great work!",
+
+        // Advisor Redesign — Spending Breakdown
+        spending_breakdown_title: 'Spending Breakdown',
+        breakdown_vs_last_month: 'vs last month',
+        breakdown_tap_hint: 'Tap each segment to see details',
+        breakdown_no_expenses: 'No expenses this month.',
+        breakdown_on_track: 'On Track',
+        breakdown_over_target: 'Over Target',
+        breakdown_under_target: 'Under Target',
+
+        // Advisor Redesign — Challenges
+        challenges_title: 'Weekly Challenges',
+        challenge_days_left: '{days} days',
+        challenge_completed: 'Completed! 🎉',
+        challenge_no_spend_title: 'No-Spend Day',
+        challenge_no_spend_desc: 'Go 1 day without non-essential spending.',
+        challenge_coffee_title: 'Coffee Budget',
+        challenge_coffee_desc: 'Keep coffee spending under €15 this week.',
+        challenge_savings_title: 'Savings Sprint',
+        challenge_savings_desc: 'Save an extra €50 this week.',
+        challenge_food_title: 'Cook at Home',
+        challenge_food_desc: 'Keep dining-out expenses under €20 this week.',
+        challenge_view_progress: 'View Progress',
+        challenge_complete_btn: 'Mark as Complete',
+
+        // Advisor Redesign — Personalized Tips
+        tips_personalized_title: 'Tips for You',
+        tip_action_set_budget: 'Set a Budget →',
+        tip_action_review_now: 'Review Now →',
+        tip_action_create_goal: 'Create a Goal →',
+        tip_action_see_details: 'See Details →',
+        tip_coffee_budget: "You're spending a lot on coffee. Set a weekly coffee budget.",
+        tip_emergency_fund_action: 'No savings buffer yet. Aim for 3 months of expenses.',
+        tip_wants_high_action: 'Discretionary spend is {pct}% — above the 30% target.',
+        tip_great_savings: 'Great savings rate! Consider investing a portion of it.',
+        tip_subscriptions: 'Check your subscriptions for unused recurring payments.',
+
+        // Advisor Redesign — Monthly Progress
+        monthly_progress_title: 'Monthly Progress',
+        monthly_best_category: 'Most Improved',
+        monthly_watch_out: 'Watch Out',
+        monthly_improved: 'improved',
+        monthly_increased: 'increased',
+        monthly_no_history: 'Need 2+ months of data to show comparison.',
+        monthly_vs: 'vs',
+
+        // Advisor Redesign — Empty State
+        advisor_empty_title: 'Start Tracking',
+        advisor_empty_desc: 'Add a few transactions to see insights, your wellness score, and personalized advice.',
+        advisor_empty_cta: 'Add a Transaction',
+
+        // Advisor Redesign — Donut Chart
+        donut_center_label: 'Total',
+        allocation_detail_title: 'Category Detail',
+        allocation_amount_spent: 'Spent',
+        allocation_target: 'Target',
+        allocation_status_ok: '✓ On Target',
+        allocation_status_over: '↑ Over Target',
+        allocation_status_under: '↓ Under Target',
+        target_label: 'Target',
+        current_label: 'Current',
+        month_short: 'Mo.',
+        week_short: 'Wk.',
 
         // Error Boundary
         something_went_wrong: 'Something went wrong',
