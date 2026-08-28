@@ -8,6 +8,7 @@ import {
 import { useSettings } from '../contexts/SettingsContext';
 import Amount from './Amount';
 import CategoryIcon from './CategoryIcon';
+import useIsDesktop from '../hooks/useIsDesktop';
 
 const COLORS = [
     '#7c3aed', // Violet
@@ -28,6 +29,7 @@ const CalendarSection = ({
 }) => {
     const { t, language, privacyMode } = useSettings();
     const locale = language === 'el' ? 'el-GR' : 'en-US';
+    const isDesktop = useIsDesktop();
 
     // Day detail sheet modal state
     const [selectedDay, setSelectedDay] = useState(null);
@@ -277,7 +279,7 @@ const CalendarSection = ({
                 </div>
             </div>
 
-            {/* Daily Expense Bottom Sheet/Modal */}
+            {/* Daily Expense Bottom Panel */}
             {typeof document !== 'undefined' && createPortal(
                 <AnimatePresence>
                     {selectedDay !== null && (
@@ -291,19 +293,19 @@ const CalendarSection = ({
                                 onClick={() => setSelectedDay(null)} 
                             />
                             
-                            {/* Sliding Bottom Sheet */}
+                            {/* Bottom Panel */}
                             <motion.div 
                                 initial={{ y: '100%' }}
                                 animate={{ y: 0 }}
                                 exit={{ y: '100%' }}
-                                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                className="relative z-10 w-full max-w-md
+                                transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+                                className="relative z-10 w-full max-w-xl lg:max-w-[1000px]
                                             bg-white dark:bg-surface-dark2
                                             rounded-t-[2.5rem] shadow-2xl
-                                            border-t border-x border-gray-100 dark:border-white/5
-                                            max-h-[85vh] flex flex-col pointer-events-auto"
+                                            border-t border-gray-100 dark:border-white/5
+                                            max-h-[85vh] lg:max-h-[75vh] flex flex-col pointer-events-auto"
                             >
-                                {/* Drag handle indicator */}
+                                {/* Drag handle */}
                                 <div className="flex justify-center pt-4 pb-2">
                                     <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full" />
                                 </div>
@@ -331,8 +333,8 @@ const CalendarSection = ({
                                     </button>
                                 </div>
 
-                                {/* Bottom Sheet Body */}
-                                <div className="overflow-y-auto flex-1 px-6 py-6 space-y-6 pb-[calc(2rem+env(safe-area-inset-bottom))] custom-scrollbar">
+                                {/* Body */}
+                                <div className="overflow-y-auto flex-1 px-6 py-6 space-y-6 pb-[calc(2rem+env(safe-area-inset-bottom))] lg:pb-6 custom-scrollbar">
                                     {/* Stats Cards */}
                                     <div className="grid grid-cols-2 gap-4">
                                         {/* Total spent today */}

@@ -15,6 +15,7 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import ProBadge from '../components/ProBadge';
 import logger from '../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
+import useIsDesktop from '../hooks/useIsDesktop';
 
 const NOTE_MAX_LENGTH = 200;
 const CATEGORY_NAME_MAX_LENGTH = 30;
@@ -23,6 +24,7 @@ const AMOUNT_MAX_VALUE = 999999.99;
 const AddModal = ({ onClose, onAdd, initialData }) => {
     const { customCategories, addCustomCategory, t, privacyMode } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
+    const isDesktop = useIsDesktop();
     const [isAddingCategory, setIsAddingCategory] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
     const [activeTab, setActiveTab] = useState('manual');
@@ -441,7 +443,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
     return (
         <div
-            className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4"
+            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40 backdrop-blur-sm p-0"
             role="dialog"
             aria-modal="true"
             aria-labelledby="add-modal-title"
@@ -450,8 +452,8 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="bg-white dark:bg-surface-dark2 w-full max-w-md h-[100dvh] sm:h-auto sm:max-h-[95vh] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col relative transition-colors"
+                transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+                className="bg-white dark:bg-surface-dark2 w-full max-w-md lg:max-w-[1000px] h-[100dvh] lg:h-auto lg:max-h-[85vh] rounded-t-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
             >
 
                 {/* Voice Input Overlay */}

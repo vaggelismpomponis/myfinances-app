@@ -104,24 +104,24 @@ const UpgradeModal = () => {
     /* ═══════════════════════════════════════════════════════════════════ */
     return (
         <div
-            className="animate-fade-in fixed inset-0 z-[200] flex flex-col justify-end md:justify-center items-center bg-black/55 backdrop-blur-md"
+            className="animate-fade-in fixed inset-0 z-[200] flex flex-col justify-end items-center bg-black/55 backdrop-blur-md"
             onClick={e => { if (e.target === e.currentTarget) closeUpgradeModal(); }}
         >
             {/* ═══ Bottom Sheet / Modal ═══════════════════════════════════════ */}
             <div
-                className="animate-slide-up md:animate-pop scrollbar-hide w-full md:max-w-[900px] md:m-4"
+                className="animate-slide-up scrollbar-hide w-full lg:max-w-[1000px]"
                 style={{
                     background: tok.sheetBg,
-                    borderRadius: window.innerWidth >= 768 ? '32px' : '0',
+                    borderTopLeftRadius: window.innerWidth >= 1024 ? '32px' : '32px',
+                    borderTopRightRadius: window.innerWidth >= 1024 ? '32px' : '32px',
                     borderTop: `1px solid ${tok.cardBorder}`,
-                    border: window.innerWidth >= 768 ? `1px solid ${tok.cardBorder}` : undefined,
                     boxShadow: dk
                         ? '0 -12px 60px rgba(0,0,0,0.7), 0 -1px 0 rgba(255,255,255,0.04)'
                         : '0 -12px 60px rgba(124,58,237,0.10), 0 -1px 0 rgba(0,0,0,0.06)',
                     maxHeight: '93dvh',
                     overflowY: 'auto',
                     WebkitOverflowScrolling: 'touch',
-                    paddingBottom: window.innerWidth >= 768 ? '40px' : 'max(env(safe-area-inset-bottom, 0px), 20px)',
+                    paddingBottom: window.innerWidth >= 1024 ? '40px' : 'max(env(safe-area-inset-bottom, 0px), 20px)',
                 }}
             >
                 {/* ── Drag handle (mobile only) ── */}

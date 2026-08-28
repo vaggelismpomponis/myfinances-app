@@ -374,7 +374,7 @@ const DesktopLayout = ({
                 <div className="flex-1 flex overflow-hidden">
                     {/* Main scrollable area */}
                     <main className="flex-1 overflow-y-auto custom-scrollbar">
-                        <div className="h-full">
+                        <div className="h-full px-6 lg:px-12 xl:px-20 2xl:px-32">
                             {children}
                         </div>
                     </main>

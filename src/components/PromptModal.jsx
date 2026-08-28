@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Eye, EyeOff } from 'lucide-react';
+import useIsDesktop from '../hooks/useIsDesktop';
 
 const PromptModal = ({ 
     isOpen, 
@@ -15,6 +16,7 @@ const PromptModal = ({
 }) => {
     const [inputValue, setInputValue] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const isDesktop = useIsDesktop();
 
     useEffect(() => {
         if (isOpen) {
@@ -31,19 +33,19 @@ const PromptModal = ({
 
     return (
         <div
-            className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center sm:p-4 animate-fade-in"
+            className="fixed inset-0 z-[110] flex items-end justify-center animate-fade-in"
             role="dialog"
             aria-modal="true"
             aria-labelledby="prompt-modal-title"
         >
-            <div className="absolute inset-0 bg-black/60 sm:bg-black/50 backdrop-blur-sm transition-opacity"
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                  onClick={onClose} />
-            <div className="relative z-10 w-full max-w-md
+            <div className="relative z-10 w-full max-w-md lg:max-w-[1000px]
                             bg-white dark:bg-surface-dark2
-                            rounded-none sm:rounded-2xl p-7
-                            border-t border-x sm:border border-gray-200 dark:border-transparent
-                            shadow-2xl animate-slide-up sm:animate-pop">
-                <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-5 sm:hidden" />
+                            rounded-t-[2rem] p-7
+                            border-t border-gray-200 dark:border-transparent
+                            shadow-2xl animate-slide-up">
+                <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-5" />
                 
                 <div className="flex justify-between items-center mb-4">
                     <h3 id="prompt-modal-title" className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>

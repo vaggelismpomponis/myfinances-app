@@ -1,15 +1,137 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     Target, Wallet, RefreshCw, BarChart,
     ChevronRight, Sparkles, ArrowUpRight, ArrowDownRight, TrendingUp,
-    ArrowRight, TrendingDown, Crown, Minus, Eye, EyeOff
+    ArrowRight, TrendingDown, Crown, Minus, Eye, EyeOff,
+    Plus, ShieldCheck, BarChart2
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 import Amount from '../components/Amount';
 import CategoryIcon from '../components/CategoryIcon';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+
+/* ─────────────────────────────────────────────
+   Getting Started — onboarding step data
+───────────────────────────────────────────── */
+const GS_STEPS = [
+    { titleKey: 'onboarding_welcome_title',      descKey: 'onboarding_welcome_desc',      Icon: Wallet,      gradient: 'from-violet-600 via-indigo-600 to-purple-700',   orb: 'bg-violet-400' },
+    { titleKey: 'onboarding_transactions_title', descKey: 'onboarding_transactions_desc', Icon: Plus,        gradient: 'from-emerald-500 via-teal-500 to-cyan-600',       orb: 'bg-emerald-400' },
+    { titleKey: 'onboarding_budgets_title',      descKey: 'onboarding_budgets_desc',      Icon: Target,      gradient: 'from-amber-500 via-orange-500 to-rose-500',       orb: 'bg-amber-400' },
+    { titleKey: 'onboarding_analytics_title',    descKey: 'onboarding_analytics_desc',    Icon: BarChart2,   gradient: 'from-blue-600 via-indigo-500 to-violet-600',      orb: 'bg-blue-400' },
+    { titleKey: 'onboarding_security_title',     descKey: 'onboarding_security_desc',     Icon: ShieldCheck, gradient: 'from-rose-500 via-pink-500 to-fuchsia-600',      orb: 'bg-rose-400' },
+];
+
+/* ─────────────────────────────────────────────
+   HomeGettingStarted — inline walkthrough for HomeView
+───────────────────────────────────────────── */
+const HomeGettingStarted = ({ t, onOpenGuide }) => {
+    const [step, setStep] = useState(0);
+    const [dir, setDir] = useState(1);
+    const cfg = GS_STEPS[step];
+    const isLast = step === GS_STEPS.length - 1;
+
+    const goNext = () => { setDir(1); setStep(s => (s < GS_STEPS.length - 1 ? s + 1 : 0)); };
+    const goPrev = () => { setDir(-1); setStep(s => Math.max(0, s - 1)); };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, type: 'spring', damping: 22, stiffness: 200 }}
+            className="rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 dark:border-white/[0.06]"
+        >
+            {/* Gradient header */}
+            <div className={`relative bg-gradient-to-br ${cfg.gradient} px-5 pt-5 pb-6 overflow-hidden`}>
+                {/* Orbs */}
+                <div className={`absolute -top-8 -right-8 w-36 h-36 rounded-full opacity-20 blur-2xl ${cfg.orb}`} />
+                <div className={`absolute -bottom-6 -left-6 w-24 h-24 rounded-full opacity-15 blur-xl ${cfg.orb}`} />
+
+                {/* Top row: dots + step counter */}
+                <div className="relative z-10 flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-1.5">
+                        {GS_STEPS.map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => { setDir(i > step ? 1 : -1); setStep(i); }}
+                                className={`h-1.5 rounded-full transition-all duration-300 ${
+                                    i === step ? 'w-5 bg-white' : 'w-1.5 bg-white/30'
+                                }`}
+                            />
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold text-white/50 tabular-nums">
+                            {step + 1}/{GS_STEPS.length}
+                        </span>
+                        {onOpenGuide && (
+                            <button
+                                onClick={onOpenGuide}
+                                className="text-[10px] font-bold text-white/60 hover:text-white
+                                           bg-white/10 hover:bg-white/20 rounded-full px-2.5 py-1
+                                           transition-all duration-150 active:scale-95"
+                            >
+                                {t('user_guide') || 'Full Guide'}
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Step content */}
+                <AnimatePresence mode="wait" custom={dir}>
+                    <motion.div
+                        key={step}
+                        custom={dir}
+                        initial={{ x: dir > 0 ? 40 : -40, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: dir > 0 ? -40 : 40, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+                        className="relative z-10"
+                    >
+                        <div className="w-12 h-12 rounded-2xl bg-white/20 ring-1 ring-white/20
+                                        flex items-center justify-center mb-3">
+                            <cfg.Icon size={24} className="text-white" strokeWidth={1.8} />
+                        </div>
+                        <h3 className="text-[17px] font-black text-white leading-tight mb-1.5">
+                            {t(cfg.titleKey)}
+                        </h3>
+                        <p className="text-[12.5px] text-white/80 leading-relaxed font-medium">
+                            {t(cfg.descKey)}
+                        </p>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+
+            {/* Bottom controls */}
+            <div className="bg-white dark:bg-surface-dark3 px-5 py-3.5 flex items-center gap-2.5">
+                <button
+                    onClick={goPrev}
+                    disabled={step === 0}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0
+                               bg-gray-100 dark:bg-white/[0.07]
+                               text-gray-500 dark:text-white/50
+                               hover:bg-gray-200 dark:hover:bg-white/[0.12]
+                               disabled:opacity-25 disabled:pointer-events-none
+                               active:scale-90 transition-all duration-150"
+                >
+                    <ChevronRight size={14} strokeWidth={2.5} className="rotate-180" />
+                </button>
+                <button
+                    onClick={goNext}
+                    className={`flex-1 h-9 rounded-xl flex items-center justify-center gap-1.5
+                               font-bold text-[12px] text-white
+                               bg-gradient-to-r ${cfg.gradient}
+                               active:scale-[0.98] transition-all duration-150 shadow-sm`}
+                >
+                    <span>{isLast ? (t('guide_restart_tour') || 'Restart') : (t('onboarding_next') || 'Next')}</span>
+                    <ArrowRight size={13} strokeWidth={2.5} />
+                </button>
+            </div>
+        </motion.div>
+    );
+};
+
 
 /* ─────────────────────────────────────────────
    Mobile Quick Action Button (original style)
@@ -50,17 +172,16 @@ const DesktopStatCards = ({ balance, totalIncome, totalExpense, stats, t, privac
             id: 'balance',
             label: t('balance'),
             value: balance,
-            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>,
+            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>,
             iconBg: 'bg-violet-100 dark:bg-violet-900/40',
             iconColor: 'text-violet-600 dark:text-violet-400',
             badge: stats.diffPct > 0 ? (
-                <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    stats.trend === 'below'
+                <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${stats.trend === 'below'
                         ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
                         : stats.trend === 'above'
                             ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
                             : 'bg-gray-100 dark:bg-white/10 text-gray-500'
-                }`}>
+                    }`}>
                     {stats.trend === 'below' && <TrendingDown size={10} />}
                     {stats.trend === 'above' && <TrendingUp size={10} />}
                     {stats.trend === 'neutral' && <Minus size={10} />}
@@ -134,13 +255,12 @@ const DesktopStatCards = ({ balance, totalIncome, totalExpense, stats, t, privac
                         </div>
                     </div>
                     <div className="text-right flex flex-col items-end">
-                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
-                            stats.trend === 'below'
+                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${stats.trend === 'below'
                                 ? 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/[0.12]'
                                 : stats.trend === 'above'
                                     ? 'text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:bg-rose-500/[0.12]'
                                     : 'text-gray-500 bg-gray-200/60 dark:text-gray-400 dark:bg-white/[0.06]'
-                        }`}>
+                            }`}>
                             {stats.trend === 'below' && <TrendingDown size={14} />}
                             {stats.trend === 'above' && <TrendingUp size={14} />}
                             {stats.trend === 'neutral' && <Minus size={14} />}
@@ -162,21 +282,19 @@ const DesktopStatCards = ({ balance, totalIncome, totalExpense, stats, t, privac
                     className={`bg-white dark:bg-surface-dark3
                                 border ${card.border}
                                 rounded-2xl p-5
-                                shadow-sm hover:shadow-md
+                                shadow-card dark:shadow-card-dark hover:shadow-md
                                 transition-all duration-200 group`}
                 >
                     <div className="flex items-start justify-between mb-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                            card.iconBg} ${card.iconColor} transition-transform duration-200 group-hover:scale-110`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${card.iconBg} ${card.iconColor} transition-transform duration-200 group-hover:scale-110`}>
                             {card.icon}
                         </div>
                     </div>
                     <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
                         {card.label}
                     </p>
-                    <p className={`text-2xl font-black tracking-tight tabular-nums ${
-                        card.valueColor || 'text-gray-900 dark:text-white'
-                    }`}>
+                    <p className={`text-2xl font-black tracking-tight tabular-nums ${card.valueColor || 'text-gray-900 dark:text-white'
+                        }`}>
                         {card.rawPrefix && !privacyMode && (
                             <span className="text-lg font-bold mr-0.5">{card.rawPrefix}</span>
                         )}
@@ -237,9 +355,9 @@ const FinancialSummaryCard = ({ totalIncome, totalExpense, t }) => {
             {/* Net Flow */}
             <div className={`flex items-center justify-between px-4 py-3 rounded-2xl
                             ${isPositive
-                                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
-                                : 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400'
-                            }`}>
+                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+                    : 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400'
+                }`}>
                 <div className="flex items-center gap-2">
                     {isPositive ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
                     <span className="text-xs font-black uppercase tracking-wider">Net Flow</span>
@@ -556,22 +674,9 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
             </div>
 
             {transactions.length === 0 ? (
-                <div className="text-center py-14
-                                bg-white dark:bg-surface-dark3
-                                rounded-[2rem] border border-gray-100 dark:border-transparent shadow-sm">
-                    <div className="w-16 h-16 rounded-[1.5rem] bg-violet-50 dark:bg-violet-900/30
-                                    flex items-center justify-center mx-auto mb-4">
-                        <TrendingUp size={28} className="text-violet-400" />
-                    </div>
-                    <p className="font-bold text-gray-700 dark:text-white/90 text-sm">
-                        {t('no_transactions')}
-                    </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 max-w-[200px] mx-auto">
-                        {t('tap_to_add')}
-                    </p>
-                </div>
+                <HomeGettingStarted t={t} onOpenGuide={setActiveTab ? () => setActiveTab('guide') : null} />
             ) : (
-                <div className="space-y-2.5">
+                <div className="space-y-4">
                     {transactions.slice(0, isDesktop ? 8 : 5).map((tx, idx) => (
                         <motion.div
                             key={tx.id}
@@ -686,7 +791,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                                 </div>
                             </div>
                         ) : (
-                            <div className="divide-y divide-gray-50 dark:divide-white/[0.03]">
+                            <div className="p-3 space-y-3">
                                 {transactions.slice(0, 10).map((tx, idx) => (
                                     <motion.div
                                         key={tx.id}

@@ -403,9 +403,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                                     ${done ? 'ring-emerald-500/30' : 'ring-gray-200/50 dark:ring-white/5'}`}
                                         style={{ animationDelay: `${idx * 60}ms` }}
                                     >
-                                        {/* Colour stripe */}
-                                        <div className={`h-1 w-full bg-gradient-to-r ${done ? 'from-emerald-400 to-teal-500' : preset.color}`} />
-
+                                        {/* Card content */}
                                         <div className="p-4">
                                             {/* Top row */}
                                             <div className="flex items-center gap-3 mb-3">
@@ -516,11 +514,11 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-5 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
                          onClick={closeAdd} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-none sm:rounded-3xl w-full max-w-sm
+                    <div className="bg-white dark:bg-surface-dark3 rounded-3xl w-full max-w-sm
                                     relative z-10 shadow-2xl overflow-hidden animate-pop">
 
                         {/* Accent stripe */}
-                        <div className="h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500" />
+
 
                         <div className="p-6">
                             {/* Header */}
@@ -602,12 +600,12 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                 Delete Confirmation Modal — portal
             ═══════════════════════════════════════════ */}
             {deletingGoal && createPortal(
-                <div className="fixed inset-0 z-[200] flex items-end justify-center p-5 pb-8 animate-fade-in sm:items-center">
+                <div className="fixed inset-0 z-[200] flex items-end justify-center p-5 pb-8 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
                          onClick={() => setDeletingGoal(null)} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-none sm:rounded-3xl w-full max-w-sm
+                    <div className="bg-white dark:bg-surface-dark3 rounded-t-[2rem] w-full max-w-sm lg:max-w-[1000px]
                                     relative z-10 shadow-2xl overflow-hidden animate-slide-up">
-                        <div className="h-1 bg-gradient-to-r from-red-500 to-rose-500" />
+
                         <div className="p-6">
                             <div className="flex flex-col items-center text-center mb-6">
                                 <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-3xl
@@ -654,7 +652,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                 <div className="fixed inset-0 z-[200] flex items-end justify-center animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
                          onClick={closeMoney} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-none sm:rounded-3xl w-full max-w-sm
+                    <div className="bg-white dark:bg-surface-dark3 rounded-t-[2rem] w-full max-w-sm lg:max-w-[1000px]
                                     relative z-10 shadow-2xl overflow-hidden animate-slide-up">
 
                         {/* Handle */}

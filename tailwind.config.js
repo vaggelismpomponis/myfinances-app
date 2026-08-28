@@ -132,7 +132,7 @@ export default {
                 'glow-cyan': '0 0 24px 4px rgba(6,  182, 212, 0.35)',
                 'glow-sm': '0 0 12px 2px rgba(124, 58, 237, 0.25)',
                 'glass': '0 8px 32px rgba(0,0,0,0.18)',
-                'card': '0 2px 12px rgba(0,0,0,0.04), 0 0 1px rgba(0,0,0,0.12)',
+                'card': '0 2px 12px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.16)',
                 'card-dark': '0 4px 20px rgba(0,0,0,0.4)',
             },
         },

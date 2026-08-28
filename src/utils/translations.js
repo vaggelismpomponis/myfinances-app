@@ -90,6 +90,9 @@ export const translations = {
         guide_security_1: 'Ενεργοποιήστε PIN ή Βιομετρικά για τοπική προστασία.',
         guide_security_2: 'Απόκρυψη περιεχομένου από τον εναλλάκτη εφαρμογών.',
         guide_security_3: 'Δημιουργήστε κρυπτογραφημένα αντίγραφα ασφαλείας ανά πάσα στιγμή.',
+        guide_getting_started: 'Ξεκινήστε Εδώ',
+        guide_getting_started_desc: 'Γρήγορη περιήγηση στις βασικές λειτουργίες',
+        guide_restart_tour: 'Ξεκίνα Ξανά',
 
         // Onboarding Tour
         onboarding_welcome_title: 'Καλώς ήρθες στο SpendWise!',
@@ -939,6 +942,9 @@ export const translations = {
         guide_security_1: 'Enable App PIN or Biometrics for local protection.',
         guide_security_2: 'Hide content from the application switcher.',
         guide_security_3: 'Create encrypted backups of your data at any time.',
+        guide_getting_started: 'Getting Started',
+        guide_getting_started_desc: 'Quick walkthrough of the key features',
+        guide_restart_tour: 'Restart Tour',
 
         // Onboarding Tour
         onboarding_welcome_title: 'Welcome to SpendWise!',

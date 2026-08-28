@@ -79,13 +79,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
             : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400';
 
     return (
-        <div className={`bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden shadow-card border transition-all duration-300 ${
-            isOver ? 'border-red-200 dark:border-red-900/40' :
-            isWarn ? 'border-orange-200 dark:border-orange-900/40' :
-            'border-gray-200/50 dark:border-transparent'
-        }`}>
-            {/* Colored left accent bar */}
-            <div className={`h-0.5 w-full bg-gradient-to-r ${meta.color}`} />
+        <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden shadow-card border border-gray-100 dark:border-transparent transition-all duration-300">
 
             {/* Main compact row */}
             <button
@@ -655,7 +649,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={closeModal} />
                     <div className="bg-white dark:bg-surface-dark3 rounded-3xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-pop">
                         {/* Gradient top accent */}
-                        <div className="h-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500" />
+
 
                         <div className="p-6">
                             {/* Header */}
@@ -783,10 +777,10 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
 
             {/* ── Delete Confirmation Modal — via portal ── */}
             {deletingBudget && createPortal(
-                <div className="fixed inset-0 z-[200] flex items-end justify-center p-5 pb-8 animate-fade-in sm:items-center">
+                <div className="fixed inset-0 z-[200] flex items-end justify-center p-5 pb-8 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setDeletingBudget(null)} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-3xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-slide-up">
-                        <div className="h-1 bg-gradient-to-r from-red-500 to-rose-500" />
+                    <div className="bg-white dark:bg-surface-dark3 rounded-t-[2rem] w-full max-w-sm lg:max-w-[1000px] relative z-10 shadow-2xl overflow-hidden animate-slide-up">
+
                         <div className="p-6">
                             <div className="flex flex-col items-center text-center mb-6">
                                 <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-3xl flex items-center justify-center text-red-500 dark:text-red-400 mb-4">

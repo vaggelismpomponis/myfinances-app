@@ -370,9 +370,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                                transition-all duration-300"
                                     style={{ animationDelay: `${idx * 60}ms` }}
                                 >
-                                    {/* Colour stripe — violet for monthly, cyan for weekly */}
-                                    <div className={`h-1 w-full bg-gradient-to-r ${meta.from} ${meta.to}`} />
-
+                                    {/* Card content */}
                                     <div className="p-4">
                                         {/* Top row */}
                                         <div className="flex items-center gap-3 mb-3">
@@ -451,7 +449,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                     <div className="bg-white dark:bg-surface-dark3 rounded-3xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-pop">
 
                         {/* Accent stripe */}
-                        <div className="h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500" />
+
 
                         <div className="p-6">
                             {/* Header */}

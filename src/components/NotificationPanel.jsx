@@ -243,7 +243,21 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                                                        ${!notif.read
                                                                            ? "text-gray-900 dark:text-white"
                                                                            : "text-gray-600 dark:text-gray-400"}`}>
-                                                            {notif.message}
+                                                            {(() => {
+                                                                const reverseMap = {
+                                                                    'Transaction deleted': 'notification_deleted',
+                                                                    'Συναλλαγή διαγράφηκε': 'notification_deleted',
+                                                                    'New expense recorded': 'notification_added_expense',
+                                                                    'Νέο έξοδο καταγράφηκε': 'notification_added_expense',
+                                                                    'New income recorded': 'notification_added_income',
+                                                                    'Νέο εισόδημα καταγράφηκε': 'notification_added_income',
+                                                                    'Transaction edited': 'notification_edited',
+                                                                    'Συναλλαγή τροποποιήθηκε': 'notification_edited'
+                                                                };
+                                                                const key = reverseMap[notif.message] || notif.message;
+                                                                const translated = t(key);
+                                                                return translated !== key ? translated : notif.message;
+                                                            })()}
                                                         </p>
                                                         {/* Amount badge */}
                                                         {hasAmount && (
@@ -260,8 +274,9 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                                                 <span className="text-[11px] font-medium px-2 py-0.5 rounded-md
                                                                                 bg-gray-100 dark:bg-white/[0.08]
                                                                                 text-gray-600 dark:text-gray-300">
-                                                                    {meta.category}
+                                                                    {t('cat_' + meta.category.toLowerCase()) === 'cat_' + meta.category.toLowerCase() ? meta.category : t('cat_' + meta.category.toLowerCase())}
                                                                 </span>
+
                                                             )}
                                                             {meta.note && (
                                                                 <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate max-w-[160px]"

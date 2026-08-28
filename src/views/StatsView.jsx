@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
+import useIsDesktop from '../hooks/useIsDesktop';
 
 /* ─── Premium Palette ─── */
 const COLORS = [
@@ -72,6 +73,7 @@ const TimeBtn = ({ value, label, active, onClick }) => (
 
 const StatsView = ({ transactions }) => {
     const { t, language, privacyMode } = useSettings();
+    const isDesktop = useIsDesktop();
     const [timeRange, setTimeRange] = useState('thisMonth');
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -665,7 +667,7 @@ const StatsView = ({ transactions }) => {
                 </div>
             </div>
 
-            {/* ── Category Drill-Down Bottom Sheet ── */}
+            {/* ── Category Drill-Down Bottom Panel ── */}
             {typeof document !== 'undefined' && createPortal(
                 <AnimatePresence>
                     {selectedCategory && (
@@ -679,17 +681,17 @@ const StatsView = ({ transactions }) => {
                                 onClick={() => setSelectedCategory(null)} 
                             />
                             
-                            {/* Sheet */}
+                            {/* Bottom Panel */}
                             <motion.div 
                                 initial={{ y: '100%' }}
                                 animate={{ y: 0 }}
                                 exit={{ y: '100%' }}
-                                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                className="relative z-10 w-full max-w-md
+                                transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+                                className="relative z-10 w-full max-w-md lg:max-w-[1000px]
                                             bg-white dark:bg-surface-dark2
-                                            rounded-none sm:rounded-t-[3rem] shadow-2xl
-                                            border-t border-x border-gray-100 dark:border-white/5
-                                            max-h-[85vh] flex flex-col pointer-events-auto">
+                                            rounded-t-[3rem] lg:rounded-t-[2.5rem] shadow-2xl
+                                            border-t border-gray-100 dark:border-white/5
+                                            max-h-[85vh] lg:max-h-[75vh] flex flex-col pointer-events-auto">
 
                                 {/* Handle */}
                                 <div className="flex justify-center pt-4 pb-2">
@@ -724,7 +726,7 @@ const StatsView = ({ transactions }) => {
                                 </div>
 
                                 {/* List */}
-                                <div className="overflow-y-auto flex-1 px-4 py-6 space-y-3 pb-[calc(2rem+env(safe-area-inset-bottom))] custom-scrollbar">
+                                <div className="overflow-y-auto flex-1 px-4 py-6 space-y-3 pb-[calc(2rem+env(safe-area-inset-bottom))] lg:pb-6 custom-scrollbar">
                                     {drillDownTransactions.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-20 text-gray-400 opacity-50">
                                             <Activity size={48} className="mb-4" />

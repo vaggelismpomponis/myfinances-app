@@ -24,19 +24,24 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            className="fixed inset-0 z-[100] flex items-end justify-center animate-fade-in"
             role="dialog"
             aria-modal="true"
             aria-labelledby="whatsnew-modal-title"
         >
             {/* Backdrop */}
             <div 
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             />
 
             {/* Content */}
-            <div className="relative w-full max-w-sm bg-white dark:bg-surface-dark2 rounded-3xl overflow-hidden shadow-2xl border border-gray-100 dark:border-transparent animate-slide-up flex flex-col max-h-[90vh]">
+            <div className="relative w-full max-w-md lg:max-w-[1000px] bg-white dark:bg-surface-dark2 rounded-t-[2.5rem] overflow-hidden shadow-2xl border-t border-gray-100 dark:border-transparent animate-slide-up flex flex-col max-h-[90vh]">
+                
+                {/* Handle */}
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
+                    <div className="w-12 h-1.5 bg-white/30 rounded-full" />
+                </div>
                 
                 {/* Header Decoration */}
                 <div className="relative h-28 bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 dark:from-[#2a1060] dark:via-[#1e0d45] dark:to-[#0d1a3a] flex items-center justify-center flex-shrink-0">
