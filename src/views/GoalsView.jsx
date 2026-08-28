@@ -305,43 +305,51 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                             <div className="absolute -top-8 -right-8 w-36 h-36 bg-white/10 rounded-full blur-2xl" />
                             <div className="absolute -bottom-6 -left-6 w-28 h-28 bg-indigo-900/30 rounded-full blur-2xl" />
 
-                            <div className="relative flex items-center gap-5">
-                                {/* Circular progress */}
-                                <Ring pct={totalPct} color="#c4b5fd" size={88} stroke={8}>
-                                    <div className="text-center">
-                                        <p className="text-[15px] font-extrabold leading-none">{totalPct.toFixed(0)}%</p>
-                                        <p className="text-[9px] text-white/60 mt-0.5 font-medium">{t('progress')}</p>
+                            <div className="relative">
+                                {/* Top row: gauge left + main savings right */}
+                                <div className="flex items-center gap-4 mb-4">
+                                    {/* Circular progress */}
+                                    <Ring pct={totalPct} color="#c4b5fd" size={110} stroke={10}>
+                                        <div className="text-center">
+                                            <span className="block text-2xl font-black leading-none">{Math.round(totalPct)}%</span>
+                                            <span className="block text-[9px] text-violet-200 font-bold uppercase tracking-wide mt-0.5">{t('progress')}</span>
+                                        </div>
+                                    </Ring>
+
+                                    {/* Main savings info */}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-violet-200 text-[10px] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                            <Sparkles size={11} /> {t('total_savings')}
+                                        </p>
+                                        <p className="text-3xl font-black leading-none truncate mb-1">
+                                            <Amount value={totalSaved} minimumFractionDigits={0} />
+                                        </p>
+                                        <p className="text-violet-200 text-xs">
+                                            {t('of_goal')} <Amount value={totalTarget} minimumFractionDigits={0} />
+                                        </p>
                                     </div>
-                                </Ring>
+                                </div>
 
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-violet-200 text-[11px] font-semibold mb-1 flex items-center gap-1.5 uppercase tracking-wide">
-                                        <Sparkles size={10} /> {t('total_savings')}
-                                    </p>
-                                    <p className="text-3xl font-extrabold tracking-tight">
-                                        <Amount value={totalSaved} minimumFractionDigits={0} />
-                                    </p>
-                                    <p className="text-violet-200 text-xs mt-0.5">
-                                        {t('of_goal')} <Amount value={totalTarget} minimumFractionDigits={0} />
-                                    </p>
+                                {/* Divider */}
+                                <div className="border-t border-white/10 mb-3" />
 
-                                    <div className="flex gap-2 mt-3">
-                                        <div className="flex-1 bg-white/10 rounded-xl py-1.5 px-2 text-center">
-                                            <p className="text-violet-200 text-[9px] font-medium">{t('goals')}</p>
-                                            <p className="text-white font-bold text-sm">{goals.length}</p>
-                                        </div>
-                                        <div className="flex-1 bg-white/10 rounded-xl py-1.5 px-2 text-center">
-                                            <p className="text-violet-200 text-[9px] font-medium">{t('completed_short')}</p>
-                                            <p className={`font-bold text-sm ${completedCnt > 0 ? 'text-emerald-300' : 'text-white'}`}>
-                                                {completedCnt}
-                                            </p>
-                                        </div>
-                                        <div className="flex-1 bg-white/10 rounded-xl py-1.5 px-2 text-center">
-                                            <p className="text-violet-200 text-[9px] font-medium">{t('remaining_short')}</p>
-                                            <p className="text-white font-bold text-sm">
-                                                <Amount value={Math.max(0, totalTarget - totalSaved)} maximumFractionDigits={0} />
-                                            </p>
-                                        </div>
+                                {/* Bottom stats row */}
+                                <div className="grid grid-cols-3 gap-2">
+                                    <div className="bg-white/10 rounded-xl py-2.5 px-3">
+                                        <p className="text-violet-200 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('goals')}</p>
+                                        <p className="text-white font-black text-base">{goals.length}</p>
+                                    </div>
+                                    <div className="bg-white/10 rounded-xl py-2.5 px-3">
+                                        <p className="text-violet-200 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('completed_short')}</p>
+                                        <p className={`font-black text-base ${completedCnt > 0 ? 'text-emerald-300' : 'text-white'}`}>
+                                            {completedCnt > 0 ? <span className="flex items-center gap-1"><Trophy size={13} />{completedCnt}</span> : '—'}
+                                        </p>
+                                    </div>
+                                    <div className="bg-white/10 rounded-xl py-2.5 px-3">
+                                        <p className="text-violet-200 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('remaining_short')}</p>
+                                        <p className="text-white font-black text-base">
+                                            <Amount value={Math.max(0, totalTarget - totalSaved)} maximumFractionDigits={0} />
+                                        </p>
                                     </div>
                                 </div>
                             </div>

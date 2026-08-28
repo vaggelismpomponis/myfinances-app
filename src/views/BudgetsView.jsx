@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import {
-    Plus, Trash2, PieChart, AlertCircle, Bell, Pencil,
-    Check, X, ArrowLeft, Target, TrendingUp, Wallet, ChevronRight,
-    ShoppingCart, Utensils, Coffee, Home as HomeIcon, Receipt, Gamepad2, Package
+    Plus, Trash2, AlertCircle, Bell, Pencil,
+    Check, X, ArrowLeft, Target, Wallet, ChevronRight, ChevronDown, ChevronUp,
+    ShoppingCart, Utensils, Coffee, Home as HomeIcon, Receipt, Gamepad2, Package,
+    TrendingUp, TrendingDown, Zap, Lightbulb, Flame
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
@@ -14,15 +15,198 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 const EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Άλλο'];
 
 const CATEGORY_META = {
-    'Σούπερ Μάρκετ': { icon: ShoppingCart, color: 'from-green-500 to-emerald-600' },
-    'Φαγητό': { icon: Utensils, color: 'from-orange-500 to-amber-600' },
-    'Καφές': { icon: Coffee, color: 'from-amber-600 to-yellow-700' },
-    'Σπίτι': { icon: HomeIcon, color: 'from-blue-500 to-indigo-600' },
-    'Λογαριασμοί': { icon: Receipt, color: 'from-yellow-500 to-orange-500' },
-    'Διασκέδαση': { icon: Gamepad2, color: 'from-purple-500 to-violet-600' },
-    'Άλλο': { icon: Package, color: 'from-gray-500 to-slate-600' },
+    'Σούπερ Μάρκετ': { icon: ShoppingCart, color: 'from-green-500 to-emerald-600', solid: '#10b981' },
+    'Φαγητό':        { icon: Utensils,     color: 'from-orange-500 to-amber-600',  solid: '#f97316' },
+    'Καφές':         { icon: Coffee,       color: 'from-amber-600 to-yellow-700',  solid: '#d97706' },
+    'Σπίτι':         { icon: HomeIcon,     color: 'from-blue-500 to-indigo-600',   solid: '#6366f1' },
+    'Λογαριασμοί':   { icon: Receipt,      color: 'from-yellow-500 to-orange-500', solid: '#eab308' },
+    'Διασκέδαση':    { icon: Gamepad2,     color: 'from-purple-500 to-violet-600', solid: '#8b5cf6' },
+    'Άλλο':          { icon: Package,      color: 'from-gray-500 to-slate-600',    solid: '#6b7280' },
 };
 
+/* ──────────────────────────────────────────────────────────
+   CIRCULAR GAUGE (SVG)
+────────────────────────────────────────────────────────── */
+const CircularGauge = ({ pct }) => {
+    const r = 64;
+    const stroke = 11;
+    const circ = 2 * Math.PI * r;
+    const fill = Math.min(100, pct) / 100 * circ;
+    const color = pct >= 100 ? '#ef4444' : pct >= 80 ? '#f97316' : '#10b981';
+
+    return (
+        <svg width="100%" height="100%" viewBox="0 0 160 160" className="transform -rotate-90">
+            <circle cx="80" cy="80" r={r} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={stroke} />
+            <circle
+                cx="80" cy="80" r={r} fill="none"
+                stroke={color} strokeWidth={stroke}
+                strokeDasharray={`${fill} ${circ}`}
+                strokeLinecap="round"
+                style={{
+                    transition: 'stroke-dasharray 1.2s cubic-bezier(0.34,1.56,0.64,1)',
+                    filter: `drop-shadow(0 0 7px ${color}99)`
+                }}
+            />
+        </svg>
+    );
+};
+
+/* ──────────────────────────────────────────────────────────
+   COMPACT BUDGET ROW (expandable)
+────────────────────────────────────────────────────────── */
+const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation, daysLeft }) => {
+    const [expanded, setExpanded] = useState(false);
+    const pct = budget.amount > 0 ? Math.min(100, (spent / budget.amount) * 100) : 0;
+    const isOver = spent > budget.amount;
+    const isWarn = pct >= (budget.notification_threshold || 80) && !isOver;
+    const leftover = Math.max(0, budget.amount - spent);
+    const meta = CATEGORY_META[budget.category] || { icon: Package, color: 'from-gray-500 to-slate-600', solid: '#6b7280' };
+    const Icon = meta.icon;
+
+    // Projected end-of-month spend
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const daysPassed = now.getDate();
+    const dailyRate = daysPassed > 0 ? spent / daysPassed : 0;
+    const projectedTotal = dailyRate * daysInMonth;
+    const projectedPct = budget.amount > 0 ? Math.round((projectedTotal / budget.amount) * 100) : 0;
+
+    const barColor = isOver ? '#ef4444' : isWarn ? '#f97316' : '#10b981';
+    const badgeCls = isOver
+        ? 'bg-red-500/15 text-red-500 dark:text-red-400'
+        : isWarn
+            ? 'bg-orange-500/15 text-orange-500 dark:text-orange-400'
+            : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400';
+
+    return (
+        <div className={`bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden shadow-sm border transition-all duration-300 ${
+            isOver ? 'border-red-200 dark:border-red-900/40' :
+            isWarn ? 'border-orange-200 dark:border-orange-900/40' :
+            'border-gray-100 dark:border-transparent'
+        }`}>
+            {/* Colored left accent bar */}
+            <div className={`h-0.5 w-full bg-gradient-to-r ${meta.color}`} />
+
+            {/* Main compact row */}
+            <button
+                onClick={() => setExpanded(e => !e)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors active:scale-[0.99]"
+            >
+                {/* Icon */}
+                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${meta.color} flex items-center justify-center shadow-sm flex-shrink-0`}>
+                    <Icon size={17} className="text-white" />
+                </div>
+
+                {/* Name + progress bar */}
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-sm font-bold text-gray-900 dark:text-white truncate pr-2">
+                            {getCategoryTranslation(budget.category)}
+                        </span>
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-lg flex-shrink-0 ${badgeCls}`}>
+                            {pct.toFixed(0)}%
+                        </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-gray-100 dark:bg-white/[0.07] rounded-full overflow-hidden">
+                        <div
+                            className="h-full rounded-full transition-all duration-700"
+                            style={{ width: `${pct}%`, backgroundColor: barColor }}
+                        />
+                    </div>
+                    <div className="flex justify-between mt-1">
+                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                            <Amount value={spent} /> {t('spent')}
+                        </span>
+                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                            {t('limit')} <Amount value={budget.amount} />
+                        </span>
+                    </div>
+                </div>
+
+                {/* Expand chevron */}
+                <div className="flex-shrink-0 text-gray-300 dark:text-white/20 ml-1">
+                    {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </div>
+            </button>
+
+            {/* Expanded detail panel */}
+            {expanded && (
+                <div className="px-4 pb-4 border-t border-gray-50 dark:border-white/5 animate-fade-in">
+                    <div className="grid grid-cols-3 gap-2 mt-3 mb-3">
+                        {/* Remaining */}
+                        <div className={`rounded-xl p-2.5 text-center ${isOver ? 'bg-red-50 dark:bg-red-900/20' : 'bg-emerald-50 dark:bg-emerald-900/20'}`}>
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
+                                {isOver ? t('over_budget_short') : t('remaining_short')}
+                            </p>
+                            <p className={`text-sm font-black ${isOver ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                {isOver ? '+' : ''}<Amount value={isOver ? spent - budget.amount : leftover} />
+                            </p>
+                        </div>
+                        {/* Days left */}
+                        <div className="bg-violet-50 dark:bg-violet-900/20 rounded-xl p-2.5 text-center">
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
+                                {t('budget_projection')}
+                            </p>
+                            <p className={`text-sm font-black ${projectedPct > 100 ? 'text-red-500' : 'text-violet-600 dark:text-violet-400'}`}>
+                                {projectedPct}%
+                            </p>
+                        </div>
+                        {/* Alert threshold */}
+                        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-2.5 text-center">
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
+                                <Bell size={8} className="inline mr-0.5" />{t('alert_label')}
+                            </p>
+                            <p className="text-sm font-black text-amber-600 dark:text-amber-400">
+                                {budget.notification_threshold || 80}%
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Projection bar */}
+                    {spent > 0 && (
+                        <div className="mb-3">
+                            <div className="flex justify-between text-[10px] text-gray-400 mb-1">
+                                <span className="font-medium">{t('budget_projection')}</span>
+                                <span className={`font-bold ${projectedPct > 100 ? 'text-red-500' : 'text-emerald-500'}`}>
+                                    {projectedPct > 100 ? t('budget_proj_over') : t('budget_proj_on_track')} ({projectedPct}%)
+                                </span>
+                            </div>
+                            <div className="w-full h-1.5 bg-gray-100 dark:bg-white/[0.07] rounded-full overflow-hidden">
+                                <div
+                                    className="h-full rounded-full transition-all duration-700 opacity-60"
+                                    style={{
+                                        width: `${Math.min(100, projectedPct)}%`,
+                                        backgroundColor: projectedPct > 100 ? '#ef4444' : '#8b5cf6'
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => onEdit(budget)}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors active:scale-95"
+                        >
+                            <Pencil size={13} /> {t('edit')}
+                        </button>
+                        <button
+                            onClick={() => onDelete(budget)}
+                            className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors active:scale-95"
+                        >
+                            <Trash2 size={13} />
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+/* ══════════════════════════════════════════════════════════
+   MAIN VIEW
+══════════════════════════════════════════════════════════ */
 const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
     const { t, privacyMode } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
@@ -112,16 +296,13 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
         };
         try {
             if (editingBudget) {
-                // Optimistic update
                 const optimisticBudget = { ...editingBudget, ...payload };
                 setBudgets(prev => prev.map(b => b.id === editingBudget.id ? optimisticBudget : b));
                 closeModal();
-
                 const { error } = await supabase.from('budgets')
                     .update(payload)
                     .eq('id', editingBudget.id);
                 if (error) {
-                    // Rollback
                     setBudgets(prev => prev.map(b => b.id === editingBudget.id ? editingBudget : b));
                     throw error;
                 }
@@ -130,7 +311,6 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                     .insert({ ...payload, user_id: user.id })
                     .select().single();
                 if (error) throw error;
-                // Optimistic add
                 setBudgets(prev => [...prev, data]);
                 closeModal();
             }
@@ -145,13 +325,11 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
     const confirmDelete = async () => {
         if (!deletingBudget) return;
         const budgetToDelete = deletingBudget;
-        // Optimistic remove
         setBudgets(prev => prev.filter(b => b.id !== budgetToDelete.id));
         setDeletingBudget(null);
         try {
             const { error } = await supabase.from('budgets').delete().eq('id', budgetToDelete.id);
             if (error) {
-                // Rollback
                 setBudgets(prev => [...prev, budgetToDelete]);
                 throw error;
             }
@@ -160,7 +338,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
         }
     };
 
-    const calculateSpent = (category) => {
+    const calculateSpent = useCallback((category) => {
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
@@ -175,28 +353,69 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                 );
             })
             .reduce((acc, t) => acc + t.amount, 0);
-    };
+    }, [transactions]);
 
-    const getStatusColor = (pct) => {
-        if (pct >= 100) return { bar: '#ef4444', badge: 'bg-red-500/15 text-red-500', ring: 'ring-red-500/30' };
-        if (pct >= 80) return { bar: '#f97316', badge: 'bg-orange-500/15 text-orange-500', ring: 'ring-orange-500/30' };
-        return { bar: '#10b981', badge: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400', ring: 'ring-emerald-500/30' };
-    };
-
-    // ── Summary stats ──────────────────────────────────────────────────
+    /* ── Summary stats ── */
     const totalLimit = budgets.reduce((s, b) => s + b.amount, 0);
-    const totalSpent = budgets.reduce((s, b) => s + calculateSpent(b.category), 0);
+    const totalSpent = useMemo(() => budgets.reduce((s, b) => s + calculateSpent(b.category), 0), [budgets, calculateSpent]);
     const totalPct = totalLimit > 0 ? Math.min(100, (totalSpent / totalLimit) * 100) : 0;
-    const overCount = budgets.filter(b => calculateSpent(b.category) > b.amount).length;
+    const overCount = useMemo(() => budgets.filter(b => calculateSpent(b.category) > b.amount).length, [budgets, calculateSpent]);
     const remaining = Math.max(0, totalLimit - totalSpent);
+
+    /* ── Days left in month ── */
+    const daysLeft = useMemo(() => {
+        const now = new Date();
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        return lastDay - now.getDate();
+    }, []);
+
+    /* ── Daily pace & projection ── */
+    const paceInfo = useMemo(() => {
+        if (totalSpent === 0) return null;
+        const now = new Date();
+        const daysPassed = now.getDate();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const dailyRate = totalSpent / daysPassed;
+        const projectedTotal = dailyRate * daysInMonth;
+        const projectedPct = totalLimit > 0 ? Math.round((projectedTotal / totalLimit) * 100) : 0;
+        return {
+            dailyRate: Math.round(dailyRate * 10) / 10,
+            projectedPct,
+            isGood: projectedPct <= 100,
+            isWarn: projectedPct > 100 && projectedPct <= 130,
+            isOver: projectedPct > 130,
+        };
+    }, [totalSpent, totalLimit]);
+
+    /* ── Smart tips ── */
+    const tips = useMemo(() => {
+        const list = [];
+        budgets.forEach(b => {
+            const sp = calculateSpent(b.category);
+            const pct = b.amount > 0 ? Math.round((sp / b.amount) * 100) : 0;
+            const catName = getCategoryTranslation(b.category);
+            if (pct > 100) {
+                list.push({ icon: Flame, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20', text: t('budget_tip_over').replace('{category}', catName).replace('{pct}', pct - 100) });
+            } else if (pct >= 75) {
+                list.push({ icon: AlertCircle, color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-900/20', text: t('budget_tip_close').replace('{category}', catName).replace('{pct}', pct).replace('{days}', daysLeft) });
+            } else if (pct < 30 && pct > 0) {
+                list.push({ icon: TrendingDown, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: t('budget_tip_great').replace('{category}', catName).replace('{pct}', pct) });
+            }
+        });
+        return list.slice(0, 3);
+    }, [budgets, calculateSpent, daysLeft, t, getCategoryTranslation]);
+
+    /* ── Status label ── */
+    const statusLabel = totalPct >= 100 ? t('budget_critical') : totalPct >= 80 ? t('budget_caution') : t('budget_on_track');
+    const statusColor = totalPct >= 100 ? 'text-red-300' : totalPct >= 80 ? 'text-orange-300' : 'text-emerald-300';
 
     return (
         <div className="flex flex-col h-full bg-gray-50 dark:bg-surface-dark animate-fade-in transition-colors duration-300">
 
             {/* ── Sticky Header ── */}
             <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
-                            ${hideHeader 
-                                ? 'bg-transparent border-none px-5 pt-4 pb-2' 
+                            ${hideHeader
+                                ? 'bg-transparent border-none px-5 pt-4 pb-2'
                                 : 'bg-white dark:bg-surface-dark px-5 pt-12 pb-4 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
             >
                 <div className="flex items-center justify-between min-h-[40px] gap-4 relative">
@@ -230,102 +449,138 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
             </div>
 
             {/* ── Scrollable Content ── */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto pb-28">
 
                 {budgets.length > 0 && (
                     <>
-                        {/* ── Hero Summary Card ── */}
+                        {/* ═══ SECTION A: Hero — Circular Gauge ═══ */}
                         <div className="px-5 pt-5">
                             <div className="relative bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-5 text-white overflow-hidden shadow-xl shadow-indigo-500/20">
                                 {/* Decorative orbs */}
-                                <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-                                <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-violet-900/30 rounded-full blur-2xl" />
+                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
+                                <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-violet-900/30 rounded-full blur-xl" />
 
                                 <div className="relative">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <p className="text-indigo-200 text-xs font-medium mb-1 flex items-center gap-1.5">
-                                                <Wallet size={11} /> {t('monthly_expenses')}
-                                            </p>
-                                            <p className="text-4xl font-extrabold tracking-tight">
-                                                <Amount value={totalSpent} />
-                                            </p>
-                                            <p className="text-indigo-200 text-xs mt-1">
-                                                {t('of_total_limit').replace('{totalLimit}', '')} <Amount value={totalLimit} minimumFractionDigits={0} />
-                                            </p>
+                                    {/* Top row: gauge left + main spend right */}
+                                    <div className="flex items-center gap-4 mb-4">
+                                        {/* Circular gauge */}
+                                        <div className="relative flex-shrink-0 w-[110px] h-[110px]">
+                                            <CircularGauge pct={totalPct} />
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                <span className="text-2xl font-black leading-none">{Math.round(totalPct)}%</span>
+                                                <span className="text-[9px] text-indigo-200 font-bold uppercase tracking-wide mt-0.5">{t('budget_used')}</span>
+                                            </div>
                                         </div>
-                                        <div className="text-right">
-                                            <span className={`text-xl font-bold px-3.5 py-1.5 rounded-2xl ${totalPct >= 100 ? 'bg-red-500/30 text-red-200' : totalPct >= 80 ? 'bg-orange-400/30 text-orange-200' : 'bg-white/20'}`}>
-                                                {totalPct.toFixed(0)}%
+
+                                        {/* Main spend info */}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-indigo-200 text-[10px] font-bold uppercase tracking-widest mb-1">{t('monthly_expenses')}</p>
+                                            <p className="text-3xl font-black leading-none truncate"><Amount value={totalSpent} /></p>
+                                            <p className="text-indigo-200 text-xs mt-1">{t('of_total_limit')} <Amount value={totalLimit} /></p>
+                                            <span className={`inline-block text-[11px] font-bold mt-2 px-2.5 py-0.5 rounded-full bg-white/10 ${statusColor}`}>
+                                                {statusLabel}
                                             </span>
-                                            {overCount > 0 && (
-                                                <p className="text-red-300 text-xs mt-1.5 flex items-center gap-1 justify-end">
-                                                    <AlertCircle size={10} /> {overCount} {t('over_budget_short')}
-                                                </p>
-                                            )}
                                         </div>
                                     </div>
 
-                                    {/* Progress */}
-                                    <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden mb-3">
-                                        <div
-                                            className="h-full rounded-full transition-all duration-700"
-                                            style={{
-                                                width: `${totalPct}%`,
-                                                background: totalPct >= 100 ? '#f87171' : totalPct >= 80 ? '#fb923c' : '#34d399'
-                                            }}
-                                        />
-                                    </div>
+                                    {/* Divider */}
+                                    <div className="border-t border-white/10 mb-3" />
 
-                                    {/* Stats row */}
-                                    <div className="flex gap-3 mt-4">
-                                        <div className="flex-1 bg-white/10 rounded-2xl py-2 px-3 text-center">
-                                            <p className="text-indigo-200 text-[10px] font-medium">{t('remaining_short')}</p>
-                                            <p className="text-white font-bold text-sm"><Amount value={remaining} maximumFractionDigits={0} /></p>
+                                    {/* Bottom stats row */}
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="bg-white/10 rounded-xl py-2.5 px-3">
+                                            <p className="text-indigo-200 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('remaining_short')}</p>
+                                            <p className="text-white font-black text-base"><Amount value={remaining} maximumFractionDigits={0} /></p>
                                         </div>
-                                        <div className="flex-1 bg-white/10 rounded-2xl py-2 px-3 text-center">
-                                            <p className="text-indigo-200 text-[10px] font-medium">{t('categories')}</p>
-                                            <p className="text-white font-bold text-sm">{budgets.length}</p>
-                                        </div>
-                                        <div className="flex-1 bg-white/10 rounded-2xl py-2 px-3 text-center">
-                                            <p className="text-indigo-200 text-[10px] font-medium">{t('over_budget_short')}</p>
-                                            <p className={`font-bold text-sm ${overCount > 0 ? 'text-red-300' : 'text-emerald-300'}`}>{overCount}</p>
+                                        <div className="bg-white/10 rounded-xl py-2.5 px-3">
+                                            <p className="text-indigo-200 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('over_budget_short')}</p>
+                                            <p className={`font-black text-base ${overCount > 0 ? 'text-red-300' : 'text-emerald-300'}`}>
+                                                {overCount > 0
+                                                    ? <span className="flex items-center gap-1"><AlertCircle size={13} />{overCount}</span>
+                                                    : '—'
+                                                }
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* ── Category Chips ── */}
+                        {/* ═══ SECTION B: Spending Velocity ═══ */}
+                        {paceInfo && (
+                            <div className="px-5 mt-4">
+                                <div className={`rounded-2xl p-4 border flex items-center gap-3 ${
+                                    paceInfo.isOver
+                                        ? 'bg-red-50 dark:bg-red-900/15 border-red-100 dark:border-red-900/30'
+                                        : paceInfo.isWarn
+                                            ? 'bg-orange-50 dark:bg-orange-900/15 border-orange-100 dark:border-orange-900/30'
+                                            : 'bg-emerald-50 dark:bg-emerald-900/15 border-emerald-100 dark:border-emerald-900/30'
+                                }`}>
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                        paceInfo.isOver ? 'bg-red-500' : paceInfo.isWarn ? 'bg-orange-500' : 'bg-emerald-500'
+                                    }`}>
+                                        {paceInfo.isOver
+                                            ? <TrendingUp size={18} className="text-white" />
+                                            : paceInfo.isWarn
+                                                ? <Zap size={18} className="text-white" />
+                                                : <TrendingDown size={18} className="text-white" />}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${
+                                            paceInfo.isOver ? 'text-red-500' : paceInfo.isWarn ? 'text-orange-500' : 'text-emerald-600 dark:text-emerald-400'
+                                        }`}>{t('budget_daily_pace_title')}</p>
+                                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 leading-snug">
+                                            {paceInfo.isOver
+                                                ? t('budget_daily_pace_over').replace('{amount}', paceInfo.dailyRate).replace('{pct}', paceInfo.projectedPct - 100)
+                                                : paceInfo.isWarn
+                                                    ? t('budget_daily_pace_warn').replace('{amount}', paceInfo.dailyRate).replace('{pct}', paceInfo.projectedPct)
+                                                    : t('budget_daily_pace_good').replace('{amount}', paceInfo.dailyRate).replace('{pct}', 100 - paceInfo.projectedPct)
+                                            }
+                                        </p>
+                                    </div>
+                                    <div className={`text-right flex-shrink-0 text-xs font-black ${
+                                        paceInfo.isOver ? 'text-red-500' : paceInfo.isWarn ? 'text-orange-500' : 'text-emerald-600 dark:text-emerald-400'
+                                    }`}>
+                                        {paceInfo.projectedPct}%<br />
+                                        <span className="text-[10px] font-medium text-gray-400">{t('budget_projection')}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ═══ SECTION C: Category horizontal chips ═══ */}
                         <div className="relative mt-4">
                             <div className="px-5 flex gap-2 overflow-x-auto pb-1 scrollbar-hide pr-10">
                                 {budgets.map(b => {
                                     const sp = calculateSpent(b.category);
-                                    const pct = Math.min(100, (sp / b.amount) * 100);
+                                    const pct = b.amount > 0 ? Math.min(100, (sp / b.amount) * 100) : 0;
                                     const { icon: Icon } = CATEGORY_META[b.category] || { icon: Package };
-                                    const { badge } = getStatusColor(pct);
+                                    const badgeCls = pct >= 100
+                                        ? 'bg-red-500/15 text-red-500 ring-red-200 dark:ring-red-800/40'
+                                        : pct >= 80
+                                            ? 'bg-orange-500/15 text-orange-500 ring-orange-200 dark:ring-orange-800/40'
+                                            : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-emerald-200 dark:ring-emerald-800/40';
                                     return (
-                                        <button
+                                        <div
                                             key={b.id}
-                                            onClick={() => openEditModal(b)}
-                                            className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 ring-inset ${badge} transition-all active:scale-95`}
+                                            className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 ring-inset ${badgeCls}`}
                                         >
-                                            <Icon size={12} />
-                                            <span>{b.category}</span>
+                                            <Icon size={11} />
+                                            <span>{getCategoryTranslation(b.category)}</span>
                                             <span className="opacity-70">{pct.toFixed(0)}%</span>
-                                        </button>
+                                        </div>
                                     );
                                 })}
                             </div>
-                            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-gray-50 dark:from-surface-dark to-transparent pointer-events-none flex items-center justify-end pr-2 pb-1">
+                            <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-gray-50 dark:from-surface-dark to-transparent pointer-events-none flex items-center justify-end pr-2 pb-1">
                                 <ChevronRight size={14} className="text-gray-400 dark:text-gray-500 animate-pulse" />
                             </div>
                         </div>
                     </>
                 )}
 
-                {/* ── Budget Cards ── */}
-                <div className="px-5 py-5 space-y-3 pb-8">
+                {/* ═══ SECTION D: Budget Rows ═══ */}
+                <div className="px-5 py-4 space-y-2.5">
                     {isLoading ? (
                         <div className="flex justify-center py-20">
                             <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -347,102 +602,54 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                             </button>
                         </div>
                     ) : (
-                        <div className="space-y-3 stagger-children">
+                        <div className="space-y-2.5">
                             {budgets.map((budget, idx) => {
                                 const spent = calculateSpent(budget.category);
-                                const percentage = Math.min(100, (spent / budget.amount) * 100);
-                                const isOver = spent > budget.amount;
-                                const { bar, badge, ring } = getStatusColor(percentage);
-                                const meta = CATEGORY_META[budget.category] || { emoji: '📦', color: 'from-gray-500 to-slate-600' };
-                                const leftover = Math.max(0, budget.amount - spent);
-
                                 return (
-                                    <div
-                                        key={budget.id}
-                                        className={`bg-white dark:bg-surface-dark rounded-2xl overflow-hidden shadow-sm ring-1 ring-inset ${ring} transition-all duration-300`}
-                                        style={{ animationDelay: `${idx * 60}ms` }}
-                                    >
-                                        {/* Colored top stripe */}
-                                        <div className={`h-1 w-full bg-gradient-to-r ${meta.color}`} />
-
-                                        <div className="p-4">
-                                            {/* Top row */}
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${meta.color} flex items-center justify-center shadow-sm`}>
-                                                        {meta.icon && <meta.icon size={20} className="text-white" />}
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="font-bold text-gray-900 dark:text-white text-sm">{getCategoryTranslation(budget.category)}</h3>
-                                                        <p className="text-xs text-gray-400 dark:text-gray-500">{t('monthly_limit')}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${badge}`}>
-                                                        {percentage.toFixed(0)}%
-                                                    </span>
-                                                    {isOver && (
-                                                        <p className="text-[10px] text-red-500 mt-1 font-semibold">{t('over_budget_exclamation')}</p>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Progress bar */}
-                                            <div className="w-full h-1.5 bg-gray-100 dark:bg-white/8 rounded-full overflow-hidden mb-3">
-                                                <div
-                                                    className="h-full rounded-full transition-all duration-700"
-                                                    style={{ width: `${percentage}%`, backgroundColor: bar }}
-                                                />
-                                            </div>
-
-                                            {/* Amounts */}
-                                            <div className="flex justify-between items-center text-xs font-semibold mb-3">
-                                                <span className="text-gray-600 dark:text-gray-300"><Amount value={spent} /> <span className="text-gray-400 font-normal">{t('spent')}</span></span>
-                                                <span className="text-gray-400">{t('limit')} <span className="text-gray-600 dark:text-white/90 font-bold"><Amount value={budget.amount} /></span></span>
-                                            </div>
-
-                                            {/* Notification + remaining row */}
-                                            <div className="flex items-center justify-between mb-3">
-                                                {budget.notification_threshold && (
-                                                    <div className="flex items-center gap-1 text-[10px] text-gray-400 bg-gray-50 dark:bg-white/5 rounded-lg px-2 py-1">
-                                                        <Bell size={9} />
-                                                        <span>{t('alert_at').replace('{pct}', budget.notification_threshold)}</span>
-                                                    </div>
-                                                )}
-                                                <div className={`ml-auto text-[10px] font-semibold px-2 py-1 rounded-lg ${isOver ? 'bg-red-50 dark:bg-red-900/20 text-red-500' : 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'}`}>
-                                                    {isOver ? (
-                                                        <>{t('over_amount').replace('{amount}', '')} <Amount value={spent - budget.amount} /></>
-                                                    ) : (
-                                                        <>{t('remaining_amount_budget').replace('{amount}', '')} <Amount value={leftover} /></>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Action Row */}
-                                            <div className="flex gap-2 pt-3 border-t border-gray-50 dark:border-transparent">
-                                                <button
-                                                    onClick={() => openEditModal(budget)}
-                                                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors active:scale-95"
-                                                >
-                                                    <Pencil size={12} /> {t('edit')}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(budget)}
-                                                    className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors active:scale-95"
-                                                >
-                                                    <Trash2 size={12} />
-                                                </button>
-                                            </div>
-                                        </div>
+                                    <div key={budget.id} style={{ animationDelay: `${idx * 50}ms` }} className="animate-fade-in">
+                                        <BudgetRow
+                                            budget={budget}
+                                            spent={spent}
+                                            onEdit={openEditModal}
+                                            onDelete={handleDelete}
+                                            t={t}
+                                            getCategoryTranslation={getCategoryTranslation}
+                                            daysLeft={daysLeft}
+                                        />
                                     </div>
                                 );
                             })}
                         </div>
                     )}
                 </div>
+
+                {/* ═══ SECTION E: Smart Tips ═══ */}
+                {tips.length > 0 && (
+                    <div className="px-5 pb-5">
+                        <div className="bg-white dark:bg-surface-dark3 rounded-2xl p-4 border border-gray-100 dark:border-transparent shadow-sm">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="w-7 h-7 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                                    <Lightbulb size={14} className="text-amber-600 dark:text-amber-400" />
+                                </span>
+                                <h3 className="text-sm font-bold text-gray-900 dark:text-white">{t('budget_tips_title')}</h3>
+                            </div>
+                            <div className="space-y-2">
+                                {tips.map((tip, i) => {
+                                    const TipIcon = tip.icon;
+                                    return (
+                                        <div key={i} className={`${tip.bg} rounded-xl px-3 py-2.5 flex items-center gap-2.5`}>
+                                            <TipIcon size={14} className={`flex-shrink-0 ${tip.color}`} />
+                                            <p className="text-xs font-medium text-gray-700 dark:text-gray-300 leading-snug">{tip.text}</p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* ── Add / Edit Modal — rendered via portal so it escapes overflow:hidden ── */}
+            {/* ── Add / Edit Modal — rendered via portal ── */}
             {showModal && createPortal(
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-5 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={closeModal} />
