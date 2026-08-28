@@ -1,15 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import {
-    ArrowLeft, Trash2, RefreshCw, MessageSquare, Lightbulb, Bug, Search,
-    User, Calendar, ChevronRight, Filter, Plus, X, Shield, Zap,
-    CheckCircle2, Star, HardDriveDownload, Sparkles, Send, LayoutDashboard, Users, Radio, Activity, TrendingUp, Award, Clock,
-    MoreVertical, ExternalLink, Mail, Copy, FileText, Smartphone, Monitor, MapPin, ChevronLeft
+    ArrowLeft, RefreshCw, Search, X,
+    LayoutDashboard, Users, MessageSquare, Radio,
+    Filter, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
 import { useSettings } from '../contexts/SettingsContext';
 import ConfirmationModal from '../components/ConfirmationModal';
 
+// Sub-components
+import AdminOverview from '../components/admin/AdminOverview';
+import AdminUsersList from '../components/admin/AdminUsersList';
+import AdminUserDetail from '../components/admin/AdminUserDetail';
+import AdminFeedback from '../components/admin/AdminFeedback';
+import AdminUpdates from '../components/admin/AdminUpdates';
+import AdminBroadcast from '../components/admin/AdminBroadcast';
+
+/* ─── Desktop Sidebar Tab ─── */
+const SidebarTab = ({ tab, isActive, onClick }) => {
+    const Icon = tab.icon;
+    return (
+        <button
+            onClick={onClick}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all duration-200 group
+                ${isActive
+                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
+                    : 'text-gray-500 dark:text-white/50 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white'}`}
+        >
+            <Icon size={17} className={isActive ? 'text-white' : 'text-gray-400 group-hover:text-violet-500 transition-colors'} />
+            <span className="text-[13px] font-bold">{tab.label}</span>
+            {isActive && <ChevronRight size={14} className="ml-auto text-white/60" />}
+        </button>
+    );
+};
+
+/* ─── Main AdminView Component ─── */
 const AdminView = ({ onBack, hideHeader }) => {
     const [activeSection, setActiveSection] = useState('overview');
     const [loading, setLoading] = useState(true);
@@ -50,9 +76,7 @@ const AdminView = ({ onBack, hideHeader }) => {
     const [editingNotes, setEditingNotes] = useState('');
     const [isSavingNotes, setIsSavingNotes] = useState(false);
 
-    // Users State & Filters
-    const [userSearchTerm, setUserSearchTerm] = useState('');
-    const [userFilter, setUserFilter] = useState('all'); // 'all', 'pro', 'free'
+    // User Detail State
     const [selectedProfile, setSelectedProfile] = useState(null);
     const [profileStats, setProfileStats] = useState({ transactions: 0, budgets: 0, goals: 0 });
     const [profileSessions, setProfileSessions] = useState([]);
@@ -61,6 +85,7 @@ const AdminView = ({ onBack, hideHeader }) => {
     const { showToast } = useToast();
     const { t: translate } = useSettings();
 
+    /* ─── Data Fetching ─── */
     const fetchAllData = async () => {
         setLoading(true);
         try {
@@ -82,7 +107,6 @@ const AdminView = ({ onBack, hideHeader }) => {
                 console.error('Invoke error:', profInvokeError);
                 showToast(`Function error: ${profInvokeError.message}`, 'error');
             }
-
             if (profRes?.error) {
                 console.error('Admin API error:', profRes.error);
                 showToast(`Admin API: ${profRes.error}`, 'error');
@@ -94,8 +118,7 @@ const AdminView = ({ onBack, hideHeader }) => {
             setFeedback(fbData || []);
             setUpdates(upData || []);
             setSessions(sessData || []);
-            
-            // Create a set of all unique user IDs from both profiles and sessions
+
             const allUserIds = new Set([
                 ...(profData || []).map(p => p.id),
                 ...(sessData || []).map(s => s.user_id)
@@ -111,7 +134,6 @@ const AdminView = ({ onBack, hideHeader }) => {
             const enhancedProfiles = Array.from(allUserIds).map((uid, index) => {
                 const profile = (profData || []).find(p => p.id === uid);
                 const latestSession = latestSessionsMap[uid];
-                
                 return {
                     id: uid,
                     email: profile?.email || latestSession?.email || 'Unknown',
@@ -119,15 +141,15 @@ const AdminView = ({ onBack, hideHeader }) => {
                     subscription_status: profile?.subscription_status || 'free',
                     stripe_customer_id: profile?.stripe_customer_id || null,
                     admin_notes: profile?.admin_notes || null,
+                    created_at: profile?.created_at || null,
+                    last_sign_in_at: profile?.last_sign_in_at || null,
                     displayId: index + 1,
                     latest_session: latestSession || null,
-                    is_virtual: !profile 
+                    is_virtual: !profile
                 };
             });
-            
-            setProfiles(enhancedProfiles);
 
-            // Update selected profile if currently viewing one
+            setProfiles(enhancedProfiles);
             setSelectedProfile(prev => {
                 if (!prev) return null;
                 const updated = enhancedProfiles.find(p => p.id === prev.id);
@@ -142,14 +164,13 @@ const AdminView = ({ onBack, hideHeader }) => {
                 activity: sessData?.length || 0
             });
 
-            // Calculate extra metrics
-            const proUsers = enhancedProfiles.filter(p => p.subscription_status === 'pro').length;
-            const freeUsers = enhancedProfiles.filter(p => p.subscription_status === 'free').length;
-            const canceledUsers = enhancedProfiles.filter(p => p.subscription_status === 'canceled' || p.subscription_status === 'cancelled').length;
-
             const now = new Date();
             const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+            const proUsers = enhancedProfiles.filter(p => p.subscription_status === 'pro').length;
+            const freeUsers = enhancedProfiles.filter(p => p.subscription_status === 'free').length;
+            const canceledUsers = enhancedProfiles.filter(p => p.subscription_status === 'canceled' || p.subscription_status === 'cancelled').length;
 
             const active7Days = enhancedProfiles.filter(p => {
                 const session = latestSessionsMap[p.id];
@@ -167,22 +188,12 @@ const AdminView = ({ onBack, hideHeader }) => {
             }, {});
 
             const mostActiveUsers = enhancedProfiles
-                .map(p => ({
-                    ...p,
-                    sessionCount: sessionCounts[p.id] || 0
-                }))
+                .map(p => ({ ...p, sessionCount: sessionCounts[p.id] || 0 }))
                 .filter(p => p.sessionCount > 0)
                 .sort((a, b) => b.sessionCount - a.sessionCount)
                 .slice(0, 5);
 
-            setMetrics({
-                proUsers,
-                freeUsers,
-                canceledUsers,
-                active7Days,
-                active30Days,
-                mostActiveUsers
-            });
+            setMetrics({ proUsers, freeUsers, canceledUsers, active7Days, active30Days, mostActiveUsers });
 
         } catch (error) {
             console.error('Fetch error:', error);
@@ -192,14 +203,10 @@ const AdminView = ({ onBack, hideHeader }) => {
         }
     };
 
-    useEffect(() => {
-        fetchAllData();
-    }, []);
+    useEffect(() => { fetchAllData(); }, []);
 
-    const handleDeleteClick = (id) => {
-        setItemToDelete(id);
-        setShowDeleteModal(true);
-    };
+    /* ─── Handlers ─── */
+    const handleDeleteClick = (id) => { setItemToDelete(id); setShowDeleteModal(true); };
 
     const confirmDelete = async () => {
         if (!itemToDelete) return;
@@ -209,7 +216,6 @@ const AdminView = ({ onBack, hideHeader }) => {
             setFeedback(prev => prev.filter(f => f.id !== itemToDelete));
             showToast('Feedback deleted', 'success');
         } catch (error) {
-            console.error('Delete error:', error);
             showToast('Failed to delete', 'error');
         } finally {
             setShowDeleteModal(false);
@@ -217,33 +223,24 @@ const AdminView = ({ onBack, hideHeader }) => {
         }
     };
 
-    const handleSubClick = (profile, status) => {
-        setSubTarget({ profile, status });
-        setShowSubModal(true);
-    };
+    const handleSubClick = (profile, status) => { setSubTarget({ profile, status }); setShowSubModal(true); };
 
     const confirmSubscriptionChange = async () => {
         if (!subTarget) return;
         const { profile, status } = subTarget;
-        
-        // Optimistic update
-        setProfiles(prev => prev.map(p => 
-            p.id === profile.id ? { ...p, subscription_status: status } : p
-        ));
-        if (selectedProfile && selectedProfile.id === profile.id) {
+        setProfiles(prev => prev.map(p => p.id === profile.id ? { ...p, subscription_status: status } : p));
+        if (selectedProfile?.id === profile.id) {
             setSelectedProfile(prev => ({ ...prev, subscription_status: status }));
         }
-
         try {
             const { error } = await supabase.functions.invoke('admin-manage-subscription', {
                 body: { targetUserId: profile.id, status }
             });
             if (error) throw error;
             showToast(`User updated to ${status.toUpperCase()}`, 'success');
-            await fetchAllData(); // refresh list to ensure consistency
+            await fetchAllData();
         } catch (err) {
             showToast(`Error: ${err.message}`, 'error');
-            // Rollback on error
             fetchAllData();
         } finally {
             setShowSubModal(false);
@@ -251,16 +248,19 @@ const AdminView = ({ onBack, hideHeader }) => {
         }
     };
 
-    const handleSaveNotes = async () => {
-        if (!notesTarget) return;
+    const handleSaveNotes = async (userId, notesText) => {
         setIsSavingNotes(true);
         try {
             const { error } = await supabase.functions.invoke('admin-update-notes', {
-                body: { targetUserId: notesTarget.id, notes: editingNotes }
+                body: { targetUserId: userId, notes: notesText }
             });
             if (error) throw error;
-            showToast(translate('notes_saved') || 'Οι σημειώσεις αποθηκεύτηκαν', 'success');
-            fetchAllData();
+            showToast(translate('notes_saved') || 'Notes saved', 'success');
+            setProfiles(prev => prev.map(p => p.id === userId ? { ...p, admin_notes: notesText } : p));
+            if (selectedProfile?.id === userId) {
+                setSelectedProfile(prev => ({ ...prev, admin_notes: notesText }));
+            }
+            // Legacy modal support
             setShowNotesModal(false);
         } catch (err) {
             showToast(`Error: ${err.message}`, 'error');
@@ -269,10 +269,12 @@ const AdminView = ({ onBack, hideHeader }) => {
         }
     };
 
-    const handleDeleteUpdateClick = (update) => {
-        setUpdateToDelete(update);
-        setShowUpdateDeleteModal(true);
+    const handleSaveNotesModal = async () => {
+        if (!notesTarget) return;
+        await handleSaveNotes(notesTarget.id, editingNotes);
     };
+
+    const handleDeleteUpdateClick = (update) => { setUpdateToDelete(update); setShowUpdateDeleteModal(true); };
 
     const confirmDeleteUpdate = async () => {
         if (!updateToDelete) return;
@@ -282,7 +284,6 @@ const AdminView = ({ onBack, hideHeader }) => {
             showToast('Update deleted', 'success');
             fetchAllData();
         } catch (error) {
-            console.error('Delete error:', error);
             showToast('Failed to delete update', 'error');
         } finally {
             setShowUpdateDeleteModal(false);
@@ -292,6 +293,7 @@ const AdminView = ({ onBack, hideHeader }) => {
 
     const handleProfileClick = async (profile) => {
         setSelectedProfile(profile);
+        setActiveSection('users');
         setLoadingProfileData(true);
         try {
             const [
@@ -305,12 +307,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                 supabase.from('goals').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
                 supabase.from('sessions').select('*').eq('user_id', profile.id).order('last_active', { ascending: false })
             ]);
-
-            setProfileStats({
-                transactions: tCount || 0,
-                budgets: bCount || 0,
-                goals: gCount || 0
-            });
+            setProfileStats({ transactions: tCount || 0, budgets: bCount || 0, goals: gCount || 0 });
             setProfileSessions(sData || []);
         } catch (err) {
             console.error('Error fetching profile data:', err);
@@ -319,23 +316,68 @@ const AdminView = ({ onBack, hideHeader }) => {
         }
     };
 
+    const handleDropdownAction = (action, profile) => {
+        if (action === 'stripe') {
+            if (profile.stripe_customer_id) {
+                window.open(`https://dashboard.stripe.com/customers/${profile.stripe_customer_id}`, '_blank');
+            } else {
+                window.open(`https://dashboard.stripe.com/search?query=${encodeURIComponent(profile.email)}`, '_blank');
+            }
+        } else if (action === 'copyId') {
+            navigator.clipboard.writeText(profile.id);
+            showToast(translate('copied') || 'Copied!', 'success');
+        } else if (action === 'notes') {
+            setNotesTarget(profile);
+            setEditingNotes(profile.admin_notes || '');
+            setShowNotesModal(true);
+        }
+    };
+
     const addFeature = () => {
-        setNewUpdate({
-            ...newUpdate,
-            features: [...newUpdate.features, { icon: 'star', title_el: '', title_en: '', desc_el: '', desc_en: '', bg: 'bg-violet-50 dark:bg-violet-500/10', color: 'text-violet-500' }]
-        });
+        setNewUpdate({ ...newUpdate, features: [...newUpdate.features, { icon: 'star', title_el: '', title_en: '', desc_el: '', desc_en: '', bg: 'bg-violet-50 dark:bg-violet-500/10', color: 'text-violet-500' }] });
     };
-
     const removeFeature = (index) => {
-        const updatedFeatures = [...newUpdate.features];
-        updatedFeatures.splice(index, 1);
-        setNewUpdate({ ...newUpdate, features: updatedFeatures });
+        const updated = [...newUpdate.features];
+        updated.splice(index, 1);
+        setNewUpdate({ ...newUpdate, features: updated });
+    };
+    const updateFeature = (index, field, value) => {
+        const updated = [...newUpdate.features];
+        updated[index][field] = value;
+        setNewUpdate({ ...newUpdate, features: updated });
     };
 
-    const updateFeature = (index, field, value) => {
-        const updatedFeatures = [...newUpdate.features];
-        updatedFeatures[index][field] = value;
-        setNewUpdate({ ...newUpdate, features: updatedFeatures });
+    const handlePublishUpdate = async () => {
+        if (!newUpdate.version) return showToast(translate('admin_version_required'), 'error');
+        try {
+            const { error } = await supabase.from('app_updates').insert([newUpdate]);
+            if (error) throw error;
+            showToast(translate('admin_update_published'), 'success');
+            setShowUpdateModal(false);
+            setNewUpdate(initialUpdateState);
+            fetchAllData();
+        } catch (e) {
+            showToast(translate('admin_update_error') + e.message, 'error');
+        }
+    };
+
+    const handleSendBroadcast = async () => {
+        if (!broadcastTitle.trim() || !broadcastMessage.trim()) {
+            return showToast(translate('admin_broadcast_fill_fields'), 'error');
+        }
+        try {
+            const { error } = await supabase.from('broadcasts').insert([{
+                title: broadcastTitle.trim(),
+                message: broadcastMessage.trim(),
+                created_at: new Date().toISOString()
+            }]);
+            if (error) throw error;
+            showToast(translate('admin_broadcast_success'), 'success');
+            setBroadcastTitle('');
+            setBroadcastMessage('');
+        } catch (e) {
+            showToast('Αποτυχία αποστολής: ' + e.message, 'error');
+        }
     };
 
     const filteredFeedback = feedback.filter(f => {
@@ -345,82 +387,163 @@ const AdminView = ({ onBack, hideHeader }) => {
         return matchesFilter && matchesSearch;
     });
 
-    const filteredProfiles = profiles.filter(p => {
-        const matchesFilter = userFilter === 'all' || p.subscription_status === userFilter;
-        const matchesSearch = (p.email || '').toLowerCase().includes(userSearchTerm.toLowerCase()) ||
-            (p.display_name || '').toLowerCase().includes(userSearchTerm.toLowerCase());
-        return matchesFilter && matchesSearch;
-    });
-
-    const getTypeIcon = (type) => {
-        switch (type) {
-            case 'idea': return <Lightbulb size={16} className="text-amber-500" />;
-            case 'bug': return <Bug size={16} className="text-rose-500" />;
-            default: return <MessageSquare size={16} className="text-blue-500" />;
-        }
-    };
-
-    const getTypeBg = (type) => {
-        switch (type) {
-            case 'idea': return 'bg-amber-50 dark:bg-amber-500/10';
-            case 'bug': return 'bg-rose-50 dark:bg-rose-500/10';
-            default: return 'bg-blue-50 dark:bg-blue-500/10';
-        }
-    };
-
-    const iconOptions = [
-        { id: 'star', component: Star },
-        { id: 'shield', component: Shield },
-        { id: 'zap', component: Zap },
-        { id: 'check', component: CheckCircle2 },
-        { id: 'download', component: HardDriveDownload },
-        { id: 'sparkles', component: Sparkles }
-    ];
-
     const tabs = [
-        { id: 'overview', icon: LayoutDashboard, label: translate('admin_tab_overview') },
-        { id: 'users', icon: Users, label: translate('admin_tab_users') },
-        { id: 'feedback', icon: MessageSquare, label: translate('admin_tab_feedback') },
-        { id: 'updates', icon: RefreshCw, label: translate('admin_tab_updates') },
-        { id: 'broadcast', icon: Radio, label: translate('admin_tab_broadcast') }
+        { id: 'overview', icon: LayoutDashboard, label: translate('admin_tab_overview') || 'Overview' },
+        { id: 'users', icon: Users, label: translate('admin_tab_users') || 'Users' },
+        { id: 'feedback', icon: MessageSquare, label: translate('admin_tab_feedback') || 'Feedback' },
+        { id: 'updates', icon: RefreshCw, label: translate('admin_tab_updates') || 'Updates' },
+        { id: 'broadcast', icon: Radio, label: translate('admin_tab_broadcast') || 'Broadcast' },
     ];
 
+    /* ─── Content Renderer ─── */
+    const renderContent = () => {
+        if (loading) {
+            return (
+                <div className="flex flex-col items-center justify-center h-64 opacity-50">
+                    <RefreshCw size={30} className="animate-spin text-violet-500 mb-3" />
+                    <p className="text-[12px] font-medium text-gray-500">{translate('admin_loading')}</p>
+                </div>
+            );
+        }
+
+        switch (activeSection) {
+            case 'overview':
+                return (
+                    <AdminOverview
+                        stats={stats}
+                        metrics={metrics}
+                        profiles={profiles}
+                        sessions={sessions}
+                        onNavigateUsers={() => setActiveSection('users')}
+                        onUserClick={handleProfileClick}
+                    />
+                );
+            case 'users':
+                return selectedProfile ? (
+                    <AdminUserDetail
+                        profile={selectedProfile}
+                        profileStats={profileStats}
+                        profileSessions={profileSessions}
+                        loadingProfileData={loadingProfileData}
+                        onBack={() => setSelectedProfile(null)}
+                        onSubClick={handleSubClick}
+                        onSaveNotes={handleSaveNotes}
+                        isSavingNotes={isSavingNotes}
+                        showToast={showToast}
+                        translate={translate}
+                    />
+                ) : (
+                    <AdminUsersList
+                        profiles={profiles}
+                        sessions={sessions}
+                        onProfileClick={handleProfileClick}
+                        onSubClick={handleSubClick}
+                        onDropdownAction={handleDropdownAction}
+                        activeDropdown={activeDropdown}
+                        setActiveDropdown={setActiveDropdown}
+                        translate={translate}
+                    />
+                );
+            case 'feedback':
+                return (
+                    <div className="space-y-3">
+                        {/* Search & Filters */}
+                        <div className="space-y-3">
+                            <div className="relative">
+                                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder={translate('search_feedback')}
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-transparent rounded-2xl text-[13px] focus:outline-none focus:ring-2 focus:ring-violet-500/30 shadow-sm"
+                                />
+                            </div>
+                            <div className="flex gap-2 flex-wrap">
+                                {['all', 'idea', 'bug', 'other'].map(t => (
+                                    <button key={t} onClick={() => setFilter(t)}
+                                        className={`px-3.5 py-1.5 rounded-xl text-[11px] font-black capitalize transition-all
+                                            ${filter === t ? 'bg-violet-600 text-white shadow-md' : 'bg-white dark:bg-surface-dark2 text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent'}`}>
+                                        {translate(t)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <AdminFeedback feedback={filteredFeedback} onDelete={handleDeleteClick} translate={translate} />
+                    </div>
+                );
+            case 'updates':
+                return (
+                    <AdminUpdates
+                        updates={updates}
+                        showUpdateModal={showUpdateModal}
+                        setShowUpdateModal={setShowUpdateModal}
+                        newUpdate={newUpdate}
+                        setNewUpdate={setNewUpdate}
+                        addFeature={addFeature}
+                        removeFeature={removeFeature}
+                        updateFeature={updateFeature}
+                        onPublish={handlePublishUpdate}
+                        onDelete={handleDeleteUpdateClick}
+                        translate={translate}
+                    />
+                );
+            case 'broadcast':
+                return (
+                    <AdminBroadcast
+                        broadcastTitle={broadcastTitle}
+                        setBroadcastTitle={setBroadcastTitle}
+                        broadcastMessage={broadcastMessage}
+                        setBroadcastMessage={setBroadcastMessage}
+                        onSend={handleSendBroadcast}
+                        translate={translate}
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
+    /* ─── Layout ─── */
     return (
         <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col animate-fade-in transition-colors duration-300">
-            {/* Header */}
+
+            {/* ── Mobile/Compact Header ── */}
             <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
-                            ${hideHeader 
-                                ? 'bg-transparent border-none px-4 pt-4 pb-2' 
+                            ${hideHeader
+                                ? 'bg-transparent border-none px-4 pt-4 pb-2'
                                 : 'bg-gray-50 dark:bg-surface-dark border-b border-gray-100 dark:border-transparent px-4 pb-4 backdrop-blur-xl'}`}
                 style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
             >
                 <div className="flex items-center justify-center relative mb-4 min-h-[36px]">
-                    <button onClick={onBack} className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center text-gray-500 dark:text-white/50 hover:bg-gray-200 dark:hover:bg-white/[0.14] active:scale-90 transition-all duration-150">
+                    <button onClick={onBack}
+                        className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center text-gray-500 dark:text-white/50 hover:bg-gray-200 dark:hover:bg-white/[0.14] active:scale-90 transition-all duration-150">
                         <ArrowLeft size={15} strokeWidth={2.5} />
                     </button>
                     {!hideHeader && (
-                        <h2 className="text-[17px] font-bold text-gray-900 dark:text-white text-center">{translate('admin_dashboard_title')}</h2>
+                        <h2 className="text-[17px] font-bold text-gray-900 dark:text-white text-center">
+                            {translate('admin_dashboard_title')}
+                        </h2>
                     )}
-                    <button onClick={fetchAllData} className="absolute right-0 w-9 h-9 rounded-full bg-violet-100 dark:bg-violet-500/10 flex items-center justify-center text-violet-600 dark:text-violet-400 active:rotate-180 transition-all duration-500">
+                    <button onClick={fetchAllData}
+                        className="absolute right-0 w-9 h-9 rounded-full bg-violet-100 dark:bg-violet-500/10 flex items-center justify-center text-violet-600 dark:text-violet-400 active:rotate-180 transition-all duration-500">
                         <RefreshCw size={17} />
                     </button>
                 </div>
 
-                {/* Section Toggle */}
-                <div className="relative mb-3">
+                {/* ── Mobile tabs (horizontal scroll, hidden on desktop) ── */}
+                <div className="lg:hidden relative">
                     <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 pr-8">
                         {tabs.map(tab => {
                             const Icon = tab.icon;
                             const isActive = activeSection === tab.id;
                             return (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveSection(tab.id)}
+                                <button key={tab.id}
+                                    onClick={() => { setActiveSection(tab.id); if (tab.id !== 'users') setSelectedProfile(null); }}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold transition-all whitespace-nowrap
-                                                ${isActive ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30' : 'bg-white dark:bg-white/[0.05] text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent hover:bg-gray-50 dark:hover:bg-white/[0.1]'}`}
+                                        ${isActive ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30' : 'bg-white dark:bg-white/[0.05] text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent hover:bg-gray-50 dark:hover:bg-white/[0.1]'}`}
                                 >
-                                    <Icon size={14} />
-                                    {tab.label}
+                                    <Icon size={13} />{tab.label}
                                 </button>
                             );
                         })}
@@ -429,788 +552,63 @@ const AdminView = ({ onBack, hideHeader }) => {
                         <ChevronRight size={16} className="text-gray-400 dark:text-gray-500 animate-pulse" />
                     </div>
                 </div>
-
-                {/* Search & Filters (Feedback Only) */}
-                {activeSection === 'feedback' && (
-                    <div className="space-y-3 animate-fade-in">
-                        <div className="relative">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder={translate('search_feedback')}
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-9 pr-4 py-2.5 bg-gray-50 dark:bg-white/[0.05] border border-gray-100 dark:border-transparent rounded-xl text-[13px] text-gray-900 dark:text-white focus:outline-none"
-                            />
-                        </div>
-                        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                                {['all', 'idea', 'bug', 'other'].map(t => (
-                                    <button
-                                        key={t}
-                                        onClick={() => setFilter(t)}
-                                        className={`px-4 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all
-                                                    ${filter === t ? 'bg-violet-600 text-white shadow-md' : 'bg-white dark:bg-white/[0.06] text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent'}`}
-                                    >
-                                        {translate(t)}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Search & Filters (Users Only) */}
-                    {activeSection === 'users' && !selectedProfile && (
-                        <div className="space-y-3 animate-fade-in">
-                            <div className="relative">
-                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder={translate('search_users') || 'Αναζήτηση email...'}
-                                    value={userSearchTerm}
-                                    onChange={(e) => setUserSearchTerm(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2.5 bg-gray-50 dark:bg-white/[0.05] border border-gray-100 dark:border-transparent rounded-xl text-[13px] text-gray-900 dark:text-white focus:outline-none"
-                                />
-                            </div>
-                            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                                {['all', 'pro', 'free'].map(t => (
-                                    <button
-                                        key={t}
-                                        onClick={() => setUserFilter(t)}
-                                        className={`px-4 py-1.5 rounded-full text-[11px] font-bold capitalize transition-all
-                                                    ${userFilter === t ? 'bg-violet-600 text-white shadow-md' : 'bg-white dark:bg-white/[0.06] text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent'}`}
-                                    >
-                                        {t === 'all' ? (translate('all') || 'Όλοι') : t === 'pro' ? 'Pro' : 'Free'}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Create Update Button (Updates Only) */}
-                    {activeSection === 'updates' && (
-                        <button onClick={() => setShowUpdateModal(true)} className="w-full py-2.5 bg-violet-600 text-white text-[13px] font-bold rounded-xl shadow-lg active:scale-95 transition-all animate-fade-in">
-                            + {translate('admin_create_update')}
-                        </button>
-                    )}
-                </div>
-
-            {/* Content Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-10">
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20 opacity-50">
-                        <RefreshCw size={30} className="animate-spin text-violet-500 mb-2" />
-                        <p className="text-[12px] font-medium">{translate('admin_loading')}</p>
-                    </div>
-                ) : (
-                    <>
-                        {/* OVERVIEW SECTION */}
-                        {activeSection === 'overview' && (
-                            <div className="space-y-5 animate-fade-in">
-                                {/* Core Stats */}
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                    <div 
-                                        onClick={() => setActiveSection('users')}
-                                        className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group"
-                                    >
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-500/20 transition-colors">
-                                                    <Users size={14} className="text-blue-500" />
-                                                </div>
-                                                <span className="text-[12px] font-bold text-gray-500">Total Users</span>
-                                            </div>
-                                            <ChevronRight size={14} className="text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        </div>
-                                        <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.users}</p>
-                                    </div>
-                                    <div className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
-                                                <RefreshCw size={14} className="text-emerald-500" />
-                                            </div>
-                                            <span className="text-[12px] font-bold text-gray-500">Transactions</span>
-                                        </div>
-                                        <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.transactions}</p>
-                                    </div>
-                                    <div 
-                                        onClick={() => setActiveSection('feedback')}
-                                        className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group"
-                                    >
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-100 dark:group-hover:bg-amber-500/20 transition-colors">
-                                                    <MessageSquare size={14} className="text-amber-500" />
-                                                </div>
-                                                <span className="text-[12px] font-bold text-gray-500">Feedback</span>
-                                            </div>
-                                            <ChevronRight size={14} className="text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        </div>
-                                        <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.feedback}</p>
-                                    </div>
-                                    <div className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <div className="w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center">
-                                                <Zap size={14} className="text-violet-500" />
-                                            </div>
-                                            <span className="text-[12px] font-bold text-gray-500">App Sessions</span>
-                                        </div>
-                                        <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.activity}</p>
-                                    </div>
-                                </div>
-
-                                {/* Deep Metrics */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Subscription Status */}
-                                    <div className="bg-white dark:bg-surface-dark2 p-5 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm flex flex-col">
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <Award size={16} className="text-violet-500" />
-                                            <h3 className="text-[14px] font-bold text-gray-900 dark:text-white">Subscription Metrics</h3>
-                                        </div>
-                                        <div className="flex-1 space-y-3">
-                                            <div className="flex justify-between items-center p-3 rounded-2xl bg-gray-50 dark:bg-white/5">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-2 h-2 rounded-full bg-violet-500"></div>
-                                                    <span className="text-[13px] font-bold text-gray-700 dark:text-gray-300">Pro Users</span>
-                                                </div>
-                                                <span className="text-[14px] font-black text-violet-600 dark:text-violet-400">{metrics.proUsers}</span>
-                                            </div>
-                                            <div className="flex justify-between items-center p-3 rounded-2xl bg-gray-50 dark:bg-white/5">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                                                    <span className="text-[13px] font-bold text-gray-700 dark:text-gray-300">Free Users</span>
-                                                </div>
-                                                <span className="text-[14px] font-black text-gray-900 dark:text-white">{metrics.freeUsers}</span>
-                                            </div>
-                                            {metrics.canceledUsers > 0 && (
-                                                <div className="flex justify-between items-center p-3 rounded-2xl bg-rose-50 dark:bg-rose-500/10">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                                                        <span className="text-[13px] font-bold text-rose-700 dark:text-rose-400">Canceled</span>
-                                                    </div>
-                                                    <span className="text-[14px] font-black text-rose-600 dark:text-rose-400">{metrics.canceledUsers}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Engagement Status */}
-                                    <div className="bg-white dark:bg-surface-dark2 p-5 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm flex flex-col">
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <Activity size={16} className="text-emerald-500" />
-                                            <h3 className="text-[14px] font-bold text-gray-900 dark:text-white">Active Users (Engagement)</h3>
-                                        </div>
-                                        <div className="flex-1 space-y-3">
-                                            <div className="flex justify-between items-center p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10">
-                                                <div className="flex items-center gap-2">
-                                                    <Clock size={14} className="text-emerald-600 dark:text-emerald-400" />
-                                                    <span className="text-[13px] font-bold text-emerald-700 dark:text-emerald-400">Last 7 Days</span>
-                                                </div>
-                                                <span className="text-[14px] font-black text-emerald-600 dark:text-emerald-400">{metrics.active7Days}</span>
-                                            </div>
-                                            <div className="flex justify-between items-center p-3 rounded-2xl bg-blue-50 dark:bg-blue-500/10">
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar size={14} className="text-blue-600 dark:text-blue-400" />
-                                                    <span className="text-[13px] font-bold text-blue-700 dark:text-blue-400">Last 30 Days</span>
-                                                </div>
-                                                <span className="text-[14px] font-black text-blue-600 dark:text-blue-400">{metrics.active30Days}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Most Active Users List */}
-                                <div className="bg-white dark:bg-surface-dark2 p-5 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm">
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <TrendingUp size={16} className="text-amber-500" />
-                                        <h3 className="text-[14px] font-bold text-gray-900 dark:text-white">Most Active Users</h3>
-                                    </div>
-                                    <div className="space-y-2">
-                                        {metrics.mostActiveUsers.length > 0 ? (
-                                            metrics.mostActiveUsers.map((user, idx) => (
-                                                <div key={user.id} className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-500/10 flex items-center justify-center font-black text-violet-600 dark:text-violet-400 text-[11px]">
-                                                            #{idx + 1}
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[13px] font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                                                {user.display_name || user.email.split('@')[0]}
-                                                                {user.subscription_status === 'pro' && (
-                                                                    <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 uppercase tracking-widest">PRO</span>
-                                                                )}
-                                                            </p>
-                                                            <p className="text-[11px] text-gray-500">{user.email}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <span className="text-[15px] font-black text-gray-900 dark:text-white">{user.sessionCount}</span>
-                                                        <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Sessions</p>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="text-sm text-gray-500 text-center py-4">No session data available</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* USERS SECTION */}
-                        {activeSection === 'users' && (
-                            <div className="space-y-3 animate-fade-in">
-                                {selectedProfile ? (
-                                    <div className="space-y-4 animate-fade-in pb-10">
-                                        <div className="flex items-center justify-between">
-                                            <button 
-                                                onClick={() => setSelectedProfile(null)} 
-                                                className="flex items-center gap-2 text-[12px] font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-white/5 px-3 py-2 rounded-xl border border-gray-100 dark:border-transparent transition-all"
-                                            >
-                                                <ChevronLeft size={16} /> {translate('back') || 'Back'}
-                                            </button>
-                                            <div className="flex items-center gap-2">
-                                                <button 
-                                                    onClick={() => handleSubClick(selectedProfile, selectedProfile.subscription_status === 'pro' ? 'free' : 'pro')}
-                                                    className={`px-4 py-2 rounded-xl text-[12px] font-black transition-all ${
-                                                        selectedProfile.subscription_status === 'pro'
-                                                            ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400'
-                                                            : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
-                                                    }`}
-                                                >
-                                                    {selectedProfile.subscription_status === 'pro' ? 'Revoke Pro' : 'Grant Pro'}
-                                                </button>
-                                                <button 
-                                                    onClick={() => {
-                                                        setNotesTarget(selectedProfile);
-                                                        setEditingNotes(selectedProfile.admin_notes || '');
-                                                        setShowNotesModal(true);
-                                                    }}
-                                                    className="p-2.5 bg-white dark:bg-white/5 border border-gray-100 dark:border-transparent rounded-xl text-gray-500 dark:text-white/50"
-                                                >
-                                                    <FileText size={18} />
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-white dark:bg-surface-dark2 p-6 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm">
-                                            <div className="flex items-center gap-4 mb-6">
-                                                <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center font-black text-gray-400 text-2xl">
-                                                    {selectedProfile.display_name?.charAt(0) || selectedProfile.email.charAt(0).toUpperCase()}
-                                                </div>
-                                                <div>
-                                                    <h2 className="text-xl font-black text-gray-900 dark:text-white leading-tight">
-                                                        {selectedProfile.display_name || selectedProfile.email.split('@')[0]}
-                                                        {selectedProfile.subscription_status === 'pro' && (
-                                                            <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded text-[10px] font-black bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 uppercase tracking-widest align-middle">
-                                                                PRO
-                                                            </span>
-                                                        )}
-                                                    </h2>
-                                                    <p className="text-sm text-gray-400">{selectedProfile.email}</p>
-                                                </div>
-                                            </div>
-
-                                            {/* Summary Cards */}
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-                                                <div className="bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100/50 dark:border-transparent">
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Status</p>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className={`w-2 h-2 rounded-full ${selectedProfile.subscription_status === 'pro' ? 'bg-amber-400 animate-pulse' : 'bg-gray-300'}`}></div>
-                                                        <p className="text-[14px] font-black text-gray-900 dark:text-white capitalize">{selectedProfile.subscription_status}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100/50 dark:border-transparent">
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Transactions</p>
-                                                    <p className="text-[14px] font-black text-gray-900 dark:text-white">{loadingProfileData ? '...' : profileStats.transactions}</p>
-                                                </div>
-                                                <div className="bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100/50 dark:border-transparent">
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Budgets</p>
-                                                    <p className="text-[14px] font-black text-gray-900 dark:text-white">{loadingProfileData ? '...' : profileStats.budgets}</p>
-                                                </div>
-                                                <div className="bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100/50 dark:border-transparent">
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Goals</p>
-                                                    <p className="text-[14px] font-black text-gray-900 dark:text-white">{loadingProfileData ? '...' : profileStats.goals}</p>
-                                                </div>
-                                            </div>
-
-                                            {/* Details Grid */}
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                <div className="md:col-span-2 space-y-6">
-                                                    <div className="space-y-3">
-                                                        <div className="flex items-center gap-2 px-1">
-                                                            <Activity size={16} className="text-violet-500" />
-                                                            <h4 className="text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-wider">Session History</h4>
-                                                        </div>
-                                                        <div className="bg-gray-50 dark:bg-white/[0.02] rounded-3xl border border-gray-100 dark:border-transparent overflow-hidden divide-y divide-gray-100 dark:divide-white/5">
-                                                            {loadingProfileData ? (
-                                                                <div className="p-12 text-center opacity-50">
-                                                                    <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-violet-500" />
-                                                                    <p className="text-[11px] font-bold">Loading activity...</p>
-                                                                </div>
-                                                            ) : profileSessions.length > 0 ? (
-                                                                profileSessions.slice(0, 10).map((sess, idx) => (
-                                                                    <div key={idx} className="p-4 hover:bg-gray-100/50 dark:hover:bg-white/5 transition-colors">
-                                                                        <div className="flex items-center justify-between mb-2">
-                                                                            <div className="flex items-center gap-2">
-                                                                                <div className="w-8 h-8 rounded-lg bg-white dark:bg-white/5 flex items-center justify-center text-gray-500 border border-gray-100 dark:border-transparent">
-                                                                                    {sess.device?.includes('iPhone') ? <Smartphone size={16} /> : sess.device?.includes('Mac') || sess.device?.includes('Windows') ? <Monitor size={16} /> : <Radio size={16} />}
-                                                                                </div>
-                                                                                <div>
-                                                                                    <p className="text-[12px] font-bold text-gray-800 dark:text-white">{sess.device || 'Unknown Device'}</p>
-                                                                                    <p className="text-[10px] text-gray-400 font-medium">{new Date(sess.last_active).toLocaleString()}</p>
-                                                                                </div>
-                                                                            </div>
-                                                                            {idx === 0 && (
-                                                                                <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase rounded-md">Latest</span>
-                                                                            )}
-                                                                        </div>
-                                                                        <div className="flex items-center gap-4 text-[11px] text-gray-500 bg-white dark:bg-white/5 p-2 rounded-xl border border-gray-100 dark:border-transparent">
-                                                                            <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                                                                                <MapPin size={12} className="text-gray-400 shrink-0" />
-                                                                                <span className="truncate">{sess.location || 'Unknown Location'}</span>
-                                                                            </div>
-                                                                            <div className="flex items-center gap-1.5 shrink-0">
-                                                                                <Shield size={12} className="text-gray-400" />
-                                                                                <span className="font-mono">{sess.ip || '?.?.?.?'}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                ))
-                                                            ) : (
-                                                                <div className="p-12 text-center text-gray-400 text-[12px] font-medium italic">No activity recorded yet</div>
-                                                            )}
-                                                            {profileSessions.length > 10 && (
-                                                                <div className="p-3 text-center bg-gray-50/50 dark:bg-transparent">
-                                                                    <p className="text-[10px] font-bold text-gray-400 uppercase">Showing last 10 of {profileSessions.length} sessions</p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-6">
-                                                    <div className="space-y-3">
-                                                        <div className="flex items-center gap-2 px-1">
-                                                            <Shield size={16} className="text-blue-500" />
-                                                            <h4 className="text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-wider">Admin Tools</h4>
-                                                        </div>
-                                                        <div className="bg-gray-50 dark:bg-white/[0.02] p-4 rounded-3xl border border-gray-100 dark:border-transparent space-y-2">
-                                                            <button 
-                                                                onClick={() => {
-                                                                    if (selectedProfile.stripe_customer_id) {
-                                                                        window.open(`https://dashboard.stripe.com/customers/${selectedProfile.stripe_customer_id}`, '_blank');
-                                                                    } else {
-                                                                        window.open(`https://dashboard.stripe.com/search?query=${encodeURIComponent(selectedProfile.email)}`, '_blank');
-                                                                    }
-                                                                }}
-                                                                className="w-full flex items-center justify-between p-3 bg-white dark:bg-white/5 hover:bg-violet-50 dark:hover:bg-violet-500/10 rounded-2xl border border-gray-100 dark:border-transparent transition-all group"
-                                                            >
-                                                                <div className="flex items-center gap-3">
-                                                                    <ExternalLink size={16} className="text-gray-400 group-hover:text-violet-500" />
-                                                                    <span className="text-[12px] font-bold text-gray-700 dark:text-gray-300">Stripe Dashboard</span>
-                                                                </div>
-                                                                <ChevronRight size={14} className="text-gray-300 group-hover:text-violet-500" />
-                                                            </button>
-                                                            <a 
-                                                                href={`mailto:${selectedProfile.email}`}
-                                                                className="w-full flex items-center justify-between p-3 bg-white dark:bg-white/5 hover:bg-violet-50 dark:hover:bg-violet-500/10 rounded-2xl border border-gray-100 dark:border-transparent transition-all group"
-                                                            >
-                                                                <div className="flex items-center gap-3">
-                                                                    <Mail size={16} className="text-gray-400 group-hover:text-violet-500" />
-                                                                    <span className="text-[12px] font-bold text-gray-700 dark:text-gray-300">Send Email</span>
-                                                                </div>
-                                                                <ChevronRight size={14} className="text-gray-300 group-hover:text-violet-500" />
-                                                            </a>
-                                                            <button 
-                                                                onClick={() => {
-                                                                    navigator.clipboard.writeText(selectedProfile.id);
-                                                                    showToast(translate('copied') || 'Αντιγράφηκε!', 'success');
-                                                                }}
-                                                                className="w-full flex items-center justify-between p-3 bg-white dark:bg-white/5 hover:bg-violet-50 dark:hover:bg-violet-500/10 rounded-2xl border border-gray-100 dark:border-transparent transition-all group"
-                                                            >
-                                                                <div className="flex items-center gap-3">
-                                                                    <Copy size={16} className="text-gray-400 group-hover:text-violet-500" />
-                                                                    <span className="text-[12px] font-bold text-gray-700 dark:text-gray-300">Copy ID</span>
-                                                                </div>
-                                                                <Copy size={14} className="text-gray-300 group-hover:text-violet-500" />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="space-y-3">
-                                                        <div className="flex items-center justify-between px-1">
-                                                            <div className="flex items-center gap-2">
-                                                                <FileText size={16} className="text-amber-500" />
-                                                                <h4 className="text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-wider">Notes</h4>
-                                                            </div>
-                                                            <button onClick={() => { setNotesTarget(selectedProfile); setEditingNotes(selectedProfile.admin_notes || ''); setShowNotesModal(true); }} className="text-[10px] font-black text-violet-500 uppercase">Edit</button>
-                                                        </div>
-                                                        <div className="bg-amber-50 dark:bg-amber-500/5 p-4 rounded-3xl border border-amber-100 dark:border-transparent min-h-[100px]">
-                                                            <p className="text-[12px] text-amber-900/70 dark:text-amber-400/70 italic leading-relaxed">
-                                                                {selectedProfile.admin_notes || 'No notes for this user.'}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    filteredProfiles.length === 0 ? (
-                                        <div className="text-center py-10 opacity-50">
-                                            <Users size={40} className="mx-auto mb-3" />
-                                            <p className="text-sm">{translate('admin_no_users')}</p>
-                                        </div>
-                                    ) : (
-                                        filteredProfiles.map(profile => (
-                                            <div 
-                                                key={profile.id} 
-                                                onClick={() => handleProfileClick(profile)}
-                                                className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm flex items-center gap-2 cursor-pointer hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all group"
-                                            >
-                                                <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                    <div className="w-10 h-10 rounded-full shrink-0 bg-gray-100 dark:bg-white/5 flex items-center justify-center font-black text-gray-400 group-hover:bg-violet-50 dark:group-hover:bg-violet-500/10 group-hover:text-violet-500 transition-colors text-[11px]">
-                                                        {profile.displayId}
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-[13px] font-bold text-gray-900 dark:text-white truncate">
-                                                            {profile.display_name || profile.latest_session?.display_name || profile.email}
-                                                            {profile.subscription_status === 'pro' && (
-                                                                <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[8px] font-black bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 uppercase tracking-widest align-middle">
-                                                                    PRO
-                                                                </span>
-                                                            )}
-                                                        </p>
-                                                        {(profile.display_name || profile.latest_session?.display_name) && (
-                                                            <p className="text-[10px] text-gray-400 truncate -mt-0.5">{profile.email}</p>
-                                                        )}
-                                                        <p className="text-[11px] text-gray-500 mt-0.5 truncate">
-                                                            {profile.latest_session?.device && !profile.latest_session.device.includes('Unknown') ? profile.latest_session.device : translate('unknown_device')}
-                                                            {profile.latest_session?.location && !profile.latest_session.location.includes('Unknown') ? ` • ${profile.latest_session.location}` : ''}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right flex flex-col items-end gap-1.5 relative shrink-0">
-                                                    <div className="flex items-center gap-2">
-                                                        <button
-                                                            onClick={(e) => { 
-                                                                e.stopPropagation(); 
-                                                                handleSubClick(profile, profile.subscription_status === 'pro' ? 'free' : 'pro'); 
-                                                            }}
-                                                            className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap border ${
-                                                                profile.subscription_status === 'pro' 
-                                                                    ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-500/30 dark:hover:bg-rose-500/10' 
-                                                                    : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500/30 dark:hover:bg-emerald-500/10'
-                                                            }`}
-                                                        >
-                                                            {profile.subscription_status === 'pro' ? translate('admin_revoke_pro') : translate('admin_grant_pro')}
-                                                        </button>
-                                                        <button 
-                                                            onClick={(e) => { 
-                                                                e.stopPropagation(); 
-                                                                setActiveDropdown(activeDropdown === profile.id ? null : profile.id); 
-                                                            }}
-                                                            className="p-1 rounded-md text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-                                                        >
-                                                            <MoreVertical size={16} />
-                                                        </button>
-                                                        {activeDropdown === profile.id && (
-                                                            <>
-                                                                <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setActiveDropdown(null); }} />
-                                                                <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-xl shadow-xl z-50 overflow-hidden py-1 animate-fade-in">
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            if (profile.stripe_customer_id) {
-                                                                                window.open(`https://dashboard.stripe.com/customers/${profile.stripe_customer_id}`, '_blank');
-                                                                            } else {
-                                                                                window.open(`https://dashboard.stripe.com/search?query=${encodeURIComponent(profile.email)}`, '_blank');
-                                                                            }
-                                                                            setActiveDropdown(null);
-                                                                        }}
-                                                                        className="w-full text-left px-3 py-2 text-[12px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
-                                                                    >
-                                                                        <ExternalLink size={14} className="text-gray-400" /> {translate('admin_view_on_stripe')}
-                                                                    </button>
-                                                                    <a 
-                                                                        href={`mailto:${profile.email}`}
-                                                                        onClick={() => setActiveDropdown(null)}
-                                                                        className="w-full text-left px-3 py-2 text-[12px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
-                                                                    >
-                                                                        <Mail size={14} className="text-gray-400" /> {translate('admin_send_email')}
-                                                                    </a>
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            navigator.clipboard.writeText(profile.id);
-                                                                            showToast(translate('copied') || 'Αντιγράφηκε!', 'success');
-                                                                            setActiveDropdown(null);
-                                                                        }}
-                                                                        className="w-full text-left px-3 py-2 text-[12px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
-                                                                    >
-                                                                        <Copy size={14} className="text-gray-400" /> {translate('admin_copy_user_id')}
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            setNotesTarget(profile);
-                                                                            setEditingNotes(profile.admin_notes || '');
-                                                                            setShowNotesModal(true);
-                                                                            setActiveDropdown(null);
-                                                                        }}
-                                                                        className="w-full text-left px-3 py-2 text-[12px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors border-t dark:border-white/5"
-                                                                    >
-                                                                        <FileText size={14} className="text-gray-400" /> {translate('admin_notes')}
-                                                                    </button>
-                                                                </div>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))
-                                    )
-                                )}
-                            </div>
-                        )}
-
-                        {/* FEEDBACK SECTION */}
-                        {activeSection === 'feedback' && (
-                            <div className="space-y-3 animate-fade-in">
-                                {filteredFeedback.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-20 opacity-40">
-                                        <Filter size={40} strokeWidth={1} className="mb-3" />
-                                        <p className="text-[13px] font-medium">{translate('no_feedback_found')}</p>
-                                    </div>
-                                ) : (
-                                    filteredFeedback.map((item) => (
-                                        <div key={item.id} className="bg-white dark:bg-white/[0.04] rounded-2xl p-4 border border-gray-100 dark:border-transparent shadow-sm space-y-3 group">
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div className="flex items-center gap-2">
-                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${getTypeBg(item.type)}`}>
-                                                        {getTypeIcon(item.type)}
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[13px] font-bold text-gray-900 dark:text-white leading-tight capitalize">
-                                                            {translate(item.type)} {translate('submission')}
-                                                        </p>
-                                                        <p className="text-[10px] text-gray-400 font-medium">
-                                                            {new Date(item.created_at).toLocaleDateString()} at {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <button onClick={() => handleDeleteClick(item.id)} className="p-2 text-gray-300 hover:text-rose-500 active:scale-90 transition-all opacity-0 group-hover:opacity-100">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                            <p className="text-[13px] text-gray-600 dark:text-white/70 leading-relaxed bg-gray-50 dark:bg-white/[0.02] p-3 rounded-xl border border-gray-100/50 dark:border-white/[0.03]">
-                                                {item.message}
-                                            </p>
-                                            <div className="flex items-center gap-2 pt-1">
-                                                <User size={12} className="text-gray-400" />
-                                                <span className="text-[11px] font-medium text-gray-400 truncate">{item.email}</span>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        )}
-
-                        {/* UPDATES SECTION */}
-                        {activeSection === 'updates' && (
-                            <div className="space-y-3 animate-fade-in">
-                                {updates.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-20 opacity-40">
-                                        <Calendar size={40} strokeWidth={1} className="mb-3" />
-                                        <p className="text-[13px] font-medium">{translate('admin_no_updates')}</p>
-                                    </div>
-                                ) : (
-                                    updates.map(upd => (
-                                        <div key={upd.id} className="relative bg-white dark:bg-white/[0.04] rounded-2xl p-4 border border-gray-100 dark:border-transparent shadow-sm group">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center text-violet-600">
-                                                        <RefreshCw size={16} />
-                                                    </div>
-                                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">v{upd.version}</h3>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] text-gray-400">{new Date(upd.created_at).toLocaleDateString()}</span>
-                                                    <button onClick={() => handleDeleteUpdateClick(upd)} className="p-1.5 text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <p className="text-[12px] text-gray-500 dark:text-white/60 px-1 font-medium">{upd.title_el} / {upd.title_en}</p>
-                                            {upd.features && upd.features.length > 0 && (
-                                                <div className="mt-2 pt-2 border-t border-gray-50 dark:border-transparent flex gap-1.5 flex-wrap">
-                                                    {upd.features.map((f, i) => (
-                                                        <div key={i} className="px-2 py-0.5 rounded-md bg-gray-50 dark:bg-white/5 text-[9px] text-gray-400">
-                                                            {f.title_en}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        )}
-
-                        {/* BROADCAST SECTION */}
-                        {activeSection === 'broadcast' && (
-                            <div className="bg-white dark:bg-surface-dark2 p-6 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm space-y-5 animate-fade-in">
-                                <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-white/5">
-                                    <div className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center">
-                                        <Send size={20} className="text-violet-600 dark:text-violet-400" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-[15px] font-black text-gray-900 dark:text-white">{translate('admin_broadcast_title')}</h3>
-                                        <p className="text-[11px] text-gray-500">{translate('admin_broadcast_subtitle')}</p>
-                                    </div>
-                                </div>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">{translate('admin_broadcast_title_label')}</label>
-                                        <input 
-                                            type="text" 
-                                            value={broadcastTitle} 
-                                            onChange={e => setBroadcastTitle(e.target.value)} 
-                                            className="w-full p-3.5 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-transparent text-[13px] font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
-                                            placeholder={translate('admin_broadcast_title_placeholder')}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">{translate('admin_broadcast_message_label')}</label>
-                                        <textarea 
-                                            value={broadcastMessage} 
-                                            onChange={e => setBroadcastMessage(e.target.value)} 
-                                            className="w-full p-3.5 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-transparent text-[13px] min-h-[120px] focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all resize-none"
-                                            placeholder={translate('admin_broadcast_message_placeholder')}
-                                        />
-                                    </div>
-                                    <button 
-                                        onClick={async () => {
-                                            if(!broadcastTitle.trim() || !broadcastMessage.trim()) return showToast(translate('admin_broadcast_fill_fields'), 'error');
-                                            
-                                            try {
-                                                const { error } = await supabase.from('broadcasts').insert([{
-                                                    title: broadcastTitle.trim(),
-                                                    message: broadcastMessage.trim(),
-                                                    created_at: new Date().toISOString()
-                                                }]);
-                                                
-                                                if (error) throw error;
-                                                
-                                                showToast(translate('admin_broadcast_success'), 'success');
-                                                setBroadcastTitle('');
-                                                setBroadcastMessage('');
-                                            } catch (e) {
-                                                console.error('Broadcast error:', e);
-                                                showToast('Αποτυχία αποστολής: ' + e.message, 'error');
-                                            }
-                                        }}
-                                        className="w-full py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-xl active:scale-[0.98] transition-all shadow-xl shadow-violet-500/20 flex items-center justify-center gap-2"
-                                    >
-                                        <Radio size={16} /> {translate('admin_broadcast_btn')}
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </>
-                )}
             </div>
 
-            {/* Create Update Modal */}
-            {showUpdateModal && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={() => setShowUpdateModal(false)} />
-                    <div className="relative w-full max-w-xl bg-white dark:bg-surface-dark2 rounded-3xl overflow-hidden shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
-                        <div className="shrink-0 p-6 border-b dark:border-transparent flex items-center justify-between bg-white dark:bg-surface-dark2">
-                            <div>
-                                <h3 className="text-lg font-black text-gray-900 dark:text-white">{translate('admin_publish_update_title')}</h3>
-                                <p className="text-xs text-gray-400">{translate('admin_publish_update_subtitle')}</p>
-                            </div>
-                            <button onClick={() => setShowUpdateModal(false)} className="p-2 bg-gray-100 dark:bg-white/5 rounded-full">
-                                <X size={18} />
-                            </button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                            {/* Version & Main Titles */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label className="text-[10px] font-bold uppercase text-gray-400 mb-1.5 block ml-1">Version</label>
-                                    <input placeholder="1.2.0" className="w-full p-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-transparent rounded-xl text-sm" value={newUpdate.version} onChange={e => setNewUpdate({ ...newUpdate, version: e.target.value })} />
-                                </div>
-                                <div className="md:col-span-2 grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="text-[10px] font-bold uppercase text-gray-400 mb-1.5 block ml-1">Greek Title</label>
-                                        <input placeholder="Τι νέο υπάρχει;" className="w-full p-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-transparent rounded-xl text-sm" value={newUpdate.title_el} onChange={e => setNewUpdate({ ...newUpdate, title_el: e.target.value })} />
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-bold uppercase text-gray-400 mb-1.5 block ml-1">English Title</label>
-                                        <input placeholder="What's New?" className="w-full p-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-transparent rounded-xl text-sm" value={newUpdate.title_en} onChange={e => setNewUpdate({ ...newUpdate, title_en: e.target.value })} />
-                                    </div>
-                                </div>
-                            </div>
+            {/* ── Desktop Layout: sidebar + content ── */}
+            <div className="flex-1 flex overflow-hidden">
 
-                            {/* Features Section */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-[11px] font-black uppercase tracking-wider text-violet-500">Feature Bullet Points</label>
-                                    <button onClick={addFeature} className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-100 dark:bg-violet-500/10 text-violet-600 font-bold rounded-lg text-[10px]">
-                                        <Plus size={12} /> Add Feature
-                                    </button>
-                                </div>
-                                <div className="space-y-4">
-                                    {newUpdate.features.map((feature, idx) => (
-                                        <div key={idx} className="p-4 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-transparent rounded-2xl space-y-3 relative">
-                                            <button onClick={() => removeFeature(idx)} className="absolute top-3 right-3 text-gray-300 hover:text-rose-500"><X size={14} /></button>
-                                            <div className="flex items-center gap-4">
-                                                <div className="flex gap-1.5 bg-white dark:bg-white/5 p-1 rounded-xl">
-                                                    {iconOptions.map(opt => (
-                                                        <button key={opt.id} onClick={() => updateFeature(idx, 'icon', opt.id)} className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${feature.icon === opt.id ? 'bg-violet-600 text-white' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10'}`}>
-                                                            <opt.component size={14} />
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <input placeholder="Feature Title (EL)" className="p-2.5 bg-white dark:bg-white/5 border dark:border-transparent rounded-xl text-[12px] font-bold" value={feature.title_el} onChange={e => updateFeature(idx, 'title_el', e.target.value)} />
-                                                <input placeholder="Feature Title (EN)" className="p-2.5 bg-white dark:bg-white/5 border dark:border-transparent rounded-xl text-[12px] font-bold" value={feature.title_en} onChange={e => updateFeature(idx, 'title_en', e.target.value)} />
-                                                <textarea placeholder="Description (EL)" className="p-2.5 bg-white dark:bg-white/5 border dark:border-transparent rounded-xl text-[11px] min-h-[60px]" value={feature.desc_el} onChange={e => updateFeature(idx, 'desc_el', e.target.value)} />
-                                                <textarea placeholder="Description (EN)" className="p-2.5 bg-white dark:bg-white/5 border dark:border-transparent rounded-xl text-[11px] min-h-[60px]" value={feature.desc_en} onChange={e => updateFeature(idx, 'desc_en', e.target.value)} />
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {newUpdate.features.length === 0 && (
-                                        <div className="py-8 border-2 border-dashed border-gray-100 dark:border-transparent rounded-2xl flex flex-col items-center justify-center text-gray-300">
-                                            <Sparkles size={24} className="mb-2 opacity-20" />
-                                            <p className="text-[11px] font-medium">{translate('admin_add_feature_hint')}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="shrink-0 p-6 bg-gray-50/50 dark:bg-surface-dark2 border-t dark:border-transparent">
-                            <button onClick={async () => {
-                                if (!newUpdate.version) return showToast(translate('admin_version_required'), 'error');
-                                try {
-                                    const { error } = await supabase.from('app_updates').insert([newUpdate]);
-                                    if (error) throw error;
-                                    showToast(translate('admin_update_published'), 'success');
-                                    setShowUpdateModal(false);
-                                    setNewUpdate(initialUpdateState);
-                                    fetchAllData();
-                                } catch (e) {
-                                    showToast(translate('admin_update_error') + e.message, 'error');
-                                }
-                            }} className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-2xl shadow-xl shadow-violet-500/20 active:scale-[0.98] transition-all">
-                                {translate('admin_publish_btn')}
-                            </button>
-                        </div>
+                {/* Desktop Left Sidebar (hidden on mobile) */}
+                <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-white dark:bg-surface-dark2 border-r border-gray-100 dark:border-white/[0.05] p-4 gap-1.5 overflow-y-auto">
+                    <div className="mb-3 px-2">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-gray-400">Navigation</p>
                     </div>
-                </div>
-            )}
+                    {tabs.map(tab => (
+                        <SidebarTab
+                            key={tab.id}
+                            tab={tab}
+                            isActive={activeSection === tab.id}
+                            onClick={() => { setActiveSection(tab.id); if (tab.id !== 'users') setSelectedProfile(null); }}
+                        />
+                    ))}
+                    <div className="mt-auto pt-4 border-t border-gray-100 dark:border-white/5">
+                        <button onClick={fetchAllData}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-[12px] font-bold">
+                            <RefreshCw size={15} className="text-gray-400" />
+                            Refresh Data
+                        </button>
+                    </div>
+                </aside>
 
-            {/* Deletion Modal */}
+                {/* Main content area */}
+                <main className="flex-1 overflow-y-auto">
+                    <div className="p-4 lg:p-6 space-y-4 pb-10">
+                        {/* Desktop section title */}
+                        <div className="hidden lg:flex items-center justify-between mb-2">
+                            <div>
+                                <h1 className="text-[22px] font-black text-gray-900 dark:text-white">
+                                    {tabs.find(t => t.id === activeSection)?.label}
+                                </h1>
+                                {activeSection === 'users' && selectedProfile && (
+                                    <p className="text-[12px] text-gray-400 mt-0.5">
+                                        ← <button onClick={() => setSelectedProfile(null)} className="text-violet-500 hover:text-violet-600 font-bold transition-colors">Users</button>
+                                        {' '}/{' '}{selectedProfile.display_name || selectedProfile.email?.split('@')[0]}
+                                    </p>
+                                )}
+                                {activeSection === 'overview' && (
+                                    <p className="text-[12px] text-gray-400 mt-0.5">
+                                        {new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        {renderContent()}
+                    </div>
+                </main>
+            </div>
+
+            {/* ── Modals ── */}
+
+            {/* Feedback Delete Modal */}
             <ConfirmationModal
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
@@ -1221,13 +619,13 @@ const AdminView = ({ onBack, hideHeader }) => {
                 type="danger"
             />
 
-            {/* Subscription Management Modal */}
+            {/* Subscription Modal */}
             <ConfirmationModal
                 isOpen={showSubModal}
                 onClose={() => setShowSubModal(false)}
                 onConfirm={confirmSubscriptionChange}
                 title={subTarget?.status === 'pro' ? translate('admin_grant_pro_title') : translate('admin_revoke_pro_title')}
-                message={subTarget?.status === 'pro' 
+                message={subTarget?.status === 'pro'
                     ? translate('admin_grant_pro_message', { email: subTarget?.profile?.email })
                     : translate('admin_revoke_pro_message', { email: subTarget?.profile?.email })
                 }
@@ -1235,7 +633,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                 type={subTarget?.status === 'pro' ? 'info' : 'danger'}
             />
 
-            {/* Update Deletion Modal */}
+            {/* Update Delete Modal */}
             <ConfirmationModal
                 isOpen={showUpdateDeleteModal}
                 onClose={() => setShowUpdateDeleteModal(false)}
@@ -1246,33 +644,33 @@ const AdminView = ({ onBack, hideHeader }) => {
                 type="danger"
             />
 
-            {/* Notes Modal */}
+            {/* Legacy Notes Modal (from user list dropdown) */}
             {showNotesModal && (
                 <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={() => setShowNotesModal(false)} />
                     <div className="relative w-full max-w-lg bg-white dark:bg-surface-dark2 rounded-3xl overflow-hidden shadow-2xl animate-slide-up flex flex-col">
-                        <div className="p-6 border-b dark:border-transparent flex items-center justify-between">
+                        <div className="p-6 border-b border-gray-100 dark:border-transparent flex items-center justify-between">
                             <div>
                                 <h3 className="text-lg font-black text-gray-900 dark:text-white">{translate('admin_notes')}</h3>
                                 <p className="text-xs text-gray-400">{notesTarget?.email}</p>
                             </div>
-                            <button onClick={() => setShowNotesModal(false)} className="p-2 bg-gray-100 dark:bg-white/5 rounded-full">
+                            <button onClick={() => setShowNotesModal(false)} className="p-2 bg-gray-100 dark:bg-white/5 rounded-full hover:bg-gray-200 transition-colors">
                                 <X size={18} />
                             </button>
                         </div>
                         <div className="p-6 space-y-4">
                             <textarea
                                 value={editingNotes}
-                                onChange={(e) => setEditingNotes(e.target.value)}
+                                onChange={e => setEditingNotes(e.target.value)}
                                 className="w-full p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-transparent text-[13px] min-h-[200px] focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all resize-none"
-                                placeholder="Γράψτε μερικές σημειώσεις για αυτόν τον χρήστη..."
+                                placeholder="Write notes about this user..."
                             />
                             <button
-                                onClick={handleSaveNotes}
+                                onClick={handleSaveNotesModal}
                                 disabled={isSavingNotes}
-                                className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-2xl shadow-xl shadow-violet-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-2xl shadow-xl shadow-violet-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                             >
-                                {isSavingNotes ? <RefreshCw size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+                                {isSavingNotes ? <RefreshCw size={18} className="animate-spin" /> : null}
                                 {translate('save')}
                             </button>
                         </div>

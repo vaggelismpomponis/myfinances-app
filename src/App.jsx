@@ -1316,6 +1316,8 @@ function MainContent() {
                                         budgets={budgets}
                                         onSignOut={handleSignOut}
                                         onAdd={openAddModal}
+                                        unreadCount={unreadCount}
+                                        onToggleNotifications={() => setShowNotificationPanel(prev => !prev)}
                                     >
                                         <React.Suspense fallback={<div className="h-full w-full" />}>
                                             {renderActiveView()}
@@ -1360,6 +1362,7 @@ function MainContent() {
                                         data={currentBroadcast}
                                     />
                                     <UpgradeModal />
+                                    <NotificationPanel isOpen={showNotificationPanel} onClose={() => setShowNotificationPanel(false)} />
                                     {showOnboarding && (
                                         <React.Suspense fallback={null}>
                                             <OnboardingTour onComplete={handleOnboardingComplete} />

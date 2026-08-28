@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Plus, ArrowUpRight, ArrowDownRight, User, ChevronRight } from 'lucide-react';
+import { Plus, ArrowUpRight, ArrowDownRight, User, Bell } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import DesktopSidebar from './DesktopSidebar';
 import TransactionItem from './TransactionItem';
@@ -197,9 +197,9 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
 };
 
 /* ─────────────────────────────────────────────
-   Desktop Top Header
+   Desktop Top Header  (matches mobile style)
 ───────────────────────────────────────────── */
-const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTab }) => {
+const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTab, unreadCount, onToggleNotifications }) => {
     const [imgRetries, setImgRetries] = useState(0);
     const MAX_IMG_RETRIES = 3;
 
@@ -222,62 +222,87 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         privacy: 'Privacy Policy',
     };
 
-    const hour = new Date().getHours();
-    const greeting = hour < 12 ? t('good_morning') : hour < 18 ? t('good_afternoon') : t('good_evening');
+    const isHome = activeTab === 'home';
 
     return (
-        <div className="flex-shrink-0 grid grid-cols-3 items-center
-                        px-6 py-3
-                        bg-white dark:bg-surface-dark2
+        <div className="flex-shrink-0 flex items-center justify-between
+                        px-6 py-3 min-h-[60px]
+                        bg-gray-50 dark:bg-surface-dark
                         border-b border-gray-100 dark:border-white/[0.05]
                         sticky top-0 z-30">
 
-            {/* ── Left: User Profile Card ── */}
+            {/* ── Left: Circular Profile Avatar ── */}
             <button
                 onClick={() => setActiveTab('profile')}
-                className="flex items-center gap-2.5 group w-fit
-                           px-2.5 py-1.5 -ml-1 rounded-2xl
-                           hover:bg-gray-100 dark:hover:bg-white/[0.06]
+                className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0
+                           bg-gradient-to-br from-violet-500 to-violet-700
+                           border-2 border-violet-200 dark:border-violet-900/50
+                           flex items-center justify-center
+                           text-white shadow-md
+                           hover:scale-105 active:scale-95
                            transition-all duration-200"
+                title={t('nav_profile')}
             >
-                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0
-                                bg-gradient-to-br from-violet-500 to-violet-700
-                                border-2 border-violet-200 dark:border-violet-900/60
-                                flex items-center justify-center text-white shadow-sm">
-                    {photoURL && imgRetries < MAX_IMG_RETRIES ? (
-                        <img src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
-                            alt="Profile"
-                            referrerPolicy="no-referrer"
-                            crossOrigin="anonymous"
-                            className="w-full h-full object-cover"
-                            onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)} />
-                    ) : (
-                        <User size={14} />
-                    )}
-                </div>
-                <div className="text-left hidden xl:block">
-                    <p className="text-xs font-bold text-gray-800 dark:text-white leading-tight truncate max-w-[120px]">
-                        {displayName}
-                    </p>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-tight">
-                        {greeting}! 👋
-                    </p>
-                </div>
-                <ChevronRight size={13} className="text-gray-300 dark:text-gray-600 group-hover:text-violet-500 transition-colors flex-shrink-0 hidden xl:block" />
+                {photoURL && imgRetries < MAX_IMG_RETRIES ? (
+                    <img
+                        src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
+                        alt="Profile"
+                        referrerPolicy="no-referrer"
+                        crossOrigin="anonymous"
+                        className="w-full h-full object-cover"
+                        onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
+                    />
+                ) : (
+                    <User size={18} />
+                )}
             </button>
 
-            {/* ── Center: Page Title ── */}
-            <div className="text-center">
-                <h2 className="text-base font-black text-gray-900 dark:text-white tracking-tight leading-tight">
-                    {tabTitles[activeTab] || ''}
-                </h2>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium leading-tight">
-                    {new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-                </p>
+            {/* ── Center: SpendWise logo (home) or page title ── */}
+            <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none select-none">
+                {isHome ? (
+                    <h1 className="text-[17px] font-black tracking-tight
+                                  bg-gradient-to-r from-violet-600 to-indigo-500
+                                  dark:from-violet-400 dark:to-indigo-400
+                                  bg-clip-text text-transparent">
+                        SpendWise
+                    </h1>
+                ) : (
+                    <h2 className="text-[16px] font-bold text-gray-900 dark:text-white
+                                  truncate max-w-[220px] text-center">
+                        {tabTitles[activeTab] || ''}
+                    </h2>
+                )}
             </div>
 
-            {/* ── Right: Add Button ── */}
-            <div className="flex items-center justify-end gap-2">
+            {/* ── Right: Bell + Add Button ── */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Notification Bell */}
+                <button
+                    onClick={onToggleNotifications}
+                    className="relative w-10 h-10 rounded-full flex-shrink-0
+                               bg-gray-100 dark:bg-white/[0.08]
+                               flex items-center justify-center
+                               text-gray-500 dark:text-white/50
+                               hover:bg-violet-100 dark:hover:bg-violet-900/30
+                               hover:text-violet-600 dark:hover:text-violet-400
+                               hover:scale-110 active:scale-90
+                               transition-all duration-200"
+                    aria-label="Notifications"
+                >
+                    <Bell size={18} />
+                    {unreadCount > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5
+                                         w-4 h-4 rounded-full
+                                         bg-violet-600 text-white
+                                         text-[9px] font-black
+                                         flex items-center justify-center
+                                         shadow-sm">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                    )}
+                </button>
+
+                {/* Add Button */}
                 <button
                     onClick={onAdd}
                     className="flex items-center gap-2 px-5 py-2.5
@@ -304,6 +329,7 @@ const DesktopLayout = ({
     balance, totalIncome, totalExpense,
     transactions, budgets,
     onSignOut, onAdd,
+    unreadCount, onToggleNotifications,
     children,
 }) => {
     const { t } = useSettings();
@@ -338,6 +364,8 @@ const DesktopLayout = ({
                     displayName={displayName}
                     photoURL={photoURL}
                     setActiveTab={setActiveTab}
+                    unreadCount={unreadCount}
+                    onToggleNotifications={onToggleNotifications}
                 />
 
                 <div className="flex-1 flex overflow-hidden">
