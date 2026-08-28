@@ -1028,8 +1028,17 @@ function MainContent() {
                 }
 
                 // Notify edit
-                addNotification('edit',
-                    `${translate('notification_edited') || 'Transaction edited'}${transaction.category ? ' • ' + transaction.category : ''}`);
+                addNotification(
+                    'edit',
+                    translate('notification_edited') || 'Transaction edited',
+                    {
+                        amount:   transaction.amount,
+                        category: transaction.category,
+                        note:     transaction.note,
+                        date:     transaction.date || editingTransaction.date,
+                        txType:   transaction.type || editingTransaction.type,
+                    }
+                );
             } else {
                 const { data, error } = await supabase.from('transactions')
                     .insert({ ...newTx, user_id: user.id })
@@ -1045,8 +1054,17 @@ function MainContent() {
                 const typeLabel = newTx.type === 'expense'
                     ? translate('notification_added_expense') || 'New expense recorded'
                     : translate('notification_added_income') || 'New income recorded';
-                addNotification(newTx.type === 'expense' ? 'add' : 'add',
-                    `${typeLabel}${newTx.note ? ': ' + newTx.note : (newTx.category ? ' • ' + newTx.category : '')}`);
+                addNotification(
+                    newTx.type === 'expense' ? 'add' : 'add',
+                    typeLabel,
+                    {
+                        amount:   newTx.amount,
+                        category: newTx.category,
+                        note:     newTx.note,
+                        date:     newTx.date,
+                        txType:   newTx.type,
+                    }
+                );
 
                 await checkBudgetThresholds({ ...newTx, id: txId });
             }
@@ -1082,8 +1100,17 @@ function MainContent() {
             }
 
             // Notify delete
-            addNotification('delete',
-                `${translate('notification_deleted') || 'Transaction deleted'}${deletedTx?.category ? ' • ' + deletedTx.category : ''}`);
+            addNotification(
+                'delete',
+                translate('notification_deleted') || 'Transaction deleted',
+                {
+                    amount:   deletedTx?.amount,
+                    category: deletedTx?.category,
+                    note:     deletedTx?.note,
+                    date:     deletedTx?.date,
+                    txType:   deletedTx?.type,
+                }
+            );
 
             if (deletedTx?.type === 'expense' && deletedTx.category) {
                 const affectedBudget = budgets.find(b =>

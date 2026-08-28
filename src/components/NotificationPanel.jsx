@@ -206,6 +206,17 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                     {notifications.map((notif, idx) => {
                                         const cfg = TYPE_CONFIG[notif.type] || TYPE_CONFIG.info;
                                         const IconComp = cfg.icon;
+                                        const meta = notif.metadata || {};
+                                        const hasAmount = meta.amount !== undefined && meta.amount !== null;
+                                        const isExpense = meta.txType === 'expense';
+                                        const amountSign = isExpense ? '-' : '+';
+                                        const amountColor = isExpense
+                                            ? 'text-rose-600 dark:text-rose-400'
+                                            : 'text-emerald-600 dark:text-emerald-400';
+                                        const amountBg = isExpense
+                                            ? 'bg-rose-50 dark:bg-rose-900/25 border-rose-200/60 dark:border-rose-700/40'
+                                            : 'bg-emerald-50 dark:bg-emerald-900/25 border-emerald-200/60 dark:border-emerald-700/40';
+
                                         return (
                                             <motion.div
                                                 key={notif.id}
@@ -219,20 +230,61 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                                                 : "hover:bg-gray-50 dark:hover:bg-white/[0.04]"
                                                             }`}
                                             >
+                                                {/* Icon */}
                                                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg}`}>
                                                     <IconComp size={16} className={cfg.color} />
                                                 </div>
-                                                <div className="flex-1 min-w-0 pt-0.5">
-                                                    <p className={`text-[13px] font-semibold leading-snug
-                                                                   ${!notif.read
-                                                                       ? "text-gray-900 dark:text-white"
-                                                                       : "text-gray-600 dark:text-gray-400"}`}>
-                                                        {notif.message}
-                                                    </p>
-                                                    <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
-                                                        {timeAgo(notif.timestamp, t)}
+
+                                                {/* Body */}
+                                                <div className="flex-1 min-w-0 pt-0.5 space-y-1.5">
+                                                    {/* Title row */}
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <p className={`text-[13px] font-semibold leading-snug truncate
+                                                                       ${!notif.read
+                                                                           ? "text-gray-900 dark:text-white"
+                                                                           : "text-gray-600 dark:text-gray-400"}`}>
+                                                            {notif.message}
+                                                        </p>
+                                                        {/* Amount badge */}
+                                                        {hasAmount && (
+                                                            <span className={`text-[12px] font-bold px-2 py-0.5 rounded-lg border flex-shrink-0 ${amountColor} ${amountBg}`}>
+                                                                {amountSign}{Number(meta.amount).toLocaleString('el-GR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Chips row: category + note */}
+                                                    {(meta.category || meta.note) && (
+                                                        <div className="flex flex-wrap items-center gap-1.5">
+                                                            {meta.category && (
+                                                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-md
+                                                                                bg-gray-100 dark:bg-white/[0.08]
+                                                                                text-gray-600 dark:text-gray-300">
+                                                                    {meta.category}
+                                                                </span>
+                                                            )}
+                                                            {meta.note && (
+                                                                <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate max-w-[160px]"
+                                                                      title={meta.note}>
+                                                                    "{meta.note}"
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    {/* Date + time-ago */}
+                                                    <p className="text-[11px] text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
+                                                        {meta.date && (
+                                                            <>
+                                                                <span>{new Date(meta.date).toLocaleDateString('el-GR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                                                <span className="text-gray-300 dark:text-gray-600">·</span>
+                                                            </>
+                                                        )}
+                                                        <span>{timeAgo(notif.timestamp, t)}</span>
                                                     </p>
                                                 </div>
+
+                                                {/* Unread dot */}
                                                 {!notif.read && (
                                                     <div className="w-2 h-2 rounded-full bg-violet-500 flex-shrink-0 mt-2" />
                                                 )}

@@ -58,11 +58,12 @@ export const NotificationProvider = ({ children }) => {
         }
     }, [notifications, userId]);
 
-    const addNotification = useCallback((type, message) => {
+    const addNotification = useCallback((type, message, metadata = {}) => {
         const newNotif = {
             id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
             type,
             message,
+            metadata, // { amount, category, note, date }
             timestamp: new Date().toISOString(),
             read: false,
         };
