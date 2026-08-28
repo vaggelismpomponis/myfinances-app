@@ -311,7 +311,7 @@ const StatsView = ({ transactions }) => {
             </motion.div>
 
             {/* ── Time Filter ── */}
-            <div className="sticky top-2 z-40 px-1">
+            <div className="px-1">
                 <div className="bg-gray-100 dark:bg-black/40 backdrop-blur-xl rounded-2xl p-1.5 shadow-premium flex gap-1 border border-gray-200 dark:border-white/5 overflow-x-auto scrollbar-hide">
                     {TIME_FILTERS.map(f => (
                         <TimeBtn key={f.value} value={f.value} label={f.label}

@@ -79,10 +79,10 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
             : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400';
 
     return (
-        <div className={`bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden shadow-sm border transition-all duration-300 ${
+        <div className={`bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden shadow-card border transition-all duration-300 ${
             isOver ? 'border-red-200 dark:border-red-900/40' :
             isWarn ? 'border-orange-200 dark:border-orange-900/40' :
-            'border-gray-100 dark:border-transparent'
+            'border-gray-200/50 dark:border-transparent'
         }`}>
             {/* Colored left accent bar */}
             <div className={`h-0.5 w-full bg-gradient-to-r ${meta.color}`} />

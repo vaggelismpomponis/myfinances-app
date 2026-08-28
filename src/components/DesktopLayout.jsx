@@ -229,7 +229,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                         px-6 py-3 min-h-[60px]
                         bg-gray-50 dark:bg-surface-dark
                         border-b border-gray-100 dark:border-white/5
-                        sticky top-0 z-30 relative">
+                        relative z-50">
 
             {/* ── Left: Profile Avatar ── */}
             <button
@@ -338,8 +338,8 @@ const DesktopLayout = ({
     const { t } = useSettings();
 
     // Tabs that should NOT show the right panel (full-width sub-pages)
-    const hideRightPanel = ['home', 'profile', 'profile-details', 'general', 'security', 'backup',
-        'feedback', 'guide', 'admin', 'privacy', 'recurring'].includes(activeTab);
+    const hideRightPanel = ['profile', 'profile-details', 'general', 'security', 'backup',
+        'feedback', 'guide', 'admin', 'privacy'].includes(activeTab);
 
     return (
         <div className="h-full w-full flex bg-gray-50 dark:bg-surface-dark overflow-hidden">
@@ -374,7 +374,7 @@ const DesktopLayout = ({
                 <div className="flex-1 flex overflow-hidden">
                     {/* Main scrollable area */}
                     <main className="flex-1 overflow-y-auto custom-scrollbar">
-                        <div className={hideRightPanel ? 'h-full' : 'py-6 px-6'}>
+                        <div className="h-full">
                             {children}
                         </div>
                     </main>

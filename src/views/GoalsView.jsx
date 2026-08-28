@@ -399,8 +399,8 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                     <div
                                         key={goal.id}
                                         className={`bg-white dark:bg-surface-dark rounded-2xl overflow-hidden
-                                                    shadow-sm ring-1 ring-inset transition-all duration-300
-                                                    ${done ? 'ring-emerald-500/30' : 'ring-gray-100/80 dark:ring-white/5'}`}
+                                                    shadow-card ring-1 ring-inset transition-all duration-300
+                                                    ${done ? 'ring-emerald-500/30' : 'ring-gray-200/50 dark:ring-white/5'}`}
                                         style={{ animationDelay: `${idx * 60}ms` }}
                                     >
                                         {/* Colour stripe */}

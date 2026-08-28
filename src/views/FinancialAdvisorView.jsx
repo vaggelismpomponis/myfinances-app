@@ -741,7 +741,7 @@ const Header = ({ onBack, hideHeader, t }) => (
 );
 
 const SectionCard = ({ children }) => (
-    <div className="bg-white dark:bg-surface-dark3 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-transparent">
+    <div className="bg-white dark:bg-surface-dark3 rounded-3xl p-5 shadow-card border border-gray-200/50 dark:border-transparent">
         {children}
     </div>
 );
