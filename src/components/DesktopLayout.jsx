@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Plus, ArrowUpRight, ArrowDownRight, User, Bell } from 'lucide-react';
+import { Plus, ArrowUpRight, ArrowDownRight, Bell, User } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import DesktopSidebar from './DesktopSidebar';
 import TransactionItem from './TransactionItem';
@@ -197,11 +197,13 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
 };
 
 /* ─────────────────────────────────────────────
-   Desktop Top Header  (matches mobile style)
+   Desktop Top Header
 ───────────────────────────────────────────── */
 const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTab, unreadCount, onToggleNotifications }) => {
+
     const [imgRetries, setImgRetries] = useState(0);
     const MAX_IMG_RETRIES = 3;
+    const isHome = activeTab === 'home';
 
     const tabTitles = {
         home: t('nav_home'),
@@ -222,16 +224,14 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         privacy: 'Privacy Policy',
     };
 
-    const isHome = activeTab === 'home';
-
     return (
         <div className="flex-shrink-0 flex items-center justify-between
                         px-6 py-3 min-h-[60px]
                         bg-gray-50 dark:bg-surface-dark
-                        border-b border-gray-100 dark:border-white/[0.05]
-                        sticky top-0 z-30">
+                        border-b border-gray-100 dark:border-white/5
+                        sticky top-0 z-30 relative">
 
-            {/* ── Left: Circular Profile Avatar ── */}
+            {/* ── Left: Profile Avatar ── */}
             <button
                 onClick={() => setActiveTab('profile')}
                 className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0
@@ -257,22 +257,24 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                 )}
             </button>
 
-            {/* ── Center: SpendWise logo (home) or page title ── */}
-            <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none select-none">
-                {isHome ? (
-                    <h1 className="text-[17px] font-black tracking-tight
-                                  bg-gradient-to-r from-violet-600 to-indigo-500
-                                  dark:from-violet-400 dark:to-indigo-400
-                                  bg-clip-text text-transparent">
-                        SpendWise
-                    </h1>
-                ) : (
-                    <h2 className="text-[16px] font-bold text-gray-900 dark:text-white
-                                  truncate max-w-[220px] text-center">
-                        {tabTitles[activeTab] || ''}
-                    </h2>
-                )}
-            </div>
+            {/* ── Center: SpendWise (home) or Page Title ── */}
+            {isHome ? (
+                <h1 className="absolute left-1/2 -translate-x-1/2
+                               text-[17px] font-black tracking-tight
+                               bg-gradient-to-r from-violet-600 to-indigo-500
+                               dark:from-violet-400 dark:to-indigo-400
+                               bg-clip-text text-transparent
+                               select-none pointer-events-none">
+                    SpendWise
+                </h1>
+            ) : (
+                <h2 className="absolute left-1/2 -translate-x-1/2
+                               text-[16px] font-bold text-gray-900 dark:text-white
+                               truncate max-w-[220px] text-center
+                               pointer-events-none select-none">
+                    {tabTitles[activeTab] || ''}
+                </h2>
+            )}
 
             {/* ── Right: Bell + Add Button ── */}
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -319,6 +321,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         </div>
     );
 };
+
 
 /* ─────────────────────────────────────────────
    Main Desktop Layout

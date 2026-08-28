@@ -12,39 +12,6 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import { motion } from 'framer-motion';
 
 /* ─────────────────────────────────────────────
-   Desktop Quick Action Chip
-───────────────────────────────────────────── */
-const DesktopQuickChip = ({ icon: Icon, label, onClick, isPro, userIsPro, delay }) => (
-    <motion.button
-        whileHover={{ scale: 1.04, y: -2 }}
-        whileTap={{ scale: 0.97 }}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: parseFloat(delay) / 1000 }}
-        onClick={onClick}
-        className="flex items-center gap-3 px-5 py-3.5 rounded-2xl
-                   bg-white dark:bg-surface-dark3
-                   border-2 border-gray-100 dark:border-white/[0.07]
-                   shadow-sm
-                   hover:bg-violet-600 dark:hover:bg-violet-600
-                   hover:border-violet-600 dark:hover:border-violet-500
-                   hover:shadow-lg hover:shadow-violet-500/25
-                   transition-all duration-200 group relative flex-1"
-    >
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0
-                        bg-violet-100 dark:bg-violet-900/50
-                        group-hover:bg-white/20
-                        transition-colors duration-200">
-            <Icon size={17} className="text-violet-600 dark:text-violet-400 group-hover:text-white transition-colors duration-200" />
-        </div>
-        <span className="text-sm font-bold text-gray-700 dark:text-gray-200 group-hover:text-white transition-colors duration-200">{label}</span>
-        {isPro && !userIsPro && (
-            <Crown size={11} className="text-amber-400 group-hover:text-amber-300 ml-auto flex-shrink-0 transition-colors" />
-        )}
-    </motion.button>
-);
-
-/* ─────────────────────────────────────────────
    Mobile Quick Action Button (original style)
 ───────────────────────────────────────────── */
 const QuickAction = ({ icon: Icon, label, color, bg, onClick, delay, isPro, userIsPro }) => (
@@ -70,6 +37,113 @@ const QuickAction = ({ icon: Icon, label, color, bg, onClick, delay, isPro, user
         <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300">{label}</span>
     </motion.button>
 );
+
+/* ─────────────────────────────────────────────
+   Desktop Stat Cards Row (replaces Hero Card)
+───────────────────────────────────────────── */
+const DesktopStatCards = ({ balance, totalIncome, totalExpense, stats, t, privacyMode }) => {
+    const netFlow = totalIncome - totalExpense;
+    const isPositive = netFlow >= 0;
+
+    const cards = [
+        {
+            id: 'balance',
+            label: t('balance'),
+            value: balance,
+            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>,
+            iconBg: 'bg-violet-100 dark:bg-violet-900/40',
+            iconColor: 'text-violet-600 dark:text-violet-400',
+            badge: stats.diffPct > 0 ? (
+                <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    stats.trend === 'below'
+                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
+                        : stats.trend === 'above'
+                            ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
+                            : 'bg-gray-100 dark:bg-white/10 text-gray-500'
+                }`}>
+                    {stats.trend === 'below' && <TrendingDown size={10} />}
+                    {stats.trend === 'above' && <TrendingUp size={10} />}
+                    {stats.trend === 'neutral' && <Minus size={10} />}
+                    {stats.diffPct}% {t('this_month_spend')?.slice(0, 6)}
+                </span>
+            ) : null,
+            border: 'border-violet-100/80 dark:border-violet-900/20',
+            delay: 0,
+        },
+        {
+            id: 'income',
+            label: t('stats_income'),
+            value: totalIncome,
+            icon: <ArrowUpRight size={20} />,
+            iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
+            iconColor: 'text-emerald-600 dark:text-emerald-400',
+            badge: null,
+            border: 'border-emerald-100/80 dark:border-emerald-900/20',
+            delay: 0.05,
+        },
+        {
+            id: 'expenses',
+            label: t('stats_expense'),
+            value: totalExpense,
+            icon: <ArrowDownRight size={20} />,
+            iconBg: 'bg-rose-100 dark:bg-rose-900/30',
+            iconColor: 'text-rose-600 dark:text-rose-400',
+            badge: null,
+            border: 'border-rose-100/80 dark:border-rose-900/20',
+            delay: 0.1,
+        },
+        {
+            id: 'netflow',
+            label: 'Net Flow',
+            value: Math.abs(netFlow),
+            rawPrefix: isPositive ? '+' : '−',
+            icon: isPositive ? <TrendingUp size={20} /> : <TrendingDown size={20} />,
+            iconBg: isPositive ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-rose-100 dark:bg-rose-900/30',
+            iconColor: isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400',
+            valueColor: isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400',
+            badge: null,
+            border: isPositive ? 'border-emerald-100/80 dark:border-emerald-900/20' : 'border-rose-100/80 dark:border-rose-900/20',
+            delay: 0.15,
+        },
+    ];
+
+    return (
+        <div className="grid grid-cols-4 gap-4">
+            {cards.map((card) => (
+                <motion.div
+                    key={card.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: card.delay }}
+                    className={`bg-white dark:bg-surface-dark3
+                                border ${card.border}
+                                rounded-2xl p-5
+                                shadow-sm hover:shadow-md
+                                transition-all duration-200 group`}
+                >
+                    <div className="flex items-start justify-between mb-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                            card.iconBg} ${card.iconColor} transition-transform duration-200 group-hover:scale-110`}>
+                            {card.icon}
+                        </div>
+                        {card.badge}
+                    </div>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
+                        {card.label}
+                    </p>
+                    <p className={`text-2xl font-black tracking-tight tabular-nums ${
+                        card.valueColor || 'text-gray-900 dark:text-white'
+                    }`}>
+                        {card.rawPrefix && !privacyMode && (
+                            <span className="text-lg font-bold mr-0.5">{card.rawPrefix}</span>
+                        )}
+                        <Amount value={card.value} showSign={false} />
+                    </p>
+                </motion.div>
+            ))}
+        </div>
+    );
+};
 
 /* ─────────────────────────────────────────────
    Desktop Financial Summary Card
@@ -474,154 +548,179 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
     // ── DESKTOP LAYOUT ──
     if (isDesktop) {
         return (
-            <div className="space-y-6 p-6 lg:p-8">
+            <div className="space-y-5 p-6 lg:p-7">
 
-                {/* ── Quick Actions Row ── */}
-                <div>
-                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.15em] mb-2.5 ml-1">
-                        {t('quick_access')}
-                    </p>
-                    <div className="flex gap-3">
-                        {quickActions.map((action) => (
-                            <DesktopQuickChip
-                                key={action.label}
-                                icon={action.icon}
-                                label={action.label}
-                                onClick={action.onClick}
-                                isPro={action.isPro}
-                                userIsPro={action.userIsPro}
-                                delay={action.delay}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                {/* ── Premium Hero Card (wide) ── */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.97 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, type: 'spring' }}
-                    className="relative overflow-hidden rounded-[2rem] hero-gradient
-                                p-8 shadow-premium border border-violet-200/40 dark:border-white/[0.06]"
-                >
-                    {/* Decorative background orbs */}
-                    <div className="absolute -top-20 -right-20 w-56 h-56 bg-violet-400/[0.12] dark:bg-violet-500/[0.08] blur-[80px] rounded-full pointer-events-none" />
-                    <div className="absolute -bottom-16 -left-12 w-44 h-44 bg-indigo-400/[0.08] dark:bg-indigo-500/[0.06] blur-[60px] rounded-full pointer-events-none" />
-                    <div className="absolute top-10 right-1/3 w-32 h-32 bg-violet-300/[0.06] dark:bg-violet-400/[0.04] blur-[50px] rounded-full pointer-events-none" />
-
-                    <div className="relative z-10 flex items-end justify-between gap-8">
-                        {/* Left: Amount + Trend */}
-                        <div>
-                            <p className="text-violet-500/80 dark:text-violet-300/50 text-[10px] font-black uppercase tracking-[0.15em] mb-2">
-                                {t('this_month_spend')}
-                            </p>
-                            <div className="flex items-start gap-1.5">
-                                {!privacyMode && (
-                                    <span className="text-2xl font-bold text-gray-400 dark:text-gray-500 mt-2.5">€</span>
-                                )}
-                                <h1 className="text-[4rem] leading-none font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
-                                    <Amount
-                                        value={stats.curSpent}
-                                        showCurrency={false}
-                                        minimumFractionDigits={2}
-                                        maximumFractionDigits={2}
-                                    />
-                                </h1>
-                            </div>
-                            <div className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-[11px] font-bold
-                                ${stats.trend === 'below'
-                                    ? 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/[0.12]'
-                                    : stats.trend === 'above'
-                                        ? 'text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:bg-rose-500/[0.12]'
-                                        : 'text-gray-500 bg-gray-200/60 dark:text-gray-400 dark:bg-white/[0.06]'}`}
-                            >
-                                {stats.trend === 'below' && <TrendingDown size={13} />}
-                                {stats.trend === 'above' && <TrendingUp size={13} />}
-                                {stats.trend === 'neutral' && <Minus size={13} />}
-                                <span>
-                                    {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Right: Income / Expense cards */}
-                        <div className="flex gap-3 pb-1">
-                            <div className="flex items-center gap-3 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-4 py-3.5 border border-white/80 dark:border-white/[0.04] min-w-[170px]">
-                                <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
-                                    <ArrowUpRight size={16} className="text-emerald-600 dark:text-emerald-400" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('stats_income')}</p>
-                                    <p className="text-sm font-black text-gray-900 dark:text-white truncate tabular-nums">
-                                        <Amount value={totalIncome} />
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-4 py-3.5 border border-white/80 dark:border-white/[0.04] min-w-[170px]">
-                                <div className="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-500/15 flex items-center justify-center flex-shrink-0">
-                                    <ArrowDownRight size={16} className="text-rose-600 dark:text-rose-400" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('stats_expense')}</p>
-                                    <p className="text-sm font-black text-gray-900 dark:text-white truncate tabular-nums">
-                                        <Amount value={totalExpense} />
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
+                {/* ── Stat Cards Row ── */}
+                <DesktopStatCards
+                    balance={balance}
+                    totalIncome={totalIncome}
+                    totalExpense={totalExpense}
+                    stats={stats}
+                    t={t}
+                    privacyMode={privacyMode}
+                />
 
                 {/* ── 2-Column Dashboard Grid ── */}
                 <div className="grid grid-cols-5 gap-5 items-start">
 
                     {/* LEFT COLUMN — advisor + transactions (3/5 width) */}
-                    <div className="col-span-3 space-y-5">
-                        {/* AI Advisor CTA */}
+                    <div className="col-span-3 space-y-4">
+
+                        {/* AI Advisor CTA — compact inline card */}
                         <motion.button
-                            initial={{ opacity: 0, y: 8 }}
+                            initial={{ opacity: 0, y: 6 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.08 }}
+                            transition={{ delay: 0.1 }}
                             whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
                                 if (!isPro) { openUpgradeModal('advisor'); }
                                 else { setActiveTab('advisor'); }
                             }}
-                            className="w-full relative overflow-hidden glass-light dark:glass
-                                       p-4 rounded-[1.75rem]
-                                       shadow-sm hover:shadow-md
-                                       flex items-center gap-3.5 group transition-all duration-300"
+                            className="w-full relative overflow-hidden
+                                       bg-gradient-to-r from-violet-600 to-indigo-600
+                                       p-4 rounded-2xl
+                                       shadow-lg shadow-violet-500/20
+                                       flex items-center gap-3 group transition-all duration-200"
                         >
+                            {/* Subtle shimmer overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0
+                                            translate-x-[-100%] group-hover:translate-x-[100%]
+                                            transition-transform duration-700 pointer-events-none" />
                             {!isPro && (
-                                <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10 shadow-sm">
+                                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10 shadow-sm">
                                     <Crown size={10} className="text-white" fill="currentColor" />
                                 </div>
                             )}
-                            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
-                                            shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
-                                <Sparkles size={20} fill="currentColor" />
+                            <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white flex-shrink-0">
+                                <Sparkles size={18} fill="currentColor" />
                             </div>
                             <div className="flex-1 text-left min-w-0">
-                                <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium truncate mt-0.5">
-                                    {t('advisor_subtitle')}
+                                <h4 className="text-sm font-bold text-white leading-tight">{t('advisor_title')}</h4>
+                                <p className="text-[11px] text-white/70 font-medium truncate mt-0.5">
+                                    {advisorLiveInsight}
                                 </p>
                             </div>
-                            <div className="w-7 h-7 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-500 group-hover:translate-x-0.5 transition-transform flex-shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:translate-x-0.5 transition-transform flex-shrink-0">
                                 <ArrowRight size={14} />
                             </div>
                         </motion.button>
 
-                        {recentTransactions}
+                        {/* Recent Transactions */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 }}
+                            className="bg-white dark:bg-surface-dark3
+                                       border border-gray-100 dark:border-white/[0.05]
+                                       rounded-2xl"
+                        >
+                            <div className="flex justify-between items-center px-5 py-4 border-b border-gray-50 dark:border-white/[0.04]">
+                                <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                                    {t('recent')}
+                                    <span className="bg-gray-100 dark:bg-surface-dark4 text-gray-500 dark:text-gray-400 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                        {transactions.length}
+                                    </span>
+                                </h2>
+                                <button
+                                    onClick={() => setActiveTab('history')}
+                                    className="flex items-center gap-1 text-xs font-bold text-violet-600 dark:text-violet-400
+                                               hover:text-violet-500 transition-colors"
+                                >
+                                    {t('all')} <ChevronRight size={13} />
+                                </button>
+                            </div>
+
+                            {transactions.length === 0 ? (
+                                <div className="flex items-center gap-4 px-5 py-6">
+                                    <div className="w-12 h-12 rounded-xl bg-violet-50 dark:bg-violet-900/30
+                                                    flex items-center justify-center flex-shrink-0">
+                                        <TrendingUp size={22} className="text-violet-400" />
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-gray-700 dark:text-white/90 text-sm">
+                                            {t('no_transactions')}
+                                        </p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                                            {t('tap_to_add')}
+                                        </p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="divide-y divide-gray-50 dark:divide-white/[0.03]">
+                                    {transactions.slice(0, 10).map((tx, idx) => (
+                                        <motion.div
+                                            key={tx.id}
+                                            initial={{ opacity: 0, x: -6 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.18 + (idx * 0.03) }}
+                                        >
+                                            <TransactionItem transaction={tx} onDelete={onDelete} onEdit={onEdit} />
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            )}
+                        </motion.div>
                     </div>
 
-                    {/* RIGHT COLUMN — budgets (2/5 width) */}
-                    <div className="col-span-2 space-y-5 sticky top-4">
+                    {/* RIGHT COLUMN — budgets + monthly overview (2/5 width) */}
+                    <div className="col-span-2 space-y-4 sticky top-4">
+
+                        {/* Monthly Overview Card */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.12 }}
+                            className="relative overflow-hidden rounded-2xl hero-gradient
+                                       p-5 border border-violet-200/40 dark:border-white/[0.06]
+                                       shadow-sm"
+                        >
+                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-violet-400/[0.1] dark:bg-violet-500/[0.07] blur-[50px] rounded-full pointer-events-none" />
+                            <div className="relative z-10">
+                                <p className="text-[10px] font-black uppercase tracking-[0.15em] text-violet-500/80 dark:text-violet-300/50 mb-2">
+                                    {t('this_month_spend')}
+                                </p>
+                                <div className="flex items-end justify-between gap-3">
+                                    <div>
+                                        <div className="flex items-start gap-1">
+                                            {!privacyMode && (
+                                                <span className="text-lg font-bold text-gray-400 dark:text-gray-500 mt-1">€</span>
+                                            )}
+                                            <span className="text-[2.5rem] leading-none font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
+                                                <Amount value={stats.curSpent} showCurrency={false} minimumFractionDigits={2} maximumFractionDigits={2} />
+                                            </span>
+                                        </div>
+                                        <div className={`inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                                            stats.trend === 'below'
+                                                ? 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/[0.12]'
+                                                : stats.trend === 'above'
+                                                    ? 'text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:bg-rose-500/[0.12]'
+                                                    : 'text-gray-500 bg-gray-200/60 dark:text-gray-400 dark:bg-white/[0.06]'
+                                        }`}>
+                                            {stats.trend === 'below' && <TrendingDown size={11} />}
+                                            {stats.trend === 'above' && <TrendingUp size={11} />}
+                                            {stats.trend === 'neutral' && <Minus size={11} />}
+                                            <span>
+                                                {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Budget Progress Card */}
                         <BudgetProgressCard
                             budgets={budgets}
                             transactions={transactions}
                             setActiveTab={setActiveTab}
+                            t={t}
+                        />
+
+                        {/* Financial Summary Card */}
+                        <FinancialSummaryCard
+                            totalIncome={totalIncome}
+                            totalExpense={totalExpense}
                             t={t}
                         />
                     </div>

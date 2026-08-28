@@ -93,34 +93,7 @@ const DesktopSidebar = ({
             </div>
 
 
-            {/* ── Balance Summary ── */}
-            <div className="mx-4 mb-3">
-                <div className="bg-gradient-to-br from-violet-600 to-indigo-700
-                                rounded-2xl p-4 relative overflow-hidden">
-                    <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10 blur-xl" />
-                    <p className="text-[10px] font-bold text-white/60 uppercase tracking-wider mb-1">
-                        {t('balance')}
-                    </p>
-                    <p className="text-2xl font-black text-white tracking-tight tabular-nums">
-                        <Amount value={balance} />
-                    </p>
-                    <div className="flex gap-3 mt-3">
-                        <div className="flex-1">
-                            <p className="text-[9px] font-bold text-emerald-300/70 uppercase">In</p>
-                            <p className="text-xs font-black text-emerald-300">
-                                <Amount value={totalIncome} />
-                            </p>
-                        </div>
-                        <div className="w-px bg-white/10" />
-                        <div className="flex-1">
-                            <p className="text-[9px] font-bold text-rose-300/70 uppercase">Out</p>
-                            <p className="text-xs font-black text-rose-300">
-                                <Amount value={totalExpense} />
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             {/* ── Primary Navigation ── */}
             <div className="flex-1 px-3 space-y-0.5">
