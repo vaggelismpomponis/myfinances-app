@@ -55,7 +55,7 @@ const StatCard = ({ icon: Icon, label, value, color, bgColor, onClick, trend }) 
             )}
         </div>
         <div>
-            <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5">{label}</p>
+            <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5 truncate">{label}</p>
             <p className="text-3xl font-black text-gray-900 dark:text-white">{value}</p>
         </div>
         {trend !== undefined && (
@@ -163,7 +163,7 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
         <div className="space-y-5 animate-fade-in">
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
                 <StatCard
                     icon={Users} label="Total Users" value={stats.users}
                     color="text-blue-500" bgColor="bg-blue-50 dark:bg-blue-500/10"
@@ -185,7 +185,7 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
             </div>
 
             {/* Middle Row: Subscription Donut + Engagement + Platform */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 min-[1106px]:grid-cols-2 min-[1408px]:grid-cols-3 gap-4">
 
                 {/* Subscription Breakdown */}
                 <div className="bg-white dark:bg-surface-dark2 p-5 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm">

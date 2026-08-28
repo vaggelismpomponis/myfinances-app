@@ -372,38 +372,6 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) 
 
             <div className="flex-1 overflow-y-auto px-4 py-5 space-y-5 pb-28">
 
-                {/* ─── SECTION A: Daily Insights ─── */}
-                <SectionCard>
-                    <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2 text-sm">
-                            <span className="w-7 h-7 rounded-xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
-                                <Sparkles size={14} className="text-violet-600 dark:text-violet-400" />
-                            </span>
-                            {t('daily_insights_title')}
-                        </h3>
-                        {insights.length > 1 && (
-                            <div className="flex gap-1.5">
-                                <button onClick={prevInsight} className="w-7 h-7 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 dark:text-white/60 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors">
-                                    <ChevronLeft size={14} />
-                                </button>
-                                <button onClick={nextInsight} className="w-7 h-7 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 dark:text-white/60 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors">
-                                    <ChevronRight size={14} />
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                    <div className="overflow-hidden">
-                        <div
-                            className="flex transition-transform duration-500 ease-in-out"
-                            style={{ transform: `translateX(-${activeInsight * 100}%)` }}
-                        >
-                            {insights.map((insight, i) => (
-                                <InsightCard key={i} text={insight} index={i} total={insights.length} />
-                            ))}
-                        </div>
-                    </div>
-                </SectionCard>
-
                 {/* ─── SECTION B: Wellness Score ─── */}
                 <div className="bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-800 rounded-3xl p-5 text-white shadow-xl shadow-violet-500/25 relative overflow-hidden">
                     {/* Decorative blur blobs */}
@@ -451,6 +419,38 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) 
                         </div>
                     </div>
                 </div>
+
+                {/* ─── SECTION A: Daily Insights ─── */}
+                <SectionCard>
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2 text-sm">
+                            <span className="w-7 h-7 rounded-xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
+                                <Sparkles size={14} className="text-violet-600 dark:text-violet-400" />
+                            </span>
+                            {t('daily_insights_title')}
+                        </h3>
+                        {insights.length > 1 && (
+                            <div className="flex gap-1.5">
+                                <button onClick={prevInsight} className="w-7 h-7 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 dark:text-white/60 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors">
+                                    <ChevronLeft size={14} />
+                                </button>
+                                <button onClick={nextInsight} className="w-7 h-7 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 dark:text-white/60 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors">
+                                    <ChevronRight size={14} />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    <div className="overflow-hidden">
+                        <div
+                            className="flex transition-transform duration-500 ease-in-out"
+                            style={{ transform: `translateX(-${activeInsight * 100}%)` }}
+                        >
+                            {insights.map((insight, i) => (
+                                <InsightCard key={i} text={insight} index={i} total={insights.length} />
+                            ))}
+                        </div>
+                    </div>
+                </SectionCard>
 
                 {/* ─── SECTION C: Spending Breakdown (Donut) ─── */}
                 <SectionCard>

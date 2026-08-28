@@ -76,12 +76,12 @@ const AdminUpdates = ({
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 min-[1106px]:grid-cols-2 min-[1408px]:grid-cols-3 gap-4">
                                 <div>
                                     <label className="text-[10px] font-bold uppercase text-gray-400 mb-1.5 block ml-1">Version</label>
                                     <input placeholder="1.2.0" className="w-full p-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-transparent rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/30" value={newUpdate.version} onChange={e => setNewUpdate({ ...newUpdate, version: e.target.value })} />
                                 </div>
-                                <div className="md:col-span-2 grid grid-cols-2 gap-3">
+                                <div className="min-[1408px]:col-span-2 grid grid-cols-2 gap-3">
                                     <div>
                                         <label className="text-[10px] font-bold uppercase text-gray-400 mb-1.5 block ml-1">Greek Title</label>
                                         <input placeholder="Τι νέο υπάρχει;" className="w-full p-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-transparent rounded-xl text-sm focus:outline-none" value={newUpdate.title_el} onChange={e => setNewUpdate({ ...newUpdate, title_el: e.target.value })} />

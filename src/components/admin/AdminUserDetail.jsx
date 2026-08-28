@@ -269,7 +269,7 @@ const AdminUserDetail = ({
                     </div>
 
                     {/* Identity details grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
                         {profile.created_at && (
                             <div className="flex items-center gap-2.5 p-3 bg-gray-50 dark:bg-white/[0.03] rounded-2xl">
                                 <Calendar size={14} className="text-violet-500 shrink-0" />
@@ -309,7 +309,7 @@ const AdminUserDetail = ({
             </div>
 
             {/* Usage Stats */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <StatBadge icon={TrendingUp} label="Transactions" value={profileStats.transactions}
                     color="text-violet-500" bgColor="bg-violet-50 dark:bg-violet-500/10" loading={loadingProfileData} />
                 <StatBadge icon={Target} label="Budgets" value={profileStats.budgets}
@@ -319,10 +319,10 @@ const AdminUserDetail = ({
             </div>
 
             {/* Session Timeline + Notes/Tools */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 min-[1106px]:grid-cols-2 min-[1408px]:grid-cols-3 gap-4">
 
                 {/* Session Timeline — takes 2/3 width on desktop */}
-                <div className="lg:col-span-2 bg-white dark:bg-surface-dark2 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm overflow-hidden">
+                <div className="min-[1408px]:col-span-2 bg-white dark:bg-surface-dark2 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm overflow-hidden">
                     <div className="flex items-center justify-between p-5 border-b border-gray-50 dark:border-white/5">
                         <div className="flex items-center gap-2">
                             <Activity size={16} className="text-violet-500" />
