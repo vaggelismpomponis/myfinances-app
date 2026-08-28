@@ -365,9 +365,8 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                             return (
                                 <div
                                     key={rule.id}
-                                    className="bg-white dark:bg-surface-dark rounded-2xl overflow-hidden
-                                               shadow-card ring-1 ring-inset ring-gray-200/50 dark:ring-white/5
-                                               transition-all duration-300"
+                                    className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] overflow-hidden
+                                               transition-all duration-300 ring-1 ring-inset ring-transparent dark:ring-transparent"
                                     style={{ animationDelay: `${idx * 60}ms` }}
                                 >
                                     {/* Card content */}

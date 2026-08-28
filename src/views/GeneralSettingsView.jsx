@@ -35,10 +35,7 @@ const SectionLabel = ({ children }) => (
 const SettingRow = ({ icon: Icon, iconColor, iconBg, label, sublabel, right, onClick, last = false, danger = false }) => (
     <button
         onClick={onClick}
-        className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-left
-                    active:scale-[0.98] transition-all duration-150
-                    hover:bg-black/[0.03] dark:hover:bg-white/[0.04]
-                    ${!last ? 'border-b border-gray-100/80 dark:border-transparent' : ''}`}
+        className={`w-full flex items-center gap-4 px-5 py-4 mb-3 rounded-[20px] bg-[#f5f5f5] dark:bg-white/[0.04] active:scale-[0.98] transition-all duration-200`}
     >
         <div className={`w-9 h-9 rounded-[11px] flex items-center justify-center flex-shrink-0 ${iconBg}`}>
             <Icon size={16} className={iconColor} strokeWidth={2.2} />
@@ -189,11 +186,9 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
 
                 {/* Regional */}
                 <div>
-                    <SectionLabel>{translate('regional_settings')}</SectionLabel>
-                    <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
-                                    shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
-                                    border border-gray-100 dark:border-transparent">
-                        <div className="flex items-center gap-3.5 px-4 py-3.5">
+                    
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-4 px-5 py-4 mb-3 rounded-[20px] bg-[#f5f5f5] dark:bg-white/[0.04]">
                             <div className="w-9 h-9 rounded-[11px] flex items-center justify-center bg-indigo-50 dark:bg-indigo-500/10 flex-shrink-0">
                                 <Languages size={16} className="text-indigo-600 dark:text-indigo-400" strokeWidth={2.2} />
                             </div>
@@ -222,10 +217,8 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
 
                 {/* Notifications */}
                 <div>
-                    <SectionLabel>{translate('notifications')}</SectionLabel>
-                    <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
-                                    shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
-                                    border border-gray-100 dark:border-transparent">
+                    
+                    <div className="flex flex-col">
                         <SettingRow
                             icon={Bell}
                             iconBg="bg-orange-50 dark:bg-orange-500/10"
@@ -241,10 +234,8 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
 
                 {/* Legal */}
                 <div>
-                    <SectionLabel>{translate('legal')}</SectionLabel>
-                    <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
-                                    shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
-                                    border border-gray-100 dark:border-transparent">
+                    
+                    <div className="flex flex-col">
                         <SettingRow
                             icon={Shield}
                             iconBg="bg-teal-50 dark:bg-teal-500/10"
@@ -259,10 +250,8 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
 
                 {/* Data */}
                 <div>
-                    <SectionLabel>{translate('data')}</SectionLabel>
-                    <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
-                                    shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
-                                    border border-gray-100 dark:border-transparent">
+                    
+                    <div className="flex flex-col">
                         <SettingRow
                             icon={Download}
                             iconBg="bg-violet-50 dark:bg-violet-500/10"

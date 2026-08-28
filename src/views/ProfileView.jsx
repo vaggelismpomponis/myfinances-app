@@ -33,12 +33,12 @@ const Toggle = ({ enabled, onChange }) => (
 );
 
 /* ─────────────────────────────────────────
-   Setting Row — clean list item
+   Setting Row — Skroutz style
  ───────────────────────────────────────── */
 const SettingRow = ({
     icon: Icon,
     label,
-    color = 'text-gray-600 dark:text-white/60',
+    color = 'text-gray-800 dark:text-white/90',
     onClick,
     right,
     last = false,
@@ -47,24 +47,21 @@ const SettingRow = ({
     <div
         onClick={onClick}
         role={onClick ? 'button' : undefined}
-        className={`group flex items-center gap-3.5 px-4 py-[14px]
-                    ${onClick ? 'cursor-pointer active:bg-black/[0.04] dark:active:bg-white/[0.06]' : ''}
-                    transition-all duration-150
-                    hover:bg-black/[0.025] dark:hover:bg-white/[0.05]
-                    ${!last ? 'border-b border-gray-100 dark:border-transparent' : ''}`}
+        className={`group flex items-center gap-4 px-5 py-4 mb-3 rounded-[20px]
+                    bg-[#f5f5f5] dark:bg-white/[0.04]
+                    ${onClick ? 'cursor-pointer active:scale-[0.98]' : ''}
+                    transition-all duration-200`}
     >
-        <Icon size={18} className={danger ? 'text-rose-500' : color} strokeWidth={1.9} />
-        <span className={`flex-1 text-[14.5px] font-medium leading-snug
-                          ${danger ? 'text-rose-500' : 'text-gray-800 dark:text-white/90'}`}>
+        <Icon size={22} className={danger ? 'text-rose-500' : color} strokeWidth={1.75} />
+        <span className={`flex-1 text-[16px] font-bold tracking-tight
+                          ${danger ? 'text-rose-500' : 'text-gray-900 dark:text-white'}`}>
             {label}
         </span>
         <div className="flex-shrink-0 ml-1">
             {right !== undefined ? right : (
                 <ChevronRight
-                    size={16}
-                    className="text-gray-300 dark:text-white/40
-                               group-hover:text-gray-400 dark:group-hover:text-white/35
-                               transition-colors duration-150"
+                    size={20}
+                    className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform"
                 />
             )}
         </div>
@@ -72,24 +69,20 @@ const SettingRow = ({
 );
 
 const InfoRow = ({ icon: Icon, label, value, last = false }) => (
-    <div className={`flex items-center gap-3.5 px-4 py-[14px]
-                     ${!last ? 'border-b border-gray-100 dark:border-transparent' : ''}`}>
-        <Icon size={18} className="text-gray-400 dark:text-white/60 flex-shrink-0" strokeWidth={1.9} />
+    <div className={`flex items-center gap-4 px-5 py-4 mb-3 rounded-[20px] bg-[#f5f5f5] dark:bg-white/[0.04]`}>
+        <Icon size={22} className="text-gray-800 dark:text-white/90" strokeWidth={1.75} />
         <div className="flex-1 min-w-0">
-            <p className="text-[11px] text-gray-400 dark:text-white/60 mb-0.5">{label}</p>
-            <p className="text-[14px] font-medium text-gray-800 dark:text-white/90 truncate">{value}</p>
+            <p className="text-[12px] font-medium text-gray-500 dark:text-white/60 mb-0.5">{label}</p>
+            <p className="text-[15px] font-bold text-gray-900 dark:text-white truncate">{value}</p>
         </div>
     </div>
 );
 
 /* ─────────────────────────────────────────
-   Card wrapper
+   Card wrapper (No longer used for styling, just a pass-through)
  ───────────────────────────────────────── */
 const Card = ({ children, className = '' }) => (
-    <div className={`bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
-                     border border-gray-100 dark:border-transparent
-                     shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.3)]
-                     ${className}`}>
+    <div className={`flex flex-col ${className}`}>
         {children}
     </div>
 );
@@ -98,7 +91,7 @@ const Card = ({ children, className = '' }) => (
    Section Label
  ───────────────────────────────────────── */
 const SectionLabel = ({ children, className = '' }) => (
-    <p className={`text-[12px] font-semibold text-gray-400 dark:text-white/50 mb-2 px-1 ${className}`}>
+    <p className={`text-[16px] font-bold text-gray-900 dark:text-white mb-3 px-1 mt-6 ${className}`}>
         {children}
     </p>
 );
@@ -106,7 +99,7 @@ const SectionLabel = ({ children, className = '' }) => (
 /* ═══════════════════════════════════════════════════════════
    MAIN COMPONENT
  ═══════════════════════════════════════════════════════════ */
-const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecurity, onBackup, onAdmin, onFeedback, onGuide, hideHeader }) => {
+const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGeneral, onSecurity, onBackup, onAdmin, onFeedback, onGuide, hideHeader }) => {
     const { theme, toggleTheme, language, updateLanguage, t: translate } = useSettings();
     const { isPro, openUpgradeModal, openBillingPortal } = useSubscription();
     const isDark = theme === 'dark';
@@ -120,15 +113,11 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name
         || user?.displayName || user?.email?.split('@')[0]
         || translate('anonymous_user');
-    const provider = user?.app_metadata?.provider === 'google' ? 'Google' : 'Email / Password';
+    const isGoogle = user?.app_metadata?.provider === 'google' || user?.app_metadata?.providers?.includes('google') || user?.identities?.some(i => i.provider === 'google');
+    const provider = isGoogle ? 'Google' : 'Email / Password';
     const createdAt = user?.created_at
         ? new Date(user.created_at).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' })
         : '—';
-
-    // Edit name
-    const [editingName, setEditingName] = useState(false);
-    const [nameInput, setNameInput] = useState(displayName);
-    const [savingName, setSavingName] = useState(false);
 
     // Delete account
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -140,23 +129,6 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
         || user?.identities?.some(i => i.provider === 'email');
 
     useEffect(() => { setImgRetries(0); }, [photoURL]);
-
-    const handleSaveName = async () => {
-        if (!nameInput.trim() || nameInput === displayName) { setEditingName(false); return; }
-        setSavingName(true);
-        try {
-            const { error } = await supabase.auth.updateUser({
-                data: { full_name: nameInput.trim(), name: nameInput.trim() }
-            });
-            if (error) throw error;
-            showToast(translate('name_updated_success') || 'Το όνομα ενημερώθηκε!', 'success');
-            setEditingName(false);
-        } catch (e) {
-            showToast(translate('name_update_error') || 'Αποτυχία ενημέρωσης.', 'error');
-        } finally {
-            setSavingName(false);
-        }
-    };
 
     const handleDeleteAccount = async (e) => {
         if (e) e.preventDefault();
@@ -187,9 +159,9 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
             // 3. Clear session and local data
             await supabase.auth.signOut();
             localStorage.clear();
-            
+
             showToast(translate('account_deleted_successfully') || 'Account deleted', 'success');
-            
+
             // 4. Force reload to landing page
             setTimeout(() => {
                 window.location.href = '/';
@@ -212,9 +184,9 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
             {/* ─────── Sticky Header ─────── */}
             <div
                 className={`shrink-0 sticky top-0 z-20 transition-colors duration-300
-                            ${hideHeader 
-                                ? 'bg-transparent border-none px-4 pt-4 pb-2' 
-                                : 'bg-gray-50 dark:bg-surface-dark backdrop-blur-xl border-b border-gray-100 dark:border-transparent px-4 pb-3'}`}
+                            ${hideHeader
+                        ? 'bg-transparent border-none px-4 pt-4 pb-2'
+                        : 'bg-gray-50 dark:bg-surface-dark backdrop-blur-xl border-b border-gray-100 dark:border-transparent px-4 pb-3'}`}
                 style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' } : {}}
             >
                 <div className="flex items-center justify-center relative min-h-[32px]">
@@ -243,12 +215,10 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                 <div className="p-4 pb-12 space-y-5">
 
                     {/* ════ Avatar + Name Hero ════ */}
-                    <div className="flex flex-col items-center pt-4 pb-2 gap-3">
-                        <div className="relative">
-                            <div className="w-[80px] h-[80px] rounded-full overflow-hidden
-                                            bg-violet-100 dark:bg-violet-500/20
-                                            border-2 border-violet-200 dark:border-violet-500/30
-                                            shadow-[0_4px_20px_rgba(109,40,217,0.2)]">
+                    <div className="flex items-center px-1 pt-4 pb-6 gap-4">
+                        <div className="relative shrink-0">
+                            <div className="w-[84px] h-[84px] rounded-full overflow-hidden
+                                            bg-gray-100 dark:bg-white/10">
                                 {photoURL && imgRetries < MAX_IMG_RETRIES ? (
                                     <img
                                         src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
@@ -260,194 +230,71 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
-                                        <User size={32} strokeWidth={1.5} className="text-violet-500 dark:text-violet-400" />
+                                        <User size={36} strokeWidth={1.5} className="text-gray-400 dark:text-white/40" />
                                     </div>
                                 )}
                             </div>
-                            <div className="absolute bottom-0.5 right-0.5 w-4 h-4 rounded-full
-                                            bg-emerald-400 border-2 border-white dark:border-surface-dark
-                                            shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                            <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full
+                                            bg-emerald-400 border-2 border-gray-50 dark:border-surface-dark" />
                         </div>
 
-                        {editingName ? (
-                            <div className="flex items-center gap-2 w-full max-w-[300px]">
-                                <div className="relative flex-1">
-                                    <input
-                                        autoFocus
-                                        value={nameInput}
-                                        onChange={e => setNameInput(e.target.value)}
-                                        onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false); }}
-                                        aria-label="Edit display name"
-                                        className="w-full text-center text-[17px] font-bold
-                                                   bg-white dark:bg-white/[0.07]
-                                                   border border-violet-200 dark:border-violet-500/30
-                                                   rounded-2xl px-4 py-2.5
-                                                   text-gray-900 dark:text-white
-                                                   focus:outline-none focus:ring-4 focus:ring-violet-500/15
-                                                   transition-all shadow-sm"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-1.5 shrink-0">
-                                    <button
-                                        onClick={handleSaveName}
-                                        disabled={savingName}
-                                        className="w-10 h-10 rounded-xl bg-violet-600 
-                                                   flex items-center justify-center
-                                                   text-white shadow-lg shadow-violet-500/30
-                                                   active:scale-90 hover:scale-105 transition-all disabled:opacity-50"
-                                    >
-                                        {savingName
-                                            ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            : <CheckCircle2 size={18} />
-                                        }
-                                    </button>
-                                    <button
-                                        onClick={() => { setEditingName(false); setNameInput(displayName); }}
-                                        className="w-10 h-10 rounded-xl bg-white dark:bg-white/[0.08]
-                                                   border border-gray-100 dark:border-transparent
-                                                   flex items-center justify-center
-                                                   text-gray-400 dark:text-white/60
-                                                   shadow-sm active:scale-90 hover:scale-105 transition-all"
-                                    >
-                                        <X size={18} />
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
+                        <div className="flex-1 min-w-0">
+                            <h2 className="text-[19px] leading-tight font-extrabold text-gray-900 dark:text-white mb-2 break-words line-clamp-2">
+                                {displayName}
+                            </h2>
                             <button
-                                onClick={() => setEditingName(true)}
-                                className="group flex items-center gap-2"
+                                onClick={onAccount}
+                                className="inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-white/10
+                                           text-[13px] font-bold text-gray-700 dark:text-white/80
+                                           active:scale-95 transition-transform hover:bg-gray-100 dark:hover:bg-white/5"
                             >
-                                <span className="text-[19px] font-bold text-gray-900 dark:text-white">
-                                    {displayName}
-                                </span>
-                                <Pencil
-                                    size={13}
-                                    className="text-gray-300 dark:text-white/40
-                                               group-hover:text-violet-500 dark:group-hover:text-violet-400
-                                               transition-colors duration-150"
-                                />
+                                {translate('edit_profile') === 'edit_profile' ? 'Επεξεργασία προφίλ' : translate('edit_profile')}
                             </button>
-                        )}
-                        <p className="text-[12.5px] text-gray-400 dark:text-white/35">
-                            {user?.email}
-                        </p>
+                        </div>
+                        <button
+                            onClick={onGeneral}
+                            className="w-11 h-11 flex items-center justify-center bg-[#f5f5f5] dark:bg-white/10 rounded-full shrink-0
+                                       hover:bg-gray-200 dark:hover:bg-white/20 transition-colors ml-2"
+                        >
+                            <Settings size={22} className="text-gray-800 dark:text-white/90" />
+                        </button>
                     </div>
 
-                    {/* ════ Subscription Card ════ */}
-                    {!isPro ? (
+                    {/* ════ Top Action Cards ════ */}
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+                        {/* Card 1: Subscription */}
                         <div
-                            className="relative overflow-hidden rounded-2xl border-none"
-                            style={{
-                                background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 40%, #4f46e5 100%)',
-                                boxShadow: '0 8px 32px rgba(109, 40, 217, 0.45), 0 2px 8px rgba(0,0,0,0.2)'
-                            }}
+                            onClick={() => isPro ? openBillingPortal() : openUpgradeModal('profile')}
+                            className="flex-1 min-w-[105px] h-[75px] rounded-[20px] bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5 p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center"
                         >
-                            <div
-                                className="absolute inset-0 pointer-events-none"
-                                style={{
-                                    background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.12) 50%, transparent 65%)',
-                                    animation: 'shine-sweep 3.5s ease-in-out infinite'
-                                }}
-                            />
-                            <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-indigo-400/30 blur-2xl pointer-events-none" />
-                            <div className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full bg-violet-300/20 blur-xl pointer-events-none" />
+                            <p className={`text-[14px] font-extrabold ${isPro ? 'text-violet-600 dark:text-violet-400' : 'text-gray-900 dark:text-white'}`}>
+                                {isPro ? (translate('manage') || 'Manage Pro') : (translate('go_pro') || 'Get Pro')}
+                            </p>
+                        </div>
 
-                            <div className="relative px-5 pt-5 pb-4">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span
-                                                className="text-[10px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full"
-                                                style={{ background: 'rgba(255,255,255,0.18)', color: '#e9d5ff', letterSpacing: '0.1em' }}
-                                            >
-                                                SpendWise Pro
-                                            </span>
-                                        </div>
-                                        <h3 className="text-white font-extrabold text-[17px] leading-tight flex items-center gap-2">
-                                            {translate('upgrade_to_pro') || 'Αναβάθμιση σε Pro'}
-                                            <span className="text-[16px] drop-shadow-sm">👑</span>
-                                        </h3>
-                                        <p className="text-violet-200 text-[12px] mt-0.5 leading-snug">
-                                            {translate('unlock_all_features') || 'Ξεκλείδωσε απεριόριστα budgets, στόχους & άλλα'}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex flex-wrap gap-1.5 mt-3 mb-4">
-                                    {[
-                                        { icon: '∞', label: translate('unlimited_budgets') || 'Απεριόριστα Budgets' },
-                                        { icon: '🎯', label: translate('unlimited_goals') || 'Απεριόριστοι Στόχοι' },
-                                        { icon: '🤖', label: translate('ai_advisor') || 'AI Σύμβουλος' },
-                                    ].map((f, i) => (
-                                        <span
-                                            key={i}
-                                            className="flex items-center gap-1 text-[11px] font-semibold text-white/90 px-2.5 py-1 rounded-full"
-                                            style={{ background: 'rgba(255,255,255,0.13)', backdropFilter: 'blur(8px)' }}
-                                        >
-                                            <span className="text-[10px]">{f.icon}</span>
-                                            {f.label}
-                                        </span>
-                                    ))}
-                                </div>
-                                <div className="flex items-center justify-between gap-3">
-                                    <p className="text-violet-200/80 text-[11px] font-medium">
-                                        {translate('pro_price_hint') || 'από €2.99 / μήνα'}
-                                    </p>
-                                    <button
-                                        onClick={() => openUpgradeModal('profile')}
-                                        className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-extrabold transition-all duration-200 active:scale-95 hover:scale-105"
-                                        style={{
-                                            background: '#ffffff',
-                                            color: '#5b21b6',
-                                            boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-                                        }}
-                                    >
-                                        {translate('go_pro') || 'Αναβάθμιση'}
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M5 12h14M12 5l7 7-7 7" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
+                        {/* Card 2: Guide */}
                         <div
-                            className="relative overflow-hidden rounded-2xl border-none"
-                            style={{
-                                background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
-                                boxShadow: '0 8px 32px rgba(5, 150, 105, 0.4), 0 2px 8px rgba(0,0,0,0.15)'
-                            }}
+                            onClick={onGuide}
+                            className="flex-1 min-w-[105px] h-[75px] rounded-[20px] bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5 p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center"
                         >
-                            <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-teal-300/20 blur-2xl pointer-events-none" />
-                            <div className="relative px-5 py-5 flex items-center justify-between gap-3">
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[10px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full"
-                                            style={{ background: 'rgba(255,255,255,0.2)', color: '#d1fae5' }}>
-                                            ✓ {translate('status_active') || 'Active'}
-                                        </span>
-                                    </div>
-                                    <h3 className="text-white font-extrabold text-[17px] leading-tight mb-1 pr-2">
-                                        {translate('pro_plan_active') || 'Pro Plan Active'}
-                                        <span className="text-[15px] ml-1.5"></span>
-                                    </h3>
-                                    <p className="text-emerald-100/80 text-[12px] truncate">
-                                        {translate('manage_billing') || 'Διαχειρίσου τη συνδρομή σου'}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => openBillingPortal()}
-                                    className="shrink-0 px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-200 active:scale-95 hover:scale-105"
-                                    style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}
-                                >
-                                    {translate('manage') || 'Διαχείριση'}
-                                </button>
-                            </div>
+                            <p className="text-[14px] font-extrabold text-blue-600 dark:text-blue-400">
+                                {translate('user_guide') || 'Οδηγός'}
+                            </p>
                         </div>
-                    )}
+
+                        {/* Card 3: Feedback */}
+                        <div
+                            onClick={onFeedback}
+                            className="flex-1 min-w-[105px] h-[75px] rounded-[20px] bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5 p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center"
+                        >
+                            <p className="text-[14px] font-extrabold text-gray-900 dark:text-white">
+                                {translate('feedback') || 'Support'}
+                            </p>
+                        </div>
+                    </div>
 
                     {/* ════ Account Info ════ */}
-                    <div>
+                    <div className="mt-4">
                         <SectionLabel>{translate('account_info') || 'Account info'}</SectionLabel>
                         <Card>
                             <InfoRow icon={Mail} label={translate('email') || 'Email'} value={user?.email || '—'} />
@@ -456,9 +303,9 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                         </Card>
                     </div>
 
-                    {/* ════ Other Settings ════ */}
-                    <div>
-                        <SectionLabel>{translate('other_settings') || 'Other settings'}</SectionLabel>
+                    {/* ════ Settings List ════ */}
+                    <div className="mt-2">
+                        <SectionLabel>{translate('other_settings') || 'Settings'}</SectionLabel>
                         <Card>
                             <SettingRow icon={Shield} label={translate('security') || 'Security'} onClick={onSecurity} />
                             <SettingRow icon={Settings} label={translate('general') || 'General'} onClick={onGeneral} />
@@ -466,15 +313,15 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                 icon={Languages}
                                 label={translate('language') || 'Language'}
                                 right={
-                                    <div className="flex gap-1 bg-gray-100 dark:bg-white/[0.07] p-0.5 rounded-lg">
+                                    <div className="flex gap-1 bg-white dark:bg-surface-dark p-0.5 rounded-lg shadow-sm border border-gray-200 dark:border-white/10">
                                         {['el', 'en'].map(lang => (
                                             <button
                                                 key={lang}
                                                 onClick={(e) => { e.stopPropagation(); updateLanguage(lang); }}
-                                                className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all duration-200
+                                                className={`px-3 py-1.5 rounded-[10px] text-[11px] font-extrabold transition-all duration-200
                                                             ${language === lang
-                                                        ? 'bg-white dark:bg-white/15 text-violet-600 dark:text-violet-400 shadow-sm'
-                                                        : 'text-gray-400 dark:text-white/50'}`}
+                                                        ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
+                                                        : 'text-gray-500 dark:text-white/50 hover:bg-gray-100 dark:hover:bg-white/10'}`}
                                             >
                                                 {lang.toUpperCase()}
                                             </button>
@@ -483,15 +330,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                 }
                             />
                             <SettingRow icon={Moon} label={translate('dark_mode') || 'Dark mode'} onClick={toggleTheme} right={<Toggle enabled={isDark} onChange={toggleTheme} />} last />
-                        </Card>
-                    </div>
-
-                    {/* ════ More ════ */}
-                    <div>
-                        <Card>
                             <SettingRow icon={HardDriveDownload} label={translate('backup_restore') || 'Backup & Restore'} onClick={onBackup} />
-                            <SettingRow icon={BookOpen} label={translate('user_guide') || 'User Guide'} onClick={onGuide} />
-                            <SettingRow icon={MessageSquare} label={translate('feedback') || 'Feedback & Ideas'} onClick={onFeedback} />
                             <SettingRow icon={Smartphone} label={translate('install_android') || 'Install App (Android)'} onClick={() => setShowApkModal(true)} />
                             {user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
                                 <SettingRow icon={LayoutDashboard} label={translate('control_panel') || 'Control Panel'} onClick={onAdmin} />
@@ -501,16 +340,16 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                     </div>
 
                     {/* ════ Danger Zone ════ */}
-                    <div>
+                    <div className="mt-2">
                         <div
                             onClick={() => setShowDangerZone(!showDangerZone)}
-                            className="flex items-center justify-between cursor-pointer group px-1 mb-2"
+                            className="flex items-center justify-between cursor-pointer group px-1 mb-3 mt-4"
                         >
-                            <SectionLabel className="!mb-0 group-hover:text-rose-500 transition-colors">
+                            <SectionLabel className="!mt-0 !mb-0 group-hover:text-rose-500 transition-colors">
                                 {translate('danger_zone') || 'Danger zone'}
                             </SectionLabel>
                             <div className={`text-gray-400 dark:text-white/40 transition-transform duration-300 ${showDangerZone ? 'rotate-90' : ''}`}>
-                                <ChevronRight size={14} />
+                                <ChevronRight size={20} />
                             </div>
                         </div>
                         {showDangerZone && (
@@ -518,19 +357,18 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
                                 <Card>
                                     <button
                                         onClick={() => setShowDeleteModal(true)}
-                                        className="w-full flex items-center gap-3.5 px-4 py-[14px] text-left
-                                                   hover:bg-rose-50/50 dark:hover:bg-rose-500/[0.06]
-                                                   active:bg-rose-50 dark:active:bg-rose-500/10
-                                                   transition-all duration-150"
+                                        className="w-full flex items-center gap-4 px-5 py-4 rounded-[20px] mb-3 text-left
+                                                   bg-rose-50 dark:bg-rose-500/10
+                                                   active:scale-[0.98] transition-all duration-150"
                                     >
-                                        <Trash2 size={18} className="text-rose-500 flex-shrink-0" strokeWidth={1.9} />
-                                        <span className="flex-1 text-[14.5px] font-medium text-rose-500">
+                                        <Trash2 size={22} className="text-rose-500 flex-shrink-0" strokeWidth={1.75} />
+                                        <span className="flex-1 text-[16px] font-bold text-rose-500 tracking-tight">
                                             {translate('deactivate_account') || 'Deactivate my account'}
                                         </span>
-                                        <ChevronRight size={16} className="text-rose-300 dark:text-rose-500/40 flex-shrink-0" />
+                                        <ChevronRight size={20} className="text-rose-400 dark:text-rose-500/60 flex-shrink-0" />
                                     </button>
                                 </Card>
-                                <p className="text-[11px] text-gray-400 dark:text-white/25 mt-2 px-2">
+                                <p className="text-[12px] text-gray-500 dark:text-white/40 mt-1 px-3">
                                     {translate('data_deletion_warning') || 'Data deletion is irreversible.'}
                                 </p>
                             </div>

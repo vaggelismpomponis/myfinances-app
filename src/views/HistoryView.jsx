@@ -159,7 +159,7 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
 
                 {/* Date Filter Picker */}
                 {showFilters && (
-                    <div className="bg-white dark:bg-surface-dark3 p-4 rounded-3xl space-y-4 border border-gray-150 dark:border-transparent shadow-sm animate-slide-down">
+                    <div className="bg-[#f5f5f5] dark:bg-white/[0.04] p-4 rounded-[20px] space-y-4 shadow-none animate-slide-down">
                         <div className="relative">
                             <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide pr-10">
                                 {availableYears.map(year => (

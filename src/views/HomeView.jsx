@@ -318,9 +318,8 @@ const FinancialSummaryCard = ({ totalIncome, totalExpense, t }) => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-white dark:bg-surface-dark3 rounded-[2rem]
-                       border border-gray-100 dark:border-white/[0.05]
-                       shadow-sm p-6 space-y-4"
+            className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px]
+                       p-6 space-y-4"
         >
             <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">
                 {t('this_month_spend') || 'This Month'}
@@ -383,9 +382,8 @@ const BudgetProgressCard = ({ budgets, transactions, setActiveTab, t }) => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="bg-white dark:bg-surface-dark3 rounded-[2rem]
-                       border border-gray-100 dark:border-white/[0.05]
-                       shadow-sm p-6 space-y-4"
+            className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px]
+                       p-6 space-y-4"
         >
             <div className="flex items-center justify-between">
                 <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">

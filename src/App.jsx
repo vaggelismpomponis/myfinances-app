@@ -35,6 +35,7 @@ const ProfileView = React.lazy(() => import('./views/ProfileView'));
 const RecurringView = React.lazy(() => import('./views/RecurringView'));
 const GeneralSettingsView = React.lazy(() => import('./views/GeneralSettingsView'));
 const SecuritySettingsView = React.lazy(() => import('./views/SecuritySettingsView'));
+const AccountSettingsView = React.lazy(() => import('./views/AccountSettingsView'));
 const StatsView = React.lazy(() => import('./views/StatsView'));
 const HistoryView = React.lazy(() => import('./views/HistoryView'));
 const GoalsView = React.lazy(() => import('./views/GoalsView'));
@@ -1195,6 +1196,7 @@ function MainContent() {
             {activeTab === 'profile' && (
                 <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
                     onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
+                    onAccount={() => setActiveTab('account')}
                     onGeneral={() => setActiveTab('general')}
                     onSecurity={() => setActiveTab('security')}
                     onBackup={() => setActiveTab('backup')}
@@ -1209,6 +1211,9 @@ function MainContent() {
             )}
             {activeTab === 'recurring' && (
                 <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'account' && (
+                <AccountSettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
             )}
             {activeTab === 'general' && (
                 <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} hideHeader={isDesktop} />
@@ -1520,6 +1525,7 @@ function MainContent() {
                                                 <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut}
                                                         onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
+                                                        onAccount={() => setActiveTab('account')}
                                                         onGeneral={() => setActiveTab('general')}
                                                         onSecurity={() => setActiveTab('security')}
                                                         onBackup={() => setActiveTab('backup')}
@@ -1537,6 +1543,11 @@ function MainContent() {
                                             {activeTab === 'recurring' && (
                                                 <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                                     <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} />
+                                                </div>
+                                            )}
+                                            {activeTab === 'account' && (
+                                                <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                                    <AccountSettingsView user={user} onBack={() => setActiveTab('profile')} />
                                                 </div>
                                             )}
                                             {activeTab === 'general' && (

@@ -2,6 +2,8 @@ export const translations = {
     el: {
         // General Settings
         appearance: 'Εμφάνιση',
+        settings: 'Ρυθμίσεις',
+        provider: 'Πάροχος',
         export_success: 'Τα δεδομένα εξήχθησαν',
         data_cleared: 'Όλα τα δεδομένα διαγράφηκαν.',
         clear_error: 'Σφάλμα κατά τη διαγραφή.',
@@ -118,10 +120,10 @@ export const translations = {
         nav_history: 'Ιστορικό',
         nav_stats: 'Ανάλυση',
         nav_profile: 'Προφίλ',
-        nav_main: 'Κύριο',
+        nav_main: 'Κύριες Σελίδες',
         recurring: 'Επαναλαμβανόμενα',
         backup: 'Αντίγραφο Ασφαλείας',
-        guide: 'Οδηγός',
+        guide: 'Οδηγός Χρήσης',
         add_transaction: 'Προσθήκη Συναλλαγής',
         balance: 'Υπόλοιπο',
         support: 'Υποστήριξη',
@@ -863,6 +865,8 @@ export const translations = {
     en: {
         // General Settings
         appearance: 'Appearance',
+        settings: 'Settings',
+        provider: 'Provider',
         export_success: 'Data exported successfully',
         data_cleared: 'All data deleted successfully.',
         clear_error: 'Error deleting data.',

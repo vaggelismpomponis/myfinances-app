@@ -79,7 +79,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
             : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400';
 
     return (
-        <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden shadow-card border border-gray-100 dark:border-transparent transition-all duration-300">
+        <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] overflow-hidden transition-all duration-300">
 
             {/* Main compact row */}
             <button
@@ -620,7 +620,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                 {/* ═══ SECTION E: Smart Tips ═══ */}
                 {tips.length > 0 && (
                     <div className="px-5 pb-5">
-                        <div className="bg-white dark:bg-surface-dark3 rounded-2xl p-4 border border-gray-100 dark:border-transparent shadow-sm">
+                        <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] p-4">
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="w-7 h-7 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
                                     <Lightbulb size={14} className="text-amber-600 dark:text-amber-400" />

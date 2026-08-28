@@ -286,10 +286,8 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                     {/* Left Column: Login Security */}
                     <div className="space-y-6">
                         <div>
-                            <SectionLabel>{translate('login_auth')}</SectionLabel>
-                            <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
-                                            shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
-                                            border border-gray-100 dark:border-transparent">
+                            
+                            <div className="flex flex-col">
 
                                 {/* Change Password — only for email users */}
                                 {isPasswordUser && (
@@ -339,7 +337,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                 </div>
 
                                 {/* Privacy Screen Toggle */}
-                                <div className="flex items-center gap-3.5 px-4 py-3.5">
+                                <div className="flex items-center gap-4 px-5 py-4 mb-3 rounded-[20px] bg-[#f5f5f5] dark:bg-white/[0.04]">
                                     <div className="w-9 h-9 rounded-[11px] bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center flex-shrink-0">
                                         <EyeOff size={16} className="text-orange-600 dark:text-orange-400" strokeWidth={2.2} />
                                     </div>
@@ -356,10 +354,8 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                     {/* Right Column: Active Sessions */}
                     <div className="space-y-6">
                         <div>
-                            <SectionLabel>{translate('active_sessions')}</SectionLabel>
-                            <div className="bg-white dark:bg-surface-dark3 rounded-2xl overflow-hidden
-                                            shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]
-                                            border border-gray-100 dark:border-transparent">
+                            
+                            <div className="flex flex-col">
                                 {sessions.length === 0 ? (
                                     <div className="p-8 flex flex-col items-center justify-center gap-2">
                                         <Monitor size={24} className="text-gray-200 dark:text-white/15" />

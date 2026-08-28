@@ -329,7 +329,7 @@ const StatsView = ({ transactions }) => {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="bg-white dark:bg-surface-dark3 p-5 rounded-[2rem] space-y-4 border border-gray-100 dark:border-white/5 shadow-premium overflow-hidden">
+                        className="bg-[#f5f5f5] dark:bg-white/[0.04] p-5 rounded-[20px] space-y-4 overflow-hidden">
                     <div className="relative">
                         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide pr-10">
                             {availableYears.map(year => (
@@ -386,7 +386,7 @@ const StatsView = ({ transactions }) => {
             />
 
             {/* ── Calendar Insights ── */}
-            <div className="bg-white dark:bg-surface-dark3 rounded-[2.5rem] p-6 shadow-premium border border-gray-100 dark:border-white/5 space-y-4">
+            <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] p-6 space-y-4">
                 <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/20 flex items-center justify-center text-violet-600 dark:text-violet-400">
                         <TrendingUp size={20} />
@@ -470,7 +470,7 @@ const StatsView = ({ transactions }) => {
                 </div>
                 
                 {categoryData.length === 0 ? (
-                    <div className="bg-white dark:bg-surface-dark3 rounded-3xl p-8 text-center border border-dashed border-gray-200 dark:border-white/10">
+                    <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] p-8 text-center">
                         <p className="text-gray-400 text-sm">{t('stats_no_expenses')}</p>
                     </div>
                 ) : (
@@ -530,7 +530,7 @@ const StatsView = ({ transactions }) => {
             </div>
 
             {/* ── Expense Distribution Donut ── */}
-            <div className="bg-white dark:bg-surface-dark3 rounded-[2.5rem] p-6 shadow-premium border border-gray-100 dark:border-white/5">
+            <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] p-6">
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
                         <PieIcon size={18} className="text-violet-500" />
@@ -604,7 +604,7 @@ const StatsView = ({ transactions }) => {
             </div>
 
             {/* ── Cash Flow Trend ── */}
-            <div className="bg-white dark:bg-surface-dark3 rounded-[2.5rem] p-6 shadow-premium border border-gray-100 dark:border-white/5">
+            <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] p-6">
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
                         <BarChart2 size={18} className="text-emerald-500" />

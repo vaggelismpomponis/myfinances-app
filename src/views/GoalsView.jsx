@@ -398,9 +398,9 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                 return (
                                     <div
                                         key={goal.id}
-                                        className={`bg-white dark:bg-surface-dark rounded-2xl overflow-hidden
-                                                    shadow-card ring-1 ring-inset transition-all duration-300
-                                                    ${done ? 'ring-emerald-500/30' : 'ring-gray-200/50 dark:ring-white/5'}`}
+                                        className={`bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] overflow-hidden
+                                                    transition-all duration-300 ring-1 ring-inset
+                                                    ${done ? 'ring-emerald-500/30' : 'ring-transparent dark:ring-transparent'}`}
                                         style={{ animationDelay: `${idx * 60}ms` }}
                                     >
                                         {/* Card content */}
