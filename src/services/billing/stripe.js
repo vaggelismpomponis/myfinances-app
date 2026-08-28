@@ -22,19 +22,13 @@ export const StripeBilling = {
       throw error;
     }
   },
-  getPortalUrl: async (userId) => {
+  getPortalUrl: async (_userId) => {
+    const url = 'https://billing.stripe.com/p/login/3cI8wPgtNcy21Z03Rh1gs00';
     try {
-      const { data, error } = await supabase.functions.invoke('create-portal-session', {
-        body: { userId }
-      });
-      if (error) throw error;
-      const url = data?.url;
-      if (url) {
-        if (isNative()) {
-          await Browser.open({ url });
-        } else {
-          window.open(url, '_blank');
-        }
+      if (isNative()) {
+        await Browser.open({ url });
+      } else {
+        window.open(url, '_blank');
       }
     } catch (error) {
       console.error('Error opening portal:', error);

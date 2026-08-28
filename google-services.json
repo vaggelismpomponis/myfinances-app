@@ -1,0 +1,116 @@
+{
+  "project_info": {
+    "project_number": "345124628478",
+    "project_id": "my-finances-appv1",
+    "storage_bucket": "my-finances-appv1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345124628478:android:3783e86386dfc5201782af",
+        "android_client_info": {
+          "package_name": "com.bomponis.spendwise"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "345124628478-8ofr4vme0u4to3md2nsblb5oehmuobmb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bomponis.spendwise",
+            "certificate_hash": "248683f0a42e419dbdbdd12f1ca5e850d8019965"
+          }
+        },
+        {
+          "client_id": "345124628478-bd7f88ni0bvvvnl0f0desb5p4ncj8jm6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bomponis.spendwise",
+            "certificate_hash": "6eccba5618d1b9418243a4007a32b305ce3b7f14"
+          }
+        },
+        {
+          "client_id": "345124628478-olla0904g6v4mbukclpo6f8m24kg8clb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bomponis.spendwise",
+            "certificate_hash": "fb405d8ad383b36c354007429da62f76770becdf"
+          }
+        },
+        {
+          "client_id": "345124628478-9dfooug409in2o115t5fdcolhfl9ojnk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPz_GqmfjxH3SrPRcZeBobs0Zwc7-o4x8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "345124628478-9dfooug409in2o115t5fdcolhfl9ojnk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345124628478:android:ceda71b9e119488b1782af",
+        "android_client_info": {
+          "package_name": "com.myfinances.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "345124628478-dlkcnmuirrllp43noktj6fa55p25d6uu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myfinances.app",
+            "certificate_hash": "6eccba5610d1b9410243a4007a32b305ce3a7f14"
+          }
+        },
+        {
+          "client_id": "345124628478-kvlg364btr2jvm6isjri3qg26i03lc08.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myfinances.app",
+            "certificate_hash": "fb405d8ad383b36c354007429da62f76770becdf"
+          }
+        },
+        {
+          "client_id": "345124628478-odr43g8eesp9j64la3nb6jvekidnl3gh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myfinances.app",
+            "certificate_hash": "248683f0a42e419dbdbdd12f1ca5e850d8019965"
+          }
+        },
+        {
+          "client_id": "345124628478-9dfooug409in2o115t5fdcolhfl9ojnk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPz_GqmfjxH3SrPRcZeBobs0Zwc7-o4x8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "345124628478-9dfooug409in2o115t5fdcolhfl9ojnk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1254,7 +1254,7 @@ export const translations = {
         tap_to_add: 'Tap + to add your first transaction',
 
         // Login View
-        login_welcome_back: 'Welcome back! 👋',
+        login_welcome_back: 'Welcome back!',
         login_start_free: 'Start today. Free!',
         login_tab: 'Sign In',
         register_tab: 'Register',

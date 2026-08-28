@@ -1377,7 +1377,7 @@ function MainContent() {
                                         <div className="flex-1 overflow-y-auto overflow-x-hidden px-4">
 
                                             {/* ── Top Bar ── */}
-                                            <div className="shrink-0 sticky top-0 z-30
+                                            <div className="shrink-0 sticky top-0 z-50
                                                             bg-gray-50 dark:bg-surface-dark backdrop-blur-md
                                                             border-b border-gray-100 dark:border-white/5
                                                             px-4 pb-3 -mx-4 transition-all duration-300"
