@@ -97,8 +97,8 @@ const Card = ({ children, className = '' }) => (
 /* ─────────────────────────────────────────
    Section Label
  ───────────────────────────────────────── */
-const SectionLabel = ({ children }) => (
-    <p className="text-[12px] font-semibold text-gray-400 dark:text-white/50 mb-2 px-1">
+const SectionLabel = ({ children, className = '' }) => (
+    <p className={`text-[12px] font-semibold text-gray-400 dark:text-white/50 mb-2 px-1 ${className}`}>
         {children}
     </p>
 );
@@ -134,6 +134,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deletePassword, setDeletePassword] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
+    const [showDangerZone, setShowDangerZone] = useState(false);
 
     const isPasswordUser = user?.app_metadata?.provider === 'email'
         || user?.identities?.some(i => i.provider === 'email');
@@ -501,25 +502,39 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onGeneral, onSecuri
 
                     {/* ════ Danger Zone ════ */}
                     <div>
-                        <SectionLabel>{translate('danger_zone') || 'Danger zone'}</SectionLabel>
-                        <Card>
-                            <button
-                                onClick={() => setShowDeleteModal(true)}
-                                className="w-full flex items-center gap-3.5 px-4 py-[14px] text-left
-                                           hover:bg-rose-50/50 dark:hover:bg-rose-500/[0.06]
-                                           active:bg-rose-50 dark:active:bg-rose-500/10
-                                           transition-all duration-150"
-                            >
-                                <Trash2 size={18} className="text-rose-500 flex-shrink-0" strokeWidth={1.9} />
-                                <span className="flex-1 text-[14.5px] font-medium text-rose-500">
-                                    {translate('deactivate_account') || 'Deactivate my account'}
-                                </span>
-                                <ChevronRight size={16} className="text-rose-300 dark:text-rose-500/40 flex-shrink-0" />
-                            </button>
-                        </Card>
-                        <p className="text-[11px] text-gray-400 dark:text-white/25 mt-2 px-2">
-                            {translate('data_deletion_warning') || 'Data deletion is irreversible.'}
-                        </p>
+                        <div
+                            onClick={() => setShowDangerZone(!showDangerZone)}
+                            className="flex items-center justify-between cursor-pointer group px-1 mb-2"
+                        >
+                            <SectionLabel className="!mb-0 group-hover:text-rose-500 transition-colors">
+                                {translate('danger_zone') || 'Danger zone'}
+                            </SectionLabel>
+                            <div className={`text-gray-400 dark:text-white/40 transition-transform duration-300 ${showDangerZone ? 'rotate-90' : ''}`}>
+                                <ChevronRight size={14} />
+                            </div>
+                        </div>
+                        {showDangerZone && (
+                            <div className="animate-fade-in">
+                                <Card>
+                                    <button
+                                        onClick={() => setShowDeleteModal(true)}
+                                        className="w-full flex items-center gap-3.5 px-4 py-[14px] text-left
+                                                   hover:bg-rose-50/50 dark:hover:bg-rose-500/[0.06]
+                                                   active:bg-rose-50 dark:active:bg-rose-500/10
+                                                   transition-all duration-150"
+                                    >
+                                        <Trash2 size={18} className="text-rose-500 flex-shrink-0" strokeWidth={1.9} />
+                                        <span className="flex-1 text-[14.5px] font-medium text-rose-500">
+                                            {translate('deactivate_account') || 'Deactivate my account'}
+                                        </span>
+                                        <ChevronRight size={16} className="text-rose-300 dark:text-rose-500/40 flex-shrink-0" />
+                                    </button>
+                                </Card>
+                                <p className="text-[11px] text-gray-400 dark:text-white/25 mt-2 px-2">
+                                    {translate('data_deletion_warning') || 'Data deletion is irreversible.'}
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     {/* ════ Footer ════ */}
