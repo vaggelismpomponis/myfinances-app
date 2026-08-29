@@ -47,3 +47,14 @@ export const openNotificationSettings = async () => {
         console.warn('Failed to open settings', e);
     }
 };
+
+export const checkNotificationPermission = async () => {
+    if (!Capacitor.isNativePlatform()) return false;
+    try {
+        const result = await TransactionReader.checkPermission();
+        return result.granted;
+    } catch (e) {
+        console.warn('Failed to check permission', e);
+        return false;
+    }
+};

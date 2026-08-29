@@ -16,9 +16,11 @@ if (import.meta.env.VITE_SENTRY_DSN) {
             release: import.meta.env.VITE_APP_VERSION,  // optional — set in .env
             // Capture 100% of errors, 10% of performance traces
             tracesSampleRate: 0.1,
-            // Automatically capture unhandled promise rejections & global errors
             integrations: [
-                Sentry.browserTracingIntegration(),
+                Sentry.browserTracingIntegration({
+                    // Only attach trace headers to same-origin requests to avoid CORS issues with Supabase Edge Functions
+                    tracePropagationTargets: [/^\//]
+                }),
             ],
         });
     };

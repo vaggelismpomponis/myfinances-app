@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     ArrowLeft,
     Globe,
@@ -19,8 +19,9 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import PasswordInput from '../components/PasswordInput';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
-import { openNotificationSettings } from '../utils/notificationListener';
+import { openNotificationSettings, checkNotificationPermission } from '../utils/notificationListener';
 import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import ProBadge from '../components/ProBadge';
 
@@ -29,6 +30,23 @@ const SectionLabel = ({ children }) => (
     <p className="text-[12px] font-semibold text-gray-400 dark:text-white/50 mb-2 px-1">
         {children}
     </p>
+);
+
+/* ── Toggle switch ── */
+const Toggle = ({ enabled, onClick, disabled }) => (
+    <button
+        onClick={(e) => {
+            e.stopPropagation();
+            if (!disabled && onClick) onClick();
+        }}
+        disabled={disabled}
+        className={`w-[42px] h-[24px] rounded-full flex items-center p-[3px] transition-colors duration-300
+                     ${enabled ? 'bg-violet-600 shadow-[0_2px_8px_rgba(124,58,237,0.4)]' : 'bg-gray-200 dark:bg-white/10'}
+                     ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+    >
+        <div className={`w-[18px] h-[18px] rounded-full bg-white shadow-sm transition-transform duration-300
+                         ${enabled ? 'translate-x-[18px]' : 'translate-x-0'}`} />
+    </button>
 );
 
 /* ── Row for clickable setting items ── */
@@ -58,6 +76,28 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
     const { isPro, openUpgradeModal } = useSubscription();
     const [showClearDataModal, setShowClearDataModal] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
+    
+    // Notification Permission State
+    const [isSmsEnabled, setIsSmsEnabled] = useState(false);
+
+    useEffect(() => {
+        const checkPermission = async () => {
+            const hasPermission = await checkNotificationPermission();
+            setIsSmsEnabled(hasPermission);
+        };
+
+        checkPermission();
+
+        const listener = App.addListener('appStateChange', ({ isActive }) => {
+            if (isActive) {
+                checkPermission();
+            }
+        });
+
+        return () => {
+            listener.then(handle => handle.remove());
+        };
+    }, []);
 
     // Delete Account State
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -219,16 +259,19 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                 <div>
                     
                     <div className="flex flex-col">
-                        <SettingRow
-                            icon={Bell}
-                            iconBg="bg-orange-50 dark:bg-orange-500/10"
-                            iconColor="text-orange-500 dark:text-orange-400"
-                            label={translate('enable_sms_reading')}
-                            sublabel={translate('sms_reading_desc')}
+                        <div 
                             onClick={openNotificationSettings}
-                            right={<ExternalLink size={14} className="text-gray-300 dark:text-white/40" />}
-                            last
-                        />
+                            className="flex items-center gap-4 px-5 py-4 mb-3 rounded-[20px] bg-[#f5f5f5] dark:bg-white/[0.04] cursor-pointer active:scale-[0.98] transition-all duration-200"
+                        >
+                            <div className="w-9 h-9 rounded-[11px] bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                                <Bell size={16} className="text-orange-500 dark:text-orange-400" strokeWidth={2.2} />
+                            </div>
+                            <div className="flex-1">
+                                <span className="block font-semibold text-[13.5px] text-gray-800 dark:text-white/90">{translate('enable_sms_reading')}</span>
+                                <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('sms_reading_desc')}</span>
+                            </div>
+                            <Toggle enabled={isSmsEnabled} onClick={openNotificationSettings} />
+                        </div>
                     </div>
                 </div>
 

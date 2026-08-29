@@ -40,4 +40,20 @@ public class TransactionPlugin extends Plugin {
         getContext().startActivity(intent);
         call.resolve();
     }
+
+    @PluginMethod
+    public void checkPermission(PluginCall call) {
+        try {
+            Context context = getContext();
+            String packageName = context.getPackageName();
+            String enabledListeners = android.provider.Settings.Secure.getString(context.getContentResolver(), "enabled_notification_listeners");
+            boolean isGranted = enabledListeners != null && enabledListeners.contains(packageName);
+            
+            JSObject result = new JSObject();
+            result.put("granted", isGranted);
+            call.resolve(result);
+        } catch (Exception e) {
+            call.reject("Failed to check permission", e);
+        }
+    }
 }

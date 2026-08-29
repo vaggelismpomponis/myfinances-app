@@ -232,30 +232,31 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                         relative z-50">
 
             {/* ── Left: Profile Avatar ── */}
-            <button
-                onClick={() => setActiveTab('profile')}
-                className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0
-                           bg-gradient-to-br from-violet-500 to-violet-700
-                           border-2 border-violet-200 dark:border-violet-900/50
-                           flex items-center justify-center
-                           text-white shadow-md
-                           hover:scale-105 active:scale-95
-                           transition-all duration-200"
-                title={t('nav_profile')}
-            >
-                {photoURL && imgRetries < MAX_IMG_RETRIES ? (
-                    <img
-                        src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
-                        alt="Profile"
-                        referrerPolicy="no-referrer"
-                        crossOrigin="anonymous"
-                        className="w-full h-full object-cover"
-                        onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
-                    />
-                ) : (
-                    <User size={18} />
-                )}
-            </button>
+            <div className="relative flex-shrink-0">
+                <button
+                    onClick={() => setActiveTab('profile')}
+                    className="w-10 h-10 rounded-full flex-shrink-0
+                               bg-gray-100 dark:bg-white/[0.08]
+                               flex items-center justify-center
+                               text-gray-400 dark:text-gray-500
+                               hover:scale-105 active:scale-95
+                               transition-all duration-200 overflow-hidden"
+                    title={t('nav_profile')}
+                >
+                    {photoURL && imgRetries < MAX_IMG_RETRIES ? (
+                        <img
+                            src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
+                            alt="Profile"
+                            referrerPolicy="no-referrer"
+                            crossOrigin="anonymous"
+                            className="w-full h-full object-cover"
+                            onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
+                        />
+                    ) : (
+                        <User size={20} strokeWidth={2} />
+                    )}
+                </button>
+            </div>
 
             {/* ── Center: SpendWise (home) or Page Title ── */}
             {isHome ? (

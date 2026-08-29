@@ -1420,31 +1420,32 @@ function MainContent() {
 
                                                 <div className="flex items-center justify-between min-h-[40px]">
                                                     {/* LEFT — Profile Avatar */}
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.05 }}
-                                                        whileTap={{ scale: 0.95 }}
-                                                        onClick={() => setActiveTab('profile')}
-                                                        className="w-10 h-10 rounded-full overflow-hidden
-                                                                bg-gradient-to-br from-violet-500 to-violet-700
-                                                                border-2 border-violet-200 dark:border-violet-900/50
-                                                                flex items-center justify-center flex-shrink-0
-                                                                text-white shadow-md
-                                                                transition-all duration-200"
-                                                        title={translate('nav_profile')}
-                                                    >
-                                                        {photoURL && imgRetries < MAX_IMG_RETRIES ? (
-                                                            <img
-                                                                src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
-                                                                alt="Profile"
-                                                                referrerPolicy="no-referrer"
-                                                                crossOrigin="anonymous"
-                                                                className="w-full h-full object-cover"
-                                                                onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
-                                                            />
-                                                        ) : (
-                                                            <User size={18} />
-                                                        )}
-                                                    </motion.button>
+                                                    <div className="relative flex-shrink-0">
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.05 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => setActiveTab('profile')}
+                                                            className="w-10 h-10 rounded-full flex-shrink-0
+                                                                       bg-gray-100 dark:bg-white/[0.08]
+                                                                       flex items-center justify-center
+                                                                       text-gray-400 dark:text-gray-500
+                                                                       transition-all duration-200 overflow-hidden"
+                                                            title={translate('nav_profile')}
+                                                        >
+                                                            {photoURL && imgRetries < MAX_IMG_RETRIES ? (
+                                                                <img
+                                                                    src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
+                                                                    alt="Profile"
+                                                                    referrerPolicy="no-referrer"
+                                                                    crossOrigin="anonymous"
+                                                                    className="w-full h-full object-cover"
+                                                                    onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
+                                                                />
+                                                            ) : (
+                                                                <User size={20} strokeWidth={2} />
+                                                            )}
+                                                        </motion.button>
+                                                    </div>
 
                                                     {/* CENTER — App Name */}
                                                     {activeTab === 'home' ? (
