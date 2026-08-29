@@ -130,6 +130,20 @@ function MainContent() {
     const [showNotificationPanel, setShowNotificationPanel] = useState(false);
     const MAX_IMG_RETRIES = 3;
 
+    // Track loading state of core data to keep loading screen active
+    const [coreDataLoaded, setCoreDataLoaded] = useState({
+        transactions: false,
+        budgets: false,
+        goals: false,
+        recurring: false
+    });
+
+    useEffect(() => {
+        if (user && coreDataLoaded.transactions && coreDataLoaded.budgets && coreDataLoaded.goals && coreDataLoaded.recurring) {
+            setLoading(false);
+        }
+    }, [user, coreDataLoaded]);
+
     // Whats New Modal
     const [latestUpdate, setLatestUpdate] = useState(null);
     const [showWhatsNew, setShowWhatsNew] = useState(false);
@@ -354,7 +368,7 @@ function MainContent() {
     useEffect(() => {
         const authTimeout = setTimeout(() => {
             setLoading(false);
-        }, 800); // Safety fallback — keep short so FCP isn't blocked
+        }, 5000); // Safety fallback — keep long enough to allow data to load
 
         supabase.auth.getSession().then(({ data: { session } }) => {
             const currentUser = session?.user ?? null;
@@ -740,7 +754,7 @@ function MainContent() {
             return;
         }
 
-        const fetchTransactions = async () => {
+        const fetchTransactions = async (retries = 3) => {
             try {
                 const { data, error } = await supabase
                     .from('transactions')
@@ -748,16 +762,23 @@ function MainContent() {
                     .eq('user_id', user.id)
                     .order('date', { ascending: false });
                 if (error) {
+                    if (retries > 0 && (error.name === 'AbortError' || error.message?.includes('Lock broken'))) {
+                        setTimeout(() => fetchTransactions(retries - 1), 300);
+                        return;
+                    }
                     logger.error('Failed to fetch transactions', error, 'App');
                 } else {
                     setTransactions(data || []);
                 }
             } catch (err) {
                 // Catches network-level failures (e.g. TypeError: Failed to fetch)
-                // that are thrown when the device is offline or DNS resolution fails.
+                if (retries > 0 && (err.name === 'AbortError' || err.message?.includes('Lock broken'))) {
+                    setTimeout(() => fetchTransactions(retries - 1), 300);
+                    return;
+                }
                 logger.error('Failed to fetch transactions', err, 'App');
             } finally {
-                setLoading(false);
+                setCoreDataLoaded(prev => ({ ...prev, transactions: true }));
             }
         };
 
@@ -786,15 +807,29 @@ function MainContent() {
             return;
         }
 
-        const fetchBudgets = async () => {
-            const { data, error } = await supabase
-                .from('budgets')
-                .select('*')
-                .eq('user_id', user.id);
-            if (error) {
-                logger.error('Failed to fetch budgets', error, 'App');
-            } else {
-                setBudgets(data || []);
+        const fetchBudgets = async (retries = 3) => {
+            try {
+                const { data, error } = await supabase
+                    .from('budgets')
+                    .select('*')
+                    .eq('user_id', user.id);
+                if (error) {
+                    if (retries > 0 && (error.name === 'AbortError' || error.message?.includes('Lock broken'))) {
+                        setTimeout(() => fetchBudgets(retries - 1), 300);
+                        return;
+                    }
+                    logger.error('Failed to fetch budgets', error, 'App');
+                } else {
+                    setBudgets(data || []);
+                }
+            } catch (err) {
+                if (retries > 0 && (err.name === 'AbortError' || err.message?.includes('Lock broken'))) {
+                    setTimeout(() => fetchBudgets(retries - 1), 300);
+                    return;
+                }
+                logger.error('Failed to fetch budgets', err, 'App');
+            } finally {
+                setCoreDataLoaded(prev => ({ ...prev, budgets: true }));
             }
         };
 
@@ -836,15 +871,29 @@ function MainContent() {
             return;
         }
 
-        const fetchGoals = async () => {
-            const { data, error } = await supabase
-                .from('goals')
-                .select('*')
-                .eq('user_id', user.id);
-            if (error) {
-                logger.error('Failed to fetch goals', error, 'App');
-            } else {
-                setGoals(data || []);
+        const fetchGoals = async (retries = 3) => {
+            try {
+                const { data, error } = await supabase
+                    .from('goals')
+                    .select('*')
+                    .eq('user_id', user.id);
+                if (error) {
+                    if (retries > 0 && (error.name === 'AbortError' || error.message?.includes('Lock broken'))) {
+                        setTimeout(() => fetchGoals(retries - 1), 300);
+                        return;
+                    }
+                    logger.error('Failed to fetch goals', error, 'App');
+                } else {
+                    setGoals(data || []);
+                }
+            } catch (err) {
+                if (retries > 0 && (err.name === 'AbortError' || err.message?.includes('Lock broken'))) {
+                    setTimeout(() => fetchGoals(retries - 1), 300);
+                    return;
+                }
+                logger.error('Failed to fetch goals', err, 'App');
+            } finally {
+                setCoreDataLoaded(prev => ({ ...prev, goals: true }));
             }
         };
 
@@ -869,16 +918,21 @@ function MainContent() {
     useEffect(() => {
         if (!user) return;
 
-        const checkRecurring = async () => {
-            const { data: rules, error } = await supabase
-                .from('recurring_transactions')
-                .select('*')
-                .eq('user_id', user.id);
+        const checkRecurring = async (retries = 3) => {
+            try {
+                const { data: rules, error } = await supabase
+                    .from('recurring_transactions')
+                    .select('*')
+                    .eq('user_id', user.id);
 
-            if (error) {
-                logger.error('Failed to fetch recurring transactions', error, 'App');
-                return;
-            }
+                if (error) {
+                    if (retries > 0 && (error.name === 'AbortError' || error.message?.includes('Lock broken'))) {
+                        setTimeout(() => checkRecurring(retries - 1), 300);
+                        return;
+                    }
+                    logger.error('Failed to fetch recurring transactions', error, 'App');
+                    return;
+                }
 
             const today = new Date();
 
@@ -920,7 +974,16 @@ function MainContent() {
                     }
                 }
             }
-        };
+        } catch (err) {
+            if (retries > 0 && (err.name === 'AbortError' || err.message?.includes('Lock broken'))) {
+                setTimeout(() => checkRecurring(retries - 1), 300);
+                return;
+            }
+            logger.error('Failed to check recurring transactions', err, 'App');
+        } finally {
+            setCoreDataLoaded(prev => ({ ...prev, recurring: true }));
+        }
+    };
 
         checkRecurring();
     }, [user]);

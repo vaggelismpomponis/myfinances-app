@@ -63,6 +63,19 @@ const logger = {
      * @param {object} [extras] - Any extra key-value data to attach to the Sentry event
      */
     error(message, error, context, extras) {
+        // Ignore harmless Web Locks API contention errors (e.g. from Supabase auth in React Strict Mode)
+        const isAbortError = 
+            (error instanceof Error && error.name === 'AbortError') ||
+            (error && typeof error === 'object' && (error.name === 'AbortError' || (error.message && error.message.includes('Lock broken')))) ||
+            (typeof error === 'string' && error.includes('Lock broken'));
+
+        if (isAbortError) {
+            if (shouldLog('debug')) {
+                console.debug(formatMessage('debug', context, `Ignored AbortError: ${message}`));
+            }
+            return;
+        }
+
         if (shouldLog('error')) {
             console.error(formatMessage('error', context, message), error ?? '');
         }
