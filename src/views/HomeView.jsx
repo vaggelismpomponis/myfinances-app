@@ -12,6 +12,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../store/useAppStore';
+import SafeToBurnCard from '../components/SafeToBurnCard';
 
 /* ─────────────────────────────────────────────
    Getting Started — onboarding step data
@@ -540,72 +541,18 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
     ];
 
     // ── Hero Card (shared between mobile & desktop) ──
-    const { stb, isGlideActive, streak } = useAppStore.getState().getSafeToBurn();
+    const { stb, todayStartingBudget, isGlideActive, streak } = useAppStore.getState().getSafeToBurn();
 
     const heroCard = (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.45, type: 'spring' }}
-            className="relative overflow-hidden rounded-[2.5rem]
-                        bg-white dark:bg-surface-dark3 backdrop-blur-xl
-                        p-8 pt-10 pb-8 text-center shadow-premium border border-slate-200/60 dark:border-white/5
-                        transition-all duration-300"
-        >
-            {/* Subtle top glow */}
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-violet-500/10 dark:bg-violet-500/5 blur-[80px] pointer-events-none rounded-full" />
-
-            {/* Streak Indicator */}
-            {streak > 0 && !isGlideActive && (
-                <motion.div 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute top-5 right-5 flex items-center gap-1 bg-gradient-to-r from-orange-400 to-rose-400 text-white px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-black shadow-md z-20"
-                >
-                    <span>🔥 {streak} Streak</span>
-                </motion.div>
-            )}
-
-            <div className="relative z-10 space-y-2">
-                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium tracking-tight">
-                    Safe-to-Burn Today
-                </p>
-
-                <div className="flex flex-col items-center">
-                    <div className="flex items-start justify-center gap-1">
-                        {!privacyMode && <span className="text-3xl font-bold text-gray-900 dark:text-white mt-1">€</span>}
-                        <h1 className="text-6xl font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
-                            <Amount
-                                value={stb}
-                                showCurrency={false}
-                                minimumFractionDigits={2}
-                                maximumFractionDigits={2}
-                            />
-                        </h1>
-                    </div>
-
-                    {/* Trend / Glide Indicator */}
-                    {isGlideActive ? (
-                        <div className="flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 shadow-sm animate-pulse">
-                            <Sparkles size={14} className="text-amber-500" />
-                            <span>Glide Active</span>
-                        </div>
-                    ) : (
-                        <div className={`flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold
-                                       ${stats.trend === 'below' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' :
-                                stats.trend === 'above' ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' :
-                                    'text-gray-600 bg-gray-50 dark:bg-surface-dark2'}`}>
-                            {stats.trend === 'below' && <TrendingDown size={14} />}
-                            {stats.trend === 'above' && <TrendingUp size={14} />}
-                            {stats.trend === 'neutral' && <Minus size={14} />}
-                            <span>
-                                {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
-                            </span>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </motion.div>
+        <SafeToBurnCard
+            stb={stb}
+            todayStartingBudget={todayStartingBudget}
+            isGlideActive={isGlideActive}
+            streak={streak}
+            privacyMode={privacyMode}
+            t={t}
+            stats={stats}
+        />
     );
 
     // ── AI Advisor CTA (shared) ──
