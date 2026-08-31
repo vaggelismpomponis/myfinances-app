@@ -21,6 +21,7 @@ import { SubscriptionProvider, useSubscription } from './contexts/SubscriptionCo
 import { NotificationProvider, useNotifications } from './contexts/NotificationContext';
 import { trackSession } from './utils/session';
 import { setupNotificationListener } from './utils/notificationListener';
+import { useAppStore } from './store/useAppStore';
 
 // Components
 import LoginView from './views/LoginView';
@@ -121,9 +122,12 @@ function MainContent() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);
-    const [transactions, setTransactions] = useState([]);
-    const [budgets, setBudgets] = useState([]);
-    const [goals, setGoals] = useState([]);
+    const transactions = useAppStore(state => state.transactions);
+    const setTransactions = useAppStore(state => state.setTransactions);
+    const budgets = useAppStore(state => state.budgets);
+    const setBudgets = useAppStore(state => state.setBudgets);
+    const goals = useAppStore(state => state.goals);
+    const setGoals = useAppStore(state => state.setGoals);
     const [user, setUser] = useState(null);
     const [isVerifying, setIsVerifying] = useState(false);
     const [imgRetries, setImgRetries] = useState(0);

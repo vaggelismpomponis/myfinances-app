@@ -28,13 +28,15 @@
     "@supabase/supabase-js": "^2.103.2",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.38.0",
+    "idb-keyval": "^6.3.0",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-easy-crop": "^5.5.7",
     "react-image-crop": "^11.0.10",
     "recharts": "^3.6.0",
-    "tesseract.js": "^7.0.0"
+    "tesseract.js": "^7.0.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",
