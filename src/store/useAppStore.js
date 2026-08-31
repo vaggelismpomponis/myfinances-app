@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { get, set, del } from 'idb-keyval';
-import { calculateStb, getRemainingDaysInMonth } from '../features/StbEngine';
+import { calculateStb, getRemainingDaysInMonth, getDaysInMonth } from '../features/StbEngine';
 
 // Custom IndexedDB storage engine for Zustand using idb-keyval
 const idbStorage = {
@@ -57,19 +57,41 @@ export const useAppStore = create(
             getSafeToBurn: () => {
                 const state = getStore();
                 const now = new Date();
-                const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                const year = now.getFullYear();
+                const month = now.getMonth();
+                const currentDay = now.getDate();
                 
-                // Cumulative Month-to-Date Discretionary Spend
-                const mtdSpend = state.transactions
-                    .filter(tx => tx.type === 'expense' && new Date(tx.date) >= firstDayThisMonth)
+                const pastDailySpends = [];
+                let todaySpend = 0;
+                
+                for (let day = 1; day < currentDay; day++) {
+                    const startOfDay = new Date(year, month, day, 0, 0, 0);
+                    const endOfDay = new Date(year, month, day, 23, 59, 59, 999);
+                    
+                    const dailyTotal = state.transactions
+                        .filter(tx => tx.type === 'expense')
+                        .filter(tx => {
+                            const d = new Date(tx.date);
+                            return d >= startOfDay && d <= endOfDay;
+                        })
+                        .reduce((sum, tx) => sum + (tx.amount || 0), 0);
+                        
+                    pastDailySpends.push(dailyTotal);
+                }
+                
+                const startOfToday = new Date(year, month, currentDay, 0, 0, 0);
+                todaySpend = state.transactions
+                    .filter(tx => tx.type === 'expense')
+                    .filter(tx => new Date(tx.date) >= startOfToday)
                     .reduce((sum, tx) => sum + (tx.amount || 0), 0);
                     
                 return calculateStb({
                     income: state.userSettings.income || 0,
                     fixed: state.userSettings.fixedObligations || 0,
                     savings: state.userSettings.targetSavings || 0,
-                    spend: mtdSpend,
-                    daysRemaining: getRemainingDaysInMonth(now)
+                    pastDailySpends,
+                    todaySpend,
+                    daysInMonth: getDaysInMonth(now)
                 });
             }
         }),

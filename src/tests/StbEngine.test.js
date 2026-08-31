@@ -1,57 +1,76 @@
 import { describe, it, expect } from 'vitest';
 import { calculateStb } from '../features/StbEngine';
 
-describe('Safe-to-Burn (StB) Engine', () => {
-    it('Basic Calculation', () => {
-        // Income: 2000, Fixed: 1000, Savings: 400, Spend: 0, Days left: 30 -> 20.00
-        // Expect integer cents (20.00 -> returns 20 for logic, but formula is generic)
-        // Wait, if it's stored in cents, income would be 200000, fixed 100000, etc.
-        // But the formula itself doesn't care, it just does math. 
-        // 2000 - 1000 - 400 - 0 = 600 / 30 = 20
-        const stb = calculateStb({
+describe('Safe-to-Burn (StB) Engine with Glide Recovery', () => {
+    it('Basic Calculation (No past spend)', () => {
+        // Income 2000, Fixed 1000, Savings 400 = 600 Pool
+        // 30 days = 20/day
+        const { stb, isGlideActive, streak } = calculateStb({
             income: 2000,
             fixed: 1000,
             savings: 400,
-            spend: 0,
-            daysRemaining: 30
+            pastDailySpends: [],
+            todaySpend: 0,
+            daysInMonth: 30
         });
         expect(stb).toBe(20);
+        expect(isGlideActive).toBe(false);
+        expect(streak).toBe(0);
     });
 
-    it('High Spend Calculation', () => {
-        // Spend: 500, Days left: 10 -> 10.00
-        const stb = calculateStb({
+    it('Streak Calculation (Underspend)', () => {
+        // Day 1 spent 5, Day 2 spent 10
+        // Base = 20. 
+        // Day 1: budget 20, spend 5. Rollover 15. Streak 1.
+        // Day 2: budget 35, spend 10. Rollover 25. Streak 2.
+        // Today (Day 3): budget 20 + 25 = 45.
+        const { stb, isGlideActive, streak } = calculateStb({
             income: 2000,
             fixed: 1000,
             savings: 400,
-            spend: 500,
-            daysRemaining: 10
+            pastDailySpends: [5, 10],
+            todaySpend: 0,
+            daysInMonth: 30
+        });
+        expect(stb).toBe(45);
+        expect(isGlideActive).toBe(false);
+        expect(streak).toBe(2);
+    });
+
+    it('Glide Recovery Calculation (Overspend)', () => {
+        // Base = 20.
+        // Day 1: spent 50. Deficit = 30. Glide = 10/day for 3 days.
+        // Today (Day 2): budget 20 - 10 = 10.
+        const { stb, isGlideActive, streak } = calculateStb({
+            income: 2000,
+            fixed: 1000,
+            savings: 400,
+            pastDailySpends: [50],
+            todaySpend: 0,
+            daysInMonth: 30
         });
         expect(stb).toBe(10);
+        expect(isGlideActive).toBe(true);
+        expect(streak).toBe(0);
     });
 
-    it('Zero Days Left Calculation (End of month)', () => {
-        // Days left: 0 -> should act as 1 day remaining
-        const stb = calculateStb({
+    it('Glide Amortization wears off after 3 days', () => {
+        // Base = 20.
+        // Day 1: spent 50. Deficit = 30. Glide = 10/day for 3 days.
+        // Day 2: spent 0. Budget = 10. Rollover = 10.
+        // Day 3: spent 0. Budget = 20 + 10 - 10 = 20. Rollover = 20.
+        // Day 4: spent 0. Budget = 20 + 20 - 10 = 30. Rollover = 30.
+        // Today (Day 5): Glide should be gone! Budget = 20 + 30 = 50.
+        const { stb, isGlideActive, streak } = calculateStb({
             income: 2000,
             fixed: 1000,
             savings: 400,
-            spend: 500,
-            daysRemaining: 0
+            pastDailySpends: [50, 0, 0, 0],
+            todaySpend: 0,
+            daysInMonth: 30
         });
-        expect(stb).toBe(100);
-    });
-
-    it('Negative StB Calculation', () => {
-        // Spend > (Income - Fixed - Savings)
-        // 2000 - 1000 - 400 - 800 = -200 / 10 = -20
-        const stb = calculateStb({
-            income: 2000,
-            fixed: 1000,
-            savings: 400,
-            spend: 800,
-            daysRemaining: 10
-        });
-        expect(stb).toBe(-20);
+        expect(stb).toBe(50);
+        expect(isGlideActive).toBe(false); // worn off!
+        expect(streak).toBe(3); // Day 2, 3, 4 were underspent
     });
 });

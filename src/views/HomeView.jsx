@@ -11,6 +11,7 @@ import CategoryIcon from '../components/CategoryIcon';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAppStore } from '../store/useAppStore';
 
 /* ─────────────────────────────────────────────
    Getting Started — onboarding step data
@@ -539,6 +540,8 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
     ];
 
     // ── Hero Card (shared between mobile & desktop) ──
+    const { stb, isGlideActive } = useAppStore.getState().getSafeToBurn();
+
     const heroCard = (
         <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
@@ -554,7 +557,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
 
             <div className="relative z-10 space-y-2">
                 <p className="text-gray-500 dark:text-gray-400 text-sm font-medium tracking-tight">
-                    {t('this_month_spend')}
+                    Safe-to-Burn Today
                 </p>
 
                 <div className="flex flex-col items-center">
@@ -562,7 +565,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                         {!privacyMode && <span className="text-3xl font-bold text-gray-900 dark:text-white mt-1">€</span>}
                         <h1 className="text-6xl font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
                             <Amount
-                                value={stats.curSpent}
+                                value={stb}
                                 showCurrency={false}
                                 minimumFractionDigits={2}
                                 maximumFractionDigits={2}
@@ -570,18 +573,25 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                         </h1>
                     </div>
 
-                    {/* Trend Indicator */}
-                    <div className={`flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold
-                                   ${stats.trend === 'below' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' :
-                            stats.trend === 'above' ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' :
-                                'text-gray-600 bg-gray-50 dark:bg-surface-dark2'}`}>
-                        {stats.trend === 'below' && <TrendingDown size={14} />}
-                        {stats.trend === 'above' && <TrendingUp size={14} />}
-                        {stats.trend === 'neutral' && <Minus size={14} />}
-                        <span>
-                            {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
-                        </span>
-                    </div>
+                    {/* Trend / Glide Indicator */}
+                    {isGlideActive ? (
+                        <div className="flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 shadow-sm animate-pulse">
+                            <Sparkles size={14} className="text-amber-500" />
+                            <span>Glide Active</span>
+                        </div>
+                    ) : (
+                        <div className={`flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-bold
+                                       ${stats.trend === 'below' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' :
+                                stats.trend === 'above' ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' :
+                                    'text-gray-600 bg-gray-50 dark:bg-surface-dark2'}`}>
+                            {stats.trend === 'below' && <TrendingDown size={14} />}
+                            {stats.trend === 'above' && <TrendingUp size={14} />}
+                            {stats.trend === 'neutral' && <Minus size={14} />}
+                            <span>
+                                {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
         </motion.div>
@@ -605,7 +615,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
         const topCat = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
         if (noExpToday && transactions.length > 0) return `${t('insight_no_expenses_today')}`;
         if (coffeeSpend > 8) return `☕ ${t('insight_coffee_up').replace('{amount}', coffeeSpend.toFixed(0))}`;
-        if (topCat) return `📊 ${t('insight_top_category').replace('{category}', topCat[0])}`;
+        if (topCat) return `${t('insight_top_category').replace('{category}', topCat[0])}`;
         return t('advisor_subtitle');
     }, [transactions, t]);
 
