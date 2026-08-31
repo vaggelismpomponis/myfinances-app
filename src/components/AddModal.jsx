@@ -108,13 +108,13 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
     // Keyword mapping for auto-categorization
     const CATEGORY_KEYWORDS = {
-        'Σούπερ Μάρκετ': ['σούπερ', 'μάρκετ', 'ψώνια', 'γάλα', 'ψωμί', 'κρέας', 'κρεοπωλείο', 'τυρί', 'λαχανικά', 'φρούτα'],
-        'Φαγητό': ['φαγητό', 'ταβέρνα', 'σουβλάκια', 'πίτσα', 'delivery', 'εστιατόριο', 'γεύμα', 'δείπνο'],
-        'Καφές': ['καφές', 'ποτό', 'μπαρ', 'freddo', 'latte', 'espresso'],
-        'Σπίτι': ['σπίτι', 'νοίκι', 'κοινόχρηστα', 'καθαριστικά', 'επισκευή', 'υδραυλικός', 'ηλεκτρολόγος'],
-        'Λογαριασμοί': ['λογαριασμός', 'τέλη', 'ρεύμα', 'νερό', 'ίντερνετ', 'τηλέφωνο', 'δεή', 'eydap', 'cosmote', 'vodafone', 'nova'],
-        'Διασκέδαση': ['σινεμά', 'θέατρο', 'έξοδος', 'συναυλία', 'εισιτήρια'],
-        'Άλλο': []
+        'Σούπερ Μάρκετ': ['σούπερ', 'μάρκετ', 'ψώνια', 'γάλα', 'ψωμί', 'κρέας', 'κρεοπωλείο', 'τυρί', 'λαχανικά', 'φρούτα', 'supermarket', 'groceries', 'milk', 'bread', 'meat', 'cheese', 'vegetables', 'fruit'],
+        'Φαγητό': ['φαγητό', 'ταβέρνα', 'σουβλάκια', 'πίτσα', 'delivery', 'εστιατόριο', 'γεύμα', 'δείπνο', 'food', 'restaurant', 'pizza', 'meal', 'dinner', 'lunch'],
+        'Καφές': ['καφές', 'ποτό', 'μπαρ', 'freddo', 'latte', 'espresso', 'coffee', 'drink', 'bar', 'cafe'],
+        'Σπίτι': ['σπίτι', 'νοίκι', 'κοινόχρηστα', 'καθαριστικά', 'επισκευή', 'υδραυλικός', 'ηλεκτρολόγος', 'home', 'rent', 'cleaning', 'repair', 'plumber', 'electrician'],
+        'Λογαριασμοί': ['λογαριασμός', 'τέλη', 'ρεύμα', 'νερό', 'ίντερνετ', 'τηλέφωνο', 'δεή', 'eydap', 'cosmote', 'vodafone', 'nova', 'bill', 'electricity', 'water', 'internet', 'phone'],
+        'Διασκέδαση': ['σινεμά', 'θέατρο', 'έξοδος', 'συναυλία', 'εισιτήρια', 'cinema', 'movie', 'theater', 'concert', 'tickets', 'entertainment'],
+        'Άλλο': ['other']
     };
 
     const processVoiceInput = (text) => {
@@ -215,9 +215,9 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
                 // Start listening
                 await SpeechRecognition.start({
-                    language: 'el-GR',
+                    language: 'el-GR', // We use el-GR model but parsing keywords natively supports English text if captured
                     maxResults: 1,
-                    prompt: 'Πείτε το ποσό και την κατηγορία...',
+                    prompt: 'Say amount & category / Πείτε ποσό & κατηγορία...',
                     partialResults: true,
                     popup: false,
                 });
