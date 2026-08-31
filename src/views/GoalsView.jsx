@@ -8,6 +8,9 @@ import { supabase } from '../supabase';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import { useAppStore } from '../store/useAppStore';
+import WillpowerLedgerCard from '../components/WillpowerLedgerCard';
+import { aggregateWillpower } from '../features/WillpowerEngine';
 
 /* ─────────────────────────────────────────────────────────────
    Goal icon / colour presets
@@ -105,6 +108,10 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
     const { isPro, openUpgradeModal } = useSubscription();
     const [goals, setGoals] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    
+    // Willpower Ledger state
+    const resistedImpulses = useAppStore(state => state.resistedImpulses);
+    const { totalSaved: wpTotalSaved, futureValue: wpFutureValue } = aggregateWillpower(resistedImpulses);
 
     // ── modal state ───────────────────────────────────────
     const [showAddModal,   setShowAddModal]   = useState(false);
@@ -294,6 +301,33 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
 
             {/* ── Scrollable Content ── */}
             <div className="flex-1 overflow-y-auto">
+
+                {/* ── Willpower Ledger (Epic 4) ── */}
+                {resistedImpulses && resistedImpulses.length > 0 && (
+                    <div className="px-5 pt-5">
+                        <WillpowerLedgerCard totalSaved={wpTotalSaved} futureValue={wpFutureValue} />
+                        
+                        {/* Short list of recently resisted */}
+                        <div className="mt-3 bg-white dark:bg-surface-dark2 rounded-[2rem] border border-gray-100 dark:border-white/5 p-5 shadow-sm">
+                            <h3 className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Recently Resisted</h3>
+                            <div className="space-y-3">
+                                {resistedImpulses.slice(0, 3).map(imp => (
+                                    <div key={imp.id} className="flex justify-between items-center text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-emerald-500 font-bold bg-emerald-50 dark:bg-emerald-500/10 p-2 rounded-xl">🛡️</span>
+                                            <span className="text-gray-700 dark:text-gray-300 font-medium capitalize">
+                                                {t('cat_' + imp.category.toLowerCase()) === 'cat_' + imp.category.toLowerCase() ? imp.category : t('cat_' + imp.category.toLowerCase())}
+                                            </span>
+                                        </div>
+                                        <span className="font-bold text-gray-900 dark:text-white tabular-nums tracking-tight">
+                                            <Amount value={imp.amount} />
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* ── Hero Summary Card (when goals exist) ── */}
                 {goals.length > 0 && (

@@ -129,6 +129,7 @@ function MainContent() {
     const setBudgets = useAppStore(state => state.setBudgets);
     const goals = useAppStore(state => state.goals);
     const setGoals = useAppStore(state => state.setGoals);
+    const addResistedImpulse = useAppStore(state => state.addResistedImpulse);
     const [user, setUser] = useState(null);
     const [isVerifying, setIsVerifying] = useState(false);
     const [imgRetries, setImgRetries] = useState(0);
@@ -1091,6 +1092,17 @@ function MainContent() {
         if (!user) return;
 
         try {
+            if (transaction.type === 'resisted_impulse') {
+                addResistedImpulse({
+                    id: Math.random().toString(36).substring(7),
+                    ...transaction,
+                    date: new Date().toISOString()
+                });
+                setShowAddModal(false);
+                addNotification('add', 'Impulse saved!', { amount: transaction.amount, category: transaction.category });
+                return;
+            }
+
             let txId = editingTransaction?.id;
             const newTx = {
                 ...transaction,

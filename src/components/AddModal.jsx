@@ -102,9 +102,9 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
     const baseExpenseCategories = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Άλλο'];
     const baseIncomeCategories = ['Μισθός', 'Δώρο', 'Επενδύσεις', 'Άλλο'];
 
-    const categories = type === 'expense'
-        ? [...baseExpenseCategories, ...(customCategories?.expense || [])]
-        : [...baseIncomeCategories, ...(customCategories?.income || [])];
+    const categories = type === 'income'
+        ? [...baseIncomeCategories, ...(customCategories?.income || [])]
+        : [...baseExpenseCategories, ...(customCategories?.expense || [])];
 
     // Keyword mapping for auto-categorization
     const CATEGORY_KEYWORDS = {
@@ -535,11 +535,11 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
                     {/* Type Toggle */}
                     <div className="px-5 pt-4 pb-2 flex-shrink-0">
-                        <div className="bg-gray-100 dark:bg-surface-dark3 p-1 rounded-xl flex">
+                        <div className="bg-gray-100 dark:bg-surface-dark3 p-1 rounded-xl flex gap-1">
                             <button
                                 type="button"
                                 onClick={() => setType('expense')}
-                                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${type === 'expense'
+                                className={`flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all ${type === 'expense'
                                     ? 'bg-white dark:bg-gray-600 text-red-600 dark:text-red-400 shadow-sm'
                                     : 'text-gray-400 dark:text-gray-400'
                                     }`}
@@ -549,12 +549,22 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                             <button
                                 type="button"
                                 onClick={() => setType('income')}
-                                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${type === 'income'
-                                    ? 'bg-white dark:bg-gray-600 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                                className={`flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all ${type === 'income'
+                                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
                                     : 'text-gray-400 dark:text-gray-400'
                                     }`}
                             >
                                 {t('income_type')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setType('resisted_impulse')}
+                                className={`flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all ${type === 'resisted_impulse'
+                                    ? 'bg-white dark:bg-emerald-600 text-emerald-600 dark:text-emerald-300 shadow-sm'
+                                    : 'text-gray-400 dark:text-gray-400'
+                                    }`}
+                            >
+                                Saved It! 🛡️
                             </button>
                         </div>
                     </div>
