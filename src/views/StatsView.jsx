@@ -13,7 +13,7 @@ import {
 import { 
     TrendingUp, TrendingDown, X, ChevronRight, 
     ArrowDownLeft, BarChart2, PieChart as PieIcon, 
-    Calendar, ArrowUpRight, Activity, Filter
+    Calendar, ArrowUpRight, Activity, Filter, ThumbsDown
 } from 'lucide-react';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
@@ -155,6 +155,40 @@ const StatsView = ({ transactions }) => {
             activeDayAverage
         };
     }, [transactions, calendarYear, calendarMonth]);
+
+    // Anti-Persona Aggregation
+    const antiPersona = useMemo(() => {
+        const catStats = {}; // { category: { count: 0, regretCount: 0 } }
+        transactions.forEach(tx => {
+            if (tx.type !== 'expense' || !tx.regret_status) return;
+            const cat = tx.category?.toLowerCase() || 'other';
+            if (!catStats[cat]) catStats[cat] = { count: 0, regretCount: 0 };
+            catStats[cat].count++;
+            if (tx.regret_status === 'regret') {
+                catStats[cat].regretCount++;
+            }
+        });
+
+        // Filter categories with at least 1 rated transaction
+        const ratedCats = Object.keys(catStats).filter(cat => catStats[cat].count > 0);
+        if (ratedCats.length === 0) return [];
+
+        const withQuotients = ratedCats.map(cat => ({
+            category: cat,
+            quotient: catStats[cat].regretCount / catStats[cat].count,
+            regretCount: catStats[cat].regretCount,
+            totalCount: catStats[cat].count
+        }));
+
+        // Sort by highest quotient, then by total count as a tiebreaker
+        withQuotients.sort((a, b) => {
+            if (b.quotient !== a.quotient) return b.quotient - a.quotient;
+            return b.totalCount - a.totalCount;
+        });
+
+        // Return top 2 where quotient > 0
+        return withQuotients.filter(c => c.quotient > 0).slice(0, 2);
+    }, [transactions]);
 
     const locale = language === 'el' ? 'el-GR' : 'en-US';
 
@@ -666,6 +700,53 @@ const StatsView = ({ transactions }) => {
                     )}
                 </div>
             </div>
+
+            {/* ── Anti-Persona Insights (Epic 3) ── */}
+            {antiPersona.length > 0 && (
+                <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] p-6 relative overflow-hidden">
+                    {/* Background glow */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 blur-[40px] rounded-full pointer-events-none" />
+                    
+                    <div className="flex items-center justify-between mb-4 relative z-10">
+                        <div>
+                            <h3 className="text-sm font-black text-rose-500 flex items-center gap-2">
+                                <ThumbsDown size={18} />
+                                Anti-Persona
+                            </h3>
+                            <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-wider">Highest Regret Categories</p>
+                        </div>
+                    </div>
+                    
+                    <div className="space-y-3 relative z-10">
+                        {antiPersona.map((ap, i) => (
+                            <div key={ap.category} className="flex items-center gap-4 bg-white dark:bg-surface-dark3 rounded-2xl p-4 border border-rose-100 dark:border-rose-500/10 shadow-sm">
+                                <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center flex-shrink-0">
+                                    <CategoryIcon category={ap.category} type="expense" size={20} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-bold text-gray-900 dark:text-white capitalize text-sm mb-1">
+                                        {t('cat_' + ap.category.toLowerCase()) === 'cat_' + ap.category.toLowerCase() ? ap.category : t('cat_' + ap.category.toLowerCase())}
+                                    </h4>
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                                            <div 
+                                                className="h-full bg-rose-500 rounded-full"
+                                                style={{ width: `${ap.quotient * 100}%` }}
+                                            />
+                                        </div>
+                                        <span className="text-[10px] font-bold text-rose-500 tabular-nums">
+                                            {Math.round(ap.quotient * 100)}% Regret
+                                        </span>
+                                    </div>
+                                    <p className="text-[9px] text-gray-400 dark:text-gray-500 mt-1">
+                                        {ap.regretCount} of {ap.totalCount} purchases regretted
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* ── Category Drill-Down Bottom Panel ── */}
             {typeof document !== 'undefined' && createPortal(

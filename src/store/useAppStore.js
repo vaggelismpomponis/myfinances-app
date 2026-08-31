@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { get, set, del } from 'idb-keyval';
 import { calculateStb, getRemainingDaysInMonth, getDaysInMonth } from '../features/StbEngine';
+import { scheduleRegretCheckin } from '../services/NotificationService';
 
 // Custom IndexedDB storage engine for Zustand using idb-keyval
 const idbStorage = {
@@ -44,14 +45,17 @@ export const useAppStore = create(
             })),
             
             // Optimistic UI updates
-            addTransaction: (tx) => set((state) => ({
-                transactions: [tx, ...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date))
-            })),
+            addTransaction: (tx) => {
+                scheduleRegretCheckin(tx);
+                set((state) => ({
+                    transactions: [tx, ...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date))
+                }));
+            },
             removeTransaction: (id) => set((state) => ({
                 transactions: state.transactions.filter(tx => tx.id !== id)
             })),
             updateTransaction: (updatedTx) => set((state) => ({
-                transactions: state.transactions.map(tx => tx.id === updatedTx.id ? updatedTx : tx)
+                transactions: state.transactions.map(tx => tx.id === updatedTx.id ? { ...tx, ...updatedTx } : tx)
             })),
 
             // Derived Safe-to-Burn calculation

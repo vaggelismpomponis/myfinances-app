@@ -55,6 +55,7 @@ const GuideView = React.lazy(() => import('./views/GuideView'));
 const BroadcastModal = React.lazy(() => import('./components/BroadcastModal'));
 const DesktopLayout = React.lazy(() => import('./components/DesktopLayout'));
 const OnboardingTour = React.lazy(() => import('./components/OnboardingTour'));
+const RegretCheckinModal = React.lazy(() => import('./components/RegretCheckinModal'));
 
 // Hook to detect desktop viewport
 function useWindowWidth() {
@@ -166,6 +167,10 @@ function MainContent() {
 
     // Onboarding Tour — show for first-time users
     const [showOnboarding, setShowOnboarding] = useState(false);
+    
+    // Regret Check-in
+    const [showRegretModal, setShowRegretModal] = useState(false);
+    const [activeRegretTxId, setActiveRegretTxId] = useState(null);
 
     useEffect(() => {
         if (user && !loading && !isLocked) {
@@ -251,7 +256,24 @@ function MainContent() {
                 showToast("Εντοπίστηκε νέα συναλλαγή!", "info");
             }
         });
-        return cleanup;
+
+        // Listen for Regret Check-in Action
+        const notificationListener = Capacitor.isNativePlatform() ? 
+            LocalNotifications.addListener('localNotificationActionPerformed', (notificationAction) => {
+                const action = notificationAction.notification.extra?.action;
+                const txId = notificationAction.notification.extra?.transactionId;
+                if (action === 'regret_checkin' && txId) {
+                    setActiveRegretTxId(txId);
+                    setShowRegretModal(true);
+                }
+            }) : null;
+
+        return () => {
+            cleanup();
+            if (notificationListener) {
+                notificationListener.then(listener => listener.remove());
+            }
+        };
     }, []);
 
     // Privacy Screen — enable/disable based on setting
@@ -1396,7 +1418,17 @@ function MainContent() {
                                         </React.Suspense>
                                     </DesktopLayout>
 
-                                    {/* Shared Modals */}
+                                    <RegretCheckinModal
+                                        isOpen={showRegretModal}
+                                        onClose={() => {
+                                            setShowRegretModal(false);
+                                            setActiveRegretTxId(null);
+                                        }}
+                                        transactionId={activeRegretTxId}
+                                    />
+
+                                    {/* Global Overlays (Modals) */}
+                                    <AnimatePresence>
                                     {showAddModal && (
                                         <AddModal
                                             onClose={() => { setShowAddModal(false); setEditingTransaction(null); }}
