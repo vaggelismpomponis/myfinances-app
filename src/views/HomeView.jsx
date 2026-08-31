@@ -16,11 +16,11 @@ import { motion, AnimatePresence } from 'framer-motion';
    Getting Started — onboarding step data
 ───────────────────────────────────────────── */
 const GS_STEPS = [
-    { titleKey: 'onboarding_welcome_title',      descKey: 'onboarding_welcome_desc',      Icon: Wallet,      gradient: 'from-violet-600 via-indigo-600 to-purple-700',   orb: 'bg-violet-400' },
-    { titleKey: 'onboarding_transactions_title', descKey: 'onboarding_transactions_desc', Icon: Plus,        gradient: 'from-emerald-500 via-teal-500 to-cyan-600',       orb: 'bg-emerald-400' },
-    { titleKey: 'onboarding_budgets_title',      descKey: 'onboarding_budgets_desc',      Icon: Target,      gradient: 'from-amber-500 via-orange-500 to-rose-500',       orb: 'bg-amber-400' },
-    { titleKey: 'onboarding_analytics_title',    descKey: 'onboarding_analytics_desc',    Icon: BarChart2,   gradient: 'from-blue-600 via-indigo-500 to-violet-600',      orb: 'bg-blue-400' },
-    { titleKey: 'onboarding_security_title',     descKey: 'onboarding_security_desc',     Icon: ShieldCheck, gradient: 'from-rose-500 via-pink-500 to-fuchsia-600',      orb: 'bg-rose-400' },
+    { titleKey: 'onboarding_welcome_title', descKey: 'onboarding_welcome_desc', Icon: Wallet, gradient: 'from-violet-600 via-indigo-600 to-purple-700', orb: 'bg-violet-400' },
+    { titleKey: 'onboarding_transactions_title', descKey: 'onboarding_transactions_desc', Icon: Plus, gradient: 'from-emerald-500 via-teal-500 to-cyan-600', orb: 'bg-emerald-400' },
+    { titleKey: 'onboarding_budgets_title', descKey: 'onboarding_budgets_desc', Icon: Target, gradient: 'from-amber-500 via-orange-500 to-rose-500', orb: 'bg-amber-400' },
+    { titleKey: 'onboarding_analytics_title', descKey: 'onboarding_analytics_desc', Icon: BarChart2, gradient: 'from-blue-600 via-indigo-500 to-violet-600', orb: 'bg-blue-400' },
+    { titleKey: 'onboarding_security_title', descKey: 'onboarding_security_desc', Icon: ShieldCheck, gradient: 'from-rose-500 via-pink-500 to-fuchsia-600', orb: 'bg-rose-400' },
 ];
 
 /* ─────────────────────────────────────────────
@@ -55,9 +55,8 @@ const HomeGettingStarted = ({ t, onOpenGuide }) => {
                             <button
                                 key={i}
                                 onClick={() => { setDir(i > step ? 1 : -1); setStep(i); }}
-                                className={`h-1.5 rounded-full transition-all duration-300 ${
-                                    i === step ? 'w-5 bg-white' : 'w-1.5 bg-white/30'
-                                }`}
+                                className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? 'w-5 bg-white' : 'w-1.5 bg-white/30'
+                                    }`}
                             />
                         ))}
                     </div>
@@ -177,10 +176,10 @@ const DesktopStatCards = ({ balance, totalIncome, totalExpense, stats, t, privac
             iconColor: 'text-violet-600 dark:text-violet-400',
             badge: stats.diffPct > 0 ? (
                 <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${stats.trend === 'below'
-                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
-                        : stats.trend === 'above'
-                            ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
-                            : 'bg-gray-100 dark:bg-white/10 text-gray-500'
+                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
+                    : stats.trend === 'above'
+                        ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
+                        : 'bg-gray-100 dark:bg-white/10 text-gray-500'
                     }`}>
                     {stats.trend === 'below' && <TrendingDown size={10} />}
                     {stats.trend === 'above' && <TrendingUp size={10} />}
@@ -256,10 +255,10 @@ const DesktopStatCards = ({ balance, totalIncome, totalExpense, stats, t, privac
                     </div>
                     <div className="text-right flex flex-col items-end">
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${stats.trend === 'below'
-                                ? 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/[0.12]'
-                                : stats.trend === 'above'
-                                    ? 'text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:bg-rose-500/[0.12]'
-                                    : 'text-gray-500 bg-gray-200/60 dark:text-gray-400 dark:bg-white/[0.06]'
+                            ? 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/[0.12]'
+                            : stats.trend === 'above'
+                                ? 'text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:bg-rose-500/[0.12]'
+                                : 'text-gray-500 bg-gray-200/60 dark:text-gray-400 dark:bg-white/[0.06]'
                             }`}>
                             {stats.trend === 'below' && <TrendingDown size={14} />}
                             {stats.trend === 'above' && <TrendingUp size={14} />}
@@ -604,7 +603,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
         const catTotals = {};
         thisMonthTxs.forEach(tx => { catTotals[tx.category || 'other'] = (catTotals[tx.category || 'other'] || 0) + tx.amount; });
         const topCat = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
-        if (noExpToday && transactions.length > 0) return `🏆 ${t('insight_no_expenses_today')}`;
+        if (noExpToday && transactions.length > 0) return `${t('insight_no_expenses_today')}`;
         if (coffeeSpend > 8) return `☕ ${t('insight_coffee_up').replace('{amount}', coffeeSpend.toFixed(0))}`;
         if (topCat) return `📊 ${t('insight_top_category').replace('{category}', topCat[0])}`;
         return t('advisor_subtitle');

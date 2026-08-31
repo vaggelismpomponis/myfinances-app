@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpendWise Differentiating Feature — Brainstorm Keepsake</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 26, 43, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(30, 41, 67, 0.85);
+      --accent-cyan: #00f2fe;
+      --accent-emerald: #10b981;
+      --accent-purple: #8b5cf6;
+      --accent-amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --shadow-glow: 0 10px 30px -10px rgba(0, 242, 254, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      min-height: 100vh;
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Hero */
+    header {
+      padding: 60px 0 40px;
+      text-align: center;
+      position: relative;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      color: var(--accent-cyan);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 680px;
+      margin: 0 auto 30px;
+    }
+
+    /* Synthesis Pillars */
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 20px;
+      margin-bottom: 50px;
+    }
+
+    .pillar-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pillar-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .pillar-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 242, 254, 0.3);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .pillar-card:hover::before {
+      opacity: 1;
+    }
+
+    .pillar-icon {
+      font-size: 2rem;
+      margin-bottom: 14px;
+      display: inline-block;
+    }
+
+    .pillar-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    .pillar-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    /* Interactive Filter Bar */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 30px;
+      background: rgba(18, 26, 43, 0.5);
+      padding: 8px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--card-border);
+      justify-content: center;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(139, 92, 246, 0.2));
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+    }
+
+    /* Ideas Masonry / Grid */
+    .ideas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+      margin-bottom: 60px;
+    }
+
+    .idea-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .idea-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .idea-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .technique-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tag-yesand {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .tag-roundrobin {
+      background: rgba(139, 92, 246, 0.15);
+      color: #c084fc;
+      border: 1px solid rgba(139, 92, 246, 0.25);
+    }
+
+    .star-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .star-btn:hover, .star-btn.starred {
+      color: var(--accent-amber);
+      transform: scale(1.2);
+    }
+
+    .idea-text {
+      font-size: 0.96rem;
+      color: #e2e8f0;
+      margin-bottom: 16px;
+      flex-grow: 1;
+    }
+
+    .idea-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Interactive Prototype Teaser / Playground */
+    .simulator-box {
+      background: linear-gradient(135deg, rgba(18, 26, 43, 0.9), rgba(10, 16, 28, 0.95));
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      margin-bottom: 60px;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .sim-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 2.2rem; }
+    }
+
+    .sim-control label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .sim-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .sim-input:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .sim-output-card {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      border-left: 4px solid var(--accent-cyan);
+    }
+
+    .sim-metric {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 4px;
+    }
+
+    /* Footer Action */
+    .cta-bar {
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(18, 26, 43, 0.6);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--card-border);
+    }
+
+    .primary-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 100px;
+      background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
+      color: #000;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(0, 242, 254, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">⚡ SpendWise Ideation Session</div>
+      <h1>Killer Differentiator Ideas</h1>
+      <p class="subtitle">Exploring breakthrough mechanics and psychological shifts that transcend standard personal finance apps.</p>
+    </header>
+
+    <!-- Synthesis Highlights -->
+    <h2 class="section-title">🔮 The 4 Core Breakthrough Pillars</h2>
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <span class="pillar-icon">⏳</span>
+        <div class="pillar-title">1. The Life-Energy Engine</div>
+        <div class="pillar-desc">Reframe money from abstract numbers into exact minutes of life worked, paired with a 14-day regret tracker.</div>
+      </div>
+      <div class="pillar-card">
+        <span class="pillar-icon">🎙️</span>
+        <div class="pillar-title">2. Future-Self Voice Avatar</div>
+        <div class="pillar-desc">An interactive audio persona of your 65-year-old self that dynamically reacts to impulsive choices in Greek/English.</div>
+      </div>
+      <div class="pillar-card">
+        <span class="pillar-icon">🔥</span>
+        <div class="pillar-title">3. Zero-Friction "Safe-to-Burn"</div>
+        <div class="pillar-desc">Eliminate manual categorizing with a dynamic daily burn number that glides automatically over overspending days.</div>
+      </div>
+      <div class="pillar-card">
+        <span class="pillar-icon">🛡️</span>
+        <div class="pillar-title">4. Willpower & Resisted Wealth</div>
+        <div class="pillar-desc">Gamified parallel simulation showing real wealth grown from resisted temptations vs Wall Street.</div>
+      </div>
+    </div>
+
+    <!-- Live Concept Teaser: Life Energy Calculator -->
+    <div class="simulator-box">
+      <h2 style="font-family: 'Space Grotesk'; font-size: 1.4rem; color: #fff; margin-bottom: 8px;">🧪 Interactive Concept: Life-Energy Cost Meter</h2>
+      <p style="color: var(--text-muted); font-size: 0.92rem;">Try the differentiator logic: see how an expense translates into direct hours of life energy.</p>
+      
+      <div class="sim-grid">
+        <div>
+          <div class="sim-control" style="margin-bottom: 16px;">
+            <label>Item / Expense Amount (€)</label>
+            <input type="number" id="sim-amount" class="sim-input" value="120" />
+          </div>
+          <div class="sim-control">
+            <label>Your Net Hourly Earning Rate (€/hour)</label>
+            <input type="number" id="sim-rate" class="sim-input" value="15" />
+          </div>
+        </div>
+
+        <div class="sim-output-card">
+          <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Life Energy Cost</div>
+          <div class="sim-metric" id="sim-result">8 hrs 0 mins</div>
+          <div style="color: #cbd5e1; font-size: 0.9rem;" id="sim-comparison">That equals 1 full working day of your life.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ideas Explorer -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+      <h2 class="section-title" style="margin-bottom: 0;">💡 Full Idea Vault (<span id="idea-count">24</span>)</h2>
+      <div class="controls" style="margin-bottom: 0;">
+        <button class="filter-btn active" onclick="filterIdeas('all')">All Ideas</button>
+        <button class="filter-btn" onclick="filterIdeas('yesand')">Yes, And... Chains</button>
+        <button class="filter-btn" onclick="filterIdeas('roundrobin')">Round Robin Sheets</button>
+        <button class="filter-btn" onclick="filterIdeas('starred')">⭐ Starred (<span id="star-count">0</span>)</button>
+      </div>
+    </div>
+
+    <div class="ideas-grid" id="ideas-container">
+      <!-- Cards rendered by JS -->
+    </div>
+
+    <div class="cta-bar">
+      <h3 style="font-family: 'Space Grotesk'; font-size: 1.5rem; margin-bottom: 10px;">Ready to turn these into a Product Brief?</h3>
+      <p style="color: var(--text-muted); margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">Choose your favorite concepts to feed directly into the PRD and specification pipeline.</p>
+      <button class="primary-btn" onclick="copyStarredIdeas()">📋 Copy Starred Ideas to Clipboard</button>
+    </div>
+  </div>
+
+  <script>
+    const ideasData = [
+      { id: 1, type: 'yesand', tag: 'Yes, And Chain #1', text: 'Life Energy Cost: Whenever scanning a receipt or logging an expense, compute and display the exact hours/minutes of your life worked based on your net hourly rate.' },
+      { id: 2, type: 'yesand', tag: 'Yes, And Chain #1', text: 'Opportunity Cost Simulator: Compare the scanned purchase decaying over 6 months vs compounding in an index fund for 10 years.' },
+      { id: 3, type: 'yesand', tag: 'Yes, And Chain #1', text: 'Cash Alternative Pop-Quiz: Before buying, ask "If someone offered this item in one hand and €50 cash in the other, which would you take?"' },
+      { id: 4, type: 'yesand', tag: 'Yes, And Chain #1', text: 'Cooling Off Smart Vault: Force a 24-hour reserved holding period for non-essential buys; if unconfirmed, funds route to savings.' },
+      { id: 5, type: 'yesand', tag: 'Yes, And Chain #1', text: '14-Day Regret Quotient: Follow up 2 weeks later asking "Did this bring joy?" and build an Anti-Persona profile of regret triggers.' },
+      { id: 6, type: 'yesand', tag: 'Yes, And Chain #2', text: 'Future-Self Financial Twin: Replace static dashboards with a synthesized 65-year-old avatar of you who speaks via audio.' },
+      { id: 7, type: 'yesand', tag: 'Yes, And Chain #2', text: 'Emotional Voice Dynamics: Avatar sounds fatigued/stressed when you overspend, but energetic on a beach when you hit savings goals.' },
+      { id: 8, type: 'yesand', tag: 'Yes, And Chain #2', text: 'Conversational Greek/English Quips: Speak "Spent €80 on dinner" and receive a witty quip comparing it to next month\'s rent.' },
+      { id: 9, type: 'yesand', tag: 'Yes, And Chain #2', text: 'Audio Justification Debate: Hold a 60-second audio debate with your future self before a big purchase, scored by AI.' },
+      { id: 10, type: 'yesand', tag: 'Yes, And Chain #2', text: 'Voice Commitment Playback: Record your own promises and have the app play your voice back when logging restricted categories.' },
+      { id: 11, type: 'yesand', tag: 'Yes, And Chain #3', text: 'Zero-Friction Safe-to-Burn: No manual categorization; calculate a single dynamic daily burn allowance number.' },
+      { id: 12, type: 'yesand', tag: 'Yes, And Chain #3', text: 'Streak & Combo Multiplier: Unspent daily allowance rolls over to unlock visual themes, audio badges, and vault perks.' },
+      { id: 13, type: 'yesand', tag: 'Yes, And Chain #3', text: 'Overspend Auto-Glider: Overspending today smoothly contracts the next 3-4 days to prevent feeling failure.' },
+      { id: 14, type: 'yesand', tag: 'Yes, And Chain #3', text: 'Anti-Subscription Bounty Hunter: Detects ghost charges and auto-drafts cancellation emails in Greek and English.' },
+      { id: 15, type: 'roundrobin', tag: 'Social Sheet', text: 'Ghost Splitting: Share expenses via zero-app web links with instant 1-tap Apple Pay/Revolut settlement.' },
+      { id: 16, type: 'roundrobin', tag: 'Privacy Sheet', text: 'Financial Prenup / Duo Mode: Couples share aggregate goal progress while keeping personal line items 100% encrypted.' },
+      { id: 17, type: 'roundrobin', tag: 'Social Sheet', text: 'Accountability & Anti-Charity Pact: Breaching a weekend budget triggers an automated €5 micro-penalty to a friend or charity.' },
+      { id: 18, type: 'roundrobin', tag: 'Social Sheet', text: 'Family Bounty Board: Post chore bounties with automatic payout upon photo/OCR verification.' },
+      { id: 19, type: 'roundrobin', tag: 'Context Sheet', text: 'Geofenced Temptation Shield: GPS detects shopping mall or nightlife entry and triggers a spend friction lock.' },
+      { id: 20, type: 'roundrobin', tag: 'Context Sheet', text: 'Mood & Calendar Spending Predictor: Correlates stressful workdays and late hours with impulse spikes to warn you in advance.' },
+      { id: 21, type: 'roundrobin', tag: 'Context Sheet', text: 'Receipt Nutrition & Eco-Scorecard: OCR extracts individual items to score nutritional density and carbon footprint.' },
+      { id: 22, type: 'roundrobin', tag: 'Context Sheet', text: 'Smart Price-Drop Protection: Tracks scanned receipts and alerts you if the retailer discounts the item during the return window.' },
+      { id: 23, type: 'roundrobin', tag: 'Alternate Realities', text: 'The Parallel Universe Simulator: Live graph comparing your net worth to an alternate timeline where you quit a specific vice years ago.' },
+      { id: 24, type: 'roundrobin', tag: 'Alternate Realities', text: 'Fantasy Portfolio of Saved Temptations: Tap "Saved It!" to put resisted impulse cash into a simulated index fund.' },
+      { id: 25, type: 'roundrobin', tag: 'Alternate Realities', text: 'Freedom Clock (Time, Not Money): Expresses net worth as "Years, Months, Days of Absolute Life Freedom" with zero work needed.' },
+      { id: 26, type: 'roundrobin', tag: 'Alternate Realities', text: 'Mystery Box Micro-Savings: Unpredictably tucks away €2 to €14 micro-surpluses into a high-yield locked vault.' }
+    ];
+
+    let starred = new Set([1, 6, 11, 24]);
+    let currentFilter = 'all';
+
+    function renderIdeas() {
+      const container = document.getElementById('ideas-container');
+      container.innerHTML = '';
+      
+      const filtered = ideasData.filter(item => {
+        if (currentFilter === 'starred') return starred.has(item.id);
+        if (currentFilter === 'yesand') return item.type === 'yesand';
+        if (currentFilter === 'roundrobin') return item.type === 'roundrobin';
+        return true;
+      });
+
+      document.getElementById('idea-count').innerText = filtered.length;
+      document.getElementById('star-count').innerText = starred.size;
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'idea-card';
+        const isStarred = starred.has(item.id);
+        const tagClass = item.type === 'yesand' ? 'tag-yesand' : 'tag-roundrobin';
+
+        card.innerHTML = `
+          <div>
+            <div class="idea-header">
+              <span class="technique-tag ${tagClass}">${item.tag}</span>
+              <button class="star-btn ${isStarred ? 'starred' : ''}" onclick="toggleStar(${item.id})">★</button>
+            </div>
+            <div class="idea-text">${item.text}</div>
+          </div>
+          <div class="idea-footer">
+            <span>Concept #${item.id}</span>
+            <span>${isStarred ? '⭐ Selected' : 'Click star to shortlist'}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function toggleStar(id) {
+      if (starred.has(id)) starred.delete(id);
+      else starred.add(id);
+      renderIdeas();
+    }
+
+    function filterIdeas(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderIdeas();
+    }
+
+    // Simulator logic
+    function updateSim() {
+      const amount = parseFloat(document.getElementById('sim-amount').value) || 0;
+      const rate = parseFloat(document.getElementById('sim-rate').value) || 1;
+      const totalHours = amount / rate;
+      const hours = Math.floor(totalHours);
+      const mins = Math.round((totalHours - hours) * 60);
+
+      document.getElementById('sim-result').innerText = `${hours} hrs ${mins} mins`;
+      const days = (totalHours / 8).toFixed(1);
+      document.getElementById('sim-comparison').innerText = `That equals approx. ${days} full 8-hour workday(s) of your life.`;
+    }
+
+    document.getElementById('sim-amount').addEventListener('input', updateSim);
+    document.getElementById('sim-rate').addEventListener('input', updateSim);
+
+    function copyStarredIdeas() {
+      const selected = ideasData.filter(i => starred.has(i.id)).map(i => `- [${i.tag}] ${i.text}`).join('\n');
+      navigator.clipboard.writeText(selected).then(() => {
+        alert('Copied ' + starred.size + ' shortlisted ideas to your clipboard!');
+      });
+    }
+
+    renderIdeas();
+    updateSim();
+  </script>
+</body>
+</html>
