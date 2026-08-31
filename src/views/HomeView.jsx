@@ -540,7 +540,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
     ];
 
     // ── Hero Card (shared between mobile & desktop) ──
-    const { stb, isGlideActive } = useAppStore.getState().getSafeToBurn();
+    const { stb, isGlideActive, streak } = useAppStore.getState().getSafeToBurn();
 
     const heroCard = (
         <motion.div
@@ -554,6 +554,17 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
         >
             {/* Subtle top glow */}
             <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-violet-500/10 dark:bg-violet-500/5 blur-[80px] pointer-events-none rounded-full" />
+
+            {/* Streak Indicator */}
+            {streak > 0 && !isGlideActive && (
+                <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute top-5 right-5 flex items-center gap-1 bg-gradient-to-r from-orange-400 to-rose-400 text-white px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-black shadow-md z-20"
+                >
+                    <span>🔥 {streak} Streak</span>
+                </motion.div>
+            )}
 
             <div className="relative z-10 space-y-2">
                 <p className="text-gray-500 dark:text-gray-400 text-sm font-medium tracking-tight">
