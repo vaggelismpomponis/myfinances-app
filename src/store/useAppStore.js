@@ -26,6 +26,7 @@ export const useAppStore = create(
                 income: 0,
                 fixedObligations: 0,
                 targetSavings: 0,
+                hourlyWage: 1000,
             },
 
             // Actions for syncing state from Supabase and optimistic updates

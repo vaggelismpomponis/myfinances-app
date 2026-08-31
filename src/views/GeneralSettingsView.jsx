@@ -23,6 +23,7 @@ import { openNotificationSettings, checkNotificationPermission } from '../utils/
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import { useAppStore } from '../store/useAppStore';
 import ProBadge from '../components/ProBadge';
 
 /* ── Section Header ── */
@@ -76,6 +77,22 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
     const { isPro, openUpgradeModal } = useSubscription();
     const [showClearDataModal, setShowClearDataModal] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
+    
+    // Labor Settings
+    const userSettings = useAppStore(state => state.userSettings);
+    const setUserSettings = useAppStore(state => state.setUserSettings);
+    const [wageInput, setWageInput] = useState(() => ((userSettings?.hourlyWage || 1000) / 100).toFixed(2));
+    
+    const handleWageBlur = () => {
+        const parsed = parseFloat(wageInput.replace(',', '.'));
+        if (!isNaN(parsed) && parsed > 0) {
+            setUserSettings({ hourlyWage: Math.round(parsed * 100) });
+            setWageInput(parsed.toFixed(2));
+            showToast('Hourly rate updated', 'success');
+        } else {
+            setWageInput(((userSettings?.hourlyWage || 1000) / 100).toFixed(2));
+        }
+    };
     
     // Notification Permission State
     const [isSmsEnabled, setIsSmsEnabled] = useState(false);
@@ -271,6 +288,33 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                                 <span className="text-[11px] text-gray-400 dark:text-white/35">{translate('sms_reading_desc')}</span>
                             </div>
                             <Toggle enabled={isSmsEnabled} onClick={openNotificationSettings} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Labor & Time Valuation */}
+                <div>
+                    <SectionLabel>Labor Valuation</SectionLabel>
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-4 px-5 py-4 mb-3 rounded-[20px] bg-[#f5f5f5] dark:bg-white/[0.04]">
+                            <div className="w-9 h-9 rounded-[11px] bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                                <AlertTriangle size={16} className="text-emerald-500 dark:text-emerald-400" strokeWidth={2.2} />
+                            </div>
+                            <div className="flex-1">
+                                <span className="block font-semibold text-[13.5px] text-gray-800 dark:text-white/90">Net Hourly Wage</span>
+                                <span className="text-[11px] text-gray-400 dark:text-white/35">Used to calculate life-energy cost</span>
+                            </div>
+                            <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/[0.06] px-3 py-1.5 rounded-xl border border-transparent focus-within:border-violet-500 transition-colors">
+                                <span className="text-[13px] font-bold text-gray-400">€</span>
+                                <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    value={wageInput}
+                                    onChange={(e) => setWageInput(e.target.value)}
+                                    onBlur={handleWageBlur}
+                                    className="w-16 bg-transparent text-right text-[13px] font-bold text-gray-900 dark:text-white outline-none"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

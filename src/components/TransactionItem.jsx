@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CategoryIcon from './CategoryIcon';
 import Amount from './Amount';
 import { useSettings } from '../contexts/SettingsContext';
+import { useAppStore } from '../store/useAppStore';
+import LifeEnergyBadge from './LifeEnergyBadge';
 
 const CATEGORY_ACCENT = {
     food:        '#f59e0b',
@@ -21,6 +23,7 @@ const CATEGORY_ACCENT = {
 
 const TransactionItem = ({ transaction, onDelete, onEdit }) => {
     const { t } = useSettings();
+    const hourlyWage = useAppStore(state => state.userSettings?.hourlyWage);
     const [showActions, setShowActions] = useState(false);
     
     const isIncome  = transaction.type === 'income';
@@ -47,12 +50,13 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
 
             {/* Text */}
             <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-gray-800 dark:text-white truncate capitalize">
+                <p className="font-semibold text-sm text-gray-800 dark:text-white truncate capitalize flex items-center">
                     {transaction.note || transaction.category}
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 truncate">
-                    {new Date(transaction.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                </p>
+                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 truncate flex items-center">
+                    <span>{new Date(transaction.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    {!isIncome && <LifeEnergyBadge amount={transaction.amount} hourlyWage={hourlyWage} />}
+                </div>
             </div>
 
             {/* Amount and Arrow */}
