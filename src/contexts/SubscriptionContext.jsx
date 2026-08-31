@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../supabase';
 import { getBillingService } from '../services/billing';
 
@@ -34,6 +34,12 @@ export const SubscriptionProvider = ({ user, children }) => {
   });
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [upgradeFeatureKey, setUpgradeFeatureKey] = useState(null);
+  // Navigator callback — registered by App.jsx so openUpgradeModal navigates to the upgrade page
+  const upgradeNavigatorRef = useRef(null);
+
+  const registerUpgradeNavigator = (fn) => {
+    upgradeNavigatorRef.current = fn;
+  };
 
   const checkProStatus = (status, expiry) => {
     if (status === 'pro') {
@@ -119,7 +125,13 @@ export const SubscriptionProvider = ({ user, children }) => {
 
   const openUpgradeModal = (featureKey) => {
     setUpgradeFeatureKey(featureKey);
-    setIsUpgradeModalOpen(true);
+    if (upgradeNavigatorRef.current) {
+      // Navigate to the upgrade page instead of opening a modal
+      upgradeNavigatorRef.current(featureKey);
+    } else {
+      // Fallback: legacy modal behaviour
+      setIsUpgradeModalOpen(true);
+    }
   };
 
   const closeUpgradeModal = () => {
@@ -148,6 +160,7 @@ export const SubscriptionProvider = ({ user, children }) => {
       upgradeFeatureKey,
       refreshSubscription: fetchProfile,
       syncSubscription,
+      registerUpgradeNavigator,
     }}>
       {children}
     </SubscriptionContext.Provider>

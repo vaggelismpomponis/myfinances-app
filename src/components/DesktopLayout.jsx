@@ -87,7 +87,7 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
     const cashFlow = totalIncome - totalExpense;
 
     return (
-        <aside className="
+        <aside id="tour-quick-access" className="
             h-full flex flex-col gap-4 overflow-y-auto custom-scrollbar
             w-[280px] flex-shrink-0 py-6 pr-4 pl-2
         ">
@@ -307,6 +307,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
 
                 {/* Add Button */}
                 <button
+                    id="tour-add-button"
                     onClick={onAdd}
                     className="flex items-center gap-2 px-5 py-2.5
                                bg-violet-600 hover:bg-violet-700

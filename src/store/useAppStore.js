@@ -23,12 +23,10 @@ export const useAppStore = create(
             transactions: [],
             budgets: [],
             goals: [],
-            resistedImpulses: [],
             userSettings: {
                 income: 0,
                 fixedObligations: 0,
                 targetSavings: 0,
-                hourlyWage: 1000,
             },
 
             // Actions for syncing state from Supabase and optimistic updates
@@ -57,13 +55,6 @@ export const useAppStore = create(
             })),
             updateTransaction: (updatedTx) => set((state) => ({
                 transactions: state.transactions.map(tx => tx.id === updatedTx.id ? { ...tx, ...updatedTx } : tx)
-            })),
-
-            addResistedImpulse: (impulse) => set((state) => ({
-                resistedImpulses: [impulse, ...state.resistedImpulses].sort((a, b) => new Date(b.date) - new Date(a.date))
-            })),
-            removeResistedImpulse: (id) => set((state) => ({
-                resistedImpulses: state.resistedImpulses.filter(i => i.id !== id)
             })),
 
             // Derived Safe-to-Burn calculation

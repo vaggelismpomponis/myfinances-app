@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import {
     Target, Wallet, RefreshCw, BarChart,
     ChevronRight, Sparkles, ArrowUpRight, ArrowDownRight, TrendingUp,
-    ArrowRight, TrendingDown, Crown, Minus, Eye, EyeOff,
+    ArrowRight, TrendingDown, Minus, Eye, EyeOff, Zap,
     Plus, ShieldCheck, BarChart2
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
@@ -153,7 +153,7 @@ const QuickAction = ({ icon: Icon, label, color, bg, onClick, delay, isPro, user
             <Icon size={24} className={color} />
             {isPro && !userIsPro && (
                 <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10">
-                    <Crown size={12} className="text-amber-400" fill="currentColor" />
+                    <Zap size={12} className="text-amber-400" fill="currentColor" />
                 </div>
             )}
         </div>
@@ -461,7 +461,7 @@ const BudgetBar = ({ budget, transactions, t }) => {
 /* ─────────────────────────────────────────────
    Main HomeView
 ───────────────────────────────────────────── */
-const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, onDelete, onEdit, setActiveTab, onRecurring, isDesktop }) => {
+const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, onDelete, onEdit, setActiveTab, onRecurring, onStartTour, isDesktop }) => {
     const { t, privacyMode, togglePrivacyMode } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
 
@@ -533,7 +533,10 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
         },
         {
             icon: BarChart, label: t('stats_short'), delay: '150',
-            onClick: () => setActiveTab('stats'),
+            onClick: () => {
+                if (!isPro) { openUpgradeModal('stats'); }
+                else { setActiveTab('stats'); }
+            },
             isPro: true, userIsPro: isPro,
             color: 'text-violet-600 dark:text-violet-400',
             bg: 'bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20',
@@ -571,8 +574,9 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
         const catTotals = {};
         thisMonthTxs.forEach(tx => { catTotals[tx.category || 'other'] = (catTotals[tx.category || 'other'] || 0) + tx.amount; });
         const topCat = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
+        if (transactions.length === 0) return t('insight_no_data') || 'Πρόσθεσε έξοδα για συμβουλές';
         if (noExpToday && transactions.length > 0) return `${t('insight_no_expenses_today')}`;
-        if (coffeeSpend > 8) return `☕ ${t('insight_coffee_up').replace('{amount}', coffeeSpend.toFixed(0))}`;
+        if (coffeeSpend > 8) return `${t('insight_coffee_up').replace('{amount}', coffeeSpend.toFixed(0))}`;
         if (topCat) return `${t('insight_top_category').replace('{category}', topCat[0])}`;
         return t('advisor_subtitle');
     }, [transactions, t]);
@@ -591,16 +595,16 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
         >
             {!isPro && (
                 <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10 z-10">
-                    <Crown size={12} className="text-amber-400" fill="currentColor" />
+                    <Zap size={12} className="text-amber-400" fill="currentColor" />
                 </div>
             )}
-            {/* Pulse dot — always-on freshness indicator */}
-            <div className="absolute top-3 right-3">
-                <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-50"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-violet-500"></span>
-                </span>
-            </div>
+            {/* Gentle pulse animation for the whole card */}
+            <motion.div 
+                className="absolute inset-0 rounded-[2rem] pointer-events-none"
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                style={{ boxShadow: 'inset 0 0 20px rgba(139,92,246,0.15)' }}
+            />
 
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
                             shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
@@ -639,7 +643,17 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
             </div>
 
             {transactions.length === 0 ? (
-                <HomeGettingStarted t={t} onOpenGuide={setActiveTab ? () => setActiveTab('guide') : null} />
+                <div className="bg-white dark:bg-surface-dark2 border border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center text-center mt-2">
+                    <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-3">
+                        <span className="text-xl">📝</span>
+                    </div>
+                    <h4 className="font-bold text-[14px] text-gray-800 dark:text-white mb-1">
+                        {t('no_transactions') || 'No transactions yet'}
+                    </h4>
+                    <p className="text-[12px] text-gray-500 dark:text-gray-400 font-medium max-w-[200px]">
+                        {t('no_transactions_desc') || 'Your recent income and expenses will appear here.'}
+                    </p>
+                </div>
             ) : (
                 <div className="space-y-4">
                     {transactions.slice(0, isDesktop ? 8 : 5).map((tx, idx) => (
@@ -698,7 +712,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                                         transition-transform duration-700 pointer-events-none" />
                         {!isPro && (
                             <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10 shadow-sm">
-                                <Crown size={10} className="text-white" fill="currentColor" />
+                                <Zap size={10} className="text-white" fill="currentColor" />
                             </div>
                         )}
                         <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white flex-shrink-0">
@@ -891,7 +905,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
             >
                 {!isPro && (
                     <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10 shadow-sm">
-                        <Crown size={10} className="text-white" fill="currentColor" />
+                        <Zap size={10} className="text-white" fill="currentColor" />
                     </div>
                 )}
                 <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
@@ -904,23 +918,26 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                         {advisorLiveInsight}
                     </p>
                 </div>
-                {/* Pulse dot */}
-                <div className="absolute top-2.5 right-2.5 z-10">
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-60"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
-                    </span>
-                </div>
+                {/* Gentle pulse animation for the whole card */}
+                <motion.div 
+                    className="absolute inset-0 rounded-[1.75rem] pointer-events-none"
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                    style={{ boxShadow: 'inset 0 0 15px rgba(139,92,246,0.15)' }}
+                />
                 <div className="w-7 h-7 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 group-hover:translate-x-0.5 transition-transform flex-shrink-0">
                     <ArrowRight size={14} />
                 </div>
             </motion.button>
 
             {/* ── Quick Actions (pill buttons) ── */}
-            <div>
-                <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.15em] mb-2.5 ml-1">
-                    {t('quick_access')}
-                </p>
+            <div id="tour-quick-access">
+                <div className="flex items-center justify-between mb-2.5 ml-1 mr-2">
+                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.15em]">
+                        {t('quick_access')}
+                    </p>
+                    <ArrowRight size={12} className="text-gray-300 dark:text-gray-600 animate-pulse" />
+                </div>
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
                     {quickActions.map((action) => {
                         const ActionIcon = action.icon;
@@ -945,7 +962,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                                 </div>
                                 <span className="text-xs font-bold text-gray-700 dark:text-gray-200">{action.label}</span>
                                 {action.isPro && !action.userIsPro && (
-                                    <Crown size={10} className="text-amber-400 flex-shrink-0" fill="currentColor" />
+                                    <Zap size={10} className="text-amber-400 flex-shrink-0" fill="currentColor" />
                                 )}
                             </motion.button>
                         );

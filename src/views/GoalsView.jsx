@@ -2,15 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
     ArrowLeft, Target, Plus, Trash2, PiggyBank, Pencil,
-    Check, X, Sparkles, TrendingUp, Trophy, Star
+    Check, X, Sparkles, TrendingUp, Trophy, Star, Zap
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useAppStore } from '../store/useAppStore';
-import WillpowerLedgerCard from '../components/WillpowerLedgerCard';
-import { aggregateWillpower } from '../features/WillpowerEngine';
 
 /* ─────────────────────────────────────────────────────────────
    Goal icon / colour presets
@@ -108,10 +106,6 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
     const { isPro, openUpgradeModal } = useSubscription();
     const [goals, setGoals] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    
-    // Willpower Ledger state
-    const resistedImpulses = useAppStore(state => state.resistedImpulses);
-    const { totalSaved: wpTotalSaved, futureValue: wpFutureValue } = aggregateWillpower(resistedImpulses);
 
     // ── modal state ───────────────────────────────────────
     const [showAddModal,   setShowAddModal]   = useState(false);
@@ -263,7 +257,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
             <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
                             ${hideHeader 
                                 ? 'bg-transparent border-none px-5 pt-4 pb-2' 
-                                : 'bg-white dark:bg-surface-dark px-5 pt-12 pb-4 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
+                                : 'bg-white dark:bg-surface-dark px-5 pt-4 pb-4 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
             >
                 <div className="flex items-center justify-between min-h-[40px] gap-4 relative">
                     <div className="flex items-center gap-3 min-w-0">
@@ -281,7 +275,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                             <div className="pl-10 min-w-0">
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none truncate">{t('goals')}</h2>
                                 <p className="text-xs text-gray-400 mt-1 truncate">
-                                    {!isPro ? <span>{goals.length}/2 {t('active').toLowerCase()} 👑</span> : `${goals.length} ` + t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
+                                    {!isPro ? <span>{goals.length}/2 {t('active').toLowerCase()} <Zap size={11} className="inline-block text-amber-500 relative -top-[1px] ml-1" fill="currentColor" /></span> : `${goals.length} ` + t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
                                 </p>
                             </div>
                         )}
@@ -294,40 +288,13 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                    shadow-lg shadow-violet-500/25
                                    transition-all active:scale-95"
                     >
-                        {(!isPro && goals.length >= 2) ? <span className="text-[14px]">👑</span> : <Plus size={16} />} {t('add_goal')}
+                        {(!isPro && goals.length >= 2) ? <Zap size={14} className="inline-block text-amber-500 mr-1" fill="currentColor" /> : <Plus size={16} />} {t('add_goal')}
                     </button>
                 </div>
             </div>
 
             {/* ── Scrollable Content ── */}
             <div className="flex-1 overflow-y-auto">
-
-                {/* ── Willpower Ledger (Epic 4) ── */}
-                {resistedImpulses && resistedImpulses.length > 0 && (
-                    <div className="px-5 pt-5">
-                        <WillpowerLedgerCard totalSaved={wpTotalSaved} futureValue={wpFutureValue} />
-                        
-                        {/* Short list of recently resisted */}
-                        <div className="mt-3 bg-white dark:bg-surface-dark2 rounded-[2rem] border border-gray-100 dark:border-white/5 p-5 shadow-sm">
-                            <h3 className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Recently Resisted</h3>
-                            <div className="space-y-3">
-                                {resistedImpulses.slice(0, 3).map(imp => (
-                                    <div key={imp.id} className="flex justify-between items-center text-sm">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-emerald-500 font-bold bg-emerald-50 dark:bg-emerald-500/10 p-2 rounded-xl">🛡️</span>
-                                            <span className="text-gray-700 dark:text-gray-300 font-medium capitalize">
-                                                {t('cat_' + imp.category.toLowerCase()) === 'cat_' + imp.category.toLowerCase() ? imp.category : t('cat_' + imp.category.toLowerCase())}
-                                            </span>
-                                        </div>
-                                        <span className="font-bold text-gray-900 dark:text-white tabular-nums tracking-tight">
-                                            <Amount value={imp.amount} />
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
 
                 {/* ── Hero Summary Card (when goals exist) ── */}
                 {goals.length > 0 && (

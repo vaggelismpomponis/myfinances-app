@@ -3,7 +3,7 @@ import {
     X, Camera, Layers, Mic, Delete, Check, Plus,
     Coffee, ShoppingCart, Home as HomeIcon, Receipt,
     Gift, Utensils, Banknote, LineChart, Package,
-    MessageSquare, Gamepad2, MoreHorizontal, AlertCircle
+    MessageSquare, Gamepad2, MoreHorizontal, AlertCircle, Zap
 } from 'lucide-react';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 import { Capacitor } from '@capacitor/core';
@@ -449,10 +449,10 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
             aria-labelledby="add-modal-title"
         >
             <motion.div
-                initial={{ y: '100%' }}
-                animate={{ y: 0 }}
-                exit={{ y: '100%' }}
-                transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 22, stiffness: 500 }}
                 className="bg-white dark:bg-surface-dark2 w-full max-w-md lg:max-w-[1000px] h-[100dvh] lg:h-auto lg:max-h-[85vh] rounded-t-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
             >
 
@@ -556,16 +556,8 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                             >
                                 {t('income_type')}
                             </button>
-                            <button
-                                type="button"
-                                onClick={() => setType('resisted_impulse')}
-                                className={`flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all ${type === 'resisted_impulse'
-                                    ? 'bg-white dark:bg-emerald-600 text-emerald-600 dark:text-emerald-300 shadow-sm'
-                                    : 'text-gray-400 dark:text-gray-400'
-                                    }`}
-                            >
-                                Saved It! 🛡️
-                            </button>
+
+
                         </div>
                     </div>
 
@@ -623,7 +615,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                 >
                                     <Plus size={14} />
                                     <span>{t('new_category')}</span>
-                                    {!isPro && <span className="text-[10px] ml-0.5">👑</span>}
+                                    {!isPro && <Zap size={11} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
                                 </motion.button>
                             ) : (
                                 <motion.div
@@ -772,7 +764,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                         >
                             <Camera size={14} />
                             {t('scan')}
-                            {!isPro && <span className="text-[10px] ml-0.5">👑</span>}
+                            {!isPro && <Zap size={12} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
                         </motion.button>
                         <motion.button
                             whileHover={{ scale: 1.05 }}
@@ -789,7 +781,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                         >
                             <Layers size={14} />
                             {t('bulk')}
-                            {!isPro && <span className="text-[10px] ml-0.5">👑</span>}
+                            {!isPro && <Zap size={12} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
                         </motion.button>
                     </div>
 

@@ -559,11 +559,13 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) 
                                 <div className="text-right">
                                     <p className="text-gray-400 font-medium">Status</p>
                                     <p className={`font-bold text-xs mt-0.5 ${
-                                        Math.round(donutData[activePieSlice].value) <= [50,30,20][activePieSlice]
-                                            ? 'text-emerald-500' : 'text-rose-500'
+                                        activePieSlice === 2
+                                            ? (Math.round(donutData[activePieSlice].value) >= 20 ? 'text-emerald-500' : 'text-rose-500')
+                                            : (Math.round(donutData[activePieSlice].value) <= [50,30,20][activePieSlice] ? 'text-emerald-500' : 'text-rose-500')
                                     }`}>
-                                        {Math.round(donutData[activePieSlice].value) <= [50,30,20][activePieSlice]
-                                            ? t('allocation_status_ok') : t('allocation_status_over')}
+                                        {activePieSlice === 2
+                                            ? (Math.round(donutData[activePieSlice].value) >= 20 ? `↑ ${t('breakdown_over_target') || 'Πάνω από τον στόχο'}` : `↓ ${t('breakdown_under_target') || 'Κάτω από τον στόχο'}`)
+                                            : (Math.round(donutData[activePieSlice].value) <= [50,30,20][activePieSlice] ? t('breakdown_on_track') : `↑ ${t('breakdown_over_target')}`)}
                                     </p>
                                 </div>
                             </div>
@@ -719,7 +721,7 @@ const Header = ({ onBack, hideHeader, t }) => (
     <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
         ${hideHeader
             ? 'bg-transparent border-none px-4 pt-4 pb-2'
-            : 'px-4 pt-12 pb-4 bg-white dark:bg-surface-dark2 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
+            : 'px-4 pt-4 pb-4 bg-white dark:bg-surface-dark2 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
     >
         <div className="flex items-center justify-center min-h-[40px] relative">
             <button

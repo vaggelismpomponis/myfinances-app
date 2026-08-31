@@ -50,6 +50,7 @@ const PaymentCanceledView = React.lazy(() => import('./views/PaymentCanceledView
 const AddModal = React.lazy(() => import('./components/AddModal'));
 const WhatsNewModal = React.lazy(() => import('./components/WhatsNewModal'));
 const UpgradeModal = React.lazy(() => import('./components/UpgradeModal'));
+const UpgradePage  = React.lazy(() => import('./views/UpgradePage'));
 const FinancialAdvisorView = React.lazy(() => import('./views/FinancialAdvisorView'));
 const GuideView = React.lazy(() => import('./views/GuideView'));
 const BroadcastModal = React.lazy(() => import('./components/BroadcastModal'));
@@ -81,6 +82,21 @@ const ProtectedRecurringView = ({ user, onBack, hideHeader }) => {
 const ProtectedStatsView = ({ transactions }) => {
     const { isPro } = useSubscription();
     return isPro ? <StatsView transactions={transactions} /> : null;
+};
+
+// Inner component to safely access useSubscription and register the upgrade navigator
+const UpgradeNavigatorRegistrar = ({ activeTab, setActiveTab, setPreviousTab }) => {
+    const { registerUpgradeNavigator } = useSubscription();
+    useEffect(() => {
+        registerUpgradeNavigator((_featureKey) => {
+            if (activeTab !== 'upgrade') {
+                setPreviousTab(activeTab);
+            }
+            setActiveTab('upgrade');
+        });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeTab]);
+    return null;
 };
 
 function MainContent() {
@@ -129,7 +145,6 @@ function MainContent() {
     const setBudgets = useAppStore(state => state.setBudgets);
     const goals = useAppStore(state => state.goals);
     const setGoals = useAppStore(state => state.setGoals);
-    const addResistedImpulse = useAppStore(state => state.addResistedImpulse);
     const [user, setUser] = useState(null);
     const [isVerifying, setIsVerifying] = useState(false);
     const [imgRetries, setImgRetries] = useState(0);
@@ -1092,17 +1107,6 @@ function MainContent() {
         if (!user) return;
 
         try {
-            if (transaction.type === 'resisted_impulse') {
-                addResistedImpulse({
-                    id: Math.random().toString(36).substring(7),
-                    ...transaction,
-                    date: new Date().toISOString()
-                });
-                setShowAddModal(false);
-                addNotification('add', 'Impulse saved!', { amount: transaction.amount, category: transaction.category });
-                return;
-            }
-
             let txId = editingTransaction?.id;
             const newTx = {
                 ...transaction,
@@ -1280,6 +1284,7 @@ function MainContent() {
                     onEdit={handleEdit}
                     setActiveTab={setActiveTab}
                     onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
+                    onStartTour={() => setShowOnboarding(true)}
                     isDesktop={isDesktop}
                 />
             )}
@@ -1308,7 +1313,14 @@ function MainContent() {
                 />
             )}
             {activeTab === 'guide' && (
-                <GuideView onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
+                <GuideView 
+                    onBack={() => setActiveTab('profile')} 
+                    hideHeader={isDesktop} 
+                    onStartTour={() => {
+                        setActiveTab('home');
+                        setShowOnboarding(true);
+                    }}
+                />
             )}
             {activeTab === 'recurring' && (
                 <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} hideHeader={isDesktop} />
@@ -1333,6 +1345,9 @@ function MainContent() {
             )}
             {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
                 <AdminView onBack={() => setActiveTab('profile')} hideHeader={isDesktop} />
+            )}
+            {activeTab === 'upgrade' && (
+                <UpgradePage onBack={() => setActiveTab(previousTab || 'home')} />
             )}
         </div>
     );
@@ -1381,6 +1396,11 @@ function MainContent() {
                         />
                     ) : (
                         <SubscriptionProvider key={user?.id} user={user}>
+                            <UpgradeNavigatorRegistrar 
+                                activeTab={activeTab} 
+                                setActiveTab={setActiveTab} 
+                                setPreviousTab={setPreviousTab} 
+                            />
                             {isDesktop ? (
                                 <main className="h-full w-full font-sans text-gray-900 dark:text-white
                                                 selection:bg-violet-100 dark:selection:bg-violet-900
@@ -1484,6 +1504,7 @@ function MainContent() {
                                             <OnboardingTour onComplete={handleOnboardingComplete} />
                                         </React.Suspense>
                                     )}
+                                    </AnimatePresence>
                                 </main>
                             ) : (
                                 <main className="h-full w-full bg-surface-light dark:bg-surface-dark
@@ -1649,7 +1670,7 @@ function MainContent() {
                                             )}
                                             {activeTab === 'guide' && (
                                                 <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
-                                                    <GuideView onBack={() => setActiveTab('profile')} />
+                                                    <GuideView onBack={() => setActiveTab('profile')} onStartTour={() => { setActiveTab('home'); setShowOnboarding(true); }} />
                                                 </div>
                                             )}
                                             {activeTab === 'recurring' && (
@@ -1692,6 +1713,11 @@ function MainContent() {
                                                     <AdminView onBack={() => setActiveTab('profile')} />
                                                 </div>
                                             )}
+                                            {activeTab === 'upgrade' && (
+                                                <div className="absolute inset-0 z-[60] bg-gray-50 dark:bg-surface-dark">
+                                                    <UpgradePage onBack={() => setActiveTab(previousTab === 'upgrade' ? 'home' : (previousTab || 'home'))} />
+                                                </div>
+                                            )}
                                             {activeTab === 'goals' && (
                                                 <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
                                                     <GoalsView user={user} onBack={() => setActiveTab('home')} />
@@ -1710,18 +1736,20 @@ function MainContent() {
                                         </React.Suspense>
 
                                         {/* Mobile Modals/FAB */}
-                                        {!['goals', 'budgets', 'profile', 'recurring', 'general', 'security', 'backup', 'feedback', 'admin', 'privacy', 'advisor', 'guide'].includes(activeTab) && (
+                                        {!['goals', 'budgets', 'profile', 'recurring', 'general', 'security', 'backup', 'feedback', 'admin', 'privacy', 'advisor', 'guide', 'upgrade'].includes(activeTab) && (
                                             <div className="relative z-[45]">
                                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
                                                     <div className="absolute inset-0 rounded-full bg-violet-600/30 animate-ping-pulse scale-110" />
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.1 }}
-                                                        whileTap={{ scale: 0.9 }}
-                                                        onClick={openAddModal}
-                                                        aria-label="Add transaction"
-                                                        className="relative w-16 h-16 rounded-full bg-violet-500 text-white shadow-lg flex items-center justify-center">
-                                                        <Plus size={32} strokeWidth={2.5} />
-                                                    </motion.button>
+                                                    <div id="tour-add-button" className="relative">
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.1 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            onClick={openAddModal}
+                                                            aria-label="Add transaction"
+                                                            className="relative w-16 h-16 rounded-full bg-violet-500 text-white shadow-lg flex items-center justify-center">
+                                                            <Plus size={32} strokeWidth={2.5} />
+                                                        </motion.button>
+                                                    </div>
                                                 </div>
                                                 <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
                                             </div>

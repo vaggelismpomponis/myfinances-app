@@ -3,14 +3,15 @@ import {
     Home, BarChart2, Wallet, Settings, Target,
     RefreshCw, Shield, Database, MessageSquare, Sparkles,
     LogOut, Moon, Sun, Eye, EyeOff, BookOpen,
-    Bell, Crown, User, LayoutDashboard
+    Bell, Zap, User, LayoutDashboard
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import Amount from './Amount';
 
-const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown }) => (
+const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) => (
     <button
+        id={id}
         onClick={onClick}
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left
                     transition-all duration-200 group relative
@@ -34,7 +35,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown }) => (
             </span>
         )}
         {showCrown && !active && (
-            <Crown size={12} className="text-amber-400" />
+            <Zap size={12} className="text-amber-400" fill="currentColor" />
         )}
     </button>
 );
@@ -100,7 +101,7 @@ const DesktopSidebar = ({
                 <SectionLabel label={t('nav_main') || 'Main'} />
 
                 <NavItem icon={Home} label={t('nav_home')} active={activeTab === 'home'} onClick={() => navTo('home')} />
-                <NavItem icon={BarChart2} label={t('nav_stats')} active={activeTab === 'stats'} onClick={() => navTo('stats')} showCrown={!isPro} />
+                <NavItem id="nav-stats" icon={BarChart2} label={t('nav_stats')} active={activeTab === 'stats'} onClick={() => navTo('stats')} showCrown={!isPro} />
                 <NavItem icon={Wallet} label={t('nav_history')} active={activeTab === 'history'} onClick={() => navTo('history')} />
 
                 <SectionLabel label={t('quick_access') || 'Tools'} />
@@ -112,7 +113,7 @@ const DesktopSidebar = ({
 
                 <SectionLabel label={t('settings') || 'Settings'} />
 
-                <NavItem icon={User} label={t('nav_profile')} active={activeTab === 'profile'} onClick={() => navTo('profile')} />
+                <NavItem id="nav-profile" icon={User} label={t('nav_profile')} active={activeTab === 'profile'} onClick={() => navTo('profile')} />
                 <NavItem icon={Settings} label={t('general_settings')} active={activeTab === 'general'} onClick={() => navTo('general')} />
                 <NavItem icon={Shield} label={t('security')} active={activeTab === 'security'} onClick={() => navTo('security')} />
                 <NavItem icon={Database} label={t('backup')} active={activeTab === 'backup'} onClick={() => navTo('backup')} />

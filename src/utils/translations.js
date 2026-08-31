@@ -250,7 +250,7 @@ export const translations = {
         subscription_expires: 'Ενεργό έως {date}',
         subscription_free: 'Δωρεάν Πλάνο',
         manage_subscription: 'Διαχείριση Συνδρομής',
-        go_pro: 'Αναβάθμιση σε Pro',
+        go_pro: 'Γίνε Pro',
         go_pro_subtitle: 'Ξεκλείδωσε όλες τις λειτουργίες',
         unlimited_budgets: 'Απεριόριστα Budgets',
         unlimited_goals: 'Απεριόριστοι Στόχοι',
@@ -414,6 +414,7 @@ export const translations = {
         recent: 'Πρόσφατα',
         all: 'Όλα',
         no_transactions: 'Δεν υπάρχουν συναλλαγές ακόμη.',
+        no_transactions_desc: 'Εδώ θα εμφανίζονται τα πρόσφατα έσοδα και έξοδά σας.',
 
         // Backup & Restore
         backup_restore: 'Αντίγραφο & Επαναφορά',
@@ -861,6 +862,16 @@ export const translations = {
         payment_canceled_info_2: 'Μπορείτε να δοκιμάσετε ξανά',
         back_to_app: 'Πίσω στην Εφαρμογή',
         try_again: 'Προσπάθησε Ξανά',
+
+        // Willpower Ledger
+        willpower_ledger: 'Ταμείο Θέλησης',
+        resisted_impulses: 'Αποφυγές Παρορμήσεων',
+        total_saved: 'Συνολική Εξοικονόμηση',
+        future_value: 'Μελλοντική Αξία',
+        yrs_10: '10 Έτη',
+        willpower_subtext_1: 'Με εκτιμώμενη ετήσια απόδοση ',
+        willpower_subtext_2: '%, τα χρήματα που εξοικονομήσατε θα αυξηθούν σημαντικά.',
+        recently_resisted: 'Πρόσφατες Αποφυγές',
     },
     en: {
         // General Settings
@@ -1268,6 +1279,7 @@ export const translations = {
         recent: 'Recent',
         all: 'All',
         no_transactions: 'No transactions yet.',
+        no_transactions_desc: 'Your recent income and expenses will appear here.',
 
         // Backup & Restore
         backup_restore: 'Backup & Restore',
@@ -1722,7 +1734,17 @@ export const translations = {
         payment_canceled_subtitle: 'Your checkout process was canceled. Your account was not charged.',
         payment_canceled_info_1: 'Safe and secure process',
         payment_canceled_info_2: 'You can try again anytime',
-        back_to_app: 'Go Back',
+        back_to_app: 'Back to App',
         try_again: 'Try Again',
+
+        // Willpower Ledger
+        willpower_ledger: 'Willpower Ledger',
+        resisted_impulses: 'Resisted Impulses',
+        total_saved: 'Total Saved',
+        future_value: 'Future Value',
+        yrs_10: '10 Yrs',
+        willpower_subtext_1: 'Assuming a ',
+        willpower_subtext_2: '% annual compounding return, your resisted impulses will grow massively.',
+        recently_resisted: 'Recently Resisted',
     }
 };

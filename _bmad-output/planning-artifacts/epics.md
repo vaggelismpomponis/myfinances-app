@@ -2,6 +2,8 @@
 stepsCompleted:
   - step-01-validate-prerequisites
   - step-02-design-epics
+  - step-03-create-stories
+  - step-04-final-validation
 inputDocuments:
   - c:\Projects\SpendWise\_bmad-output\planning-artifacts\prds\prd-SpendWise-2026-08-31\prd.md
   - c:\Projects\SpendWise\_bmad-output\planning-artifacts\architecture\arch-SpendWise-2026-08-31\ARCHITECTURE-SPINE.md
@@ -151,27 +153,155 @@ So that I can understand my financial status at a glance.
 **Then** it displays the `SafeToBurnCard` using Dark Mode Glassmorphism and a circular SVG progress ring,
 **And** it uses Framer Motion spring physics for haptic feedback when tapped.
 
-<!-- Repeat for each epic in epics_list (N = 1, 2, 3...) -->
+## Epic 2: Life-Energy Labor Valuation
 
-## Epic {{N}}: {{epic_title_N}}
+Users can configure their hourly wage and view the true labor cost of every purchase to reduce impulse buying.
 
-{{epic_goal_N}}
+### Story 2.1: Hourly Wage Setup & Storage
 
-<!-- Repeat for each story (M = 1, 2, 3...) within epic N -->
-
-### Story {{N}}.{{M}}: {{story_title_N_M}}
-
-As a {{user_type}},
-I want {{capability}},
-So that {{value_benefit}}.
+As a user,
+I want to configure my Net Hourly Rate or provide my monthly income and hours worked,
+So that the app can accurately calculate the time value of my money.
 
 **Acceptance Criteria:**
 
-<!-- for each AC on this story -->
+**Given** the user navigates to the Settings profile,
+**When** they enter their wage details,
+**Then** the rate is securely stored in Supabase with RLS policies,
+**And** it defaults to `€10.00/hr` if left unconfigured.
 
-**Given** {{precondition}}
-**When** {{action}}
-**Then** {{expected_outcome}}
-**And** {{additional_criteria}}
+### Story 2.2: Real-Time Life-Energy Calculation
 
-<!-- End story repeat -->
+As a user,
+I want every expense amount dynamically divided by my hourly rate,
+So that I know how many hours of work a purchase represents.
+
+**Acceptance Criteria:**
+
+**Given** the user views any transaction or expense,
+**When** the amount is processed by the Life-Energy engine,
+**Then** it is accurately converted to an "X hrs Y mins" format based on the stored hourly rate,
+**And** the calculation executes instantly on the client.
+
+### Story 2.3: LifeEnergyBadge UI Component
+
+As a user,
+I want to see the labor time cost displayed as a distinct visual badge,
+So that it stands out immediately when I am reviewing prices.
+
+**Acceptance Criteria:**
+
+**Given** an expense is displayed on screen,
+**When** rendering the `LifeEnergyBadge`,
+**Then** it renders as a glowing pill chip with an hourglass/clock icon,
+**And** screen readers properly announce it meeting WCAG 2.1 AA standards.
+
+## Epic 3: The 14-Day Anti-Regret Loop
+
+Users are prompted to rate past purchases to discover their regret zones and build an "Anti-Persona" profile.
+
+### Story 3.1: Regret Check-in Notification Scheduler
+
+As a user,
+I want the system to schedule a check-in 14 days after a discretionary purchase,
+So that I can honestly evaluate if it was worth the money.
+
+**Acceptance Criteria:**
+
+**Given** the user logs a discretionary purchase > €20,
+**When** the transaction is saved,
+**Then** the app schedules a local device notification for exactly 14 days later using `@capacitor/local-notifications`.
+
+### Story 3.2: RegretCheckinModal Component & Logging
+
+As a user,
+I want to easily mark a past purchase as "Worth It" or "Regret" via a single tap,
+So that tracking my feelings about past spending feels effortless.
+
+**Acceptance Criteria:**
+
+**Given** the 14-day check-in is triggered,
+**When** the user opens the `RegretCheckinModal`,
+**Then** they see two large buttons `[🔥 Worth It]` and `[👎 Regret]`,
+**And** tapping either instantly updates the `regret_status` in Supabase and dismisses the modal.
+
+### Story 3.3: Anti-Persona Aggregation
+
+As a user,
+I want the app to summarize my highest-regret categories,
+So that I know where my financial blind spots are.
+
+**Acceptance Criteria:**
+
+**Given** the user has rated several past purchases,
+**When** they view their profile insights,
+**Then** the app calculates the Regret Quotient (Regret / Total) per category,
+**And** displays the top 2 highest-regret categories as an "Anti-Persona".
+
+## Epic 4: The Willpower Ledger
+
+Users can actively log resisted purchases and visualize how much wealth they are building over 10 years through willpower.
+
+### Story 4.1: Quick-Log Resisted Impulse
+
+As a user,
+I want to actively log a purchase I walked away from using a "Saved It!" button,
+So that I get immediate positive reinforcement for not spending.
+
+**Acceptance Criteria:**
+
+**Given** the user clicks the "Saved It!" FAB action,
+**When** they enter the amount they avoided spending,
+**Then** the entry is recorded in the `resisted_impulses` table without affecting their bank balance or Safe-to-Burn allowance.
+
+### Story 4.2: Willpower Compounding Calculator
+
+As a user,
+I want the app to project the long-term value of my saved impulses,
+So that I understand the massive future impact of small daily decisions.
+
+**Acceptance Criteria:**
+
+**Given** the user has resisted impulses recorded,
+**When** calculating the willpower totals,
+**Then** the system calculates a simulated 10-year growth assuming a 7.0% annual compounding rate.
+
+### Story 4.3: WillpowerLedgerCard Component
+
+As a user,
+I want to see my resisted impulse achievements in a beautifully designed card,
+So that I feel a sense of pride in my financial discipline.
+
+**Acceptance Criteria:**
+
+**Given** the user views the Willpower Vault,
+**When** the `WillpowerLedgerCard` renders,
+**Then** it displays the Total Saved and 10-Year Future Value using a violet-to-emerald gradient shimmer border.
+
+## Epic 5: Frictionless Multilingual Ingestion
+
+Users can add expenses instantly by speaking in Greek/English or scanning receipts without manual data entry.
+
+### Story 5.1: Dual-Language Speech Parsing
+
+As a user,
+I want to dictate expenses in either Greek or English,
+So that I don't have to type them out manually.
+
+**Acceptance Criteria:**
+
+**Given** the user activates the microphone via the FAB,
+**When** they speak an expense in Greek (e.g., "50 ευρώ στο σούπερ μάρκετ") or English,
+**Then** `@capacitor-community/speech-recognition` accurately extracts the Amount and Category in under 800ms.
+
+### Story 5.2: Greek & English Receipt OCR
+
+As a user,
+I want to scan a receipt with my camera to extract the total amount automatically,
+So that logging physical purchases takes zero effort.
+
+**Acceptance Criteria:**
+
+**Given** the user takes a photo of a receipt,
+**When** the image is processed,
+**Then** `Tesseract.js` initialized with `eng+ell` language models accurately extracts the total sum.

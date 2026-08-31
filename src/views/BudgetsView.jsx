@@ -410,7 +410,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
             <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
                             ${hideHeader
                                 ? 'bg-transparent border-none px-5 pt-4 pb-2'
-                                : 'bg-white dark:bg-surface-dark px-5 pt-12 pb-4 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
+                                : 'bg-white dark:bg-surface-dark px-5 pt-4 pb-4 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
             >
                 <div className="flex items-center justify-between min-h-[40px] gap-4 relative">
                     <div className="flex items-center gap-3 min-w-0">
@@ -428,7 +428,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                             <div className="pl-10 min-w-0">
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none truncate">{t('budgets')}</h2>
                                 <p className="text-xs text-gray-400 mt-1 truncate">
-                                    {!isPro ? <span>{budgets.length}/3 {t('active').toLowerCase()} 👑</span> : `${budgets.length} ` + t('active').toLowerCase()} · {new Date().toLocaleString('el-GR', { month: 'long', year: 'numeric' })}
+                                    {!isPro ? <span>{budgets.length}/3 {t('active').toLowerCase()} <Zap size={11} className="inline-block text-amber-500 relative -top-[1px] ml-1" fill="currentColor" /></span> : `${budgets.length} ` + t('active').toLowerCase()} · {new Date().toLocaleString('el-GR', { month: 'long', year: 'numeric' })}
                                 </p>
                             </div>
                         )}
@@ -437,7 +437,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                         onClick={openAddModal}
                         className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95"
                     >
-                        {(!isPro && budgets.length >= 3) ? <span className="text-[14px]">👑</span> : <Plus size={16} />} {t('add_budget')}
+                        {(!isPro && budgets.length >= 3) ? <Zap size={14} className="inline-block text-amber-500 mr-1" fill="currentColor" /> : <Plus size={16} />} {t('add_budget')}
                     </button>
                 </div>
             </div>
@@ -680,7 +680,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             value={formCategory}
                                             onChange={(e) => setFormCategory(e.target.value)}
                                             disabled={!!editingBudget}
-                                            className={`w-full py-3.5 pr-3.5 ${formCategory ? 'pl-10' : 'pl-3.5'} bg-white dark:bg-surface-dark2 border border-slate-200/60 dark:border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white shadow-premium disabled:opacity-50 appearance-none text-sm font-medium`}
+                                            className={`w-full py-3.5 pr-3.5 ${formCategory ? 'pl-10' : 'pl-3.5'} bg-white dark:bg-surface-dark2 border border-slate-200/60 dark:border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white shadow-premium disabled:opacity-50 appearance-none text-sm font-medium`}
                                             required
                                         >
                                             <option value="" disabled>{t('select_category')}</option>
@@ -718,7 +718,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             placeholder="300"
                                             value={formAmount}
                                             onChange={(e) => setFormAmount(e.target.value)}
-                                            className={`w-full ${!privacyMode ? 'pl-10' : 'pl-4'} pr-4 py-3.5 bg-white dark:bg-surface-dark2 border border-slate-200/60 dark:border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-sm font-medium shadow-premium placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:font-medium`}
+                                            className={`w-full ${!privacyMode ? 'pl-10' : 'pl-4'} pr-4 py-3.5 bg-white dark:bg-surface-dark2 border border-slate-200/60 dark:border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-sm font-medium shadow-premium placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:font-medium`}
                                             required
                                             min="1"
                                         />

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
     User, LogOut, ChevronRight,
     ShieldAlert as Shield, ArrowLeft, Moon,
     Sparkles, Smartphone, HardDriveDownload,
     Languages, LayoutDashboard, MessageSquare, BookOpen,
     Settings, Info, Trash2, UserX,
-    Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff
+    Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff,
+    Zap
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import PasswordInput from '../components/PasswordInput';
@@ -180,7 +182,13 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
     };
 
     return (
-        <div className="h-full bg-gray-50 dark:bg-surface-dark animate-fade-in flex flex-col transition-colors duration-300 overflow-hidden">
+        <motion.div
+            className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300 overflow-hidden"
+            initial={{ opacity: 0, y: 48, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 36, mass: 0.8 }}
+        >
             {/* ─────── Sticky Header ─────── */}
             <div
                 className={`shrink-0 sticky top-0 z-20 transition-colors duration-300
@@ -190,6 +198,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                 style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' } : {}}
             >
                 <div className="flex items-center justify-center relative min-h-[32px]">
+                    {/* Back button */}
                     <button
                         id="settings-back-btn"
                         onClick={onBack}
@@ -202,10 +211,38 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                     >
                         <ArrowLeft size={15} strokeWidth={2.5} />
                     </button>
+
+                    {/* Page title */}
                     {!hideHeader && (
-                        <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center truncate px-10">
+                        <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center truncate px-20">
                             {translate('settings_title') || 'Settings'}
                         </h1>
+                    )}
+
+                    {/* Upgrade CTA — only for free users */}
+                    {!isPro && (
+                        <motion.button
+                            onClick={() => openUpgradeModal('profile_header')}
+                            whileTap={{ scale: 0.93 }}
+                            className="absolute right-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                                       bg-gradient-to-r from-amber-400 to-orange-500
+                                       text-white text-[11px] font-extrabold tracking-wide
+                                       shadow-[0_2px_12px_rgba(251,146,60,0.45)]
+                                       hover:shadow-[0_4px_20px_rgba(251,146,60,0.55)] transition-shadow"
+                        >
+                            <Zap size={11} strokeWidth={2.5} className="fill-white" />
+                            {translate('go_pro') || 'Upgrade to Pro'}
+                        </motion.button>
+                    )}
+                    {/* Pro badge for subscribers */}
+                    {isPro && (
+                        <div className="absolute right-0 flex items-center gap-1 px-2.5 py-1.5 rounded-full
+                                        bg-gradient-to-r from-violet-500 to-purple-600
+                                        text-white text-[11px] font-extrabold tracking-wide
+                                        shadow-[0_2px_10px_rgba(139,92,246,0.35)]">
+                            <Zap size={11} strokeWidth={2.5} className="fill-white" />
+                            You're Pro!
+                        </div>
                     )}
                 </div>
             </div>
@@ -214,11 +251,18 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
             <div className="flex-1 overflow-y-auto">
                 <div className="p-4 pb-12 space-y-5">
 
-                    {/* ════ Avatar + Name Hero ════ */}
-                    <div className="flex items-center px-1 pt-4 pb-6 gap-4">
-                        <div className="relative shrink-0">
-                            <div className="w-[84px] h-[84px] rounded-full overflow-hidden
-                                            bg-gray-100 dark:bg-white/10">
+                    {/* ════ Avatar + Name Hero — centered ════ */}
+                    <div className="flex flex-col items-center pt-6 pb-6 gap-3">
+                        {/* Avatar */}
+                        <motion.div
+                            className="relative"
+                            initial={{ scale: 0.7, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ type: 'spring', stiffness: 320, damping: 28, delay: 0.08 }}
+                        >
+                            <div className="w-[96px] h-[96px] rounded-full overflow-hidden
+                                            bg-gray-100 dark:bg-white/10
+                                            ring-4 ring-white dark:ring-surface-dark2 shadow-xl">
                                 {photoURL && imgRetries < MAX_IMG_RETRIES ? (
                                     <img
                                         src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
@@ -230,34 +274,41 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
-                                        <User size={36} strokeWidth={1.5} className="text-gray-400 dark:text-white/40" />
+                                        <User size={40} strokeWidth={1.5} className="text-gray-400 dark:text-white/40" />
                                     </div>
                                 )}
                             </div>
-                            <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full
-                                            bg-emerald-400 border-2 border-gray-50 dark:border-surface-dark" />
-                        </div>
+                            {/* Online dot */}
+                            <div className="absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full
+                                            bg-emerald-400 border-2 border-gray-50 dark:border-surface-dark shadow-sm" />
+                        </motion.div>
 
-                        <div className="flex-1 min-w-0">
-                            <h2 className="text-[19px] leading-tight font-extrabold text-gray-900 dark:text-white mb-2 break-words line-clamp-2">
-                                {displayName}
-                            </h2>
-                            <button
-                                onClick={onAccount}
-                                className="inline-flex items-center px-4 py-1.5 rounded-full border border-gray-200 dark:border-white/10
-                                           text-[13px] font-bold text-gray-700 dark:text-white/80
-                                           active:scale-95 transition-transform hover:bg-gray-100 dark:hover:bg-white/5"
-                            >
-                                {translate('edit_profile') === 'edit_profile' ? 'Επεξεργασία προφίλ' : translate('edit_profile')}
-                            </button>
-                        </div>
-                        <button
-                            onClick={onGeneral}
-                            className="w-11 h-11 flex items-center justify-center bg-[#f5f5f5] dark:bg-white/10 rounded-full shrink-0
-                                       hover:bg-gray-200 dark:hover:bg-white/20 transition-colors ml-2"
+                        {/* Name */}
+                        <motion.h2
+                            className="text-[22px] leading-tight font-extrabold text-gray-900 dark:text-white text-center px-4"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.14, duration: 0.3 }}
                         >
-                            <Settings size={22} className="text-gray-800 dark:text-white/90" />
-                        </button>
+                            {displayName}
+                        </motion.h2>
+
+                        {/* Edit profile button */}
+                        <motion.button
+                            onClick={onAccount}
+                            whileTap={{ scale: 0.94 }}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2, duration: 0.3 }}
+                            className="inline-flex items-center px-5 py-2 rounded-full
+                                       border border-gray-200 dark:border-white/10
+                                       bg-white dark:bg-white/5
+                                       text-[13px] font-bold text-gray-700 dark:text-white/80
+                                       shadow-sm hover:bg-gray-50 dark:hover:bg-white/10
+                                       active:scale-95 transition-all"
+                        >
+                            {translate('edit_profile') === 'edit_profile' ? 'Επεξεργασία προφίλ' : translate('edit_profile')}
+                        </motion.button>
                     </div>
 
                     {/* ════ Top Action Cards ════ */}
@@ -265,11 +316,24 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         {/* Card 1: Subscription */}
                         <div
                             onClick={() => isPro ? openBillingPortal() : openUpgradeModal('profile')}
-                            className="flex-1 min-w-[105px] h-[75px] rounded-[20px] bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5 p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center"
+                            className="flex-1 min-w-[105px] h-[75px] rounded-[20px] p-3 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center gap-1"
+                            style={!isPro ? {
+                                background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+                                boxShadow: '0 4px 16px rgba(245,158,11,0.35)',
+                            } : {
+                                background: 'white',
+                                border: '1px solid rgba(124,58,237,0.15)',
+                            }}
                         >
-                            <p className={`text-[14px] font-extrabold ${isPro ? 'text-violet-600 dark:text-violet-400' : 'text-gray-900 dark:text-white'}`}>
-                                {isPro ? (translate('manage') || 'Manage Pro') : (translate('go_pro') || 'Get Pro')}
-                            </p>
+                            {!isPro
+                                ? (
+                                    <div className="flex items-center justify-center gap-1.5">
+                                        <Zap size={16} fill="#fff" strokeWidth={0} className="text-white" />
+                                        <p className="text-[12px] font-extrabold text-white">{translate('go_pro') || 'Upgrade to Pro'}</p>
+                                    </div>
+                                )
+                                : <p className={`text-[13px] font-extrabold text-violet-600 dark:text-violet-400`}>{translate('manage') || 'Manage Pro'}</p>
+                            }
                         </div>
 
                         {/* Card 2: Guide */}
@@ -486,7 +550,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                     </div>
                 </div>
             )}
-        </div>
+        </motion.div>
     );
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, ArrowRight, Crown, Sparkles, BarChart2, Target, Lock, ScanLine } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Zap, Sparkles, BarChart2, Target, Lock, ScanLine } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
@@ -90,7 +90,7 @@ const PaymentSuccessView = ({ onContinue }) => {
                     <div style={styles.badgePing} className="animate-ping-pulse" />
                     <div style={styles.badgeRing} />
                     <div style={styles.badgeInner}>
-                        <Crown size={36} color="#fbbf24" strokeWidth={1.8} />
+                        <Zap size={36} color="#fbbf24" strokeWidth={1.8} fill="currentColor" />
                     </div>
                 </div>
 
