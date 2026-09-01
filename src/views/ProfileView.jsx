@@ -316,14 +316,13 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         {/* Card 1: Subscription */}
                         <div
                             onClick={() => isPro ? openBillingPortal() : openUpgradeModal('profile')}
-                            className="flex-1 min-w-[105px] h-[75px] rounded-[20px] p-3 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center gap-1"
+                            className={`flex-1 min-w-[105px] h-[75px] rounded-[20px] p-3 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center gap-1 ${
+                                isPro ? 'bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5' : ''
+                            }`}
                             style={!isPro ? {
                                 background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
                                 boxShadow: '0 4px 16px rgba(245,158,11,0.35)',
-                            } : {
-                                background: 'white',
-                                border: '1px solid rgba(124,58,237,0.15)',
-                            }}
+                            } : undefined}
                         >
                             {!isPro
                                 ? (
