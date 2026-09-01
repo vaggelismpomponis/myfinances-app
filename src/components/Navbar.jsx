@@ -82,30 +82,12 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                 className="flex flex-col items-center justify-center flex-1 h-full gap-1 relative group"
                 style={{ transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
             >
-                {/* Active glow strip at top */}
-                {active && (
-                    <span
-                        className="absolute inset-x-2 top-2 h-0.5 rounded-full"
-                        style={{
-                            background: isDark
-                                ? 'linear-gradient(90deg, transparent, #a78bfa, transparent)'
-                                : 'linear-gradient(90deg, transparent, #7c3aed, transparent)',
-                            boxShadow: isDark
-                                ? '0 0 10px 3px rgba(167,139,250,0.45)'
-                                : '0 0 8px 2px rgba(124,58,237,0.35)',
-                        }}
-                    />
-                )}
 
                 <div
                     className={`relative flex items-center justify-center rounded-xl p-1.5 transition-all duration-300
                         ${active ? `${iconBgActive} scale-110` : `scale-100 group-hover:scale-105 ${iconBgHover}`}`}
                 >
-                    {id === 'home' && active ? (
-                        <Icon size={21} strokeWidth={2.5} className={`${iconActiveClass} fill-violet-500/30`} />
-                    ) : (
-                        <Icon size={21} strokeWidth={2.5} className={active ? iconActiveClass : iconInactiveClass} />
-                    )}
+                    <Icon size={21} strokeWidth={2.5} className={active ? iconActiveClass : iconInactiveClass} />
                     {isProLocked && (
                         <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-amber-400 rounded-full flex items-center justify-center shadow-sm">
                             <Zap size={8} className="text-white" strokeWidth={2.5} fill="currentColor" />

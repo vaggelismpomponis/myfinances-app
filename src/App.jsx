@@ -55,7 +55,6 @@ const FinancialAdvisorView = React.lazy(() => import('./views/FinancialAdvisorVi
 const GuideView = React.lazy(() => import('./views/GuideView'));
 const BroadcastModal = React.lazy(() => import('./components/BroadcastModal'));
 const DesktopLayout = React.lazy(() => import('./components/DesktopLayout'));
-const OnboardingTour = React.lazy(() => import('./components/OnboardingTour'));
 const RegretCheckinModal = React.lazy(() => import('./components/RegretCheckinModal'));
 
 // Hook to detect desktop viewport
@@ -181,28 +180,9 @@ function MainContent() {
         () => new URLSearchParams(window.location.search).get('canceled') === 'true'
     );
 
-    // Onboarding Tour — show for first-time users
-    const [showOnboarding, setShowOnboarding] = useState(false);
-    
     // Regret Check-in
     const [showRegretModal, setShowRegretModal] = useState(false);
     const [activeRegretTxId, setActiveRegretTxId] = useState(null);
-
-    useEffect(() => {
-        if (user && !loading && !isLocked) {
-            const key = `onboarding_completed_${user.id}`;
-            if (!localStorage.getItem(key)) {
-                setShowOnboarding(true);
-            }
-        }
-    }, [user, loading, isLocked]);
-
-    const handleOnboardingComplete = () => {
-        if (user) {
-            localStorage.setItem(`onboarding_completed_${user.id}`, 'true');
-        }
-        setShowOnboarding(false);
-    };
 
     // Browser History Navigation Logic
     const isPopping = useRef(false);
@@ -1284,7 +1264,6 @@ function MainContent() {
                     onEdit={handleEdit}
                     setActiveTab={setActiveTab}
                     onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
-                    onStartTour={() => setShowOnboarding(true)}
                     isDesktop={isDesktop}
                 />
             )}
@@ -1316,10 +1295,6 @@ function MainContent() {
                 <GuideView 
                     onBack={() => setActiveTab('profile')} 
                     hideHeader={isDesktop} 
-                    onStartTour={() => {
-                        setActiveTab('home');
-                        setShowOnboarding(true);
-                    }}
                 />
             )}
             {activeTab === 'recurring' && (
@@ -1499,11 +1474,7 @@ function MainContent() {
                                     />
                                     <UpgradeModal />
                                     <NotificationPanel isOpen={showNotificationPanel} onClose={() => setShowNotificationPanel(false)} />
-                                    {showOnboarding && (
-                                        <React.Suspense fallback={null}>
-                                            <OnboardingTour onComplete={handleOnboardingComplete} />
-                                        </React.Suspense>
-                                    )}
+
                                     </AnimatePresence>
                                 </main>
                             ) : (
@@ -1670,7 +1641,7 @@ function MainContent() {
                                             )}
                                             {activeTab === 'guide' && (
                                                 <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
-                                                    <GuideView onBack={() => setActiveTab('profile')} onStartTour={() => { setActiveTab('home'); setShowOnboarding(true); }} />
+                                                    <GuideView onBack={() => setActiveTab('profile')} />
                                                 </div>
                                             )}
                                             {activeTab === 'recurring' && (
@@ -1764,11 +1735,7 @@ function MainContent() {
                                     <BroadcastModal isOpen={showBroadcast} onClose={() => { if (currentBroadcast) localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id); setShowBroadcast(false); }} data={currentBroadcast} />
                                     <UpgradeModal />
                                     <NotificationPanel isOpen={showNotificationPanel} onClose={() => setShowNotificationPanel(false)} />
-                                    {showOnboarding && (
-                                        <React.Suspense fallback={null}>
-                                            <OnboardingTour onComplete={handleOnboardingComplete} />
-                                        </React.Suspense>
-                                    )}
+
                                 </main>
                             )}
                         </SubscriptionProvider>

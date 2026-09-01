@@ -461,7 +461,7 @@ const BudgetBar = ({ budget, transactions, t }) => {
 /* ─────────────────────────────────────────────
    Main HomeView
 ───────────────────────────────────────────── */
-const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, onDelete, onEdit, setActiveTab, onRecurring, onStartTour, isDesktop }) => {
+const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, onDelete, onEdit, setActiveTab, onRecurring, isDesktop }) => {
     const { t, privacyMode, togglePrivacyMode } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
 

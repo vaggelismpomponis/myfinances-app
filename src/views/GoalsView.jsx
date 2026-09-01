@@ -258,6 +258,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                             ${hideHeader 
                                 ? 'bg-transparent border-none px-5 pt-4 pb-2' 
                                 : 'bg-white dark:bg-surface-dark px-5 pt-4 pb-4 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
+                style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
             >
                 <div className="flex items-center justify-between min-h-[40px] gap-4 relative">
                     <div className="flex items-center gap-3 min-w-0">

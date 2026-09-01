@@ -37,7 +37,7 @@ const Section = ({ icon: Icon, title, description, items, color, bg }) => (
     </div>
 );
 
-const GuideView = ({ onBack, hideHeader, onStartTour }) => {
+const GuideView = ({ onBack, hideHeader }) => {
     const { t: translate } = useSettings();
 
     const sections = [
@@ -182,26 +182,6 @@ const GuideView = ({ onBack, hideHeader, onStartTour }) => {
                         </div>
                     </div>
 
-                    {/* Play Interactive Tour Button */}
-                    {onStartTour && (
-                        <button 
-                            onClick={onStartTour}
-                            className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-2xl p-4 flex items-center justify-between shadow-lg shadow-violet-500/25 transition-all group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white">
-                                    <Rocket size={20} />
-                                </div>
-                                <div className="text-left">
-                                    <h3 className="text-[15px] font-bold leading-tight">Interactive Tour</h3>
-                                    <p className="text-[12px] font-medium text-violet-100">Click here to start the app tutorial</p>
-                                </div>
-                            </div>
-                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                                <ChevronRight size={16} />
-                            </div>
-                        </button>
-                    )}
 
                     {/* Guide Sections */}
                     {sections.map((section, idx) => (

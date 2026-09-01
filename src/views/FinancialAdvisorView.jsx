@@ -722,6 +722,7 @@ const Header = ({ onBack, hideHeader, t }) => (
         ${hideHeader
             ? 'bg-transparent border-none px-4 pt-4 pb-2'
             : 'px-4 pt-4 pb-4 bg-white dark:bg-surface-dark2 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
+        style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
     >
         <div className="flex items-center justify-center min-h-[40px] relative">
             <button
