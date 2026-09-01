@@ -29,6 +29,14 @@ export const useAppStore = create(
                 targetSavings: 0,
             },
 
+            // Onboarding tour
+            tourSeen: false,
+            setTourSeen: (val) => set({ tourSeen: val }),
+
+            // Tracks async IndexedDB rehydration — always false until storage is read
+            hasHydrated: false,
+            setHasHydrated: (val) => set({ hasHydrated: val }),
+
             // Actions for syncing state from Supabase and optimistic updates
             setTransactions: (updater) => set((state) => ({
                 transactions: typeof updater === 'function' ? updater(state.transactions) : updater
@@ -102,7 +110,14 @@ export const useAppStore = create(
         {
             name: 'spendwise-store', // unique storage key
             storage: createJSONStorage(() => idbStorage),
-            // Optionally whitelist what to persist if we don't want everything
+            // hasHydrated is runtime-only — never persist it
+            partialize: (state) => {
+                const { hasHydrated, setHasHydrated, ...persisted } = state;
+                return persisted;
+            },
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
+            },
         }
     )
 );

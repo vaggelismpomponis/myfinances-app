@@ -54,12 +54,12 @@ const TourBubble = ({
             <FloatingOrbs orbColor={config.orbColor || 'bg-white'} />
 
             {/* Header / Progress */}
-            <div className="relative z-10 flex items-center justify-between px-6 pt-6 pb-2">
+            <div className="relative z-10 grid items-center px-6 pt-6 pb-2" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
                 <StepDots total={size} current={index} />
-                <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest bg-white/10 px-2.5 py-1 rounded-full">
-                        {index + 1}/{size} {t('guide_getting_started') || 'Guide'}
-                    </span>
+                <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest bg-white/10 px-2.5 py-1 rounded-full whitespace-nowrap">
+                    {index + 1}/{size} {t('guide_getting_started') || 'Guide'}
+                </span>
+                <div className="flex justify-end">
                     {step.hideCloseButton !== true && (
                         <button
                             {...closeProps}
@@ -72,7 +72,7 @@ const TourBubble = ({
             </div>
 
             {/* Content */}
-            <div className="relative z-10 px-6 pb-6 pt-4">
+            <div className="relative z-10 px-6 pb-6 pt-4 flex flex-col items-center text-center">
                 <div className={`w-12 h-12 rounded-2xl ${config.iconBg || 'bg-white/20'} flex items-center justify-center ${config.iconColor || 'text-white'} mb-5 shadow-inner`}>
                     <Icon size={24} />
                 </div>
@@ -98,7 +98,7 @@ const TourBubble = ({
                 <button
                     {...primaryProps}
                     className="flex-1 h-12 rounded-[1.25rem] bg-violet-600 hover:bg-violet-700 text-white font-bold flex items-center justify-center gap-2 transition-colors"
-                    style={{ backgroundColor: config.accent }}
+                    style={{ backgroundColor: config.accent, outline: 'none', border: 'none' }}
                 >
                     {isLastStep ? t('onboarding_finish') || "Let's Go!" : t('onboarding_next') || 'Next'}
                     {!isLastStep && <ArrowRight size={16} />}

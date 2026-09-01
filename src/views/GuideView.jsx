@@ -37,7 +37,7 @@ const Section = ({ icon: Icon, title, description, items, color, bg }) => (
     </div>
 );
 
-const GuideView = ({ onBack, hideHeader }) => {
+const GuideView = ({ onBack, hideHeader, onStartTour }) => {
     const { t: translate } = useSettings();
 
     const sections = [
@@ -182,6 +182,33 @@ const GuideView = ({ onBack, hideHeader }) => {
                         </div>
                     </div>
 
+                    {/* ─ Interactive Tour CTA ─ */}
+                    {onStartTour && (
+                        <button
+                            id="guide-start-tour-btn"
+                            onClick={onStartTour}
+                            className="w-full flex items-center justify-between gap-3
+                                       bg-gradient-to-r from-violet-600 to-indigo-600
+                                       hover:from-violet-700 hover:to-indigo-700
+                                       active:scale-[0.98] transition-all duration-150
+                                       text-white rounded-2xl px-5 py-4 shadow-lg shadow-violet-500/25"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                                    <Rocket size={20} className="text-white" />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-[14px] font-black leading-tight">
+                                        {translate('tour_start_interactive') || 'Start the Interactive Tour'}
+                                    </p>
+                                    <p className="text-[11px] text-white/70 font-medium mt-0.5">
+                                        60 sec &bull; 5 steps &bull; guided walkthrough
+                                    </p>
+                                </div>
+                            </div>
+                            <ArrowRight size={18} className="text-white/70 flex-shrink-0" />
+                        </button>
+                    )}
 
                     {/* Guide Sections */}
                     {sections.map((section, idx) => (

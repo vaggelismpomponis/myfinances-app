@@ -35,6 +35,7 @@ coverage/
 *.pem
 .vercel
 stripe.exe
+*.timestamp-*.mjs
 
 # typescript
 *.tsbuildinfo

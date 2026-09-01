@@ -442,17 +442,22 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+            onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
             className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40 backdrop-blur-sm p-0"
             role="dialog"
             aria-modal="true"
             aria-labelledby="add-modal-title"
         >
             <motion.div
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 22, stiffness: 500 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
                 className="bg-white dark:bg-surface-dark2 w-full max-w-md lg:max-w-[1000px] h-[100dvh] lg:h-auto lg:max-h-[85vh] rounded-t-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
             >
 
@@ -845,7 +850,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                 {showScanner && <ScannerModal onClose={() => setShowScanner(false)} onScanComplete={handleScanComplete} />}
                 {showBulkScanner && <BulkScannerModal onClose={() => setShowBulkScanner(false)} onScanComplete={handleBulkScanComplete} />}
             </motion.div>
-        </div>
+        </motion.div>
     );
 };
 

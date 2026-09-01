@@ -10,6 +10,10 @@ export default defineConfig({
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
     }
   },
+  // Force Vite to pre-bundle CJS packages that lack an ESM default export
+  optimizeDeps: {
+    include: ['react-joyride'],
+  },
   plugins: [
     react(),
     // Remove modulepreload hints for non-critical vendor chunks.
@@ -78,6 +82,7 @@ export default defineConfig({
           'vendor-supabase': ['@supabase/supabase-js'],
           'vendor-sentry':   ['@sentry/react'],
           'vendor-tesseract': ['tesseract.js'],
+          'vendor-tour':     ['react-joyride'],
         }
       }
     }

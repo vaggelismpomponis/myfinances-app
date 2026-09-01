@@ -100,9 +100,9 @@ const DesktopSidebar = ({
             <div className="flex-1 px-3 space-y-0.5">
                 <SectionLabel label={t('nav_main') || 'Main'} />
 
-                <NavItem icon={Home} label={t('nav_home')} active={activeTab === 'home'} onClick={() => navTo('home')} />
+                <NavItem id="nav-home" icon={Home} label={t('nav_home')} active={activeTab === 'home'} onClick={() => navTo('home')} />
                 <NavItem id="nav-stats" icon={BarChart2} label={t('nav_stats')} active={activeTab === 'stats'} onClick={() => navTo('stats')} showCrown={!isPro} />
-                <NavItem icon={Wallet} label={t('nav_history')} active={activeTab === 'history'} onClick={() => navTo('history')} />
+                <NavItem id="nav-history" icon={Wallet} label={t('nav_history')} active={activeTab === 'history'} onClick={() => navTo('history')} />
 
                 <SectionLabel label={t('quick_access') || 'Tools'} />
 

@@ -31,6 +31,7 @@ import Navbar from './components/Navbar';
 import ConfirmationModal from './components/ConfirmationModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import NotificationPanel from './components/NotificationPanel';
+import OnboardingTour from './components/OnboardingTour';
 
 const ProfileView = React.lazy(() => import('./views/ProfileView'));
 const RecurringView = React.lazy(() => import('./views/RecurringView'));
@@ -183,6 +184,65 @@ function MainContent() {
     // Regret Check-in
     const [showRegretModal, setShowRegretModal] = useState(false);
     const [activeRegretTxId, setActiveRegretTxId] = useState(null);
+
+    // ── Onboarding Tour
+    const [tourKey, setTourKey] = useState(0);
+    const [runTour, setRunTour] = useState(false);
+
+    // Auto-launch tour ONLY the 1st time a user signs in after sign up as on-boarding.
+    // Existing users signing in or refreshing will NEVER be auto-shown the tour.
+    useEffect(() => {
+        if (loading || !user) return;
+
+        const hasSeenTour =
+            user.user_metadata?.tour_seen === true ||
+            localStorage.getItem(`sw_tour_seen_${user.id}`) === 'true' ||
+            localStorage.getItem('sw_tour_seen') === 'true';
+
+        const isNewSignup =
+            sessionStorage.getItem('sw_is_new_signup') === 'true' ||
+            localStorage.getItem('sw_is_new_signup') === 'true' ||
+            (user.created_at && (Date.now() - new Date(user.created_at).getTime() < 90000) && !hasSeenTour && (!transactions || transactions.length === 0));
+
+        // Consume and clean up transient registration markers
+        sessionStorage.removeItem('sw_is_new_signup');
+        localStorage.removeItem('sw_is_new_signup');
+
+        if (isNewSignup && !hasSeenTour) {
+            // Auto-launch once for newly registered users after app finishes loading.
+            // 900ms delay avoids conflicting with WhatsNew / Broadcast modals.
+            const timer = setTimeout(() => {
+                setTourKey(k => k + 1);
+                setRunTour(true);
+            }, 900);
+            return () => clearTimeout(timer);
+        } else {
+            // Returning / existing user: ensure user-scoped tour_seen flag is saved so it never auto-runs
+            if (!hasSeenTour) {
+                localStorage.setItem(`sw_tour_seen_${user.id}`, 'true');
+            }
+        }
+    }, [loading, user?.id]);
+
+    const handleTourFinish = () => {
+        setRunTour(false);
+        sessionStorage.removeItem('sw_is_new_signup');
+        localStorage.removeItem('sw_is_new_signup');
+        localStorage.setItem('sw_tour_seen', 'true');
+        if (user?.id) {
+            localStorage.setItem(`sw_tour_seen_${user.id}`, 'true');
+            supabase.auth.updateUser({ data: { tour_seen: true } }).catch(err => {
+                logger.warn('Failed to update tour_seen in user_metadata', err, 'App');
+            });
+        }
+    };
+
+    const handleStartTour = () => {
+        // Navigate to home first so all tour targets are visible
+        setActiveTab('home');
+        setTourKey(k => k + 1);
+        setTimeout(() => setRunTour(true), 300);
+    };
 
     // Browser History Navigation Logic
     const isPopping = useRef(false);
@@ -421,6 +481,8 @@ function MainContent() {
                 setLoading(false);
                 clearTimeout(authTimeout);
                 sessionTracked.current = false;
+                sessionStorage.removeItem('sw_is_new_signup');
+                localStorage.removeItem('sw_is_new_signup');
                 setActiveTab('home');
                 localStorage.removeItem('lastActiveTab');
                 localStorage.removeItem('lastPreviousTab');
@@ -662,6 +724,8 @@ function MainContent() {
 
     const handleEmailLogin = async (email, password) => {
         try {
+            sessionStorage.removeItem('sw_is_new_signup');
+            localStorage.removeItem('sw_is_new_signup');
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
         } catch (error) {
@@ -705,6 +769,8 @@ function MainContent() {
                 throw new Error('User already registered');
             }
 
+            sessionStorage.setItem('sw_is_new_signup', 'true');
+            localStorage.setItem('sw_is_new_signup', 'true');
             setIsVerifying(true);
             return data;
         } catch (error) {
@@ -729,6 +795,8 @@ function MainContent() {
 
     const handleVerifyOtp = async (email, token) => {
         try {
+            sessionStorage.setItem('sw_is_new_signup', 'true');
+            localStorage.setItem('sw_is_new_signup', 'true');
             const { data, error } = await supabase.auth.verifyOtp({
                 email,
                 token,
@@ -1294,7 +1362,8 @@ function MainContent() {
             {activeTab === 'guide' && (
                 <GuideView 
                     onBack={() => setActiveTab('profile')} 
-                    hideHeader={isDesktop} 
+                    hideHeader={isDesktop}
+                    onStartTour={handleStartTour}
                 />
             )}
             {activeTab === 'recurring' && (
@@ -1641,7 +1710,7 @@ function MainContent() {
                                             )}
                                             {activeTab === 'guide' && (
                                                 <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
-                                                    <GuideView onBack={() => setActiveTab('profile')} />
+                                                    <GuideView onBack={() => setActiveTab('profile')} onStartTour={handleStartTour} />
                                                 </div>
                                             )}
                                             {activeTab === 'recurring' && (
@@ -1726,15 +1795,20 @@ function MainContent() {
                                             </div>
                                         )}
 
-                                        {showAddModal && (
-                                            <AddModal onClose={() => { setShowAddModal(false); setEditingTransaction(null); }} onAdd={addTransaction} initialData={editingTransaction} />
-                                        )}
+                                        <AnimatePresence>
+                                            {showAddModal && (
+                                                <AddModal onClose={() => { setShowAddModal(false); setEditingTransaction(null); }} onAdd={addTransaction} initialData={editingTransaction} />
+                                            )}
+                                        </AnimatePresence>
                                         <ConfirmationModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={confirmDelete} title="Διαγραφή Συναλλαγής" message="Θέλεις σίγουρα να διαγράψεις αυτή τη συναλλαγή;" confirmText="Διαγραφή" type="danger" />
                                     </div>
                                     <WhatsNewModal isOpen={showWhatsNew} onClose={() => { if (latestUpdate) localStorage.setItem(`whatsnew_seen_${latestUpdate.version}_${user?.id}`, 'true'); setShowWhatsNew(false); }} data={latestUpdate} />
                                     <BroadcastModal isOpen={showBroadcast} onClose={() => { if (currentBroadcast) localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id); setShowBroadcast(false); }} data={currentBroadcast} />
                                     <UpgradeModal />
                                     <NotificationPanel isOpen={showNotificationPanel} onClose={() => setShowNotificationPanel(false)} />
+
+                                    {/* Onboarding Tour — renders on top of everything via portal */}
+                                    <OnboardingTour key={tourKey} run={runTour} onFinish={handleTourFinish} />
 
                                 </main>
                             )}
