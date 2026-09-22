@@ -1777,17 +1777,16 @@ function MainContent() {
 
                                         {/* Mobile Modals/FAB */}
                                         {!['goals', 'budgets', 'profile', 'recurring', 'general', 'security', 'backup', 'feedback', 'admin', 'privacy', 'advisor', 'guide', 'upgrade'].includes(activeTab) && (
-                                            <div className="relative z-[45]">
-                                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
-                                                    <div className="absolute inset-0 rounded-full bg-violet-600/30 animate-ping-pulse scale-110" />
+                                            <div className="absolute bottom-0 w-full z-[45] pointer-events-none">
+                                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-auto">
                                                     <div id="tour-add-button" className="relative">
                                                         <motion.button
                                                             whileHover={{ scale: 1.1 }}
                                                             whileTap={{ scale: 0.9 }}
                                                             onClick={openAddModal}
                                                             aria-label="Add transaction"
-                                                            className="relative w-16 h-16 rounded-full bg-violet-500 text-white shadow-lg flex items-center justify-center">
-                                                            <Plus size={32} strokeWidth={2.5} />
+                                                            className="relative w-14 h-14 rounded-full bg-violet-600 text-white shadow-[0_8px_20px_rgba(124,58,237,0.4)] flex items-center justify-center border border-violet-500/30">
+                                                            <Plus size={28} strokeWidth={2.5} />
                                                         </motion.button>
                                                     </div>
                                                 </div>

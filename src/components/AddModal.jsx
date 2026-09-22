@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     X, Camera, Layers, Mic, Delete, Check, Plus,
     Coffee, ShoppingCart, Home as HomeIcon, Receipt,
-    Gift, Utensils, Banknote, LineChart, Package,
-    MessageSquare, Gamepad2, MoreHorizontal, AlertCircle, Zap
+    Gift, Utensils, Banknote, LineChart, Shapes,
+    MessageSquare, Martini, MoreHorizontal, AlertCircle, Zap,
+    Fuel, HeartPulse
 } from 'lucide-react';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 import { Capacitor } from '@capacitor/core';
@@ -13,6 +14,7 @@ import BulkScannerModal from './BulkScannerModal';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import ProBadge from '../components/ProBadge';
+import { CATEGORY_ACCENT } from '../components/CategoryIcon';
 import logger from '../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
 import useIsDesktop from '../hooks/useIsDesktop';
@@ -39,10 +41,13 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
             'Σπίτι': 'cat_home',
             'Λογαριασμοί': 'cat_bills',
             'Διασκέδαση': 'cat_entertainment',
+            'Βενζίνη': 'cat_fuel',
+            'Υγεία': 'cat_health',
             'Μισθός': 'cat_salary',
             'Δώρο': 'cat_gift',
             'Επενδύσεις': 'cat_investments',
-            'Άλλο': 'cat_other'
+            'Άλλο': 'cat_other',
+            'Άλλα Έσοδα': 'cat_other_income'
         };
         const key = mapping[catName];
         if (key && t(key) !== key) return t(key);
@@ -99,8 +104,8 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
         }
     }, [initialData]);
 
-    const baseExpenseCategories = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Άλλο'];
-    const baseIncomeCategories = ['Μισθός', 'Δώρο', 'Επενδύσεις', 'Άλλο'];
+    const baseExpenseCategories = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Βενζίνη', 'Υγεία', 'Άλλο'];
+    const baseIncomeCategories = ['Μισθός', 'Δώρο', 'Επενδύσεις', 'Άλλα Έσοδα'];
 
     const categories = type === 'income'
         ? [...baseIncomeCategories, ...(customCategories?.income || [])]
@@ -114,7 +119,10 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
         'Σπίτι': ['σπίτι', 'νοίκι', 'κοινόχρηστα', 'καθαριστικά', 'επισκευή', 'υδραυλικός', 'ηλεκτρολόγος', 'home', 'rent', 'cleaning', 'repair', 'plumber', 'electrician'],
         'Λογαριασμοί': ['λογαριασμός', 'τέλη', 'ρεύμα', 'νερό', 'ίντερνετ', 'τηλέφωνο', 'δεή', 'eydap', 'cosmote', 'vodafone', 'nova', 'bill', 'electricity', 'water', 'internet', 'phone'],
         'Διασκέδαση': ['σινεμά', 'θέατρο', 'έξοδος', 'συναυλία', 'εισιτήρια', 'cinema', 'movie', 'theater', 'concert', 'tickets', 'entertainment'],
-        'Άλλο': ['other']
+        'Βενζίνη': ['βενζίνη', 'καύσιμα', 'πετρέλαιο', 'αέριο', 'διόδια', 'gas', 'fuel', 'petrol', 'toll'],
+        'Υγεία': ['υγεία', 'γιατρός', 'φάρμακα', 'φαρμακείο', 'εξετάσεις', 'health', 'doctor', 'medicine', 'pharmacy', 'hospital'],
+        'Άλλο': ['other'],
+        'Άλλα Έσοδα': ['other income']
     };
 
     const processVoiceInput = (text) => {
@@ -334,11 +342,14 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
         'Καφές': Coffee,
         'Σπίτι': HomeIcon,
         'Λογαριασμοί': Receipt,
-        'Διασκέδαση': Gamepad2,
+        'Διασκέδαση': Martini,
+        'Βενζίνη': Fuel,
+        'Υγεία': HeartPulse,
         'Μισθός': Banknote,
         'Δώρο': Gift,
         'Επενδύσεις': LineChart,
-        'Άλλο': Package
+        'Άλλο': Shapes,
+        'Άλλα Έσοδα': Shapes
     };
 
     // Numpad handler
@@ -458,7 +469,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.18, ease: 'easeOut' }}
-                className="bg-white dark:bg-surface-dark2 w-full max-w-md lg:max-w-[1000px] h-[100dvh] lg:h-auto lg:max-h-[85vh] rounded-t-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
+                className="bg-white dark:bg-surface-dark2 w-full max-w-md lg:max-w-[1000px] h-[100dvh] lg:h-auto lg:max-h-[85vh] rounded-none lg:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
             >
 
                 {/* Voice Input Overlay */}
@@ -588,18 +599,30 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                             {categories.map(cat => {
                                 const Icon = categoryIcons[cat] || MoreHorizontal;
                                 const isSelected = category === cat;
+                                const accentHex = CATEGORY_ACCENT[cat.toLowerCase()] || (type === 'income' ? '#10b981' : '#f43f5e');
+                                
                                 return (
                                     <motion.button
                                         whileTap={{ scale: 0.9 }}
                                         key={cat}
                                         type="button"
                                         onClick={() => setCategory(cat)}
-                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all ${isSelected
-                                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 shadow-sm'
-                                            : 'border-gray-200 dark:border-transparent text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-surface-dark3'
+                                        className={`flex items-center gap-2 pr-3 pl-1.5 py-1.5 rounded-full text-[13px] font-bold border transition-all duration-300 ${isSelected
+                                            ? 'shadow-premium'
+                                            : 'border-transparent text-gray-600 dark:text-gray-300 bg-white dark:bg-surface-dark3 hover:bg-gray-50 dark:hover:bg-white/5 shadow-sm'
                                             }`}
+                                        style={isSelected ? {
+                                            backgroundColor: `${accentHex}15`,
+                                            borderColor: `${accentHex}40`,
+                                            color: accentHex
+                                        } : {}}
                                     >
-                                        <Icon size={14} />
+                                        <div className={`w-7 h-7 rounded-full flex items-center justify-center relative overflow-hidden flex-shrink-0 ${!isSelected && 'bg-gray-100 dark:bg-white/5'}`}
+                                             style={isSelected ? { backgroundColor: `${accentHex}30` } : {}}
+                                        >
+                                            {isSelected && <div className="absolute inset-0 opacity-40 blur-md" style={{ backgroundColor: accentHex }} />}
+                                            <Icon size={14} className="relative z-10" />
+                                        </div>
                                         <span>{getCategoryTranslation(cat)}</span>
                                     </motion.button>
                                 );
@@ -684,13 +707,14 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
 
                     {/* Collapsible Note */}
                     <div className="px-5 pb-2 flex-shrink-0">
-                        <AnimatePresence mode="wait">
+                        <AnimatePresence initial={false}>
                             {showNote ? (
                                 <motion.div
                                     key="input"
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    exit={{ opacity: 0, height: 0 }}
+                                    initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                    animate={{ opacity: 1, height: 'auto', overflow: 'visible' }}
+                                    exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                    transition={{ duration: 0.2, ease: 'easeOut' }}
                                     className="relative"
                                 >
                                     <input
@@ -710,17 +734,22 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                     </span>
                                 </motion.div>
                             ) : (
-                                <motion.button
+                                <motion.div
                                     key="button"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    type="button"
-                                    onClick={() => setShowNote(true)}
-                                    className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors w-full justify-center py-1"
+                                    initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                    animate={{ opacity: 1, height: 'auto', overflow: 'visible' }}
+                                    exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                    transition={{ duration: 0.2, ease: 'easeOut' }}
                                 >
-                                    <MessageSquare size={14} />
-                                    <span>{t('note_placeholder')}</span>
-                                </motion.button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowNote(true)}
+                                        className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors w-full justify-center py-1"
+                                    >
+                                        <MessageSquare size={14} />
+                                        <span>{t('note_placeholder')}</span>
+                                    </button>
+                                </motion.div>
                             )}
                         </AnimatePresence>
                     </div>

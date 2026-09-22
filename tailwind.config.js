@@ -64,6 +64,7 @@ export default {
             },
             fontFamily: {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
+                display: ['Outfit', 'system-ui', 'sans-serif'],
             },
             fontSize: {
                 'xs': ['0.75rem', { lineHeight: '1.1rem' }],

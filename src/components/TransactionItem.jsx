@@ -29,17 +29,26 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
 
     return (
         <motion.div 
+            whileHover={{ scale: 1.01, y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowActions(!showActions)}
             className="group relative flex items-center gap-3.5
-                        bg-[#f5f5f5] dark:bg-white/[0.04]
-                        rounded-[20px] p-3.5
-                        cursor-pointer
-                        transition-all duration-200"
+                        bg-white dark:bg-surface-dark3
+                        rounded-[24px] p-3 md:p-3.5
+                        cursor-pointer shadow-sm
+                        border border-gray-100/80 dark:border-white/5
+                        hover:shadow-card hover:border-gray-200 dark:hover:border-white/10
+                        transition-all duration-300"
+            style={{
+                boxShadow: showActions ? `0 4px 20px -2px ${accent}25` : undefined
+            }}
         >
-            {/* Colored left accent line */}
-            <div className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full"
-                 style={{ backgroundColor: accent }} />
+            {/* Soft glowing accent line */}
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1/2 w-[3px] rounded-r-full transition-all duration-300 group-hover:h-[70%] group-hover:w-[4px]"
+                 style={{ 
+                     backgroundColor: accent,
+                     boxShadow: `0 0 10px ${accent}60`
+                 }} />
 
             {/* Category icon */}
             <div className="shrink-0 ml-1.5">
@@ -61,11 +70,12 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                 animate={{ 
                     opacity: showActions ? 0 : 1,
                     scale: showActions ? 0.9 : 1,
-                    pointerEvents: showActions ? 'none' : 'auto'
+                    pointerEvents: showActions ? 'none' : 'auto',
+                    x: showActions ? 10 : 0
                 }}
-                className="shrink-0 flex items-center gap-2"
+                className="shrink-0 flex items-center gap-1.5"
             >
-                <span className={`text-sm font-semibold tabular-nums ${isIncome ? 'text-emerald-500' : 'text-rose-500'}`}>
+                <span className={`text-[15px] font-bold tabular-nums tracking-tight ${isIncome ? 'text-emerald-500' : 'text-gray-800 dark:text-gray-200'}`}>
                     <Amount value={transaction.amount} prefix={isIncome ? '+' : '-'} />
                 </span>
                 <ChevronRight size={18} className="text-gray-600 dark:text-gray-400" />

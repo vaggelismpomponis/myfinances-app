@@ -3,8 +3,8 @@ import { createPortal } from 'react-dom';
 import {
     Plus, Trash2, AlertCircle, Bell, Pencil,
     Check, X, ArrowLeft, Target, Wallet, ChevronRight, ChevronDown, ChevronUp,
-    ShoppingCart, Utensils, Coffee, Home as HomeIcon, Receipt, Gamepad2, Package,
-    TrendingUp, TrendingDown, Zap, Lightbulb, Flame
+    ShoppingCart, Utensils, Coffee, Home as HomeIcon, Receipt, Martini, Shapes,
+    TrendingUp, TrendingDown, Zap, Lightbulb, Flame, Fuel, HeartPulse
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
@@ -12,7 +12,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
 // These MUST match the categories in AddModal.jsx exactly
-const EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Άλλο'];
+const EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Βενζίνη', 'Υγεία', 'Άλλο'];
 
 const CATEGORY_META = {
     'Σούπερ Μάρκετ': { icon: ShoppingCart, color: 'from-green-500 to-emerald-600', solid: '#10b981' },
@@ -20,8 +20,10 @@ const CATEGORY_META = {
     'Καφές':         { icon: Coffee,       color: 'from-amber-600 to-yellow-700',  solid: '#d97706' },
     'Σπίτι':         { icon: HomeIcon,     color: 'from-blue-500 to-indigo-600',   solid: '#6366f1' },
     'Λογαριασμοί':   { icon: Receipt,      color: 'from-yellow-500 to-orange-500', solid: '#eab308' },
-    'Διασκέδαση':    { icon: Gamepad2,     color: 'from-purple-500 to-violet-600', solid: '#8b5cf6' },
-    'Άλλο':          { icon: Package,      color: 'from-gray-500 to-slate-600',    solid: '#6b7280' },
+    'Διασκέδαση':    { icon: Martini,      color: 'from-purple-500 to-violet-600', solid: '#8b5cf6' },
+    'Βενζίνη':       { icon: Fuel,         color: 'from-red-500 to-rose-600',      solid: '#ef4444' },
+    'Υγεία':         { icon: HeartPulse,   color: 'from-sky-400 to-blue-500',      solid: '#0ea5e9' },
+    'Άλλο':          { icon: Shapes,       color: 'from-gray-500 to-slate-600',    solid: '#6b7280' },
 };
 
 /* ──────────────────────────────────────────────────────────
@@ -79,7 +81,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
             : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400';
 
     return (
-        <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] overflow-hidden transition-all duration-300">
+        <div className="bg-white dark:bg-surface-dark3 rounded-[24px] shadow-sm border border-gray-100/80 dark:border-white/5 hover:shadow-card hover:border-gray-200 dark:hover:border-white/10 overflow-hidden transition-all duration-300">
 
             {/* Main compact row */}
             <button
@@ -87,8 +89,9 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                 className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors active:scale-[0.99]"
             >
                 {/* Icon */}
-                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${meta.color} flex items-center justify-center shadow-sm flex-shrink-0`}>
-                    <Icon size={17} className="text-white" />
+                <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${meta.color} flex items-center justify-center shadow-md flex-shrink-0 relative overflow-hidden`}>
+                    <div className="absolute inset-0 bg-white/20" />
+                    <Icon size={20} className="text-white relative z-10" />
                 </div>
 
                 {/* Name + progress bar */}
@@ -101,10 +104,14 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                             {pct.toFixed(0)}%
                         </span>
                     </div>
-                    <div className="w-full h-1.5 bg-gray-100 dark:bg-white/[0.07] rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-gray-100 dark:bg-white/[0.06] rounded-full overflow-hidden shadow-inner">
                         <div
-                            className="h-full rounded-full transition-all duration-700"
-                            style={{ width: `${pct}%`, backgroundColor: barColor }}
+                            className="h-full rounded-full transition-all duration-700 relative"
+                            style={{ 
+                                width: `${pct}%`, 
+                                backgroundColor: barColor,
+                                boxShadow: `0 0 10px ${barColor}60`
+                            }}
                         />
                     </div>
                     <div className="flex justify-between mt-1">
@@ -213,6 +220,8 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
             'Σπίτι': 'cat_home',
             'Λογαριασμοί': 'cat_bills',
             'Διασκέδαση': 'cat_entertainment',
+            'Βενζίνη': 'cat_fuel',
+            'Υγεία': 'cat_health',
             'Μισθός': 'cat_salary',
             'Δώρο': 'cat_gift',
             'Επενδύσεις': 'cat_investments',
@@ -474,8 +483,8 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
 
                                         {/* Main spend info */}
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-indigo-200 text-[10px] font-bold uppercase tracking-widest mb-1">{t('monthly_expenses')}</p>
-                                            <p className="text-3xl font-black leading-none truncate"><Amount value={totalSpent} /></p>
+                                            <p className="text-indigo-200 text-[10px] font-black uppercase tracking-widest mb-1 font-display">{t('monthly_expenses')}</p>
+                                            <p className="text-4xl font-black leading-none truncate font-display drop-shadow-md"><Amount value={totalSpent} /></p>
                                             <p className="text-indigo-200 text-xs mt-1">{t('of_total_limit')} <Amount value={totalLimit} /></p>
                                             <span className={`inline-block text-[11px] font-bold mt-2 px-2.5 py-0.5 rounded-full bg-white/10 ${statusColor}`}>
                                                 {statusLabel}
@@ -586,19 +595,20 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                             <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
                         </div>
                     ) : budgets.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-center">
-                            <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-3xl flex items-center justify-center mb-4">
-                                <Target size={36} className="text-indigo-400" />
+                        <div className="flex flex-col items-center justify-center py-24 text-center px-4 bg-white dark:bg-surface-dark3 rounded-[2.5rem] border border-gray-100/80 dark:border-white/5 shadow-sm mt-4">
+                            <div className="w-24 h-24 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 dark:from-indigo-900/40 dark:to-purple-900/40 rounded-full flex items-center justify-center mb-6 relative overflow-hidden">
+                                <div className="absolute inset-0 bg-white/20 dark:bg-white/5 backdrop-blur-md" />
+                                <Target size={44} className="text-indigo-500 dark:text-indigo-400 relative z-10 drop-shadow-sm" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">{t('no_budgets')}</h3>
-                            <p className="text-sm text-gray-400 dark:text-gray-500 max-w-[220px] mb-6">
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2 font-display tracking-tight">{t('no_budgets')}</h3>
+                            <p className="text-[13px] font-medium text-gray-500 dark:text-gray-400 max-w-[240px] mb-8 leading-relaxed">
                                 {t('create_first_budget')}
                             </p>
                             <button
                                 onClick={openAddModal}
-                                className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95"
+                                className="flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold rounded-2xl shadow-premium transition-all active:scale-95 group"
                             >
-                                <Plus size={18} /> {t('create_budget')}
+                                <Plus size={18} className="transition-transform group-hover:rotate-90" /> {t('create_budget')}
                             </button>
                         </div>
                     ) : (

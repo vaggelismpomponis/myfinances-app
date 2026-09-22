@@ -320,10 +320,10 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
 
                                     {/* Main savings info */}
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-violet-200 text-[10px] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                        <p className="text-violet-200 text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 font-display">
                                             <Sparkles size={11} /> {t('total_savings')}
                                         </p>
-                                        <p className="text-3xl font-black leading-none truncate mb-1">
+                                        <p className="text-4xl font-black leading-none truncate mb-1 font-display drop-shadow-md">
                                             <Amount value={totalSaved} minimumFractionDigits={0} />
                                         </p>
                                         <p className="text-violet-200 text-xs">
@@ -367,26 +367,26 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                         </div>
                     ) : goals.length === 0 ? (
                         /* Empty State */
-                        <div className="flex flex-col items-center justify-center py-24 text-center">
-                            <div className="w-24 h-24 bg-violet-50 dark:bg-violet-900/20
-                                            rounded-3xl flex items-center justify-center mb-5
-                                            shadow-inner">
-                                <Target size={44} className="text-violet-400" />
+                        <div className="flex flex-col items-center justify-center py-24 text-center px-4 bg-white dark:bg-surface-dark3 rounded-[2.5rem] border border-gray-100/80 dark:border-white/5 shadow-sm mt-2">
+                            <div className="w-24 h-24 bg-gradient-to-br from-violet-500/20 to-purple-500/20 dark:from-violet-900/40 dark:to-purple-900/40
+                                            rounded-full flex items-center justify-center mb-6 relative overflow-hidden">
+                                <div className="absolute inset-0 bg-white/20 dark:bg-white/5 backdrop-blur-md" />
+                                <Target size={44} className="text-violet-500 dark:text-violet-400 relative z-10 drop-shadow-sm" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2 font-display tracking-tight">
                                 {t('no_goals')}
                             </h3>
-                            <p className="text-sm text-gray-400 dark:text-gray-500 max-w-[220px] mb-6 leading-relaxed">
+                            <p className="text-[13px] font-medium text-gray-500 dark:text-gray-400 max-w-[240px] mb-8 leading-relaxed">
                                 {t('create_first_goal')}
                             </p>
                             <button
                                 onClick={openAdd}
-                                className="flex items-center gap-2 px-6 py-3
-                                           bg-violet-600 hover:bg-violet-700 text-white
-                                           font-bold rounded-2xl shadow-lg shadow-violet-500/25
-                                           transition-all active:scale-95"
+                                className="flex items-center gap-2 px-6 py-3.5
+                                           bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white
+                                           font-bold rounded-2xl shadow-premium
+                                           transition-all active:scale-95 group"
                             >
-                                <Plus size={18} /> {t('create_goal')}
+                                <Plus size={18} className="transition-transform group-hover:rotate-90" /> {t('create_goal')}
                             </button>
                         </div>
                     ) : (
@@ -400,9 +400,10 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                 return (
                                     <div
                                         key={goal.id}
-                                        className={`bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] overflow-hidden
+                                        className={`bg-white dark:bg-surface-dark3 rounded-[24px] overflow-hidden
+                                                    shadow-sm hover:shadow-card
                                                     transition-all duration-300 ring-1 ring-inset
-                                                    ${done ? 'ring-emerald-500/30' : 'ring-transparent dark:ring-transparent'}`}
+                                                    ${done ? 'ring-emerald-500/40 shadow-emerald-500/10' : 'ring-gray-100 dark:ring-white/5 hover:ring-violet-200 dark:hover:ring-violet-800/50'}`}
                                         style={{ animationDelay: `${idx * 60}ms` }}
                                     >
                                         {/* Card content */}

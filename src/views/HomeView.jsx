@@ -3,7 +3,7 @@ import {
     Target, Wallet, RefreshCw, BarChart,
     ChevronRight, Sparkles, ArrowUpRight, ArrowDownRight, TrendingUp,
     ArrowRight, TrendingDown, Minus, Eye, EyeOff, Zap,
-    Plus, ShieldCheck, BarChart2
+    Plus, ShieldCheck, BarChart2, Bot
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 import Amount from '../components/Amount';
@@ -233,34 +233,36 @@ const DesktopStatCards = ({ balance, totalIncome, totalExpense, stats, t, privac
         <div className="grid grid-cols-2 gap-4">
             {/* ── Monthly Overview Hero Card (Purple) ── */}
             <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35 }}
-                className="col-span-2 relative overflow-hidden rounded-2xl hero-gradient
-                           p-6 border border-violet-200/40 dark:border-white/[0.06]
-                           shadow-sm"
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, type: 'spring', damping: 20 }}
+                className="col-span-2 relative overflow-hidden rounded-[2rem]
+                           bg-gradient-to-br from-violet-600 to-indigo-700 dark:from-surface-dark3 dark:to-surface-dark4
+                           p-7 border border-white/20 dark:border-white/10
+                           shadow-premium"
             >
+                <div className="absolute inset-0 bg-white/5 backdrop-blur-xl pointer-events-none" />
                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-violet-400/[0.1] dark:bg-violet-500/[0.07] blur-[50px] rounded-full pointer-events-none" />
                 <div className="relative z-10 flex items-center justify-between">
-                    <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-violet-500/80 dark:text-violet-300/50 mb-2">
+                    <div className="relative z-10">
+                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-white/80 dark:text-violet-300/50 mb-2 font-display">
                             {t('this_month_spend')}
                         </p>
                         <div className="flex items-start gap-1">
                             {!privacyMode && (
-                                <span className="text-lg font-bold text-gray-400 dark:text-gray-500 mt-1">€</span>
+                                <span className="text-xl font-bold text-white/60 mt-1">€</span>
                             )}
-                            <span className="text-[2.5rem] leading-none font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
+                            <span className="text-[3rem] leading-none font-black text-white tracking-tighter tabular-nums drop-shadow-sm font-display">
                                 <Amount value={stats.curSpent} showCurrency={false} minimumFractionDigits={2} maximumFractionDigits={2} />
                             </span>
                         </div>
                     </div>
-                    <div className="text-right flex flex-col items-end">
+                    <div className="relative z-10 text-right flex flex-col items-end">
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${stats.trend === 'below'
-                            ? 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/[0.12]'
+                            ? 'text-emerald-300 bg-emerald-400/20'
                             : stats.trend === 'above'
-                                ? 'text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:bg-rose-500/[0.12]'
-                                : 'text-gray-500 bg-gray-200/60 dark:text-gray-400 dark:bg-white/[0.06]'
+                                ? 'text-rose-300 bg-rose-400/20'
+                                : 'text-white/60 bg-white/[0.10]'
                             }`}>
                             {stats.trend === 'below' && <TrendingDown size={14} />}
                             {stats.trend === 'above' && <TrendingUp size={14} />}
@@ -795,12 +797,14 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
 
             {/* ── Premium Hero Card ── */}
             <motion.div
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, type: 'spring' }}
-                className="relative overflow-hidden rounded-[2rem] hero-gradient
-                            p-6 pb-5 shadow-premium border border-violet-200/40 dark:border-white/[0.06]"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.6, type: 'spring', bounce: 0.3 }}
+                className="relative overflow-hidden rounded-[2.5rem]
+                           bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800 dark:from-surface-dark3 dark:via-surface-dark4 dark:to-black
+                           p-7 pb-6 shadow-premium border border-white/20 dark:border-white/10"
             >
+                <div className="absolute inset-0 bg-white/5 backdrop-blur-3xl pointer-events-none" />
                 {/* Decorative background orbs */}
                 <div className="absolute -top-16 -right-16 w-44 h-44 bg-violet-400/[0.12] dark:bg-violet-500/[0.08] blur-[60px] rounded-full pointer-events-none" />
                 <div className="absolute -bottom-12 -left-8 w-36 h-36 bg-indigo-400/[0.08] dark:bg-indigo-500/[0.06] blur-[50px] rounded-full pointer-events-none" />
@@ -813,10 +817,10 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                         onClick={togglePrivacyMode}
                         aria-label={privacyMode ? 'Disable Privacy Mode' : 'Enable Privacy Mode'}
                         className="absolute -top-1 right-0 w-8 h-8 rounded-full
-                                   bg-white/40 dark:bg-white/[0.08] backdrop-blur-sm
+                                   bg-white/25 dark:bg-white/[0.12] backdrop-blur-sm
                                    flex items-center justify-center
-                                   text-gray-500/80 dark:text-white/40
-                                   hover:bg-white/60 dark:hover:bg-white/[0.14]
+                                   text-white/80 dark:text-white/60
+                                   hover:bg-white/40 dark:hover:bg-white/[0.20]
                                    transition-all duration-150 z-20"
                         title={privacyMode ? 'Show amounts' : 'Hide amounts'}
                     >
@@ -824,16 +828,16 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                     </motion.button>
 
                     {/* Section label */}
-                    <p className="text-violet-500/80 dark:text-violet-300/50 text-[10px] font-black uppercase tracking-[0.15em] mb-1.5">
+                    <p className="text-white/80 dark:text-violet-300/50 text-[10px] font-black uppercase tracking-[0.2em] mb-2 font-display">
                         {t('this_month_spend')}
                     </p>
 
                     {/* Main amount */}
                     <div className="flex items-start gap-1">
                         {!privacyMode && (
-                            <span className="text-xl font-bold text-gray-400 dark:text-gray-500 mt-2">€</span>
+                            <span className="text-2xl font-bold text-white/60 dark:text-gray-500 mt-2">€</span>
                         )}
-                        <h1 className="text-[3.25rem] leading-none font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
+                        <h1 className="text-[3.75rem] leading-[0.9] font-black text-white tracking-tighter tabular-nums drop-shadow-md font-display">
                             <Amount
                                 value={stats.curSpent}
                                 showCurrency={false}
@@ -846,10 +850,10 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                     {/* Trend indicator */}
                     <div className={`inline-flex items-center gap-1.5 mt-2.5 px-3 py-1 rounded-full text-[11px] font-bold
                         ${stats.trend === 'below'
-                            ? 'text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/[0.12]'
+                            ? 'text-emerald-300 bg-emerald-400/20'
                             : stats.trend === 'above'
-                                ? 'text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:bg-rose-500/[0.12]'
-                                : 'text-gray-500 bg-gray-200/60 dark:text-gray-400 dark:bg-white/[0.06]'}`}
+                                ? 'text-rose-300 bg-rose-400/20'
+                                : 'text-white/60 bg-white/[0.10]'}`}
                     >
                         {stats.trend === 'below' && <TrendingDown size={13} />}
                         {stats.trend === 'above' && <TrendingUp size={13} />}
@@ -866,7 +870,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                                 <ArrowUpRight size={15} className="text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('stats_income')}</p>
+                                <p className="text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">{t('stats_income')}</p>
                                 <p className="text-[13px] font-black text-gray-900 dark:text-white truncate tabular-nums">
                                     <Amount value={totalIncome} />
                                 </p>
@@ -877,7 +881,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                                 <ArrowDownRight size={15} className="text-rose-600 dark:text-rose-400" />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('stats_expense')}</p>
+                                <p className="text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">{t('stats_expense')}</p>
                                 <p className="text-[13px] font-black text-gray-900 dark:text-white truncate tabular-nums">
                                     <Amount value={totalExpense} />
                                 </p>
@@ -910,7 +914,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                 )}
                 <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
                                 shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
-                    <Sparkles size={20} fill="currentColor" />
+                    <Bot size={20} />
                 </div>
                 <div className="flex-1 text-left min-w-0 pr-5">
                     <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
@@ -938,7 +942,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                     </p>
                     <ArrowRight size={12} className="text-gray-300 dark:text-gray-600 animate-pulse" />
                 </div>
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+                <div className="grid grid-cols-4 gap-3 pb-1">
                     {quickActions.map((action) => {
                         const ActionIcon = action.icon;
                         return (
@@ -950,17 +954,15 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: parseFloat(action.delay) / 1000 }}
                                 onClick={action.onClick}
-                                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl
+                                className="w-full flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-[1.25rem]
                                            bg-white dark:bg-surface-dark3
-                                           border border-gray-100 dark:border-white/[0.06]
-                                           shadow-sm hover:shadow-md
+                                           border border-gray-100/80 dark:border-white/5
+                                           shadow-card hover:shadow-premium
                                            hover:border-violet-200 dark:hover:border-violet-800/50
-                                           transition-all duration-200 whitespace-nowrap relative flex-shrink-0"
+                                           transition-all duration-300 relative"
                             >
-                                <div className="w-7 h-7 rounded-xl bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0">
-                                    <ActionIcon size={14} className="text-violet-600 dark:text-violet-400" />
-                                </div>
-                                <span className="text-xs font-bold text-gray-700 dark:text-gray-200">{action.label}</span>
+                                <ActionIcon size={22} className="text-violet-600 dark:text-violet-400 mb-0.5" />
+                                <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-normal text-center leading-tight whitespace-normal break-words w-full">{action.label}</span>
                                 {action.isPro && !action.userIsPro && (
                                     <Zap size={10} className="text-amber-400 flex-shrink-0" fill="currentColor" />
                                 )}

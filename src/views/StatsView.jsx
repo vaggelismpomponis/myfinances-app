@@ -311,11 +311,11 @@ const StatsView = ({ transactions }) => {
                 
                 <div className="relative flex justify-between items-start mb-6">
                     <div>
-                        <h2 className="text-white/70 dark:text-violet-300/60 text-xs font-bold uppercase tracking-widest mb-1">
+                        <h2 className="text-white/70 dark:text-violet-300/60 text-[10px] font-black uppercase tracking-widest mb-1 font-display">
                             {t('stats_portfolio_overview')}
                         </h2>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-black tracking-tight text-white dark:text-white">
+                            <span className="text-4xl font-black tracking-tight text-white dark:text-white font-display drop-shadow-md">
                                 <Amount value={cashFlow} />
                             </span>
                             <span className="text-xs font-medium text-white/60 dark:text-violet-300/40">
@@ -363,7 +363,7 @@ const StatsView = ({ transactions }) => {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="bg-[#f5f5f5] dark:bg-white/[0.04] p-5 rounded-[20px] space-y-4 overflow-hidden">
+                        className="bg-white dark:bg-surface-dark3 p-5 rounded-[24px] space-y-4 overflow-hidden shadow-sm border border-gray-100/80 dark:border-white/5">
                     <div className="relative">
                         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide pr-10">
                             {availableYears.map(year => (
@@ -420,7 +420,7 @@ const StatsView = ({ transactions }) => {
             />
 
             {/* ── Calendar Insights ── */}
-            <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] p-6 space-y-4">
+            <div className="bg-white dark:bg-surface-dark3 rounded-[24px] p-6 space-y-4 shadow-sm border border-gray-100/80 dark:border-white/5">
                 <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/20 flex items-center justify-center text-violet-600 dark:text-violet-400">
                         <TrendingUp size={20} />
@@ -504,8 +504,8 @@ const StatsView = ({ transactions }) => {
                 </div>
                 
                 {categoryData.length === 0 ? (
-                    <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] p-8 text-center">
-                        <p className="text-gray-400 text-sm">{t('stats_no_expenses')}</p>
+                    <div className="bg-white dark:bg-surface-dark3 rounded-[24px] p-8 text-center border border-gray-100/80 dark:border-white/5 shadow-sm">
+                        <p className="text-gray-400 text-sm font-medium">{t('stats_no_expenses')}</p>
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -564,7 +564,7 @@ const StatsView = ({ transactions }) => {
             </div>
 
             {/* ── Expense Distribution Donut ── */}
-            <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] p-6">
+            <div className="bg-white dark:bg-surface-dark3 rounded-[24px] p-6 shadow-sm border border-gray-100/80 dark:border-white/5">
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
                         <PieIcon size={18} className="text-violet-500" />
