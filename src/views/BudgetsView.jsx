@@ -202,7 +202,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
    MAIN VIEW
 ══════════════════════════════════════════════════════════ */
 const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
-    const { t, privacyMode } = useSettings();
+    const { t, privacyMode, customCategories } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
 
     const getCategoryTranslation = (catName) => {
@@ -233,6 +233,11 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
     const [formCategory, setFormCategory] = useState('');
     const [formAmount, setFormAmount] = useState('');
     const [formThreshold, setFormThreshold] = useState('80');
+
+    const allExpenseCategories = [
+        ...EXPENSE_CATEGORIES,
+        ...(customCategories?.expense || [])
+    ];
 
     useEffect(() => {
         if (!user) return;
@@ -685,7 +690,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             required
                                         >
                                             <option value="" disabled>{t('select_category')}</option>
-                                            {EXPENSE_CATEGORIES.filter(c => !budgets.find(b => b.category === c && (!editingBudget || editingBudget.category !== c))).map(c => (
+                                            {allExpenseCategories.filter(c => !budgets.find(b => b.category === c && (!editingBudget || editingBudget.category !== c))).map(c => (
                                                 <option key={c} value={c}>
                                                     {getCategoryTranslation(c)}
                                                 </option>
