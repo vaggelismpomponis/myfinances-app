@@ -865,7 +865,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
 
                     {/* Inline Income / Expense */}
                     <div className="flex gap-2.5 mt-5">
-                        <div className="flex-1 flex items-center gap-2.5 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-3 py-2.5 border border-white/80 dark:border-white/[0.04]">
+                        <div className="flex-1 flex items-center gap-2.5 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-3 py-2.5">
                             <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
                                 <ArrowUpRight size={15} className="text-emerald-600 dark:text-emerald-400" />
                             </div>
@@ -876,7 +876,7 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
                                 </p>
                             </div>
                         </div>
-                        <div className="flex-1 flex items-center gap-2.5 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-3 py-2.5 border border-white/80 dark:border-white/[0.04]">
+                        <div className="flex-1 flex items-center gap-2.5 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-3 py-2.5">
                             <div className="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-500/15 flex items-center justify-center flex-shrink-0">
                                 <ArrowDownRight size={15} className="text-rose-600 dark:text-rose-400" />
                             </div>
