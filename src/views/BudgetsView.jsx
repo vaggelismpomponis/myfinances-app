@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
+import { getCategoryTranslation } from '../utils/categoryTranslations';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
@@ -212,25 +213,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
     const { t, privacyMode, customCategories } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
 
-    const getCategoryTranslation = (catName) => {
-        const mapping = {
-            'Σούπερ Μάρκετ': 'cat_supermarket',
-            'Φαγητό': 'cat_food',
-            'Καφές': 'cat_coffee',
-            'Σπίτι': 'cat_home',
-            'Λογαριασμοί': 'cat_bills',
-            'Διασκέδαση': 'cat_entertainment',
-            'Βενζίνη': 'cat_fuel',
-            'Υγεία': 'cat_health',
-            'Μισθός': 'cat_salary',
-            'Δώρο': 'cat_gift',
-            'Επενδύσεις': 'cat_investments',
-            'Άλλο': 'cat_other'
-        };
-        const key = mapping[catName];
-        if (key && t(key) !== key) return t(key);
-        return catName;
-    };
+
 
     const [budgets, setBudgets] = useState([]);
     const [isLoading, setIsLoading] = useState(true);

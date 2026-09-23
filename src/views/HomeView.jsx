@@ -13,7 +13,7 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../store/useAppStore';
 import SafeToBurnCard from '../components/SafeToBurnCard';
-
+import { getCategoryTranslation } from '../utils/categoryTranslations';
 /* ─────────────────────────────────────────────
    Getting Started — onboarding step data
 ───────────────────────────────────────────── */
@@ -429,10 +429,7 @@ const BudgetBar = ({ budget, transactions, t }) => {
     const isWarning = pct >= 75;
     const isDanger = pct >= 100;
 
-    const categoryLabel = t('cat_' + budget.category?.toLowerCase());
-    const displayCategory = categoryLabel === 'cat_' + budget.category?.toLowerCase()
-        ? budget.category
-        : categoryLabel;
+    const displayCategory = getCategoryTranslation(budget.category, t);
 
     return (
         <div className="space-y-2">

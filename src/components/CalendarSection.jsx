@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import Amount from './Amount';
+import { getCategoryTranslation } from '../utils/categoryTranslations';
 import CategoryIcon from './CategoryIcon';
 import useIsDesktop from '../hooks/useIsDesktop';
 
@@ -383,7 +384,7 @@ const CalendarSection = ({
                                                         <div key={cat.name} className="space-y-1">
                                                             <div className="flex justify-between items-baseline text-xs font-bold text-gray-700 dark:text-gray-300">
                                                                 <span className="capitalize">
-                                                                    {t('cat_' + cat.name.toLowerCase()) === 'cat_' + cat.name.toLowerCase() ? cat.name : t('cat_' + cat.name.toLowerCase())}
+                                                                    {getCategoryTranslation(cat.name, t)}
                                                                 </span>
                                                                 <span>
                                                                     <Amount value={cat.value} /> ({pct.toFixed(0)}%)

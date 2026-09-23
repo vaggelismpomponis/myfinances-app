@@ -18,6 +18,10 @@ import {
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
 import useIsDesktop from '../hooks/useIsDesktop';
+import { 
+    getCategoryTranslation, 
+    getUppercaseCategoryTranslation
+} from '../utils/categoryTranslations';
 
 /* ─── Premium Palette ─── */
 const COLORS = [
@@ -531,7 +535,7 @@ const StatsView = ({ transactions }) => {
                                         <div className="flex-1 min-w-0 text-left">
                                             <div className="flex justify-between items-baseline mb-1.5">
                                                 <span className="font-bold text-sm text-gray-800 dark:text-white capitalize">
-                                                    {t('cat_' + cat.name.toLowerCase()) === 'cat_' + cat.name.toLowerCase() ? cat.name : t('cat_' + cat.name.toLowerCase())}
+                                                    {getCategoryTranslation(cat.name, t)}
                                                 </span>
                                                 <span className="font-black text-sm text-gray-900 dark:text-white">
                                                     <Amount value={cat.value} />
@@ -621,7 +625,7 @@ const StatsView = ({ transactions }) => {
                                 >
                                     <div className="w-2 h-2 rounded-full shadow-sm" style={{ background: COLORS[i % COLORS.length] }} />
                                     <span className="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-tight">
-                                        {t('cat_' + cat.name.toLowerCase()) === 'cat_' + cat.name.toLowerCase() ? cat.name : t('cat_' + cat.name.toLowerCase())}
+                                        {getUppercaseCategoryTranslation(cat.name, t)}
                                     </span>
                                 </button>
                             ))}
@@ -725,7 +729,7 @@ const StatsView = ({ transactions }) => {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h4 className="font-bold text-gray-900 dark:text-white capitalize text-sm mb-1">
-                                        {t('cat_' + ap.category.toLowerCase()) === 'cat_' + ap.category.toLowerCase() ? ap.category : t('cat_' + ap.category.toLowerCase())}
+                                        {getCategoryTranslation(ap.category, t)}
                                     </h4>
                                     <div className="flex items-center gap-2">
                                         <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
@@ -788,7 +792,7 @@ const StatsView = ({ transactions }) => {
                                         </div>
                                         <div>
                                             <h3 className="font-black text-xl text-gray-900 dark:text-white capitalize">
-                                                {t('cat_' + selectedCategory.toLowerCase()) === 'cat_' + selectedCategory.toLowerCase() ? selectedCategory : t('cat_' + selectedCategory.toLowerCase())}
+                                                {getCategoryTranslation(selectedCategory, t)}
                                             </h3>
                                             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                                                 {drillDownTransactions.length} {t('stats_transactions')}
@@ -826,7 +830,7 @@ const StatsView = ({ transactions }) => {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-800 dark:text-white">
-                                                        {tx.note || (t('cat_' + tx.category.toLowerCase()) === 'cat_' + tx.category.toLowerCase() ? tx.category : t('cat_' + tx.category.toLowerCase()))}
+                                                        {tx.note || getCategoryTranslation(tx.category, t)}
                                                     </p>
                                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                                         {new Date(tx.date).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}

@@ -18,6 +18,7 @@ import { CATEGORY_ACCENT } from '../components/CategoryIcon';
 import logger from '../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
 import useIsDesktop from '../hooks/useIsDesktop';
+import { getCategoryTranslation } from '../utils/categoryTranslations';
 
 const NOTE_MAX_LENGTH = 200;
 const CATEGORY_NAME_MAX_LENGTH = 30;
@@ -33,26 +34,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
     const [audioBlob, setAudioBlob] = useState(null);
     const [showVoiceOverlay, setShowVoiceOverlay] = useState(false);
 
-    const getCategoryTranslation = (catName) => {
-        const mapping = {
-            'Σούπερ Μάρκετ': 'cat_supermarket',
-            'Φαγητό': 'cat_food',
-            'Καφές': 'cat_coffee',
-            'Σπίτι': 'cat_home',
-            'Λογαριασμοί': 'cat_bills',
-            'Διασκέδαση': 'cat_entertainment',
-            'Βενζίνη': 'cat_fuel',
-            'Υγεία': 'cat_health',
-            'Μισθός': 'cat_salary',
-            'Δώρο': 'cat_gift',
-            'Επενδύσεις': 'cat_investments',
-            'Άλλο': 'cat_other',
-            'Άλλα Έσοδα': 'cat_other_income'
-        };
-        const key = mapping[catName];
-        if (key && t(key) !== key) return t(key);
-        return catName;
-    };
+
     const [type, setType] = useState('expense');
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('');
