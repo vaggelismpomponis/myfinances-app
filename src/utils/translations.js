@@ -774,13 +774,13 @@ export const translations = {
         // Advisor Redesign — Daily Insights
         daily_insights_title: 'Σημερινές Αναλύσεις',
         insight_no_data: 'Πρόσθεσε συναλλαγές για να δεις εξατομικευμένες αναλύσεις.',
-        insight_coffee_up: '☕ Ξόδεψες {amount}€ σε καφέ αυτή την εβδομάδα.',
-        insight_savings_improved: '🎉 Το ποσοστό αποταμίευσής σου βελτιώθηκε κατά {pct}% αυτόν τον μήνα!',
-        insight_top_category: '📊 Η κατηγορία {category} είναι η μεγαλύτερη δαπάνη σου αυτόν τον μήνα.',
-        insight_spending_down: '✅ Ξόδεψες {pct}% λιγότερο αυτήν την εβδομάδα σε σχέση με την προηγούμενη.',
-        insight_spending_up: '⚠️ Ξόδεψες {pct}% περισσότερο αυτήν την εβδομάδα σε σχέση με την προηγούμενη.',
-        insight_good_pace: '🌟 Τον τρέχοντα μήνα οι δαπάνες σου είναι σε καλό ρυθμό.',
-        insight_no_expenses_today: '🏆 Δεν έχεις καταγράψει δαπάνες σήμερα — ωραία δουλειά!',
+        insight_coffee_up: 'Ξόδεψες {amount}€ σε καφέ αυτή την εβδομάδα.',
+        insight_savings_improved: 'Το ποσοστό αποταμίευσής σου βελτιώθηκε κατά {pct}% αυτόν τον μήνα!',
+        insight_top_category: 'Η κατηγορία {category} είναι η μεγαλύτερη δαπάνη σου αυτόν τον μήνα.',
+        insight_spending_down: 'Ξόδεψες {pct}% λιγότερο αυτήν την εβδομάδα σε σχέση με την προηγούμενη.',
+        insight_spending_up: 'Ξόδεψες {pct}% περισσότερο αυτήν την εβδομάδα σε σχέση με την προηγούμενη.',
+        insight_good_pace: 'Τον τρέχοντα μήνα οι δαπάνες σου είναι σε καλό ρυθμό.',
+        insight_no_expenses_today: 'Δεν έχεις καταγράψει δαπάνες σήμερα — ωραία δουλειά!',
 
         // Advisor Redesign — Spending Breakdown
         spending_breakdown_title: 'Ανάλυση Δαπανών',
@@ -1663,13 +1663,13 @@ export const translations = {
         // Advisor Redesign — Daily Insights
         daily_insights_title: "Today's Insights",
         insight_no_data: 'Add transactions to see personalized insights.',
-        insight_coffee_up: '☕ You spent {amount}€ on coffee this week.',
-        insight_savings_improved: '🎉 Your savings rate improved by {pct}% this month!',
-        insight_top_category: '📊 {category} is your biggest expense this month.',
-        insight_spending_down: '✅ You spent {pct}% less this week vs last week.',
-        insight_spending_up: '⚠️ You spent {pct}% more this week vs last week.',
-        insight_good_pace: "🌟 This month's spending is at a healthy pace.",
-        insight_no_expenses_today: "🏆 No expenses logged today — great work!",
+        insight_coffee_up: 'You spent {amount}€ on coffee this week.',
+        insight_savings_improved: 'Your savings rate improved by {pct}% this month!',
+        insight_top_category: '{category} is your biggest expense this month.',
+        insight_spending_down: 'You spent {pct}% less this week vs last week.',
+        insight_spending_up: 'You spent {pct}% more this week vs last week.',
+        insight_good_pace: "This month's spending is at a healthy pace.",
+        insight_no_expenses_today: "No expenses logged today — great work!",
 
         // Advisor Redesign — Spending Breakdown
         spending_breakdown_title: 'Spending Breakdown',
