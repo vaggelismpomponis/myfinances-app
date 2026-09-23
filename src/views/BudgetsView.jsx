@@ -99,7 +99,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1.5">
                         <span className="text-sm font-bold text-gray-900 dark:text-white truncate pr-2">
-                            {getCategoryTranslation(budget.category)}
+                            {getCategoryTranslation(budget.category, t)}
                         </span>
                         <span className={`text-[11px] font-bold px-2 py-0.5 rounded-lg flex-shrink-0 ${badgeCls}`}>
                             {pct.toFixed(0)}%
@@ -384,7 +384,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
         budgets.forEach(b => {
             const sp = calculateSpent(b.category);
             const pct = b.amount > 0 ? Math.round((sp / b.amount) * 100) : 0;
-            const catName = getCategoryTranslation(b.category);
+            const catName = getCategoryTranslation(b.category, t);
             if (pct > 100) {
                 list.push({ icon: Flame, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20', text: t('budget_tip_over').replace('{category}', catName).replace('{pct}', pct - 100) });
             } else if (pct >= 75) {
@@ -394,7 +394,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
             }
         });
         return list.slice(0, 3);
-    }, [budgets, calculateSpent, daysLeft, t, getCategoryTranslation]);
+    }, [budgets, calculateSpent, daysLeft, t]);
 
     /* ── Status label ── */
     const statusLabel = totalPct >= 100 ? t('budget_critical') : totalPct >= 80 ? t('budget_caution') : t('budget_on_track');
@@ -558,7 +558,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 ring-inset ${badgeCls}`}
                                         >
                                             <Icon size={11} />
-                                            <span>{getCategoryTranslation(b.category)}</span>
+                                            <span>{getCategoryTranslation(b.category, t)}</span>
                                             <span className="opacity-70">{pct.toFixed(0)}%</span>
                                         </div>
                                     );
@@ -685,7 +685,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             <option value="" disabled>{t('select_category')}</option>
                                             {allExpenseCategories.filter(c => !budgets.find(b => b.category === c && (!editingBudget || editingBudget.category !== c))).map(c => (
                                                 <option key={c} value={c}>
-                                                    {getCategoryTranslation(c)}
+                                                    {getCategoryTranslation(c, t)}
                                                 </option>
                                             ))}
                                         </select>

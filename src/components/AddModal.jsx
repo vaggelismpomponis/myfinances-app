@@ -605,7 +605,7 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                             {isSelected && <div className="absolute inset-0 opacity-40 blur-md" style={{ backgroundColor: accentHex }} />}
                                             <Icon size={14} className="relative z-10" />
                                         </div>
-                                        <span>{getCategoryTranslation(cat)}</span>
+                                        <span>{getCategoryTranslation(cat, t)}</span>
                                     </motion.button>
                                 );
                             })}
