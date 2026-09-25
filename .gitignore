@@ -62,3 +62,10 @@ SUBSCRIPTION_PLAN.md
 # Android Keystore files
 *.jks
 *.keystore
+
+# Dev/scratch build artifacts
+dev-dist/
+scratch/
+
+# One-off installer binaries
+windowsdesktop-runtime-*.exe
