@@ -104,11 +104,10 @@ const Navbar = ({ activeTab, setActiveTab }) => {
         <nav
             aria-label="Main navigation"
             className="w-full pointer-events-none"
-            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
             <div
                 className="w-full pointer-events-auto relative"
-                style={barStyle}
+                style={{ ...barStyle, paddingBottom: 'env(safe-area-inset-bottom)' }}
             >
                 <div className="flex items-center h-[72px] px-2 pb-2">
                     {/* Left nav items */}
