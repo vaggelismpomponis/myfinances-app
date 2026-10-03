@@ -24,18 +24,20 @@ const NOTE_MAX_LENGTH = 200;
 const CATEGORY_NAME_MAX_LENGTH = 30;
 const AMOUNT_MAX_VALUE = 999999.99;
 
-const AddModal = ({ onClose, onAdd, initialData }) => {
+const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
     const { customCategories, addCustomCategory, t, privacyMode } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
     const isDesktop = useIsDesktop();
     const [isAddingCategory, setIsAddingCategory] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
+    const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+    const [categorySearch, setCategorySearch] = useState('');
     const [activeTab, setActiveTab] = useState('manual');
     const [audioBlob, setAudioBlob] = useState(null);
     const [showVoiceOverlay, setShowVoiceOverlay] = useState(false);
 
 
-    const [type, setType] = useState('expense');
+    const [type, setType] = useState(initialType || 'expense');
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('');
     const [note, setNote] = useState('');
@@ -575,130 +577,268 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                         </motion.div>
                     </div>
 
-                    {/* Category Chips with Icons */}
+                    {/* Category Selector Bar — tapping opens the bottom-sheet picker */}
                     <div className="px-4 pb-3 flex-shrink-0">
-                        <div className="flex flex-wrap gap-2 justify-center">
-                            {categories.map(cat => {
-                                const Icon = categoryIcons[cat] || MoreHorizontal;
-                                const isSelected = category === cat;
-                                const accentHex = CATEGORY_ACCENT[cat.toLowerCase()] || (type === 'income' ? '#10b981' : '#f43f5e');
-                                
+                        <motion.button
+                            whileTap={{ scale: 0.98 }}
+                            type="button"
+                            id="category-selector-btn"
+                            aria-label="Select category"
+                            onClick={() => { setCategorySearch(''); setShowCategoryPicker(true); }}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all duration-200
+                                bg-gray-50 dark:bg-surface-dark3
+                                border-gray-200 dark:border-white/5
+                                hover:border-indigo-300 dark:hover:border-indigo-500/50
+                                hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5
+                                group"
+                        >
+                            {category ? (() => {
+                                const Icon = categoryIcons[category] || MoreHorizontal;
+                                const accentHex = CATEGORY_ACCENT[category.toLowerCase()] || (type === 'income' ? '#10b981' : '#f43f5e');
                                 return (
-                                    <motion.button
-                                        whileTap={{ scale: 0.9 }}
-                                        key={cat}
-                                        type="button"
-                                        onClick={() => setCategory(cat)}
-                                        className={`flex items-center gap-2 pr-3 pl-1.5 py-1.5 rounded-full text-[13px] font-bold border transition-all duration-300 ${isSelected
-                                            ? 'shadow-premium'
-                                            : 'border-transparent text-gray-600 dark:text-gray-300 bg-white dark:bg-surface-dark3 hover:bg-gray-50 dark:hover:bg-white/5 shadow-sm'
-                                            }`}
-                                        style={isSelected ? {
-                                            backgroundColor: `${accentHex}15`,
-                                            borderColor: `${accentHex}40`,
-                                            color: accentHex
-                                        } : {}}
-                                    >
-                                        <div className={`w-7 h-7 rounded-full flex items-center justify-center relative overflow-hidden flex-shrink-0 ${!isSelected && 'bg-gray-100 dark:bg-white/5'}`}
-                                             style={isSelected ? { backgroundColor: `${accentHex}30` } : {}}
+                                    <>
+                                        <div
+                                            className="w-8 h-8 rounded-xl flex items-center justify-center relative overflow-hidden flex-shrink-0"
+                                            style={{ backgroundColor: `${accentHex}20` }}
                                         >
-                                            {isSelected && <div className="absolute inset-0 opacity-40 blur-md" style={{ backgroundColor: accentHex }} />}
-                                            <Icon size={14} className="relative z-10" />
+                                            <div className="absolute inset-0 opacity-30 blur-md" style={{ backgroundColor: accentHex }} />
+                                            <Icon size={15} className="relative z-10" style={{ color: accentHex }} />
                                         </div>
-                                        <span>{getCategoryTranslation(cat, t)}</span>
-                                    </motion.button>
+                                        <span className="flex-1 text-left text-sm font-semibold" style={{ color: accentHex }}>
+                                            {getCategoryTranslation(category, t)}
+                                        </span>
+                                        <span className="text-xs text-gray-400 dark:text-gray-500 group-hover:text-indigo-400 transition-colors">
+                                            {t('change_category') || 'Αλλαγή'}
+                                        </span>
+                                    </>
                                 );
-                            })}
-
-                            {!isAddingCategory ? (
-                                <motion.button
-                                    whileTap={{ scale: 0.9 }}
-                                    type="button"
-                                    onClick={() => {
-                                        if (!isPro) {
-                                            openUpgradeModal('categories');
-                                            return;
-                                        }
-                                        setIsAddingCategory(true);
-                                    }}
-                                    className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-all border-dashed border-gray-300 dark:border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 bg-transparent"
-                                >
-                                    <Plus size={14} />
-                                    <span>{t('new_category')}</span>
-                                    {!isPro && <Zap size={11} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
-                                </motion.button>
-                            ) : (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="flex items-center gap-1"
-                                >
-                                    <input
-                                        type="text"
-                                        value={newCategoryName}
-                                        onChange={(e) => setNewCategoryName(e.target.value.substring(0, CATEGORY_NAME_MAX_LENGTH))}
-                                        placeholder={t('name_placeholder')}
-                                        aria-label={t('name_placeholder') || 'New category name'}
-                                        autoFocus
-                                        maxLength={CATEGORY_NAME_MAX_LENGTH}
-                                        className="w-24 px-3 py-1.5 rounded-full text-xs border border-indigo-300 dark:border-transparent bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white focus:outline-none focus:border-indigo-500"
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && newCategoryName.trim()) {
-                                                e.preventDefault();
-                                                addCustomCategory(type, newCategoryName.trim());
-                                                setCategory(newCategoryName.trim());
-                                                setNewCategoryName('');
-                                                setIsAddingCategory(false);
-                                            } else if (e.key === 'Escape') {
-                                                setIsAddingCategory(false);
-                                                setNewCategoryName('');
-                                            }
-                                        }}
-                                    />
-                                    <motion.button
-                                        whileTap={{ scale: 0.8 }}
-                                        type="button"
-                                        onClick={() => {
-                                            if (newCategoryName.trim()) {
-                                                addCustomCategory(type, newCategoryName.trim());
-                                                setCategory(newCategoryName.trim());
-                                            }
-                                            setNewCategoryName('');
-                                            setIsAddingCategory(false);
-                                        }}
-                                        className="p-1.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
-                                    >
-                                        <Check size={14} />
-                                    </motion.button>
-                                    <motion.button
-                                        whileTap={{ scale: 0.8 }}
-                                        type="button"
-                                        onClick={() => {
-                                            setIsAddingCategory(false);
-                                            setNewCategoryName('');
-                                        }}
-                                        className="p-1.5 rounded-full bg-gray-100 dark:bg-surface-dark3 text-gray-500 dark:text-gray-400"
-                                    >
-                                        <X size={14} />
-                                    </motion.button>
-                                </motion.div>
+                            })() : (
+                                <>
+                                    <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gray-200 dark:bg-white/10 flex-shrink-0">
+                                        <Shapes size={15} className="text-gray-400 dark:text-gray-500" />
+                                    </div>
+                                    <span className="flex-1 text-left text-sm font-medium text-gray-400 dark:text-gray-500">
+                                        {t('select_category') || 'Επιλογή κατηγορίας…'}
+                                    </span>
+                                    <span className="text-xs text-indigo-400 dark:text-indigo-500 font-semibold">
+                                        {t('tap_to_pick') || 'Πάτησε'}
+                                    </span>
+                                </>
                             )}
-
-                        </div>
+                        </motion.button>
                     </div>
+
+                    {/* ── Category Picker Bottom Sheet ── */}
+                    <AnimatePresence>
+                        {showCategoryPicker && (
+                            <>
+                                {/* Backdrop */}
+                                <motion.div
+                                    key="cat-backdrop"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="absolute inset-0 z-30 bg-black/30 backdrop-blur-[2px]"
+                                    onClick={() => { setShowCategoryPicker(false); setIsAddingCategory(false); setCategorySearch(''); }}
+                                />
+                                {/* Sheet */}
+                                <motion.div
+                                    key="cat-sheet"
+                                    initial={{ y: '100%' }}
+                                    animate={{ y: 0 }}
+                                    exit={{ y: '100%' }}
+                                    transition={{ type: 'spring', damping: 32, stiffness: 340, mass: 0.9 }}
+                                    className="absolute bottom-0 left-0 right-0 z-40 bg-white dark:bg-surface-dark2 rounded-t-[2rem] shadow-2xl flex flex-col"
+                                    style={{ maxHeight: '72%' }}
+                                >
+                                    {/* Sheet handle */}
+                                    <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+                                        <div className="w-10 h-1 rounded-full bg-gray-200 dark:bg-white/10" />
+                                    </div>
+
+                                    {/* Sheet header */}
+                                    <div className="px-5 pb-3 flex items-center justify-between flex-shrink-0">
+                                        <h4 className="text-base font-bold text-gray-900 dark:text-white">
+                                            {t('select_category') || 'Κατηγορία'}
+                                        </h4>
+                                        <motion.button
+                                            whileTap={{ scale: 0.9 }}
+                                            type="button"
+                                            onClick={() => { setShowCategoryPicker(false); setIsAddingCategory(false); setCategorySearch(''); }}
+                                            className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                                        >
+                                            <X size={18} />
+                                        </motion.button>
+                                    </div>
+
+                                    {/* Search input */}
+                                    <div className="px-5 pb-3 flex-shrink-0">
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={categorySearch}
+                                                onChange={(e) => setCategorySearch(e.target.value)}
+                                                placeholder={t('search_category') || 'Αναζήτηση…'}
+                                                aria-label="Search categories"
+                                                className="w-full bg-gray-100 dark:bg-surface-dark3 rounded-xl px-4 py-2.5 pl-9 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400/50 placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all"
+                                            />
+                                            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    {/* Category grid — scrollable */}
+                                    <div className="overflow-y-auto flex-1 px-4 pb-4">
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {categories
+                                                .filter(cat => !categorySearch || getCategoryTranslation(cat, t).toLowerCase().includes(categorySearch.toLowerCase()) || cat.toLowerCase().includes(categorySearch.toLowerCase()))
+                                                .map(cat => {
+                                                    const Icon = categoryIcons[cat] || MoreHorizontal;
+                                                    const isSelected = category === cat;
+                                                    const accentHex = CATEGORY_ACCENT[cat.toLowerCase()] || (type === 'income' ? '#10b981' : '#f43f5e');
+                                                    return (
+                                                        <motion.button
+                                                            whileTap={{ scale: 0.93 }}
+                                                            key={cat}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setCategory(cat);
+                                                                setShowCategoryPicker(false);
+                                                                setIsAddingCategory(false);
+                                                                setCategorySearch('');
+                                                            }}
+                                                            className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all duration-200 ${
+                                                                isSelected
+                                                                    ? 'shadow-premium'
+                                                                    : 'border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-surface-dark3 hover:bg-gray-100 dark:hover:bg-white/5'
+                                                            }`}
+                                                            style={isSelected ? {
+                                                                backgroundColor: `${accentHex}12`,
+                                                                borderColor: `${accentHex}40`,
+                                                            } : {}}
+                                                        >
+                                                            <div
+                                                                className="w-10 h-10 rounded-xl flex items-center justify-center relative overflow-hidden"
+                                                                style={{ backgroundColor: `${accentHex}20` }}
+                                                            >
+                                                                <div className="absolute inset-0 opacity-30 blur-md" style={{ backgroundColor: accentHex }} />
+                                                                <Icon size={18} className="relative z-10" style={{ color: accentHex }} />
+                                                                {isSelected && (
+                                                                    <motion.div
+                                                                        initial={{ scale: 0 }}
+                                                                        animate={{ scale: 1 }}
+                                                                        className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center"
+                                                                        style={{ boxShadow: `0 0 0 1.5px ${accentHex}` }}
+                                                                    >
+                                                                        <Check size={8} style={{ color: accentHex }} />
+                                                                    </motion.div>
+                                                                )}
+                                                            </div>
+                                                            <span
+                                                                className="text-[11px] font-semibold text-center leading-tight line-clamp-2"
+                                                                style={isSelected ? { color: accentHex } : {}}
+                                                            >
+                                                                {getCategoryTranslation(cat, t)}
+                                                            </span>
+                                                        </motion.button>
+                                                    );
+                                            })}
+
+                                            {/* Add new category cell */}
+                                            {!isAddingCategory ? (
+                                                <motion.button
+                                                    whileTap={{ scale: 0.93 }}
+                                                    type="button"
+                                                    aria-label="Add new category"
+                                                    onClick={() => {
+                                                        if (!isPro) {
+                                                            openUpgradeModal('categories');
+                                                            setShowCategoryPicker(false);
+                                                            return;
+                                                        }
+                                                        setIsAddingCategory(true);
+                                                    }}
+                                                    className="flex flex-col items-center gap-1.5 p-3 rounded-2xl border border-dashed border-gray-300 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:text-indigo-500 transition-all bg-transparent"
+                                                >
+                                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-white/5">
+                                                        <Plus size={18} />
+                                                    </div>
+                                                    <span className="text-[11px] font-semibold text-center leading-tight">
+                                                        {t('new_category') || 'Νέα'}
+                                                        {!isPro && <Zap size={9} className="text-amber-500 ml-0.5 inline-block" fill="currentColor" />}
+                                                    </span>
+                                                </motion.button>
+                                            ) : (
+                                                <motion.div
+                                                    initial={{ opacity: 0, scale: 0.9 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    className="col-span-3 flex items-center gap-2 mt-1"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        value={newCategoryName}
+                                                        onChange={(e) => setNewCategoryName(e.target.value.substring(0, CATEGORY_NAME_MAX_LENGTH))}
+                                                        placeholder={t('name_placeholder') || 'Όνομα κατηγορίας…'}
+                                                        aria-label={t('name_placeholder') || 'New category name'}
+                                                        autoFocus
+                                                        maxLength={CATEGORY_NAME_MAX_LENGTH}
+                                                        className="flex-1 px-3 py-2 rounded-xl text-sm border border-indigo-300 dark:border-indigo-500/50 bg-white dark:bg-surface-dark3 text-gray-800 dark:text-white focus:outline-none focus:border-indigo-500"
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter' && newCategoryName.trim()) {
+                                                                e.preventDefault();
+                                                                addCustomCategory(type, newCategoryName.trim());
+                                                                setCategory(newCategoryName.trim());
+                                                                setNewCategoryName('');
+                                                                setIsAddingCategory(false);
+                                                                setShowCategoryPicker(false);
+                                                                setCategorySearch('');
+                                                            } else if (e.key === 'Escape') {
+                                                                setIsAddingCategory(false);
+                                                                setNewCategoryName('');
+                                                            }
+                                                        }}
+                                                    />
+                                                    <motion.button
+                                                        whileTap={{ scale: 0.85 }}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (newCategoryName.trim()) {
+                                                                addCustomCategory(type, newCategoryName.trim());
+                                                                setCategory(newCategoryName.trim());
+                                                                setShowCategoryPicker(false);
+                                                                setCategorySearch('');
+                                                            }
+                                                            setNewCategoryName('');
+                                                            setIsAddingCategory(false);
+                                                        }}
+                                                        className="p-2 rounded-xl bg-indigo-500 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30"
+                                                    >
+                                                        <Check size={16} />
+                                                    </motion.button>
+                                                    <motion.button
+                                                        whileTap={{ scale: 0.85 }}
+                                                        type="button"
+                                                        onClick={() => { setIsAddingCategory(false); setNewCategoryName(''); }}
+                                                        className="p-2 rounded-xl bg-gray-100 dark:bg-surface-dark3 text-gray-500 dark:text-gray-400"
+                                                        >
+                                                        <X size={16} />
+                                                    </motion.button>
+                                                </motion.div>
+                                            )}
+
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
 
                     {/* Collapsible Note */}
                     <div className="px-5 pb-2 flex-shrink-0">
-                        <AnimatePresence initial={false}>
-                            {showNote ? (
-                                <motion.div
-                                    key="input"
-                                    initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                                    animate={{ opacity: 1, height: 'auto', overflow: 'visible' }}
-                                    exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                                    transition={{ duration: 0.2, ease: 'easeOut' }}
-                                    className="relative"
-                                >
+                        {showNote ? (
+                            <div className="relative">
                                     <input
                                         type="text"
                                         value={note}
@@ -714,15 +854,9 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                         }`}>
                                         {note.length}/{NOTE_MAX_LENGTH}
                                     </span>
-                                </motion.div>
+                                </div>
                             ) : (
-                                <motion.div
-                                    key="button"
-                                    initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                                    animate={{ opacity: 1, height: 'auto', overflow: 'visible' }}
-                                    exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                                    transition={{ duration: 0.2, ease: 'easeOut' }}
-                                >
+                                <div>
                                     <button
                                         type="button"
                                         onClick={() => setShowNote(true)}
@@ -731,9 +865,8 @@ const AddModal = ({ onClose, onAdd, initialData }) => {
                                         <MessageSquare size={14} />
                                         <span>{t('note_placeholder')}</span>
                                     </button>
-                                </motion.div>
+                                </div>
                             )}
-                        </AnimatePresence>
                     </div>
 
                     {/* Amount validation error */}

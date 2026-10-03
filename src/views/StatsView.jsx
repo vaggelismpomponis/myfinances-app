@@ -784,7 +784,15 @@ const StatsView = ({ transactions }) => {
                                 </div>
 
                                 {/* Header */}
-                                <div className="px-6 py-4 flex items-center justify-between border-b border-gray-50 dark:border-white/5">
+                                {/* Close Button */}
+                                <button 
+                                    onClick={() => setSelectedCategory(null)}
+                                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors z-10"
+                                >
+                                    <X size={16} />
+                                </button>
+
+                                <div className="px-6 py-4 flex items-center justify-between border-b border-gray-50 dark:border-white/5 mt-2">
                                     <div className="flex items-center gap-4">
                                         <div className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center shadow-sm"
                                             style={{ backgroundColor: (COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length] || '#7c3aed') + '15' }}>
@@ -803,10 +811,6 @@ const StatsView = ({ transactions }) => {
                                         <div className="text-2xl font-black" style={{ color: COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length] || '#7c3aed' }}>
                                             <Amount value={drillDownTotal} />
                                         </div>
-                                        <button onClick={() => setSelectedCategory(null)}
-                                            className="mt-1 text-[10px] font-black text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 uppercase tracking-widest transition-colors">
-                                            {t('close')}
-                                        </button>
                                     </div>
                                 </div>
 

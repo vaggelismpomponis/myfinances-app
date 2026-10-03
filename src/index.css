@@ -502,3 +502,12 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(156, 163, 175, 0.5);
 }
+
+/* ── Scrollbar Hide (used for horizontal category chip row) ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

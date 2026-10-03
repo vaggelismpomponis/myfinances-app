@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'; // App Root
 import {
     Plus,
+    TrendingDown,
+    TrendingUp,
     User,
     Bell
 } from 'lucide-react';
@@ -136,6 +138,10 @@ function MainContent() {
     }, [loading]);
 
     const [showAddModal, setShowAddModal] = useState(false);
+    const [fabInitialType, setFabInitialType] = useState(null);
+    const [showFabMenu, setShowFabMenu] = useState(false);
+    const fabLongPressRef = useRef(null);
+    const fabPressStartRef = useRef(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);
@@ -1309,8 +1315,13 @@ function MainContent() {
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
     const photoURL = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
 
-    // ── Helper: open add modal
-    const openAddModal = () => { setEditingTransaction(null); setShowAddModal(true); };
+    // ── Helper: open add modal (optionally pre-set type via long-press)
+    const openAddModal = (initialType) => {
+        setEditingTransaction(null);
+        setShowAddModal(true);
+        setShowFabMenu(false);
+        setFabInitialType(initialType || null);
+    };
 
     const overlayVariants = {
         initial: { y: '100%' },
@@ -1780,13 +1791,80 @@ function MainContent() {
                                             <div className="absolute bottom-0 w-full z-[45] pointer-events-none">
                                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-auto">
                                                     <div id="tour-add-button" className="relative">
+                                                        {/* Long-press context menu */}
+                                                        <AnimatePresence>
+                                                            {showFabMenu && (
+                                                                <>
+                                                                    {/* Backdrop to dismiss */}
+                                                                    <div
+                                                                        className="fixed inset-0 z-[44]"
+                                                                        onClick={() => setShowFabMenu(false)}
+                                                                    />
+                                                                    <motion.div
+                                                                        initial={{ opacity: 0, scale: 0.85, y: 8 }}
+                                                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                                        exit={{ opacity: 0, scale: 0.85, y: 8 }}
+                                                                        transition={{ type: 'spring', damping: 20, stiffness: 350, mass: 0.6 }}
+                                                                        className="absolute bottom-[calc(100%+14px)] left-1/2 -translate-x-1/2 z-[46] flex flex-col gap-2 items-center"
+                                                                    >
+                                                                        {/* Income pill */}
+                                                                        <motion.button
+                                                                            whileTap={{ scale: 0.93 }}
+                                                                            onClick={() => openAddModal('income')}
+                                                                            className="flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-emerald-500 text-white text-sm font-bold shadow-lg shadow-emerald-500/40 whitespace-nowrap"
+                                                                        >
+                                                                            <TrendingUp size={15} />
+                                                                            <span>Έσοδο</span>
+                                                                        </motion.button>
+                                                                        {/* Expense pill */}
+                                                                        <motion.button
+                                                                            whileTap={{ scale: 0.93 }}
+                                                                            onClick={() => openAddModal('expense')}
+                                                                            className="flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-rose-500 text-white text-sm font-bold shadow-lg shadow-rose-500/40 whitespace-nowrap"
+                                                                        >
+                                                                            <TrendingDown size={15} />
+                                                                            <span>Έξοδο</span>
+                                                                        </motion.button>
+                                                                        {/* Connector dot */}
+                                                                        <div className="w-1.5 h-1.5 rounded-full bg-violet-400 opacity-60" />
+                                                                    </motion.div>
+                                                                </>
+                                                            )}
+                                                        </AnimatePresence>
+
+                                                        {/* FAB */}
                                                         <motion.button
                                                             whileHover={{ scale: 1.1 }}
                                                             whileTap={{ scale: 0.9 }}
-                                                            onClick={openAddModal}
+                                                            animate={showFabMenu ? { scale: 1.08, boxShadow: '0 0 0 6px rgba(124,58,237,0.25)' } : { scale: 1, boxShadow: '0 8px 20px rgba(124,58,237,0.4)' }}
+                                                            onClick={() => {
+                                                                if (showFabMenu) { setShowFabMenu(false); return; }
+                                                                openAddModal();
+                                                            }}
+                                                            onContextMenu={(e) => { e.preventDefault(); setShowFabMenu(true); }}
+                                                            onPointerDown={() => {
+                                                                fabPressStartRef.current = true;
+                                                                fabLongPressRef.current = setTimeout(() => {
+                                                                    if (fabPressStartRef.current) setShowFabMenu(true);
+                                                                }, 500);
+                                                            }}
+                                                            onPointerUp={() => {
+                                                                fabPressStartRef.current = false;
+                                                                clearTimeout(fabLongPressRef.current);
+                                                            }}
+                                                            onPointerLeave={() => {
+                                                                fabPressStartRef.current = false;
+                                                                clearTimeout(fabLongPressRef.current);
+                                                            }}
                                                             aria-label="Add transaction"
-                                                            className="relative w-14 h-14 rounded-full bg-violet-600 text-white shadow-[0_8px_20px_rgba(124,58,237,0.4)] flex items-center justify-center border border-violet-500/30">
-                                                            <Plus size={28} strokeWidth={2.5} />
+                                                            className="relative w-14 h-14 rounded-full bg-violet-600 text-white flex items-center justify-center border border-violet-500/30"
+                                                        >
+                                                            <motion.div
+                                                                animate={{ rotate: showFabMenu ? 45 : 0 }}
+                                                                transition={{ type: 'spring', damping: 15, stiffness: 300 }}
+                                                            >
+                                                                <Plus size={28} strokeWidth={2.5} />
+                                                            </motion.div>
                                                         </motion.button>
                                                     </div>
                                                 </div>
@@ -1796,7 +1874,12 @@ function MainContent() {
 
                                         <AnimatePresence>
                                             {showAddModal && (
-                                                <AddModal onClose={() => { setShowAddModal(false); setEditingTransaction(null); }} onAdd={addTransaction} initialData={editingTransaction} />
+                                                <AddModal
+                                                    onClose={() => { setShowAddModal(false); setEditingTransaction(null); setFabInitialType(null); }}
+                                                    onAdd={addTransaction}
+                                                    initialData={editingTransaction}
+                                                    initialType={fabInitialType}
+                                                />
                                             )}
                                         </AnimatePresence>
                                         <ConfirmationModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={confirmDelete} title="Διαγραφή Συναλλαγής" message="Θέλεις σίγουρα να διαγράψεις αυτή τη συναλλαγή;" confirmText="Διαγραφή" type="danger" />
