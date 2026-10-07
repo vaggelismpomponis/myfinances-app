@@ -1,5 +1,5 @@
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { Bell, X, CheckCheck, Trash2, Plus, Pencil, Minus, Info } from "lucide-react";
 import { useNotifications } from "../contexts/NotificationContext";
 import { useSettings } from "../contexts/SettingsContext";
@@ -20,17 +20,235 @@ function timeAgo(isoString, t) {
     return `${Math.floor(diff / 86400)}${t('time_days_ago') || 'd ago'}`;
 }
 
+const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) => {
+    const controls = useAnimationControls();
+    const isDraggingRef = React.useRef(false);
+    const hasMountedRef = React.useRef(false);
+
+    React.useEffect(() => {
+        if (!hasMountedRef.current) {
+            hasMountedRef.current = true;
+            return;
+        }
+        if (isOpen) {
+            controls.start({
+                x: -72,
+                transition: { type: "spring", stiffness: 450, damping: 32 }
+            });
+        } else {
+            controls.start({
+                x: 0,
+                transition: { type: "spring", stiffness: 450, damping: 32 }
+            });
+        }
+    }, [isOpen, controls]);
+
+    const handleDragStart = () => {
+        isDraggingRef.current = true;
+    };
+
+    const handleDragEnd = (_event, info) => {
+        setTimeout(() => {
+            isDraggingRef.current = false;
+        }, 80);
+
+        if (isOpen) {
+            if (info.offset.x > 20 || info.velocity.x > 200) {
+                onClose();
+            } else {
+                controls.start({
+                    x: -72,
+                    transition: { type: "spring", stiffness: 450, damping: 32 }
+                });
+            }
+        } else {
+            if (info.offset.x < -30 || info.velocity.x < -200) {
+                onOpen();
+            } else {
+                controls.start({
+                    x: 0,
+                    transition: { type: "spring", stiffness: 450, damping: 32 }
+                });
+            }
+        }
+    };
+
+    const handleCardClick = (e) => {
+        if (isDraggingRef.current) return;
+        if (isOpen) {
+            e.stopPropagation();
+            onClose();
+        }
+    };
+
+    const cfg = TYPE_CONFIG[notif.type] || TYPE_CONFIG.info;
+    const IconComp = cfg.icon;
+    const meta = notif.metadata || {};
+    const hasAmount = meta.amount !== undefined && meta.amount !== null;
+    const isExpense = meta.txType === 'expense';
+    const amountSign = isExpense ? '-' : '+';
+    const amountColor = isExpense
+        ? 'text-rose-600 dark:text-rose-400'
+        : 'text-emerald-600 dark:text-emerald-400';
+    const amountBg = isExpense
+        ? 'bg-rose-50 dark:bg-rose-900/25 border-rose-200/60 dark:border-rose-700/40'
+        : 'bg-emerald-50 dark:bg-emerald-900/25 border-emerald-200/60 dark:border-emerald-700/40';
+
+    return (
+        <motion.div
+            layout
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{
+                opacity: 0,
+                height: 0,
+                marginBottom: 0,
+                scale: 0.95,
+                transition: { duration: 0.22, ease: "easeInOut" }
+            }}
+            transition={{ delay: idx * 0.03 }}
+            className="relative overflow-hidden rounded-2xl mb-1.5 select-none bg-rose-500 dark:bg-rose-600"
+        >
+            {/* Delete Action (Revealed on Swipe Left) */}
+            <div className="absolute inset-0 bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 rounded-2xl flex items-center justify-end z-0 transition-colors">
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(notif.id);
+                    }}
+                    className={`w-[72px] h-full flex flex-col items-center justify-center gap-1 text-white active:scale-90 transition-transform ${
+                        isOpen ? "pointer-events-auto" : "pointer-events-none"
+                    }`}
+                    aria-label={t("delete") || "Διαγραφή"}
+                    title={t("delete") || "Διαγραφή"}
+                >
+                    <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shadow-sm">
+                        <Trash2 size={16} className="text-white stroke-[2.2]" />
+                    </div>
+                    <span className="text-[10px] font-bold text-white tracking-tight">
+                        {t("delete") || "Διαγραφή"}
+                    </span>
+                </button>
+            </div>
+
+            {/* Foreground Swipeable Card */}
+            <motion.div
+                drag="x"
+                dragDirectionLock
+                dragConstraints={{ left: -72, right: 0 }}
+                dragElastic={{ left: 0.15, right: 0.02 }}
+                animate={controls}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onClick={handleCardClick}
+                className={`relative z-10 flex items-start gap-3 px-3 py-3 rounded-2xl
+                            touch-pan-y cursor-grab active:cursor-grabbing
+                            border border-black/[0.04] dark:border-white/[0.06]
+                            transition-colors duration-150
+                            ${!notif.read
+                                ? "bg-[#f5f3ff] dark:bg-[#201a38]"
+                                : "bg-white dark:bg-surface-dark3 hover:bg-gray-50 dark:hover:bg-white/[0.04]"
+                            }`}
+            >
+                {/* Icon */}
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg}`}>
+                    <IconComp size={16} className={cfg.color} />
+                </div>
+
+                {/* Body */}
+                <div className="flex-1 min-w-0 pt-0.5 space-y-1.5">
+                    {/* Title row */}
+                    <div className="flex items-center justify-between gap-2">
+                        <p className={`text-[13px] font-semibold leading-snug truncate
+                                       ${!notif.read
+                                           ? "text-gray-900 dark:text-white"
+                                           : "text-gray-600 dark:text-gray-400"}`}>
+                            {(() => {
+                                const reverseMap = {
+                                    'Transaction deleted': 'notification_deleted',
+                                    'Συναλλαγή διαγράφηκε': 'notification_deleted',
+                                    'New expense recorded': 'notification_added_expense',
+                                    'Νέο έξοδο καταγράφηκε': 'notification_added_expense',
+                                    'New income recorded': 'notification_added_income',
+                                    'Νέο εισόδημα καταγράφηκε': 'notification_added_income',
+                                    'Transaction edited': 'notification_edited',
+                                    'Συναλλαγή τροποποιήθηκε': 'notification_edited'
+                                };
+                                const key = reverseMap[notif.message] || notif.message;
+                                const translated = t(key);
+                                return translated !== key ? translated : notif.message;
+                            })()}
+                        </p>
+                        {/* Amount badge */}
+                        {hasAmount && (
+                            <span className={`text-[12px] font-bold px-2 py-0.5 rounded-lg border flex-shrink-0 ${amountColor} ${amountBg}`}>
+                                {amountSign}{Number(meta.amount).toLocaleString('el-GR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Chips row: category + note */}
+                    {(meta.category || meta.note) && (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            {meta.category && (
+                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-md
+                                                bg-gray-100 dark:bg-white/[0.08]
+                                                text-gray-600 dark:text-gray-300">
+                                    {getCategoryTranslation(meta.category, t)}
+                                </span>
+                            )}
+                            {meta.note && (
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate max-w-[160px]"
+                                      title={meta.note}>
+                                    "{meta.note}"
+                                </span>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Date + time-ago */}
+                    <p className="text-[11px] text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
+                        {meta.date && (
+                            <>
+                                <span>{new Date(meta.date).toLocaleDateString('el-GR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                <span className="text-gray-300 dark:text-gray-600">·</span>
+                            </>
+                        )}
+                        <span>{timeAgo(notif.timestamp, t)}</span>
+                    </p>
+                </div>
+
+                {/* Unread dot */}
+                {!notif.read && (
+                    <div className="w-2 h-2 rounded-full bg-violet-500 flex-shrink-0 mt-2" />
+                )}
+            </motion.div>
+        </motion.div>
+    );
+};
+
 const NotificationPanel = ({ isOpen, onClose }) => {
-    const { notifications, markAllRead, clearAll, unreadCount } = useNotifications();
+    const { notifications, markAllRead, clearAll, deleteNotification, unreadCount } = useNotifications();
     const { t } = useSettings();
+    const [swipedId, setSwipedId] = React.useState(null);
 
     const handleOpen = () => {
         markAllRead();
     };
 
     React.useEffect(() => {
-        if (isOpen) handleOpen();
+        if (isOpen) {
+            handleOpen();
+        } else {
+            setSwipedId(null);
+        }
     }, [isOpen]);
+
+    const handleDelete = (id) => {
+        setSwipedId(prev => prev === id ? null : prev);
+        deleteNotification(id);
+    };
 
     return (
         <AnimatePresence>
@@ -105,7 +323,13 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                         </div>
 
                         {/* List */}
-                        <div className="overflow-y-auto" style={{ maxHeight: "calc(70vh - 68px)" }}>
+                        <div
+                            className="overflow-y-auto"
+                            style={{ maxHeight: "calc(70vh - 68px)" }}
+                            onClick={() => {
+                                if (swipedId) setSwipedId(null);
+                            }}
+                        >
                             {notifications.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-8 px-6 text-center">
                                     <div className="relative mb-3">
@@ -203,110 +427,21 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                     </p>
                                 </div>
                             ) : (
-                                <div className="p-2 space-y-1">
-                                    {notifications.map((notif, idx) => {
-                                        const cfg = TYPE_CONFIG[notif.type] || TYPE_CONFIG.info;
-                                        const IconComp = cfg.icon;
-                                        const meta = notif.metadata || {};
-                                        const hasAmount = meta.amount !== undefined && meta.amount !== null;
-                                        const isExpense = meta.txType === 'expense';
-                                        const amountSign = isExpense ? '-' : '+';
-                                        const amountColor = isExpense
-                                            ? 'text-rose-600 dark:text-rose-400'
-                                            : 'text-emerald-600 dark:text-emerald-400';
-                                        const amountBg = isExpense
-                                            ? 'bg-rose-50 dark:bg-rose-900/25 border-rose-200/60 dark:border-rose-700/40'
-                                            : 'bg-emerald-50 dark:bg-emerald-900/25 border-emerald-200/60 dark:border-emerald-700/40';
-
-                                        return (
-                                            <motion.div
+                                <div className="p-2">
+                                    <AnimatePresence initial={false}>
+                                        {notifications.map((notif, idx) => (
+                                            <NotificationItem
                                                 key={notif.id}
-                                                initial={{ opacity: 0, x: -8 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: idx * 0.03 }}
-                                                className={`flex items-start gap-3 px-3 py-3 rounded-2xl
-                                                            transition-colors duration-150
-                                                            ${!notif.read
-                                                                ? "bg-violet-50/70 dark:bg-violet-900/10"
-                                                                : "hover:bg-gray-50 dark:hover:bg-white/[0.04]"
-                                                            }`}
-                                            >
-                                                {/* Icon */}
-                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg}`}>
-                                                    <IconComp size={16} className={cfg.color} />
-                                                </div>
-
-                                                {/* Body */}
-                                                <div className="flex-1 min-w-0 pt-0.5 space-y-1.5">
-                                                    {/* Title row */}
-                                                    <div className="flex items-center justify-between gap-2">
-                                                        <p className={`text-[13px] font-semibold leading-snug truncate
-                                                                       ${!notif.read
-                                                                           ? "text-gray-900 dark:text-white"
-                                                                           : "text-gray-600 dark:text-gray-400"}`}>
-                                                            {(() => {
-                                                                const reverseMap = {
-                                                                    'Transaction deleted': 'notification_deleted',
-                                                                    'Συναλλαγή διαγράφηκε': 'notification_deleted',
-                                                                    'New expense recorded': 'notification_added_expense',
-                                                                    'Νέο έξοδο καταγράφηκε': 'notification_added_expense',
-                                                                    'New income recorded': 'notification_added_income',
-                                                                    'Νέο εισόδημα καταγράφηκε': 'notification_added_income',
-                                                                    'Transaction edited': 'notification_edited',
-                                                                    'Συναλλαγή τροποποιήθηκε': 'notification_edited'
-                                                                };
-                                                                const key = reverseMap[notif.message] || notif.message;
-                                                                const translated = t(key);
-                                                                return translated !== key ? translated : notif.message;
-                                                            })()}
-                                                        </p>
-                                                        {/* Amount badge */}
-                                                        {hasAmount && (
-                                                            <span className={`text-[12px] font-bold px-2 py-0.5 rounded-lg border flex-shrink-0 ${amountColor} ${amountBg}`}>
-                                                                {amountSign}{Number(meta.amount).toLocaleString('el-GR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                                                            </span>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Chips row: category + note */}
-                                                    {(meta.category || meta.note) && (
-                                                        <div className="flex flex-wrap items-center gap-1.5">
-                                                            {meta.category && (
-                                                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-md
-                                                                                bg-gray-100 dark:bg-white/[0.08]
-                                                                                text-gray-600 dark:text-gray-300">
-                                                                    {getCategoryTranslation(meta.category, t)}
-                                                                </span>
-
-                                                            )}
-                                                            {meta.note && (
-                                                                <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate max-w-[160px]"
-                                                                      title={meta.note}>
-                                                                    "{meta.note}"
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    )}
-
-                                                    {/* Date + time-ago */}
-                                                    <p className="text-[11px] text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
-                                                        {meta.date && (
-                                                            <>
-                                                                <span>{new Date(meta.date).toLocaleDateString('el-GR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                                                                <span className="text-gray-300 dark:text-gray-600">·</span>
-                                                            </>
-                                                        )}
-                                                        <span>{timeAgo(notif.timestamp, t)}</span>
-                                                    </p>
-                                                </div>
-
-                                                {/* Unread dot */}
-                                                {!notif.read && (
-                                                    <div className="w-2 h-2 rounded-full bg-violet-500 flex-shrink-0 mt-2" />
-                                                )}
-                                            </motion.div>
-                                        );
-                                    })}
+                                                notif={notif}
+                                                idx={idx}
+                                                isOpen={swipedId === notif.id}
+                                                onOpen={() => setSwipedId(notif.id)}
+                                                onClose={() => setSwipedId(prev => prev === notif.id ? null : prev)}
+                                                onDelete={handleDelete}
+                                                t={t}
+                                            />
+                                        ))}
+                                    </AnimatePresence>
                                 </div>
                             )}
                         </div>
@@ -318,3 +453,4 @@ const NotificationPanel = ({ isOpen, onClose }) => {
 };
 
 export default NotificationPanel;
+
