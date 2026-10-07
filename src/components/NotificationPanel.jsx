@@ -1,5 +1,5 @@
 import React from "react";
-import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
+import { motion, AnimatePresence, useAnimationControls, useMotionValue, useTransform } from "framer-motion";
 import { Bell, X, CheckCheck, Trash2, Plus, Pencil, Minus, Info } from "lucide-react";
 import { useNotifications } from "../contexts/NotificationContext";
 import { useSettings } from "../contexts/SettingsContext";
@@ -22,6 +22,8 @@ function timeAgo(isoString, t) {
 
 const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) => {
     const controls = useAnimationControls();
+    const x = useMotionValue(0);
+    const deleteOpacity = useTransform(x, [0, -12], [0, 1]);
     const isDraggingRef = React.useRef(false);
     const hasMountedRef = React.useRef(false);
 
@@ -107,10 +109,13 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
                 transition: { duration: 0.22, ease: "easeInOut" }
             }}
             transition={{ delay: idx * 0.03 }}
-            className="relative overflow-hidden rounded-2xl mb-1.5 select-none bg-rose-500 dark:bg-rose-600"
+            className="relative overflow-hidden rounded-2xl mb-1.5 select-none bg-transparent"
         >
-            {/* Delete Action (Revealed on Swipe Left) */}
-            <div className="absolute inset-0 bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 rounded-2xl flex items-center justify-end z-0 transition-colors">
+            {/* Delete Action (Revealed on Swipe Left only) */}
+            <motion.div
+                style={{ opacity: deleteOpacity }}
+                className="absolute inset-y-0 right-0 w-28 bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 rounded-r-2xl flex items-center justify-end z-0 transition-colors"
+            >
                 <button
                     type="button"
                     onClick={(e) => {
@@ -130,14 +135,15 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
                         {t("delete") || "Διαγραφή"}
                     </span>
                 </button>
-            </div>
+            </motion.div>
 
             {/* Foreground Swipeable Card */}
             <motion.div
+                style={{ x }}
                 drag="x"
                 dragDirectionLock
                 dragConstraints={{ left: -72, right: 0 }}
-                dragElastic={{ left: 0.15, right: 0.02 }}
+                dragElastic={{ left: 0.12, right: 0 }}
                 animate={controls}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
