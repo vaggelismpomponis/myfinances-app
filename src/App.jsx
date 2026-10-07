@@ -117,25 +117,6 @@ function MainContent() {
         return localStorage.getItem('lastPreviousTab') || 'home';
     });
     const [loading, setLoading] = useState(true);
-    const [loaderMessage, setLoaderMessage] = useState('INITIALIZING CORE MODULES...');
-
-    // --- Loading Message Rotation ---
-    useEffect(() => {
-        if (!loading) return;
-        const messages = [
-            'INITIALIZING CORE MODULES...',
-            'ESTABLISHING SECURE SESSION...',
-            'HYDRATING USER PROFILE...',
-            'SYNCING FINANCIAL RECORDS...',
-            'OPTIMIZING DASHBOARD VIEW...'
-        ];
-        let idx = 0;
-        const interval = setInterval(() => {
-            idx = (idx + 1) % messages.length;
-            setLoaderMessage(messages[idx]);
-        }, 800);
-        return () => clearInterval(interval);
-    }, [loading]);
 
     const [showAddModal, setShowAddModal] = useState(false);
     const [fabInitialType, setFabInitialType] = useState(null);
@@ -1414,10 +1395,11 @@ function MainContent() {
         if (!loading) {
             const inlineLoader = document.getElementById('inline-loader');
             if (inlineLoader) {
-                inlineLoader.style.transition = 'opacity 0.3s ease, filter 0.3s ease';
+                inlineLoader.style.transition = 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
                 inlineLoader.style.opacity = '0';
-                inlineLoader.style.filter = 'blur(4px)';
-                setTimeout(() => inlineLoader.remove(), 350);
+                inlineLoader.style.transform = 'scale(1.02)';
+                inlineLoader.style.pointerEvents = 'none';
+                setTimeout(() => inlineLoader.remove(), 420);
             }
         }
     }, [loading]);
