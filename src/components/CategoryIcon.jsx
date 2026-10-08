@@ -34,6 +34,8 @@ export const CATEGORY_ACCENT = {
     'καφές':        '#f59e0b',
     'φαγητό':       '#f59e0b',
     'σούπερ μάρκετ': '#ec4899',
+    'αγορές':       '#ec4899',
+    'αγορες':       '#ec4899',
     'σπίτι':        '#8b5cf6',
     'μεταφορικά':   '#3b82f6',
     'λογαριασμοί':  '#8b5cf6',
@@ -47,26 +49,50 @@ export const CATEGORY_ACCENT = {
     'άλλα έσοδα':   '#9ca3af'
 };
 
-const CategoryIcon = ({ category, type }) => {
-    const icons = {
-        'Καφές': Coffee,
-        'Φαγητό': Utensils,
-        'Σούπερ Μάρκετ': ShoppingCart,
-        'Σπίτι': HomeIcon,
-        'Μεταφορικά': Car,
-        'Λογαριασμοί': Receipt,
-        'Διασκέδαση': Martini,
-        'Βενζίνη': Fuel,
-        'Υγεία': HeartPulse,
-        'Μισθός': Banknote,
-        'Δώρο': Gift,
-        'Επενδύσεις': LineChart,
-        'Άλλο': Shapes,
-        'Άλλα Έσοδα': Shapes
-    };
+const CATEGORY_ICONS = {
+    // Greek
+    'καφές': Coffee,
+    'φαγητό': Utensils,
+    'σούπερ μάρκετ': ShoppingCart,
+    'αγορές': ShoppingCart,
+    'αγορες': ShoppingCart,
+    'σπίτι': HomeIcon,
+    'μεταφορικά': Car,
+    'λογαριασμοί': Receipt,
+    'διασκέδαση': Martini,
+    'βενζίνη': Fuel,
+    'υγεία': HeartPulse,
+    'μισθός': Banknote,
+    'δώρο': Gift,
+    'επενδύσεις': LineChart,
+    'άλλο': Shapes,
+    'άλλα έσοδα': Shapes,
+    // English
+    'coffee': Coffee,
+    'food': Utensils,
+    'supermarket': ShoppingCart,
+    'shopping': ShoppingCart,
+    'home': HomeIcon,
+    'transport': Car,
+    'car': Car,
+    'bills': Receipt,
+    'receipt': Receipt,
+    'entertainment': Martini,
+    'fuel': Fuel,
+    'gas': Fuel,
+    'health': HeartPulse,
+    'salary': Banknote,
+    'gift': Gift,
+    'investments': LineChart,
+    'investment': LineChart,
+    'other': Shapes,
+    'other_income': Shapes
+};
 
-    const IconComponent = icons[category] || MoreHorizontal;
-    const accentHex = CATEGORY_ACCENT[category?.toLowerCase()] || (type === 'income' ? '#10b981' : '#f43f5e');
+const CategoryIcon = ({ category, type, size = 20 }) => {
+    const key = category?.trim()?.toLowerCase() || '';
+    const IconComponent = CATEGORY_ICONS[key] || MoreHorizontal;
+    const accentHex = CATEGORY_ACCENT[key] || (type === 'income' ? '#10b981' : '#f43f5e');
 
     return (
         <div 
@@ -78,7 +104,7 @@ const CategoryIcon = ({ category, type }) => {
             }}
         >
             <div className="absolute inset-0 opacity-20 blur-xl" style={{ backgroundColor: accentHex }} />
-            <IconComponent size={20} className="relative z-10" />
+            <IconComponent size={size} className="relative z-10" />
         </div>
     );
 };

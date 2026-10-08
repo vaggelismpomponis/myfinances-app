@@ -6,6 +6,37 @@ import ErrorBoundary from './components/ErrorBoundary'
 import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 
+// Suppress unhandled errors and rejections from third-party browser extensions (e.g. Urban VPN 200.js harvester scripts)
+if (typeof window !== 'undefined') {
+    window.addEventListener('unhandledrejection', (event) => {
+        const reason = event.reason;
+        const stack = reason?.stack || '';
+        const message = reason?.message || String(reason || '');
+        if (
+            stack.includes('200.js') ||
+            stack.includes('chrome-extension://') ||
+            stack.includes('moz-extension://') ||
+            message.includes('200.js')
+        ) {
+            event.preventDefault();
+        }
+    });
+
+    window.addEventListener('error', (event) => {
+        const filename = event.filename || '';
+        const message = event.message || '';
+        if (
+            filename.includes('200.js') ||
+            filename.includes('chrome-extension://') ||
+            filename.includes('moz-extension://') ||
+            message.includes('200.js')
+        ) {
+            event.preventDefault();
+            return true;
+        }
+    });
+}
+
 // Initialize Sentry (only when DSN is configured)
 // Deferred behind requestIdleCallback to keep it off the critical render path
 if (import.meta.env.VITE_SENTRY_DSN) {

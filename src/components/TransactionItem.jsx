@@ -11,12 +11,13 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
     const { t, language } = useSettings();
     const [showActions, setShowActions] = useState(false);
     
-    const isIncome  = transaction.type === 'income';
-    const accent    = CATEGORY_ACCENT[transaction.category?.toLowerCase()] || '#9ca3af';
+    const isIncome  = transaction?.type === 'income';
+    const key       = transaction?.category?.trim()?.toLowerCase() || '';
+    const accent    = CATEGORY_ACCENT[key] || '#9ca3af';
 
-    const categoryTitle = getCategoryTranslation(transaction.category, t) || transaction.category || t('other');
+    const categoryTitle = getCategoryTranslation(transaction?.category, t) || transaction?.category || t('other');
     const dateLocale = language === 'el' ? 'el-GR' : 'en-GB';
-    const formattedDate = transaction.date 
+    const formattedDate = transaction?.date 
         ? new Date(transaction.date).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })
         : '';
 
@@ -117,7 +118,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                             whileTap={{ scale: 0.8 }}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onDelete(transaction.id);
+                                onDelete && onDelete(transaction?.id);
                                 setShowActions(false);
                             }}
                             title={t('delete_tooltip')}
