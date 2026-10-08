@@ -53,7 +53,7 @@ const RegretCheckinModal = ({ isOpen, onClose, transactionId }) => {
 
                     <div className="text-center relative z-10 mb-8">
                         <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
-                            You spent <span className="font-bold text-gray-900 dark:text-white">€{(transaction.amount / 100).toFixed(2)}</span> on <span className="font-bold text-gray-900 dark:text-white capitalize">{transaction.note || transaction.category}</span> two weeks ago.
+                            You spent <span className="font-bold text-gray-900 dark:text-white">€{(transaction.amount / 100).toFixed(2)}</span> on <span className="font-bold text-gray-900 dark:text-white capitalize">{transaction.category}{transaction.note ? ` (${transaction.note})` : ''}</span> two weeks ago.
                         </p>
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Was it worth it?</h3>
                     </div>

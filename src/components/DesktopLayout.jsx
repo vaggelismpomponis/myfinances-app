@@ -5,6 +5,7 @@ import DesktopSidebar from './DesktopSidebar';
 import TransactionItem from './TransactionItem';
 import Amount from './Amount';
 import CategoryIcon from './CategoryIcon';
+import { getCategoryTranslation } from '../utils/categoryTranslations';
 
 /* ─────────────────────────────────────────────
    Right Panel Widget: Mini Stats Card
@@ -177,10 +178,11 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-semibold text-gray-800 dark:text-white truncate">
-                                        {tx.note || tx.category}
+                                        {getCategoryTranslation(tx.category, t)}
                                     </p>
-                                    <p className="text-[9px] text-gray-400 dark:text-gray-600">
-                                        {new Date(tx.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}
+                                    <p className="text-[9px] text-gray-400 dark:text-gray-600 truncate flex items-center gap-1">
+                                        {tx.note && <span className="font-medium text-gray-600 dark:text-gray-300 truncate">{tx.note} •</span>}
+                                        <span className="shrink-0">{new Date(tx.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}</span>
                                     </p>
                                 </div>
                                 <span className={`text-xs font-black flex-shrink-0

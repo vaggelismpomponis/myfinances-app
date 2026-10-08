@@ -424,11 +424,13 @@ const CalendarSection = ({
                                                             </div>
                                                             <div>
                                                                 <p className="font-bold text-sm text-gray-800 dark:text-white capitalize">
-                                                                    {tx.note || (t('cat_' + tx.category.toLowerCase()) === 'cat_' + tx.category.toLowerCase() ? tx.category : t('cat_' + tx.category.toLowerCase()))}
+                                                                    {getCategoryTranslation(tx.category, t)}
                                                                 </p>
-                                                                <p className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                                                                    {t('cat_' + tx.category.toLowerCase()) === 'cat_' + tx.category.toLowerCase() ? tx.category : t('cat_' + tx.category.toLowerCase())}
-                                                                </p>
+                                                                {tx.note && (
+                                                                    <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 truncate">
+                                                                        {tx.note}
+                                                                    </p>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         <span className="font-black text-rose-500 text-sm">

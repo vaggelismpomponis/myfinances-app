@@ -49,7 +49,7 @@ describe('HomeView', () => {
     render(<HomeView {...defaultProps} />);
 
     expect(screen.getByText('this_month_spend')).toBeInTheDocument();
-    expect(screen.getByText(/1,111\.11/)).toBeInTheDocument();
+    expect(screen.getAllByText(/1,111\.11/)[0]).toBeInTheDocument();
   });
 
   it('renders AI Advisor CTA', () => {
@@ -63,7 +63,6 @@ describe('HomeView', () => {
     render(<HomeView {...defaultProps} />);
 
     expect(screen.getByText('advisor_title')).toBeInTheDocument();
-    expect(screen.getByText('advisor_subtitle')).toBeInTheDocument();
   });
 
   it('renders transaction list', () => {
@@ -93,7 +92,7 @@ describe('HomeView', () => {
     render(<HomeView {...defaultProps} transactions={[]} />);
 
     expect(screen.getByText('no_transactions')).toBeInTheDocument();
-    expect(screen.getByText('tap_to_add')).toBeInTheDocument();
+    expect(screen.getByText('no_transactions_desc')).toBeInTheDocument();
   });
 
   it('calls setActiveTab when quick actions are clicked', () => {

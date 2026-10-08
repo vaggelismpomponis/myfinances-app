@@ -1,31 +1,24 @@
 import React, { useState } from 'react';
 import { Pencil, Trash2, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CategoryIcon from './CategoryIcon';
+import CategoryIcon, { CATEGORY_ACCENT } from './CategoryIcon';
 import Amount from './Amount';
 import { useSettings } from '../contexts/SettingsContext';
 import { useAppStore } from '../store/useAppStore';
-
-const CATEGORY_ACCENT = {
-    food:        '#f59e0b',
-    shopping:    '#ec4899',
-    transport:   '#3b82f6',
-    bills:       '#8b5cf6',
-    health:      '#10b981',
-    entertainment: '#06b6d4',
-    education:   '#6366f1',
-    salary:      '#10b981',
-    investment:  '#f59e0b',
-    gift:        '#ec4899',
-    other:       '#9ca3af',
-};
+import { getCategoryTranslation } from '../utils/categoryTranslations';
 
 const TransactionItem = ({ transaction, onDelete, onEdit }) => {
-    const { t } = useSettings();
+    const { t, language } = useSettings();
     const [showActions, setShowActions] = useState(false);
     
     const isIncome  = transaction.type === 'income';
     const accent    = CATEGORY_ACCENT[transaction.category?.toLowerCase()] || '#9ca3af';
+
+    const categoryTitle = getCategoryTranslation(transaction.category, t) || transaction.category || t('other');
+    const dateLocale = language === 'el' ? 'el-GR' : 'en-GB';
+    const formattedDate = transaction.date 
+        ? new Date(transaction.date).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })
+        : '';
 
     return (
         <motion.div 
@@ -58,10 +51,22 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
             {/* Text */}
             <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-gray-800 dark:text-white truncate capitalize flex items-center">
-                    {transaction.note || transaction.category}
+                    {categoryTitle}
                 </p>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 truncate flex items-center">
-                    <span>{new Date(transaction.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 truncate flex items-center gap-1.5">
+                    {transaction.note ? (
+                        <>
+                            <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{transaction.note}</span>
+                            {formattedDate && (
+                                <>
+                                    <span className="text-gray-300 dark:text-gray-600 shrink-0">•</span>
+                                    <span className="shrink-0">{formattedDate}</span>
+                                </>
+                            )}
+                        </>
+                    ) : (
+                        <span>{formattedDate}</span>
+                    )}
                 </div>
             </div>
 

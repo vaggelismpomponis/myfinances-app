@@ -834,11 +834,12 @@ const StatsView = ({ transactions }) => {
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-800 dark:text-white">
-                                                        {tx.note || getCategoryTranslation(tx.category, t)}
+                                                        {getCategoryTranslation(tx.category, t)}
                                                     </p>
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                        {new Date(tx.date).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                    </p>
+                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 truncate">
+                                                        {tx.note && <span className="text-gray-600 dark:text-gray-300 normal-case font-medium truncate">{tx.note} •</span>}
+                                                        <span className="shrink-0">{new Date(tx.date).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <span className="font-black text-rose-500 text-lg">
