@@ -4,7 +4,7 @@ import {
     ChevronRight, Sparkles, ArrowUpRight, ArrowDownRight, TrendingUp,
     ArrowRight, TrendingDown, Minus, Eye, EyeOff, Zap,
     Plus, ShieldCheck, BarChart2, Bot, Calendar, PieChart, Search,
-    Flame, CheckCircle2, Clock
+    Flame, CheckCircle2, Clock, Plane, Home as HomeIcon, Car, Laptop, Heart, Gamepad2, AlertTriangle
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 import Amount from '../components/Amount';
@@ -165,31 +165,30 @@ const QuickAction = ({ icon: Icon, label, color, bg, onClick, delay, isPro, user
 /* ─────────────────────────────────────────────
    Desktop Mini Widgets (Budgets & Goals)
 ───────────────────────────────────────────── */
-const getGoalEmoji = (goal) => {
-    if (goal?.emoji) return goal.emoji;
+const getGoalIcon = (goal) => {
     const title = (goal?.title || '').toLowerCase();
-    if (title.includes('ταξ') || title.includes('trav')) return '✈️';
-    if (title.includes('σπίτ') || title.includes('home')) return '🏠';
-    if (title.includes('αυτ') || title.includes('car')) return '🚗';
-    if (title.includes('τεχ') || title.includes('laptop') || title.includes('tech') || title.includes('phone')) return '💻';
-    if (title.includes('γάμ') || title.includes('wed')) return '💍';
-    if (title.includes('υγ') || title.includes('health')) return '🏥';
-    if (title.includes('παιχ') || title.includes('game')) return '🎮';
-    if (title.includes('σκύλ') || title.includes('γάτ') || title.includes('pet')) return '🐾';
-    return '🎯';
+    if (title.includes('ταξ') || title.includes('trav') || title.includes('vacation')) return Plane;
+    if (title.includes('σπίτ') || title.includes('home') || title.includes('house')) return HomeIcon;
+    if (title.includes('αυτ') || title.includes('car')) return Car;
+    if (title.includes('τεχ') || title.includes('laptop') || title.includes('tech') || title.includes('phone')) return Laptop;
+    if (title.includes('γάμ') || title.includes('wed') || title.includes('υγ') || title.includes('health')) return Heart;
+    if (title.includes('παιχ') || title.includes('game')) return Gamepad2;
+    return Target;
 };
 
 const DesktopGoalMiniCard = ({ goal }) => {
     const current = goal.current_amount || 0;
     const target = goal.target_amount || 1;
     const pct = Math.min(100, Math.round((current / target) * 100));
-    const emoji = getGoalEmoji(goal);
+    const GoalIcon = getGoalIcon(goal);
 
     return (
         <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-100/80 dark:border-white/[0.04] space-y-2.5 hover:border-violet-200 dark:hover:border-violet-800/40 transition-colors">
             <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-base flex-shrink-0">{emoji}</span>
+                    <div className="w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center flex-shrink-0 border border-violet-200/50 dark:border-violet-800/30">
+                        <GoalIcon size={14} className="shrink-0" />
+                    </div>
                     <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{goal.title}</span>
                 </div>
                 <span className="text-[10px] font-black text-violet-600 dark:text-violet-400 tabular-nums bg-violet-50 dark:bg-violet-950/40 px-2 py-0.5 rounded-full border border-violet-100 dark:border-violet-900/30">
@@ -1089,12 +1088,14 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                         </div>
                                     </div>
                                     {stbData.stb <= 0 ? (
-                                        <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400">
-                                            ⚠️ {t('over_daily_limit') || 'Υπέρβαση Ορίου'}
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400">
+                                            <AlertTriangle size={11} className="stroke-[2.5]" />
+                                            <span>{t('over_daily_limit') || 'Υπέρβαση Ορίου'}</span>
                                         </span>
                                     ) : stbData.streak > 0 ? (
-                                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400">
-                                            🔥 {stbData.streak} Streak
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400">
+                                            <Flame size={12} className="fill-orange-500 text-orange-500" />
+                                            <span>{stbData.streak} Streak</span>
                                         </span>
                                     ) : null}
                                 </div>

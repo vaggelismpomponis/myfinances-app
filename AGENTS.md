@@ -43,3 +43,9 @@ Single Source of Truth personal finance application powering Web (PWA) and Andro
 - **Verification Before Commit**: Always verify the build succeeds (`npm run build`) and mobile assets sync (`npx cap sync` when web/native assets change) before committing.
 - **Remote Push**: Always push commits to the remote repository tracking branch (`git push`) immediately following the commit.
 
+## Iconography & UI Design Guidelines
+
+- **Lucide Icons Standard**: All icons throughout the application UI must strictly use Lucide icons (`lucide-react`) to maintain a clean, professional, and corporate aesthetic.
+- **Prohibit Emojis as UI Icons**: Never use raw emojis or Unicode symbols (e.g., ⚠️, 🔥, 🎯, ✈️, 🚗, 🏠) as icons, category indicators, badges, or button graphics. Emojis render inconsistently across operating systems and browsers, lack vector scalability, and detract from a premium corporate appearance.
+- **Unified Sizing & Styling**: Render Lucide icons with consistent sizes (e.g., `size={13}` to `size={15}` for badges/chips with `shrink-0`, `size={16}` to `size={20}` for buttons/nav, `size={24}+` for hero/empty states) and style them with design system CSS tokens and theme-aware color utilities.
+
