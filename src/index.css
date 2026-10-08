@@ -51,6 +51,18 @@ body {
   overflow: hidden;
 }
 
+/* ── Prevent browser default black focus/tap outline on click ── */
+button,
+[role="button"],
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus,
+button:active {
+  outline: none;
+}
+
 /* ── Form Contrast Fixes ── */
 .dark select {
   background-color: #333333 !important;

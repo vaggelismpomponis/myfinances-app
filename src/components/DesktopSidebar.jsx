@@ -11,7 +11,9 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
     <button
         id={id}
         onClick={onClick}
+        style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
         className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left
+                    outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0
                     transition-all duration-200 group relative select-none
                     ${active
                         ? 'bg-violet-600 text-white shadow-sm shadow-violet-500/25 font-bold'
@@ -85,7 +87,8 @@ const DesktopSidebar = ({
             <div className="px-5 pt-6 pb-3">
                 <button
                     onClick={() => navTo('home')}
-                    className="flex items-center gap-3 group cursor-pointer text-left focus:outline-none transition-all w-full"
+                    style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
+                    className="flex items-center gap-3 group cursor-pointer text-left outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0 transition-all w-full select-none"
                 >
                     <div className="relative shrink-0">
                         <img
@@ -95,7 +98,7 @@ const DesktopSidebar = ({
                                 e.currentTarget.onerror = null;
                                 e.currentTarget.src = '/spendwise-logo.png';
                             }}
-                            className="w-9 h-9 rounded-2xl object-contain shadow-xs transition-transform duration-200 group-hover:scale-105"
+                            className="w-9 h-9 rounded-2xl object-contain shadow-xs transition-transform duration-200 group-hover:scale-105 select-none pointer-events-none"
                         />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -186,7 +189,8 @@ const DesktopSidebar = ({
                 <div className="flex items-center justify-between gap-1 pt-0.5">
                     <button
                         onClick={toggleTheme}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-400 bg-gray-100/80 dark:bg-white/[0.05] hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400 transition-all"
+                        style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-400 bg-gray-100/80 dark:bg-white/[0.05] hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400 outline-none focus:outline-none focus-visible:outline-none active:outline-none transition-all"
                         title={theme === 'dark' ? t('switch_to_light') || 'Light mode' : t('switch_to_dark') || 'Dark mode'}
                     >
                         {theme === 'dark' ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} />}
@@ -195,7 +199,8 @@ const DesktopSidebar = ({
 
                     <button
                         onClick={togglePrivacyMode}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+                        style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold outline-none focus:outline-none focus-visible:outline-none active:outline-none transition-all ${
                             privacyMode
                                 ? 'bg-violet-600 text-white shadow-xs font-bold'
                                 : 'text-gray-600 dark:text-gray-400 bg-gray-100/80 dark:bg-white/[0.05] hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400'
@@ -208,7 +213,8 @@ const DesktopSidebar = ({
 
                     <button
                         onClick={onSignOut}
-                        className="p-1.5 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all shrink-0"
+                        style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
+                        className="p-1.5 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 outline-none focus:outline-none focus-visible:outline-none active:outline-none transition-all shrink-0"
                         title={t('sign_out') || 'Sign out'}
                         aria-label="Sign out"
                     >
