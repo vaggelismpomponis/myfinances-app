@@ -844,6 +844,8 @@ export const translations = {
 
         // Advisor Redesign — Daily Insights
         daily_insights_title: 'Σημερινές Αναλύσεις',
+        daily_insights_subtitle: 'Έξυπνη οικονομική ροή AI',
+        daily_insights_live: 'Ζωντανή ροή',
         insight_no_data: 'Πρόσθεσε συναλλαγές για να δεις εξατομικευμένες αναλύσεις.',
         insight_coffee_up: 'Ξόδεψες {amount}€ σε καφέ αυτή την εβδομάδα.',
         insight_savings_improved: 'Το ποσοστό αποταμίευσής σου βελτιώθηκε κατά {pct}% αυτόν τον μήνα!',
@@ -852,6 +854,17 @@ export const translations = {
         insight_spending_up: 'Ξόδεψες {pct}% περισσότερο αυτήν την εβδομάδα σε σχέση με την προηγούμενη.',
         insight_good_pace: 'Τον τρέχοντα μήνα οι δαπάνες σου είναι σε καλό ρυθμό.',
         insight_no_expenses_today: 'Δεν έχεις καταγράψει δαπάνες σήμερα — ωραία δουλειά!',
+        insight_badge_status: 'Κατάσταση',
+        insight_badge_pace: 'Ρυθμός',
+        insight_badge_habit: 'Συνήθεια',
+        insight_badge_top_cat: 'Κύρια Δαπάνη',
+        insight_badge_trend_down: 'Μείωση',
+        insight_badge_trend_up: 'Αύξηση',
+        insight_badge_savings: 'Αποταμίευση',
+        insight_badge_health: 'Υγεία Budget',
+        insight_timeframe_today: 'Σήμερα',
+        insight_timeframe_week: 'Αυτή την εβδομάδα',
+        insight_timeframe_month: 'Αυτόν τον μήνα',
 
         // Advisor Redesign — Spending Breakdown
         spending_breakdown_title: 'Ανάλυση Δαπανών',
@@ -1843,6 +1856,8 @@ export const translations = {
 
         // Advisor Redesign — Daily Insights
         daily_insights_title: "Today's Insights",
+        daily_insights_subtitle: 'AI-powered financial feed',
+        daily_insights_live: 'Live feed',
         insight_no_data: 'Add transactions to see personalized insights.',
         insight_coffee_up: 'You spent {amount}€ on coffee this week.',
         insight_savings_improved: 'Your savings rate improved by {pct}% this month!',
@@ -1851,6 +1866,17 @@ export const translations = {
         insight_spending_up: 'You spent {pct}% more this week vs last week.',
         insight_good_pace: "This month's spending is at a healthy pace.",
         insight_no_expenses_today: "No expenses logged today — great work!",
+        insight_badge_status: 'Status',
+        insight_badge_pace: 'Pace',
+        insight_badge_habit: 'Habit',
+        insight_badge_top_cat: 'Top Expense',
+        insight_badge_trend_down: 'Spending Down',
+        insight_badge_trend_up: 'Spending Up',
+        insight_badge_savings: 'Savings',
+        insight_badge_health: 'Budget Health',
+        insight_timeframe_today: 'Today',
+        insight_timeframe_week: 'This Week',
+        insight_timeframe_month: 'This Month',
 
         // Advisor Redesign — Spending Breakdown
         spending_breakdown_title: 'Spending Breakdown',

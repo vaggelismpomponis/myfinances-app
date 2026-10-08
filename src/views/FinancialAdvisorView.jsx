@@ -63,42 +63,6 @@ const GaugeRing = ({ score, size = 140, stroke = 10 }) => {
     );
 };
 
-/* ──────────────────────────────────────────────────────────
-   INSIGHT CARD (inside swipeable carousel)
-────────────────────────────────────────────────────────── */
-const InsightCard = ({ text, index, total }) => {
-    const gradients = [
-        'from-violet-600 via-indigo-600 to-purple-700',
-        'from-indigo-600 via-violet-600 to-fuchsia-700',
-        'from-purple-700 via-indigo-600 to-violet-800',
-    ];
-    return (
-        <div className={`relative overflow-hidden w-full bg-gradient-to-br ${gradients[index % gradients.length]} rounded-2xl p-5 text-white shadow-md`}>
-            <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
-            <div className="relative z-10 flex items-start gap-3">
-                <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/20">
-                    <Sparkles size={15} className="text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <p className="text-[10px] uppercase tracking-widest font-black text-white/75 mb-1">
-                        AI Insight #{index + 1}
-                    </p>
-                    <p className="text-sm font-semibold leading-relaxed text-white">
-                        {text}
-                    </p>
-                </div>
-            </div>
-            <div className="flex gap-1.5 mt-4 justify-end">
-                {Array.from({ length: total }).map((_, i) => (
-                    <div
-                        key={i}
-                        className={`h-1 rounded-full transition-all duration-300 ${i === index ? 'w-5 bg-white' : 'w-1.5 bg-white/30'}`}
-                    />
-                ))}
-            </div>
-        </div>
-    );
-};
 
 
 /* ──────────────────────────────────────────────────────────
@@ -136,7 +100,6 @@ const MobileHeader = ({ onBack, hideHeader, t }) => (
 const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeader }) => {
     const { t } = useSettings();
     const isDesktop = useIsDesktop();
-    const [activeInsight, setActiveInsight] = useState(0);
     const [activePieSlice, setActivePieSlice] = useState(null);
     const [hoveredSlice, setHoveredSlice] = useState(null);
     const [completedChallenges, setCompletedChallenges] = useState(() => {
@@ -276,18 +239,121 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
 
     /* ── 5. Daily Insights ── */
     const insights = useMemo(() => {
-        if (!stats.hasData) return [t('insight_no_data')];
+        if (!stats.hasData) {
+            return [{
+                id: 'no_data',
+                icon: Info,
+                badge: t('insight_badge_status') || 'Status',
+                timeframe: t('insight_timeframe_today') || 'Today',
+                text: t('insight_no_data'),
+                color: 'text-gray-600 dark:text-gray-300',
+                bg: 'bg-gray-50/70 dark:bg-white/[0.03]',
+                border: 'border-gray-200/70 dark:border-white/5',
+                badgeStyle: 'bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-300',
+                iconBg: 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10',
+            }];
+        }
         const list = [];
-        if (stats.todayExpenses.length === 0) list.push(t('insight_no_expenses_today'));
-        if (stats.coffeeThisWeek > 0) list.push(t('insight_coffee_up').replace('{amount}', stats.coffeeThisWeek.toFixed(0)));
-        if (stats.topCat) list.push(t('insight_top_category').replace('{category}', stats.topCat[0]));
+        if (stats.todayExpenses.length === 0) {
+            list.push({
+                id: 'no_expenses_today',
+                icon: CheckCircle2,
+                badge: t('insight_badge_pace') || 'Pace',
+                timeframe: t('insight_timeframe_today') || 'Today',
+                text: t('insight_no_expenses_today'),
+                color: 'text-emerald-700 dark:text-emerald-300',
+                bg: 'bg-emerald-50/60 dark:bg-emerald-950/20',
+                border: 'border-emerald-200/60 dark:border-emerald-900/30',
+                badgeStyle: 'bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300',
+                iconBg: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50',
+            });
+        }
+        if (stats.coffeeThisWeek > 0) {
+            list.push({
+                id: 'coffee',
+                icon: Coffee,
+                badge: t('insight_badge_habit') || 'Habit',
+                timeframe: t('insight_timeframe_week') || 'This Week',
+                text: t('insight_coffee_up').replace('{amount}', stats.coffeeThisWeek.toFixed(0)),
+                color: 'text-amber-700 dark:text-amber-300',
+                bg: 'bg-amber-50/60 dark:bg-amber-950/20',
+                border: 'border-amber-200/60 dark:border-amber-900/30',
+                badgeStyle: 'bg-amber-100/80 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
+                iconBg: 'bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/50',
+            });
+        }
+        if (stats.topCat) {
+            list.push({
+                id: 'top_cat',
+                icon: PieIcon,
+                badge: t('insight_badge_top_cat') || 'Top Expense',
+                timeframe: t('insight_timeframe_month') || 'This Month',
+                text: t('insight_top_category').replace('{category}', stats.topCat[0]),
+                color: 'text-violet-700 dark:text-violet-300',
+                bg: 'bg-violet-50/60 dark:bg-violet-950/20',
+                border: 'border-violet-200/60 dark:border-violet-900/30',
+                badgeStyle: 'bg-violet-100/80 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300',
+                iconBg: 'bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800/50',
+            });
+        }
         if (stats.lastWeekSpend > 0 && stats.thisWeekSpend > 0) {
             const pct = Math.round(Math.abs((stats.thisWeekSpend - stats.lastWeekSpend) / stats.lastWeekSpend) * 100);
-            if (stats.thisWeekSpend < stats.lastWeekSpend) list.push(t('insight_spending_down').replace('{pct}', pct));
-            else if (pct > 10) list.push(t('insight_spending_up').replace('{pct}', pct));
+            if (stats.thisWeekSpend < stats.lastWeekSpend) {
+                list.push({
+                    id: 'spending_down',
+                    icon: TrendingDown,
+                    badge: t('insight_badge_trend_down') || 'Spending Down',
+                    timeframe: t('insight_timeframe_week') || 'This Week',
+                    text: t('insight_spending_down').replace('{pct}', pct),
+                    color: 'text-emerald-700 dark:text-emerald-300',
+                    bg: 'bg-emerald-50/60 dark:bg-emerald-950/20',
+                    border: 'border-emerald-200/60 dark:border-emerald-900/30',
+                    badgeStyle: 'bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300',
+                    iconBg: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50',
+                });
+            } else if (pct > 10) {
+                list.push({
+                    id: 'spending_up',
+                    icon: TrendingUp,
+                    badge: t('insight_badge_trend_up') || 'Spending Up',
+                    timeframe: t('insight_timeframe_week') || 'This Week',
+                    text: t('insight_spending_up').replace('{pct}', pct),
+                    color: 'text-rose-700 dark:text-rose-300',
+                    bg: 'bg-rose-50/60 dark:bg-rose-950/20',
+                    border: 'border-rose-200/60 dark:border-rose-900/30',
+                    badgeStyle: 'bg-rose-100/80 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300',
+                    iconBg: 'bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800/50',
+                });
+            }
         }
-        if (stats.savingsPct > 20) list.push(t('insight_savings_improved').replace('{pct}', Math.round(stats.savingsPct - 20)));
-        if (list.length === 0) list.push(t('insight_good_pace'));
+        if (stats.savingsPct > 20) {
+            list.push({
+                id: 'savings_rate',
+                icon: Target,
+                badge: t('insight_badge_savings') || 'Savings',
+                timeframe: t('insight_timeframe_month') || 'This Month',
+                text: t('insight_savings_improved').replace('{pct}', Math.round(stats.savingsPct - 20)),
+                color: 'text-indigo-700 dark:text-indigo-300',
+                bg: 'bg-indigo-50/60 dark:bg-indigo-950/20',
+                border: 'border-indigo-200/60 dark:border-indigo-900/30',
+                badgeStyle: 'bg-indigo-100/80 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300',
+                iconBg: 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50',
+            });
+        }
+        if (list.length === 0) {
+            list.push({
+                id: 'good_pace',
+                icon: Sparkles,
+                badge: t('insight_badge_health') || 'Budget Health',
+                timeframe: t('insight_timeframe_month') || 'This Month',
+                text: t('insight_good_pace'),
+                color: 'text-teal-700 dark:text-teal-300',
+                bg: 'bg-teal-50/60 dark:bg-teal-950/20',
+                border: 'border-teal-200/60 dark:border-teal-900/30',
+                badgeStyle: 'bg-teal-100/80 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300',
+                iconBg: 'bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-800/50',
+            });
+        }
         return list.slice(0, 3);
     }, [stats, t]);
 
@@ -435,9 +501,6 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
         return { improved, pct, bestCat, worstCat };
     }, [stats]);
 
-    /* ── 10. Insight carousel navigation ── */
-    const nextInsight = () => setActiveInsight(i => (i + 1) % insights.length);
-    const prevInsight = () => setActiveInsight(i => (i - 1 + insights.length) % insights.length);
 
     /* ── Empty State ── */
     if (!stats.hasData) {
@@ -908,51 +971,57 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                     {/* ════════════ RIGHT COLUMN (5 cols) ════════════ */}
                     <div className="lg:col-span-5 space-y-6">
 
-                        {/* ─── SECTION A: Daily Insights Carousel ─── */}
+                        {/* ─── SECTION A: Daily Insights Feed ─── */}
                         <div className="bg-white dark:bg-surface-dark3 rounded-[2.25rem] p-6 lg:p-7 shadow-card border border-gray-100/80 dark:border-white/5">
-                            <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center justify-between gap-2 mb-5">
                                 <div className="flex items-center gap-3">
                                     <span className="w-10 h-10 rounded-2xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0 border border-violet-100 dark:border-violet-900/30">
-                                        <Lightbulb size={18} />
+                                        <Sparkles size={18} />
                                     </span>
                                     <div>
                                         <h3 className="font-bold text-gray-900 dark:text-white text-base">
                                             {t('daily_insights_title')}
                                         </h3>
                                         <p className="text-xs text-gray-400 font-medium">
-                                            AI-powered financial feed
+                                            {t('daily_insights_subtitle')}
                                         </p>
                                     </div>
                                 </div>
-                                {insights.length > 1 && (
-                                    <div className="flex gap-1.5">
-                                        <button
-                                            onClick={prevInsight}
-                                            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 dark:text-white/60 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors"
-                                            aria-label="Previous insight"
-                                        >
-                                            <ChevronLeft size={15} />
-                                        </button>
-                                        <button
-                                            onClick={nextInsight}
-                                            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 dark:text-white/60 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors"
-                                            aria-label="Next insight"
-                                        >
-                                            <ChevronRight size={15} />
-                                        </button>
-                                    </div>
-                                )}
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 font-bold text-xs border border-violet-200/50 dark:border-violet-900/30">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
+                                    {t('daily_insights_live')}
+                                </span>
                             </div>
 
-                            <div className="overflow-hidden">
-                                <div
-                                    className="flex transition-transform duration-500 ease-in-out"
-                                    style={{ transform: `translateX(-${activeInsight * 100}%)` }}
-                                >
-                                    {insights.map((insight, i) => (
-                                        <InsightCard key={i} text={insight} index={i} total={insights.length} />
-                                    ))}
-                                </div>
+                            <div className="space-y-3">
+                                {insights.map((insight) => {
+                                    const Icon = insight.icon;
+                                    return (
+                                        <div
+                                            key={insight.id}
+                                            className={`rounded-2xl border p-4 transition-all duration-300 ${insight.bg} ${insight.border} hover:scale-[1.01]`}
+                                        >
+                                            <div className="flex items-start gap-3.5">
+                                                <div className={`w-9 h-9 rounded-xl ${insight.iconBg} flex items-center justify-center shrink-0 shadow-xs border`}>
+                                                    <Icon size={16} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between gap-2 mb-1">
+                                                        <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${insight.badgeStyle}`}>
+                                                            {insight.badge}
+                                                        </span>
+                                                        <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 shrink-0">
+                                                            {insight.timeframe}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 leading-relaxed">
+                                                        {insight.text}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 
