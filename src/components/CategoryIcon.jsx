@@ -104,7 +104,7 @@ const CategoryIcon = ({ category, type, size = 20, className = "p-2.5 md:p-3 rou
             }}
         >
             <div className="absolute inset-0 opacity-20 blur-xl" style={{ backgroundColor: accentHex }} />
-            <IconComponent size={size} className="relative z-10" />
+            <IconComponent size={size} className="relative z-10 shrink-0" />
         </div>
     );
 };

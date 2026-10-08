@@ -232,9 +232,12 @@ const DesktopBudgetMiniCard = ({ budget, transactions, t }) => {
         <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-100/80 dark:border-white/[0.04] space-y-2.5 hover:border-violet-200 dark:hover:border-violet-800/40 transition-colors">
             <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-6 h-6 rounded-lg bg-white dark:bg-white/10 flex items-center justify-center flex-shrink-0 shadow-2xs">
-                        <CategoryIcon category={budget.category} type="expense" size={13} />
-                    </div>
+                    <CategoryIcon
+                        category={budget.category}
+                        type="expense"
+                        size={14}
+                        className="w-7 h-7 rounded-lg flex-shrink-0 p-0"
+                    />
                     <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate capitalize">{catName}</span>
                 </div>
                 <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isDanger ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400' :

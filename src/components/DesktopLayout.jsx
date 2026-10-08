@@ -50,7 +50,7 @@ const BudgetMiniBar = ({ budget, transactions }) => {
         <div className="space-y-1.5">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <CategoryIcon category={budget.category} type="expense" size={14} />
+                    <CategoryIcon category={budget.category} type="expense" size={14} className="w-7 h-7 rounded-lg flex-shrink-0 p-0" />
                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 capitalize">
                         {t('cat_' + budget.category?.toLowerCase()) === 'cat_' + budget.category?.toLowerCase()
                             ? budget.category
@@ -173,9 +173,7 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
                                 key={tx.id}
                                 className="flex items-center gap-2.5 py-2 px-1 border-b border-gray-50 dark:border-white/[0.03] last:border-0"
                             >
-                                <div className="w-8 h-8 rounded-xl bg-gray-50 dark:bg-white/[0.05] flex items-center justify-center flex-shrink-0">
-                                    <CategoryIcon category={tx.category} type={tx.type} size={14} />
-                                </div>
+                                <CategoryIcon category={tx.category} type={tx.type} size={15} className="w-8 h-8 rounded-xl flex-shrink-0 p-0" />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-semibold text-gray-800 dark:text-white truncate">
                                         {getCategoryTranslation(tx.category, t)}

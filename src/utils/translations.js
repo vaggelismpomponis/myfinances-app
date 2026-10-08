@@ -1213,7 +1213,7 @@ export const translations = {
         play_store_subtitle: 'Official Android App',
         play_store_desc: 'Download the official app directly from Google Play Store for push notifications, automatic updates, and maximum security.',
         play_store_badge_protect: 'Play Protect Verified',
-        play_store_badge_free: '100% Free',
+        play_store_badge_free: 'Free',
         play_store_badge_rating: '4.9 ★ Rating',
         play_store_feature_push: 'Instant push notifications & expense reminders',
         play_store_feature_perf: 'Lightning-fast performance & offline access',
