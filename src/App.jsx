@@ -1368,6 +1368,13 @@ function MainContent() {
                     onBack={() => setActiveTab('profile')} 
                     hideHeader={isDesktop}
                     onStartTour={handleStartTour}
+                    onNavigate={(tab) => {
+                        if (tab === 'add') {
+                            openAddModal();
+                        } else {
+                            setActiveTab(tab);
+                        }
+                    }}
                 />
             )}
             {activeTab === 'recurring' && (
@@ -1715,7 +1722,17 @@ function MainContent() {
                                             )}
                                             {activeTab === 'guide' && (
                                                 <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
-                                                    <GuideView onBack={() => setActiveTab('profile')} onStartTour={handleStartTour} />
+                                                    <GuideView 
+                                                        onBack={() => setActiveTab('profile')} 
+                                                        onStartTour={handleStartTour}
+                                                        onNavigate={(tab) => {
+                                                            if (tab === 'add') {
+                                                                openAddModal();
+                                                            } else {
+                                                                setActiveTab(tab);
+                                                            }
+                                                        }}
+                                                    />
                                                 </div>
                                             )}
                                             {activeTab === 'recurring' && (
