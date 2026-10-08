@@ -709,23 +709,23 @@ const AdminView = ({ onBack, hideHeader }) => {
                                     </p>
                                 </div>
 
-                                {/* Live Telemetry Pills */}
-                                <div className="pt-2 flex flex-wrap items-center gap-2.5 text-xs font-semibold">
-                                    <span className="px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-white flex items-center gap-1.5">
-                                        <Users size={13} />
-                                        <span>{stats.users} Total Accounts</span>
+                                {/* Live Telemetry Pills (2x2 grid on mobile, flex row on tablet/desktop) */}
+                                <div className="pt-2 grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 text-[11px] sm:text-xs font-semibold">
+                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-white flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                        <Users size={13} className="shrink-0" />
+                                        <span className="truncate">{stats.users} Total Accounts</span>
                                     </span>
-                                    <span className="px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-white flex items-center gap-1.5">
-                                        <Activity size={13} />
-                                        <span>{metrics.proUsers} Pro Subscribers</span>
+                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-white flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                        <Activity size={13} className="shrink-0" />
+                                        <span className="truncate">{metrics.proUsers} Pro Subscribers</span>
                                     </span>
-                                    <span className="px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-white flex items-center gap-1.5">
-                                        <CheckCircle2 size={13} />
-                                        <span>{stats.transactions} Ledger Entries</span>
+                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-white flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                        <CheckCircle2 size={13} className="shrink-0" />
+                                        <span className="truncate">{stats.transactions} Ledger Entries</span>
                                     </span>
-                                    <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 text-emerald-200 flex items-center gap-1.5">
-                                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                        <span>Database Online</span>
+                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-xl bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 text-emerald-200 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                                        <span className="truncate">Database Online</span>
                                     </span>
                                 </div>
                             </div>
