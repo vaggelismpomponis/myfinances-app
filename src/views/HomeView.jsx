@@ -837,11 +837,11 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 : 0;
 
                             return (
-                                <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5.5 shadow-card hover:shadow-card-hover transition-all">
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                                <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5 sm:p-6 shadow-card hover:shadow-card-hover transition-all space-y-5">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-xl bg-violet-500/10 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center border border-violet-500/20 shadow-2xs">
-                                                <PieChart size={18} />
+                                            <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center border border-violet-500/20 shadow-2xs">
+                                                <PieChart size={19} />
                                             </div>
                                             <div>
                                                 <div className="flex items-center gap-2">
@@ -849,7 +849,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                                         {t('monthly_category_breakdown') || 'Κατανομή Εξόδων Μήνα'}
                                                     </h3>
                                                     {categoryBreakdown.totalMonthSpent > 0 && (
-                                                        <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30 tabular-nums">
+                                                        <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30 tabular-nums">
                                                             <Amount value={categoryBreakdown.totalMonthSpent} />
                                                         </span>
                                                     )}
@@ -871,7 +871,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     {categoryBreakdown.topCats.length > 0 ? (
                                         <div className="space-y-4">
                                             {/* Multi-segment distribution strip (full 100% spectrum) */}
-                                            <div className="space-y-1.5">
+                                            <div className="space-y-2">
                                                 <div className="h-2.5 w-full bg-gray-100 dark:bg-white/[0.05] rounded-full overflow-hidden flex gap-1 p-0.5">
                                                     {categoryBreakdown.topCats.map(cat => (
                                                         <div
@@ -892,14 +892,14 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                                         />
                                                     )}
                                                 </div>
-                                                <div className="flex items-center justify-between text-[10px] font-semibold text-gray-400 dark:text-gray-500 px-0.5">
+                                                <div className="flex items-center justify-between text-[11px] font-semibold text-gray-400 dark:text-gray-500 px-0.5">
                                                     <span>{categoryBreakdown.topCats.length} κορυφαίες κατηγορίες</span>
                                                     {remainingPct > 0 && <span>+ {remainingPct}% λοιπά έξοδα</span>}
                                                 </div>
                                             </div>
 
                                             {/* Category Chips Grid */}
-                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-0.5">
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 pt-0.5">
                                                 {categoryBreakdown.topCats.map(cat => (
                                                     <div
                                                         key={cat.category}
@@ -965,8 +965,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         })()}
 
                         {/* Recent Transactions Feed */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5.5 shadow-card space-y-3.5">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-gray-50 dark:border-white/[0.04]">
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5 sm:p-6 shadow-card space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-gray-100 dark:border-white/[0.06]">
                                 <div className="flex items-center gap-2">
                                     <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                         <span>{t('recent') || 'Πρόσφατες Συναλλαγές'}</span>
@@ -1044,7 +1044,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     </p>
                                 </div>
                             ) : (
-                                <div className="space-y-2.5 pt-0.5">
+                                <div className="space-y-2.5 pt-1">
                                     {filteredDesktopTransactions.map((tx, idx) => (
                                         <motion.div
                                             key={tx.id}
