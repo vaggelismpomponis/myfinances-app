@@ -212,7 +212,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         goals: t('goals'),
         budgets: t('budgets'),
         recurring: t('recurring'),
-        profile: t('nav_profile'),
+        profile: t('settings'),
         account: t('nav_profile'),
         general: t('general_settings'),
         security: t('security'),

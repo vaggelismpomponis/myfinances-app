@@ -218,7 +218,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                     {/* Page title */}
                     {!hideHeader && (
                         <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center truncate px-20">
-                            {translate('settings_title') || 'Settings'}
+                            {translate('settings') || 'Settings'}
                         </h1>
                     )}
 

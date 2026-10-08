@@ -135,8 +135,8 @@ const DesktopSidebar = ({
 
                 <NavItem
                     id="nav-profile"
-                    icon={User}
-                    label={t('nav_profile') || 'Προφίλ'}
+                    icon={Settings}
+                    label={t('settings') || 'Ρυθμίσεις'}
                     active={['profile', 'account', 'general', 'security', 'backup', 'feedback', 'guide', 'admin', 'profile-details'].includes(activeTab)}
                     onClick={() => navTo('profile')}
                 />
