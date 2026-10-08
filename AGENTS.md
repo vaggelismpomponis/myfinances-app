@@ -47,5 +47,6 @@ Single Source of Truth personal finance application powering Web (PWA) and Andro
 
 - **Lucide Icons Standard**: All icons throughout the application UI must strictly use Lucide icons (`lucide-react`) to maintain a clean, professional, and corporate aesthetic.
 - **Prohibit Emojis as UI Icons**: Never use raw emojis or Unicode symbols (e.g., ⚠️, 🔥, 🎯, ✈️, 🚗, 🏠) as icons, category indicators, badges, or button graphics. Emojis render inconsistently across operating systems and browsers, lack vector scalability, and detract from a premium corporate appearance.
+- **Prohibit Sparkles & Lightning Icons**: Never use `Sparkles` (stars) or `Zap` (lightning bolts) anywhere in the application (including cards, headers, badges, tips, or buttons). They read as gimmicky AI tropes or gaming power-ups and detract from a serious, corporate personal finance aesthetic. Instead, always use clean, semantic, professional icons (e.g., `CheckCircle2`, `ShieldCheck`, `Target`, `RefreshCw`, `TrendingUp`, `Wallet`, `CreditCard`, `Lightbulb`).
 - **Unified Sizing & Styling**: Render Lucide icons with consistent sizes (e.g., `size={13}` to `size={15}` for badges/chips with `shrink-0`, `size={16}` to `size={20}` for buttons/nav, `size={24}+` for hero/empty states) and style them with design system CSS tokens and theme-aware color utilities.
 
