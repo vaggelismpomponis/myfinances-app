@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useCallback, useRef } from 'react';
 import {
-    TrendingUp, TrendingDown, ShieldCheck, Zap, Info, Target, ChevronRight,
+    TrendingUp, TrendingDown, ShieldCheck, Info, Target, ChevronRight,
     ChevronLeft, ArrowLeft, Lightbulb, CheckCircle2, Trophy, Flame, Coffee,
-    Wallet, AlertTriangle, Star, Award, Sparkles, Clock, PieChart as PieIcon,
+    Wallet, AlertTriangle, Star, Award, RefreshCw, Clock, PieChart as PieIcon,
     Calendar, ArrowUpRight
 } from 'lucide-react';
 import {
@@ -343,7 +343,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
         if (list.length === 0) {
             list.push({
                 id: 'good_pace',
-                icon: Sparkles,
+                icon: CheckCircle2,
                 badge: t('insight_badge_health') || 'Budget Health',
                 timeframe: t('insight_timeframe_month') || 'This Month',
                 text: t('insight_good_pace'),
@@ -473,7 +473,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
             list.push({ icon: AlertTriangle, text: t('tip_wants_high_action').replace('{pct}', Math.round(stats.wantsPct)), action: t('tip_action_review_now'), color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50/80 dark:bg-rose-950/20' });
         if (stats.savingsPct > 25)
             list.push({ icon: TrendingUp, text: t('tip_great_savings'), action: t('tip_action_see_details'), color: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-50/80 dark:bg-violet-950/20' });
-        list.push({ icon: Zap, text: t('tip_subscriptions'), action: t('tip_action_review_now'), color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50/80 dark:bg-amber-950/20' });
+        list.push({ icon: RefreshCw, text: t('tip_subscriptions'), action: t('tip_action_review_now'), color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50/80 dark:bg-amber-950/20' });
         return list.slice(0, 3);
     }, [stats, t]);
 
@@ -536,7 +536,6 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                     >
                         <div>
                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 font-bold text-xs border border-violet-200/50 dark:border-violet-900/40 mb-2">
-                                <Sparkles size={13} className="shrink-0" />
                                 <span>{t('advisor_header_badge') || 'AI Financial Intelligence'}</span>
                                 <span className="text-violet-300 dark:text-violet-700">•</span>
                                 <span className="uppercase text-[10px] tracking-wider text-violet-600 dark:text-violet-400 font-black">Pro</span>
@@ -974,18 +973,13 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                         {/* ─── SECTION A: Daily Insights Feed ─── */}
                         <div className="bg-white dark:bg-surface-dark3 rounded-[2.25rem] p-6 lg:p-7 shadow-card border border-gray-100/80 dark:border-white/5">
                             <div className="flex items-center justify-between gap-2 mb-5">
-                                <div className="flex items-center gap-3">
-                                    <span className="w-10 h-10 rounded-2xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0 border border-violet-100 dark:border-violet-900/30">
-                                        <Sparkles size={18} />
-                                    </span>
-                                    <div>
-                                        <h3 className="font-bold text-gray-900 dark:text-white text-base">
-                                            {t('daily_insights_title')}
-                                        </h3>
-                                        <p className="text-xs text-gray-400 font-medium">
-                                            {t('daily_insights_subtitle')}
-                                        </p>
-                                    </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-900 dark:text-white text-base">
+                                        {t('daily_insights_title')}
+                                    </h3>
+                                    <p className="text-xs text-gray-400 font-medium">
+                                        {t('daily_insights_subtitle')}
+                                    </p>
                                 </div>
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 font-bold text-xs border border-violet-200/50 dark:border-violet-900/30">
                                     <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
@@ -1103,18 +1097,13 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
 
                         {/* ─── SECTION E: Personalized Tips ─── */}
                         <div className="bg-white dark:bg-surface-dark3 rounded-[2.25rem] p-6 lg:p-7 shadow-card border border-gray-100/80 dark:border-white/5">
-                            <div className="flex items-center gap-3 mb-5">
-                                <span className="w-10 h-10 rounded-2xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0 border border-violet-100 dark:border-violet-900/30">
-                                    <Zap size={18} />
-                                </span>
-                                <div>
-                                    <h3 className="font-bold text-gray-900 dark:text-white text-base">
-                                        {t('tips_personalized_title')}
-                                    </h3>
-                                    <p className="text-xs text-gray-400 font-medium">
-                                        Tailored financial recommendations
-                                    </p>
-                                </div>
+                            <div className="mb-5">
+                                <h3 className="font-bold text-gray-900 dark:text-white text-base">
+                                    {t('tips_personalized_title')}
+                                </h3>
+                                <p className="text-xs text-gray-400 font-medium">
+                                    Tailored financial recommendations
+                                </p>
                             </div>
 
                             <div className="space-y-3">
