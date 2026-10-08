@@ -477,8 +477,6 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
     const [desktopFilter, setDesktopFilter] = useState('all');
     const [desktopSearch, setDesktopSearch] = useState('');
 
-    const netFlow = totalIncome - totalExpense;
-    const isNetPositive = netFlow >= 0;
     const savingsRate = totalIncome > 0 ? Math.max(0, Math.round(((totalIncome - totalExpense) / totalIncome) * 100)) : 0;
 
     const stbData = useMemo(() => {
@@ -752,8 +750,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             </p>
                         </div>
 
-                        {/* 3. Total Expenses */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-2xl p-4 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
+                        {/* 3. Total Expenses (Full width of remaining row) */}
+                        <div className="col-span-2 bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-2xl p-4 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
                             <div className="flex items-center justify-between gap-1.5">
                                 <div className="flex items-center gap-2 min-w-0">
                                     <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0">
@@ -777,41 +775,6 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 truncate flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0" />
                                 <span>{t('stats_expense') || 'Συνολικές εκροές'}</span>
-                            </p>
-                        </div>
-
-                        {/* 4. Total Net Flow */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-2xl p-4 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
-                            <div className="flex items-center justify-between gap-1.5">
-                                <div className="flex items-center gap-2 min-w-0">
-                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${isNetPositive
-                                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
-                                        : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
-                                        }`}>
-                                        {isNetPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                                    </div>
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
-                                        {t('all_time_net') || 'Καθαρή Ροή'}
-                                    </span>
-                                </div>
-                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full flex-shrink-0 ${isNetPositive
-                                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'
-                                    : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400'
-                                    }`}>
-                                    {isNetPositive ? (t('net_surplus') || 'Πλεόνασμα') : (t('net_deficit') || 'Έλλειμμα')}
-                                </span>
-                            </div>
-
-                            <div className="my-2">
-                                <div className={`text-2xl font-black tracking-tight tabular-nums font-display truncate ${isNetPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-                                    }`}>
-                                    {isNetPositive ? '+' : '−'}<Amount value={Math.abs(netFlow)} showSign={false} />
-                                </div>
-                            </div>
-
-                            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 truncate flex items-center gap-1.5">
-                                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isNetPositive ? 'bg-emerald-400' : 'bg-rose-400'}`} />
-                                <span>{isNetPositive ? 'Θετικό ισοζύγιο' : 'Αρνητικό ισοζύγιο'}</span>
                             </p>
                         </div>
                     </div>
