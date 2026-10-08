@@ -10,11 +10,13 @@ import {
     Zap
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
+import PlayStoreModal, { GooglePlayIcon } from '../components/PlayStoreModal';
 import PasswordInput from '../components/PasswordInput';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import { isNative } from '../utils/platform';
 
 /* ─────────────────────────────────────────
    Toggle Switch — matches reference UI
@@ -107,7 +109,8 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
     const isDark = theme === 'dark';
     const { showToast } = useToast();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const [showApkModal, setShowApkModal] = useState(false);
+    const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
+    const isNativeApp = isNative();
     const [imgRetries, setImgRetries] = useState(0);
     const MAX_IMG_RETRIES = 3;
 
@@ -394,7 +397,21 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             />
                             <SettingRow icon={Moon} label={translate('dark_mode') || 'Dark mode'} onClick={toggleTheme} right={<Toggle enabled={isDark} onChange={toggleTheme} />} last />
                             <SettingRow icon={HardDriveDownload} label={translate('backup_restore') || 'Backup & Restore'} onClick={onBackup} />
-                            <SettingRow icon={Smartphone} label={translate('install_android') || 'Install App (Android)'} onClick={() => setShowApkModal(true)} />
+                            {!isNativeApp && (
+                                <SettingRow
+                                    icon={GooglePlayIcon}
+                                    label={translate('install_android') || 'Εφαρμογή Android (Play Store)'}
+                                    onClick={() => setShowPlayStoreModal(true)}
+                                    right={
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-500/20">
+                                                Google Play
+                                            </span>
+                                            <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
+                                        </div>
+                                    }
+                                />
+                            )}
                             {user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
                                 <SettingRow icon={LayoutDashboard} label={translate('control_panel') || 'Control Panel'} onClick={onAdmin} />
                             )}
@@ -452,21 +469,9 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
             </div>
 
             {/* ─── Modals ─── */}
-            <ConfirmationModal
-                isOpen={showApkModal}
-                onClose={() => setShowApkModal(false)}
-                onConfirm={() => {
-                    const link = document.createElement('a');
-                    link.href = '/SpendWise.apk';
-                    link.download = 'SpendWise.apk';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }}
-                title={translate('apk_install_title')}
-                message={translate('apk_install_instructions')}
-                confirmText={translate('download_apk')}
-                type="primary"
+            <PlayStoreModal
+                isOpen={showPlayStoreModal}
+                onClose={() => setShowPlayStoreModal(false)}
             />
 
             <ConfirmationModal
