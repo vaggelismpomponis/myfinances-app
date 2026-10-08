@@ -1,20 +1,35 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
-const PasswordInput = ({ label, value, onChange, placeholder = '••••••••', required = false, error = '', icon: Icon }) => {
+const PasswordInput = ({ 
+    label, 
+    value, 
+    onChange, 
+    placeholder = '••••••••', 
+    required = false, 
+    error = '', 
+    icon: Icon,
+    className = '',
+    inputClassName = '',
+    labelClassName = '',
+    alignLabel = 'left'
+}) => {
     const [show, setShow] = useState(false);
     const inputId = label ? `password-input-${label.toLowerCase().replace(/\s+/g, '-')}` : 'password-input';
     
     return (
-        <div className="space-y-1.5">
+        <div className={`space-y-1.5 ${className}`}>
             {label && (
-                <label htmlFor={inputId} className="block text-center text-[11px] font-semibold text-gray-400 dark:text-white/60 uppercase tracking-wide w-full">
+                <label 
+                    htmlFor={inputId} 
+                    className={`block ${alignLabel === 'center' ? 'text-center' : 'text-left'} text-[11px] font-semibold text-gray-400 dark:text-white/60 uppercase tracking-wide w-full ${labelClassName}`}
+                >
                     {label}
                 </label>
             )}
             <div className="relative group">
                 {Icon && (
-                    <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors group-focus-within:text-violet-500" size={16} />
+                    <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors group-focus-within:text-violet-500 pointer-events-none" size={16} />
                 )}
                 <input
                     id={inputId}
@@ -24,12 +39,12 @@ const PasswordInput = ({ label, value, onChange, placeholder = '•••••�
                     placeholder={placeholder}
                     className={`w-full ${Icon ? 'pl-10' : 'px-4'} py-3 pr-11 
                                bg-gray-50 dark:bg-white/[0.05]
-                               border border-gray-200 dark:border-transparent
+                               border border-gray-200 dark:border-white/10
                                rounded-xl text-[14px] text-gray-900 dark:text-white
-                               placeholder:text-gray-300 dark:placeholder:text-white/20
+                               placeholder:text-gray-400 dark:placeholder:text-white/20
                                focus:outline-none focus:ring-2 
-                               ${error ? 'focus:ring-rose-500/40 border-rose-200 dark:border-rose-500/30' : 'focus:ring-violet-500/40'}
-                               transition-all duration-200`}
+                               ${error ? 'focus:ring-rose-500/40 border-rose-300 dark:border-rose-500/30' : 'focus:ring-violet-500/40 focus:border-violet-500'}
+                               transition-all duration-200 ${inputClassName}`}
                     required={required}
                 />
                 <button
