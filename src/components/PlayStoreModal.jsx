@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Star, ShieldCheck, Zap, CheckCircle2, QrCode, Smartphone } from 'lucide-react';
+import { X, ExternalLink, Star, ShieldCheck, CheckCircle2, QrCode, Smartphone } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { PLAY_STORE_URL } from '../utils/platform';
 
@@ -128,7 +128,7 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                             </div>
 
                             {/* Store Highlights Grid */}
-                            <div className="grid grid-cols-3 gap-2 py-3 px-3.5 bg-gray-50/90 dark:bg-white/[0.04] rounded-2xl border border-gray-100 dark:border-white/5 text-center">
+                            <div className="grid grid-cols-2 gap-2 py-3 px-3.5 bg-gray-50/90 dark:bg-white/[0.04] rounded-2xl border border-gray-100 dark:border-white/5 text-center">
                                 <div>
                                     <div className="flex items-center justify-center gap-1.5 text-[13px] font-black text-amber-500">
                                         <Star size={14} className="fill-amber-400 text-amber-400" />
@@ -138,16 +138,7 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                                         {t('play_store_badge_rating') || '4.9 ★'}
                                     </p>
                                 </div>
-                                <div className="border-x border-gray-200/60 dark:border-white/10">
-                                    <div className="flex items-center justify-center gap-1.5 text-[13px] font-black text-emerald-600 dark:text-emerald-400">
-                                        <Zap size={14} className="fill-emerald-500 text-emerald-500" />
-                                        <span>100%</span>
-                                    </div>
-                                    <p className="text-[10px] font-medium text-gray-400 dark:text-white/40 mt-0.5">
-                                        {t('play_store_badge_free') || 'Δωρεάν'}
-                                    </p>
-                                </div>
-                                <div>
+                                <div className="border-l border-gray-200/60 dark:border-white/10">
                                     <div className="flex items-center justify-center gap-1.5 text-[13px] font-black text-blue-600 dark:text-blue-400">
                                         <ShieldCheck size={14} strokeWidth={2} />
                                         <span>Google</span>
