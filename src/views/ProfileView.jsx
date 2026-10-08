@@ -17,24 +17,10 @@ import { useToast } from '../contexts/ToastContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { isNative } from '../utils/platform';
+import Toggle from '../components/Toggle';
+import ViewHeader from '../components/ViewHeader';
 
-/* ─────────────────────────────────────────
-   Toggle Switch — matches reference UI
- ───────────────────────────────────────── */
-const Toggle = ({ enabled, onChange }) => (
-    <button
-        onClick={(e) => { e.stopPropagation(); onChange(); }}
-        className={`relative w-[46px] h-[26px] rounded-full transition-all duration-300 focus:outline-none flex-shrink-0
-                    ${enabled
-                ? 'bg-violet-600 shadow-[0_0_10px_rgba(124,58,237,0.5)]'
-                : 'bg-gray-200 dark:bg-white/[0.12]'}`}
-        aria-pressed={enabled}
-    >
-        <div className={`absolute top-[3px] left-[3px] w-[20px] h-[20px] rounded-full bg-white
-                          shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition-transform duration-300
-                          ${enabled ? 'translate-x-[20px]' : 'translate-x-0'}`} />
-    </button>
-);
+
 
 /* ─────────────────────────────────────────
    Setting Row — Skroutz style
@@ -193,41 +179,16 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
             transition={{ type: 'spring', stiffness: 380, damping: 36, mass: 0.8 }}
         >
             {/* ─────── Sticky Header ─────── */}
-            <div
-                className={`shrink-0 sticky top-0 z-20 transition-colors duration-300
-                            ${hideHeader
-                        ? 'bg-transparent border-none px-4 pt-4 pb-2'
-                        : 'bg-gray-50/90 dark:bg-[#121212]/90 backdrop-blur-xl border-b border-gray-100 dark:border-white/[0.06] px-4 pb-3'}`}
-                style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' } : {}}
-            >
-                <div className="flex items-center justify-center relative min-h-[32px]">
-                    {/* Back button */}
-                    <button
-                        id="settings-back-btn"
-                        onClick={onBack}
-                        className="absolute left-0 w-8 h-8 rounded-full
-                                   bg-gray-100 dark:bg-white/[0.08]
-                                   flex items-center justify-center
-                                   text-gray-500 dark:text-white/50
-                                   hover:bg-gray-200 dark:hover:bg-white/[0.14]
-                                   active:scale-90 transition-all duration-150"
-                    >
-                        <ArrowLeft size={15} strokeWidth={2.5} />
-                    </button>
-
-                    {/* Page title */}
-                    {!hideHeader && (
-                        <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center truncate px-20">
-                            {translate('settings') || 'Settings'}
-                        </h1>
-                    )}
-
-                    {/* Upgrade CTA — only for free users */}
-                    {!isPro && (
+            <ViewHeader
+                onBack={onBack}
+                title={translate('settings') || 'Settings'}
+                hideHeader={hideHeader}
+                rightAction={
+                    !isPro ? (
                         <motion.button
                             onClick={() => openUpgradeModal('profile_header')}
                             whileTap={{ scale: 0.93 }}
-                            className="absolute right-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full
                                        bg-gradient-to-r from-amber-400 to-orange-500
                                        text-white text-[11px] font-extrabold tracking-wide
                                        shadow-[0_2px_12px_rgba(251,146,60,0.45)]
@@ -236,9 +197,9 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             <Zap size={11} strokeWidth={2.5} className="fill-white" />
                             {translate('go_pro') || 'Upgrade to Pro'}
                         </motion.button>
-                    )}
-                </div>
-            </div>
+                    ) : null
+                }
+            />
 
             {/* ─────── Scrollable Content ─────── */}
             <div className="flex-1 overflow-y-auto">

@@ -19,6 +19,8 @@ import {
 import { supabase } from '../supabase';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
+import ViewHeader from '../components/ViewHeader';
+import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
 /* ── Restore Mode Selector ── */
 const RestoreModeButton = ({ active, onClick, icon: Icon, label, sublabel, color = 'violet' }) => {
@@ -233,52 +235,25 @@ const BackupView = ({ user, onBack, hideHeader }) => {
     return (
         <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300 overflow-hidden">
             {/* ─────── Mobile Sticky Header ─────── */}
-            {!hideHeader && (
-                <div
-                    className="shrink-0 transition-colors duration-300 sticky top-0 z-20 bg-gray-50/90 dark:bg-[#121212]/90 backdrop-blur-xl border-b border-gray-100 dark:border-white/[0.06] px-4 pb-3"
-                    style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
-                >
-                    <div className="flex items-center justify-between min-h-[36px]">
-                        <button
-                            onClick={onBack}
-                            className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center text-gray-700 dark:text-white/70 hover:bg-gray-200 dark:hover:bg-white/[0.14] active:scale-90 transition-all duration-150"
-                            aria-label="Back"
-                        >
-                            <ArrowLeft size={16} strokeWidth={2.5} />
-                        </button>
-                        <div className="text-center">
-                            <h2 className="text-[17px] font-extrabold text-gray-900 dark:text-white leading-tight">
-                                {translate('backup_restore') || 'Backup & Restore'}
-                            </h2>
-                            <p className="text-[11px] font-medium text-gray-500 dark:text-white/50 leading-none mt-0.5">
-                                {translate('backup_subtitle') || 'Data preservation & vault'}
-                            </p>
-                        </div>
-                        <div className="w-9" />
-                    </div>
-                </div>
-            )}
+            <ViewHeader
+                onBack={onBack}
+                title={translate('backup_restore') || 'Backup & Restore'}
+                subtitle={translate('backup_subtitle') || 'Data preservation & vault'}
+                hideHeader={hideHeader}
+            />
 
             {/* ─────── Main Scroll Container ─────── */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-8 space-y-6">
 
                     {/* Desktop Navigation Breadcrumb Bar */}
-                    {hideHeader && (
-                        <div className="flex items-center justify-between pb-1">
-                            <button
-                                onClick={onBack}
-                                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-white/[0.05] border border-gray-200/80 dark:border-white/[0.08] text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.1] active:scale-95 shadow-sm transition-all"
-                            >
-                                <ArrowLeft size={14} strokeWidth={2.5} />
-                                <span>{translate('guide_back_to_settings') || 'Back to Settings'}</span>
-                            </button>
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-500/10 border border-violet-200/60 dark:border-violet-500/20 text-xs font-semibold text-violet-700 dark:text-violet-300">
-                                <Database size={13} className="shrink-0 text-violet-600 dark:text-violet-400" />
-                                <span>SpendWise Vault & Backups</span>
-                            </div>
-                        </div>
-                    )}
+                    <DesktopBreadcrumb
+                        onBack={onBack}
+                        backLabel={translate('guide_back_to_settings') || 'Back to Settings'}
+                        badgeIcon={Database}
+                        badgeText="SpendWise Vault & Backups"
+                        hideHeader={hideHeader}
+                    />
 
                     {/* ─────── Hero Hub ─────── */}
                     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-indigo-800 dark:from-violet-950 dark:via-indigo-950 dark:to-surface-dark3 border border-violet-400/30 dark:border-white/10 shadow-xl shadow-violet-500/15 text-white p-6 sm:p-8">

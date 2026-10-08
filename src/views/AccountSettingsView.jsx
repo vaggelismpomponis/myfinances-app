@@ -4,6 +4,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../supabase';
+import ViewHeader from '../components/ViewHeader';
 
 const AccountSettingsView = ({ user, onBack, hideHeader }) => {
     const { t: translate } = useSettings();
@@ -44,21 +45,11 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
     return (
         <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300 overflow-hidden">
             {/* ─────── Header ─────── */}
-            <div className={`shrink-0 sticky top-0 z-20 transition-colors duration-300 ${hideHeader ? 'bg-transparent border-none px-4 pt-4 pb-2' : 'bg-gray-50/90 dark:bg-[#121212]/90 backdrop-blur-xl border-b border-gray-100 dark:border-white/[0.06] px-4 pb-3'}`} style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' } : {}}>
-                <div className="flex items-center justify-center relative min-h-[32px]">
-                    <button
-                        onClick={onBack}
-                        className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center text-gray-500 dark:text-white/50 hover:bg-gray-200 dark:hover:bg-white/[0.14] active:scale-90 transition-all duration-150"
-                    >
-                        <ArrowLeft size={15} strokeWidth={2.5} />
-                    </button>
-                    {!hideHeader && (
-                        <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center truncate px-10">
-                            {translate('nav_profile') || 'Προφίλ'}
-                        </h1>
-                    )}
-                </div>
-            </div>
+            <ViewHeader
+                onBack={onBack}
+                title={translate('nav_profile') || 'Προφίλ'}
+                hideHeader={hideHeader}
+            />
 
             {/* ─────── Content ─────── */}
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
