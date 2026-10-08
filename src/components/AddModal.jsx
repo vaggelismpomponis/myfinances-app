@@ -488,7 +488,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.18, ease: 'easeOut' }}
-                className="bg-white dark:bg-surface-dark2 w-full max-w-md lg:max-w-[1000px] h-[100dvh] lg:h-auto lg:max-h-[85vh] rounded-none lg:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
+                className="bg-white dark:bg-surface-dark2 w-full max-w-md lg:max-w-[720px] xl:max-w-[780px] h-[100dvh] lg:h-[720px] lg:min-h-[580px] lg:max-h-[90vh] rounded-none lg:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
             >
 
                 {/* Voice Input Overlay */}
@@ -536,12 +536,12 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                 </AnimatePresence>
 
                 {/* ── Header ── */}
-                <div className="px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] flex justify-between items-center border-b border-gray-100 dark:border-transparent flex-shrink-0">
-                    <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} aria-label="Close" className="p-2 text-gray-400 dark:text-black bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full transition-colors">
+                <div className="px-4 lg:px-6 py-3 lg:py-4 pt-[calc(0.75rem+env(safe-area-inset-top))] flex justify-between items-center border-b border-gray-100 dark:border-transparent flex-shrink-0">
+                    <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} aria-label="Close" className="p-2 lg:p-2.5 text-gray-400 dark:text-black bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full transition-colors">
                         <X size={22} />
                     </motion.button>
                     <div className="text-center">
-                        <h3 id="add-modal-title" className="text-base font-bold text-gray-800 dark:text-white">
+                        <h3 id="add-modal-title" className="text-base lg:text-lg font-bold text-gray-800 dark:text-white">
                             {initialData ? t('edit') : t('new_transaction')}
                         </h3>
                         {inBatchMode && (
@@ -555,7 +555,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                         type="button"
                         onClick={handleSubmit}
                         disabled={!amount || !category || isSubmitting}
-                        className={`text-sm font-bold px-4 py-1.5 rounded-full transition-all ${!amount || !category
+                        className={`text-sm lg:text-base font-bold px-4 lg:px-5 py-1.5 lg:py-2 rounded-full transition-all ${!amount || !category
                             ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
                             : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
                             }`}
@@ -578,12 +578,12 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                 >
 
                     {/* Type Toggle */}
-                    <div className="px-5 pt-4 pb-2 flex-shrink-0">
-                        <div className="bg-gray-100 dark:bg-surface-dark3 p-1 rounded-xl flex gap-1">
+                    <div className="px-5 lg:px-8 pt-4 lg:pt-5 pb-2 lg:pb-3 flex-shrink-0">
+                        <div className="bg-gray-100 dark:bg-surface-dark3 p-1 lg:p-1.5 rounded-xl lg:rounded-2xl flex gap-1">
                             <button
                                 type="button"
                                 onClick={() => setType('expense')}
-                                className={`flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all ${type === 'expense'
+                                className={`flex-1 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-[13px] lg:text-sm font-semibold transition-all ${type === 'expense'
                                     ? 'bg-white dark:bg-gray-600 text-red-600 dark:text-red-400 shadow-sm'
                                     : 'text-gray-400 dark:text-gray-400'
                                     }`}
@@ -593,21 +593,19 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                             <button
                                 type="button"
                                 onClick={() => setType('income')}
-                                className={`flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all ${type === 'income'
+                                className={`flex-1 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-[13px] lg:text-sm font-semibold transition-all ${type === 'income'
                                     ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
                                     : 'text-gray-400 dark:text-gray-400'
                                     }`}
                             >
                                 {t('income_type')}
                             </button>
-
-
                         </div>
                     </div>
 
                     {/* Amount Display */}
                     <div className={`px-5 text-center flex items-center justify-center transition-all duration-200 ${
-                        isNoteFocused ? 'py-2 flex-shrink-0' : 'py-4 flex-1'
+                        isNoteFocused ? 'py-2 flex-shrink-0' : 'py-4 lg:py-6 flex-1'
                     }`}>
                         <motion.div
                             key={amount}
@@ -617,11 +615,11 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                         >
                             {!privacyMode && (
                                 <span className={`font-bold text-gray-300 dark:text-gray-500 transition-all ${
-                                    isNoteFocused ? 'text-lg' : 'text-2xl'
+                                    isNoteFocused ? 'text-lg' : 'text-2xl lg:text-3xl'
                                 }`}>€</span>
                             )}
                             <span className={`font-extrabold tracking-tight transition-all ${
-                                isNoteFocused ? 'text-3xl' : 'text-5xl'
+                                isNoteFocused ? 'text-3xl' : 'text-5xl lg:text-6xl'
                             } ${amount ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
                                 {privacyMode ? '****' : (amount || '0')}
                             </span>
@@ -629,14 +627,14 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                     </div>
 
                     {/* Category Selector Bar — tapping opens the bottom-sheet picker */}
-                    <div className="px-4 pb-3 flex-shrink-0">
+                    <div className="px-4 lg:px-8 pb-3 lg:pb-4 flex-shrink-0">
                         <motion.button
                             whileTap={{ scale: 0.98 }}
                             type="button"
                             id="category-selector-btn"
                             aria-label="Select category"
                             onClick={() => { setCategorySearch(''); setShowCategoryPicker(true); }}
-                            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all duration-200
+                            className="w-full flex items-center gap-3 lg:gap-4 px-4 lg:px-5 py-3 lg:py-3.5 rounded-2xl border transition-all duration-200
                                 bg-gray-50 dark:bg-surface-dark3
                                 border-gray-200 dark:border-white/5
                                 hover:border-indigo-300 dark:hover:border-indigo-500/50
@@ -741,7 +739,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
                                     {/* Category grid — scrollable */}
                                     <div className="overflow-y-auto flex-1 px-4 pb-4">
-                                        <div className="grid grid-cols-3 gap-2">
+                                        <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-3">
                                             {categories
                                                 .filter(cat => !categorySearch || getCategoryTranslation(cat, t).toLowerCase().includes(categorySearch.toLowerCase()) || cat.toLowerCase().includes(categorySearch.toLowerCase()))
                                                 .map(cat => {
@@ -977,7 +975,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
                     {/* Tool Strip — voice, scan, bulk */}
                     {!isNoteFocused && (
-                        <div className="px-5 pb-3 flex justify-center gap-3 flex-shrink-0">
+                        <div className="px-5 lg:px-8 pb-3 lg:pb-4 flex justify-center gap-3 lg:gap-4 flex-shrink-0">
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -1042,26 +1040,26 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
                 {/* ── Numpad ── */}
                 {!isNoteFocused && (
-                    <div className="bg-gray-50 dark:bg-surface-dark border-t border-gray-200 dark:border-transparent p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] flex-shrink-0">
+                    <div className="bg-gray-50 dark:bg-surface-dark border-t border-gray-200 dark:border-transparent p-3 lg:p-5 lg:pb-6 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] flex-shrink-0">
                         {/* Digits 1-9 */}
-                        <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+                        <div className="grid grid-cols-3 gap-2 lg:gap-3 max-w-xs lg:max-w-md mx-auto">
                             {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(key => (
                                 <motion.button
                                     key={key}
                                     whileTap={{ scale: 0.9 }}
                                     type="button"
                                     onClick={() => handleNumpadPress(key)}
-                                    className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent"
+                                    className="h-14 lg:h-16 rounded-2xl lg:rounded-2xl text-xl lg:text-2xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent"
                                 >
                                     {key}
                                 </motion.button>
                             ))}
                         </div>
                         {/* Bottom row: .  0  ⌫  ✓ */}
-                        <div className="grid grid-cols-4 gap-2 max-w-xs mx-auto mt-2">
-                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('.')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">.</motion.button>
-                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('0')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">0</motion.button>
-                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('backspace')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-gray-200 dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
+                        <div className="grid grid-cols-4 gap-2 lg:gap-3 max-w-xs lg:max-w-md mx-auto mt-2 lg:mt-3">
+                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('.')} className="h-14 lg:h-16 rounded-2xl lg:rounded-2xl text-xl lg:text-2xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">.</motion.button>
+                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('0')} className="h-14 lg:h-16 rounded-2xl lg:rounded-2xl text-xl lg:text-2xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">0</motion.button>
+                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('backspace')} className="h-14 lg:h-16 rounded-2xl lg:rounded-2xl text-xl lg:text-2xl font-bold flex items-center justify-center transition-all bg-gray-200 dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
                                 <Delete size={22} />
                             </motion.button>
                             <motion.button
@@ -1069,7 +1067,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 type="button"
                                 onClick={handleSubmit}
                                 disabled={!amount || !category || isSubmitting}
-                                className={`h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all ${!amount || !category
+                                className={`h-14 lg:h-16 rounded-2xl lg:rounded-2xl text-xl lg:text-2xl font-bold flex items-center justify-center transition-all ${!amount || !category
                                     ? 'bg-gray-200 dark:bg-surface-dark3 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                                     : 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30 hover:bg-indigo-700'
                                     }`}
