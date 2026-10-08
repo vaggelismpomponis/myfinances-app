@@ -238,8 +238,8 @@ const DesktopBudgetMiniCard = ({ budget, transactions, t }) => {
                     <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate capitalize">{catName}</span>
                 </div>
                 <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isDanger ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400' :
-                        isWarning ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400' :
-                            'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400'
+                    isWarning ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400' :
+                        'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400'
                     }`}>
                     {pct.toFixed(0)}%
                 </span>
@@ -263,7 +263,7 @@ const DesktopBudgetMiniCard = ({ budget, transactions, t }) => {
    Main HomeView
 ───────────────────────────────────────────── */
 const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions = [], budgets = [], onDelete, onEdit, setActiveTab, onRecurring, isDesktop, user, displayName, onAdd }) => {
-    const { t, privacyMode, togglePrivacyMode, language } = useSettings();
+    const { t, privacyMode, togglePrivacyMode, language, currency } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
 
     // ── Data Calculations ──
@@ -576,7 +576,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
                     <div>
                         <h1 className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white tracking-tight font-display">
-                            {greeting}{effectiveName ? `, ${effectiveName}` : ''} 👋
+                            {greeting}{effectiveName ? `, ${effectiveName}` : ''}
                         </h1>
                         <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 font-medium mt-1 flex items-center gap-2 flex-wrap">
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 font-bold text-xs border border-violet-200/50 dark:border-violet-900/40 capitalize">
@@ -621,13 +621,12 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     {t('this_month_spend') || 'Έξοδα Μήνα'}
                                 </span>
                                 {stats.diffPct > 0 && (
-                                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black backdrop-blur-md ${
-                                        stats.trend === 'below'
-                                            ? 'bg-emerald-400/20 text-emerald-200 border border-emerald-400/30'
-                                            : stats.trend === 'above'
-                                                ? 'bg-rose-400/25 text-rose-100 border border-rose-400/30'
-                                                : 'bg-white/10 text-white/80'
-                                    }`}>
+                                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black backdrop-blur-md ${stats.trend === 'below'
+                                        ? 'bg-emerald-400/20 text-emerald-200 border border-emerald-400/30'
+                                        : stats.trend === 'above'
+                                            ? 'bg-rose-400/25 text-rose-100 border border-rose-400/30'
+                                            : 'bg-white/10 text-white/80'
+                                        }`}>
                                         {stats.trend === 'below' && <TrendingDown size={13} />}
                                         {stats.trend === 'above' && <TrendingUp size={13} />}
                                         {stats.trend === 'neutral' && <Minus size={13} />}
@@ -640,7 +639,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
 
                             {/* Main Amount */}
                             <div className="flex items-baseline gap-1 my-1">
-                                <span className="text-2xl sm:text-3xl font-extrabold text-white/70">€</span>
+                                {!privacyMode && (
+                                    <span className="text-2xl sm:text-3xl font-extrabold text-white/70">{currency || '€'}</span>
+                                )}
                                 <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight tabular-nums font-display leading-none">
                                     <Amount value={stats.curSpent} showCurrency={false} />
                                 </h2>
@@ -672,18 +673,16 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
 
                             {/* This Month Net */}
                             <div className="bg-white/10 backdrop-blur-md rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 border border-white/10">
-                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                                    isCurMonthNetPositive ? 'bg-emerald-400/20 text-emerald-300' : 'bg-rose-400/25 text-rose-200'
-                                }`}>
+                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${isCurMonthNetPositive ? 'bg-emerald-400/20 text-emerald-300' : 'bg-rose-400/25 text-rose-200'
+                                    }`}>
                                     {isCurMonthNetPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-[10px] font-black uppercase tracking-wider text-white/70 truncate">
                                         {t('month_net') || 'Ισοζύγιο Μήνα'}
                                     </p>
-                                    <p className={`text-sm font-black truncate tabular-nums ${
-                                        isCurMonthNetPositive ? 'text-emerald-200' : 'text-rose-200'
-                                    }`}>
+                                    <p className={`text-sm font-black truncate tabular-nums ${isCurMonthNetPositive ? 'text-emerald-200' : 'text-rose-200'
+                                        }`}>
                                         {isCurMonthNetPositive ? '+' : '−'}<Amount value={Math.abs(curMonthNet)} showSign={false} />
                                     </p>
                                 </div>
@@ -694,99 +693,126 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     {/* ──── All-Time Financial Bento (5 cols): 2x2 Grid of Stat Cards ──── */}
                     <div className="lg:col-span-5 grid grid-cols-2 gap-3.5">
                         {/* 1. Total Balance */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-3xl p-4.5 shadow-card hover:shadow-md transition-shadow flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="w-9 h-9 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                                    <Wallet size={18} />
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-2xl p-4 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
+                            <div className="flex items-center justify-between gap-1.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center flex-shrink-0">
+                                        <Wallet size={16} />
+                                    </div>
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
+                                        {t('all_time_balance') || 'Συνολικό Υπόλοιπο'}
+                                    </span>
                                 </div>
-                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                                    balance >= 0
-                                        ? 'bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300'
-                                        : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
-                                }`}>
+                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full flex-shrink-0 ${balance >= 0
+                                    ? 'bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300'
+                                    : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
+                                    }`}>
                                     {balance >= 0 ? (t('balance') || 'Υπόλοιπο') : (t('net_deficit') || 'Έλλειμμα')}
                                 </span>
                             </div>
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                    {t('all_time_balance') || 'Συνολικό Υπόλοιπο'}
-                                </p>
-                                <div className={`text-xl font-black tracking-tight tabular-nums mt-0.5 font-display truncate ${
-                                    balance < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
-                                }`}>
+
+                            <div className="my-2">
+                                <div className={`text-2xl font-black tracking-tight tabular-nums font-display truncate ${balance < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
+                                    }`}>
                                     <Amount value={balance} />
                                 </div>
                             </div>
+
+                            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 truncate flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0" />
+                                <span>{t('total_liquidity') || 'Διαθέσιμο κεφάλαιο'}</span>
+                            </p>
                         </div>
 
                         {/* 2. Total Inflows */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-3xl p-4.5 shadow-card hover:shadow-md transition-shadow flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                                    <ArrowUpRight size={18} />
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-2xl p-4 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
+                            <div className="flex items-center justify-between gap-1.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                                        <ArrowUpRight size={16} />
+                                    </div>
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
+                                        {t('all_time_income') || 'Συνολικά Έσοδα'}
+                                    </span>
                                 </div>
-                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex-shrink-0">
                                     {t('stats_income') || 'Έσοδα'}
                                 </span>
                             </div>
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                    {t('all_time_income') || 'Συνολικά Έσοδα'}
-                                </p>
-                                <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight tabular-nums mt-0.5 font-display truncate">
+
+                            <div className="my-2">
+                                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight tabular-nums font-display truncate">
                                     <Amount value={totalIncome} />
                                 </div>
                             </div>
+
+                            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 truncate flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                                <span>{t('income_inflows') || 'Συνολικές εισροές'}</span>
+                            </p>
                         </div>
 
                         {/* 3. Total Expenses */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-3xl p-4.5 shadow-card hover:shadow-md transition-shadow flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                                    <ArrowDownRight size={18} />
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-2xl p-4 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
+                            <div className="flex items-center justify-between gap-1.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0">
+                                        <ArrowDownRight size={16} />
+                                    </div>
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
+                                        {t('all_time_expenses') || 'Συνολικά Έξοδα'}
+                                    </span>
                                 </div>
-                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400">
+                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 flex-shrink-0">
                                     {t('stats_expense') || 'Έξοδα'}
                                 </span>
                             </div>
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                    {t('all_time_expenses') || 'Συνολικά Έξοδα'}
-                                </p>
-                                <div className="text-xl font-black text-gray-900 dark:text-white tracking-tight tabular-nums mt-0.5 font-display truncate">
+
+                            <div className="my-2">
+                                <div className="text-2xl font-black text-gray-900 dark:text-white tracking-tight tabular-nums font-display truncate">
                                     <Amount value={totalExpense} />
                                 </div>
                             </div>
+
+                            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 truncate flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0" />
+                                <span>{t('stats_expense') || 'Συνολικές εκροές'}</span>
+                            </p>
                         </div>
 
                         {/* 4. Total Net Flow */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-3xl p-4.5 shadow-card hover:shadow-md transition-shadow flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                                    isNetPositive
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-2xl p-4 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
+                            <div className="flex items-center justify-between gap-1.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${isNetPositive
                                         ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
                                         : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
-                                }`}>
-                                    {isNetPositive ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
+                                        }`}>
+                                        {isNetPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                                    </div>
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
+                                        {t('all_time_net') || 'Καθαρή Ροή'}
+                                    </span>
                                 </div>
-                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                                    isNetPositive
-                                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'
-                                        : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400'
-                                }`}>
+                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full flex-shrink-0 ${isNetPositive
+                                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'
+                                    : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400'
+                                    }`}>
                                     {isNetPositive ? (t('net_surplus') || 'Πλεόνασμα') : (t('net_deficit') || 'Έλλειμμα')}
                                 </span>
                             </div>
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                    {t('all_time_net') || 'Καθαρή Ροή'}
-                                </p>
-                                <div className={`text-xl font-black tracking-tight tabular-nums mt-0.5 font-display truncate ${
-                                    isNetPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-                                }`}>
+
+                            <div className="my-2">
+                                <div className={`text-2xl font-black tracking-tight tabular-nums font-display truncate ${isNetPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                                    }`}>
                                     {isNetPositive ? '+' : '−'}<Amount value={Math.abs(netFlow)} showSign={false} />
                                 </div>
                             </div>
+
+                            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 truncate flex items-center gap-1.5">
+                                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isNetPositive ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                                <span>{isNetPositive ? 'Θετικό ισοζύγιο' : 'Αρνητικό ισοζύγιο'}</span>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -812,7 +838,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         <div className="min-w-0 text-left">
                             <div className="flex items-center gap-2">
                                 <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">
-                                    SpendWise AI {t('advisor_title') || 'Σύμβουλος'}
+                                    SpendWise AI {t('advisor_title') || 'SpendWise AI Σύμβουλος'}
                                 </span>
                                 {!isPro && (
                                     <span className="w-4 h-4 rounded-full bg-amber-400 text-white flex items-center justify-center">
@@ -882,25 +908,42 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     </div>
 
                                     {/* Category Chips Grid */}
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                                         {categoryBreakdown.topCats.map(cat => (
                                             <div
                                                 key={cat.category}
-                                                className="p-3 rounded-2xl bg-gray-50/70 dark:bg-white/[0.02] border border-gray-100/70 dark:border-white/[0.04] space-y-1"
+                                                className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5 hover:border-violet-200 dark:hover:border-violet-900/50 transition-all flex flex-col justify-between group"
                                             >
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-1.5 min-w-0">
-                                                        <CategoryIcon category={cat.category} type="expense" size={13} />
+                                                <div className="flex items-center justify-between gap-1.5 mb-2">
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <CategoryIcon
+                                                            category={cat.category}
+                                                            type="expense"
+                                                            size={13}
+                                                            className="w-6 h-6 rounded-lg p-0 flex-shrink-0"
+                                                        />
                                                         <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate capitalize">
                                                             {getCategoryTranslation(cat.category, t)}
                                                         </span>
                                                     </div>
-                                                    <span className="text-[10px] font-black px-1.5 py-0.2 rounded-full tabular-nums" style={{ color: cat.accent, backgroundColor: `${cat.accent}18` }}>
+                                                    <span
+                                                        className="text-[10px] font-black px-2 py-0.5 rounded-full tabular-nums flex-shrink-0"
+                                                        style={{ color: cat.accent, backgroundColor: `${cat.accent}18` }}
+                                                    >
                                                         {cat.percentage}%
                                                     </span>
                                                 </div>
-                                                <div className="text-xs font-black text-gray-900 dark:text-white tabular-nums">
-                                                    <Amount value={cat.amount} />
+
+                                                <div>
+                                                    <div className="text-base font-black text-gray-900 dark:text-white tabular-nums tracking-tight font-display">
+                                                        <Amount value={cat.amount} />
+                                                    </div>
+                                                    <div className="w-full h-1 bg-gray-200/60 dark:bg-white/10 rounded-full mt-2 overflow-hidden">
+                                                        <div
+                                                            className="h-full rounded-full transition-all duration-500"
+                                                            style={{ width: `${Math.min(100, Math.max(5, cat.percentage))}%`, backgroundColor: cat.accent }}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
@@ -931,8 +974,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                         <button
                                             onClick={() => setDesktopFilter('all')}
                                             className={`px-2.5 py-1 rounded-lg transition-all ${desktopFilter === 'all'
-                                                    ? 'bg-white dark:bg-surface-dark3 text-gray-900 dark:text-white shadow-2xs font-extrabold'
-                                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                                ? 'bg-white dark:bg-surface-dark3 text-gray-900 dark:text-white shadow-2xs font-extrabold'
+                                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                                 }`}
                                         >
                                             {t('all') || 'Όλες'}
@@ -940,8 +983,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                         <button
                                             onClick={() => setDesktopFilter('expense')}
                                             className={`px-2.5 py-1 rounded-lg transition-all ${desktopFilter === 'expense'
-                                                    ? 'bg-white dark:bg-surface-dark3 text-rose-600 dark:text-rose-400 shadow-2xs font-extrabold'
-                                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                                ? 'bg-white dark:bg-surface-dark3 text-rose-600 dark:text-rose-400 shadow-2xs font-extrabold'
+                                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                                 }`}
                                         >
                                             {t('stats_expense') || 'Έξοδα'}
@@ -949,8 +992,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                         <button
                                             onClick={() => setDesktopFilter('income')}
                                             className={`px-2.5 py-1 rounded-lg transition-all ${desktopFilter === 'income'
-                                                    ? 'bg-white dark:bg-surface-dark3 text-emerald-600 dark:text-emerald-400 shadow-2xs font-extrabold'
-                                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                                ? 'bg-white dark:bg-surface-dark3 text-emerald-600 dark:text-emerald-400 shadow-2xs font-extrabold'
+                                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                                 }`}
                                         >
                                             {t('stats_income') || 'Έσοδα'}
@@ -1013,18 +1056,16 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     <div className="lg:col-span-5 xl:col-span-4 space-y-5">
                         {/* ── Safe-to-Burn Pace Card (Refined & Intelligent) ── */}
                         {stbData && (
-                            <div className={`rounded-[1.75rem] p-5 shadow-card space-y-2.5 transition-all ${
-                                stbData.stb <= 0
-                                    ? 'bg-gradient-to-br from-rose-50/70 via-white to-white dark:from-rose-950/20 dark:via-surface-dark3 dark:to-surface-dark3 border border-rose-200/80 dark:border-rose-900/30'
-                                    : 'bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10'
-                            }`}>
+                            <div className={`rounded-[1.75rem] p-5 shadow-card space-y-2.5 transition-all ${stbData.stb <= 0
+                                ? 'bg-gradient-to-br from-rose-50/70 via-white to-white dark:from-rose-950/20 dark:via-surface-dark3 dark:to-surface-dark3 border border-rose-200/80 dark:border-rose-900/30'
+                                : 'bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10'
+                                }`}>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                                            stbData.stb <= 0
-                                                ? 'bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400'
-                                                : 'bg-amber-50 dark:bg-amber-950/40 text-amber-500'
-                                        }`}>
+                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${stbData.stb <= 0
+                                            ? 'bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400'
+                                            : 'bg-amber-50 dark:bg-amber-950/40 text-amber-500'
+                                            }`}>
                                             <Flame size={17} />
                                         </div>
                                         <div>
@@ -1048,9 +1089,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 </div>
 
                                 <div className="flex items-baseline justify-between pt-1">
-                                    <div className={`text-2xl font-black tabular-nums font-display ${
-                                        stbData.stb <= 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
-                                    }`}>
+                                    <div className={`text-2xl font-black tabular-nums font-display ${stbData.stb <= 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
+                                        }`}>
                                         {stbData.stb <= 0 ? '0,00 €' : <Amount value={stbData.stb} />}
                                     </div>
                                     <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500">

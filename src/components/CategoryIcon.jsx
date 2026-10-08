@@ -49,7 +49,7 @@ export const CATEGORY_ACCENT = {
     'άλλα έσοδα':   '#9ca3af'
 };
 
-const CATEGORY_ICONS = {
+export const CATEGORY_ICONS = {
     // Greek
     'καφές': Coffee,
     'φαγητό': Utensils,
@@ -89,14 +89,14 @@ const CATEGORY_ICONS = {
     'other_income': Shapes
 };
 
-const CategoryIcon = ({ category, type, size = 20 }) => {
+const CategoryIcon = ({ category, type, size = 20, className = "p-2.5 md:p-3 rounded-2xl" }) => {
     const key = category?.trim()?.toLowerCase() || '';
     const IconComponent = CATEGORY_ICONS[key] || MoreHorizontal;
     const accentHex = CATEGORY_ACCENT[key] || (type === 'income' ? '#10b981' : '#f43f5e');
 
     return (
         <div 
-            className="p-2.5 md:p-3 rounded-2xl flex items-center justify-center relative overflow-hidden transition-all duration-300 shadow-sm"
+            className={`flex items-center justify-center relative overflow-hidden transition-all duration-300 shadow-sm ${className}`}
             style={{ 
                 backgroundColor: `${accentHex}15`, 
                 color: accentHex,

@@ -266,7 +266,7 @@ export const translations = {
         go_pro_subtitle: 'Ξεκλείδωσε όλες τις λειτουργίες',
         unlimited_budgets: 'Απεριόριστα Budgets',
         unlimited_goals: 'Απεριόριστοι Στόχοι',
-        ai_advisor: 'AI Σύμβουλος',
+        ai_advisor: 'SpendWise AI Σύμβουλος',
         pro_price_hint: 'από €2.99 / μήνα',
         budgets_limit_label: '{used}/{max} προϋπολογισμοί',
         goals_limit_label: '{used}/{max} στόχοι',
@@ -741,8 +741,8 @@ export const translations = {
         cat_other_income: 'Άλλα Έσοδα',
 
         // Financial Advisor
-        nav_advisor: 'Σύμβουλος',
-        advisor_title: 'Σύμβουλος',
+        nav_advisor: 'SpendWise AI Σύμβουλος',
+        advisor_title: 'SpendWise AI Σύμβουλος',
         advisor_subtitle: 'Έξυπνη διαχείριση & συμβουλές',
         rule_50_30_20: 'Κανόνας 50-30-20',
         needs_label: 'Ανάγκες',
