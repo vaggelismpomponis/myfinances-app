@@ -250,16 +250,61 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) 
         return list.slice(0, 3);
     }, [stats, t]);
 
-    /* ── 6. Donut chart data ── */
+    /* ── 6. 50/30/20 Breakdown & Donut data ── */
     const DONUT_COLORS = ['#7c3aed', '#ec4899', '#10b981', '#9CA3AF'];
+    const breakdownCategories = useMemo(() => [
+        {
+            key: 'needs',
+            label: t('needs_label'),
+            pct: stats.needsPct,
+            target: 50,
+            targetRate: 0.5,
+            amt: stats.needs,
+            color: DONUT_COLORS[0],
+            isSavings: false,
+        },
+        {
+            key: 'wants',
+            label: t('wants_label'),
+            pct: stats.wantsPct,
+            target: 30,
+            targetRate: 0.3,
+            amt: stats.wants,
+            color: DONUT_COLORS[1],
+            isSavings: false,
+        },
+        {
+            key: 'savings',
+            label: t('savings_label'),
+            pct: stats.savingsPct,
+            target: 20,
+            targetRate: 0.2,
+            amt: stats.savings,
+            color: DONUT_COLORS[2],
+            isSavings: true,
+        },
+    ], [stats, t]);
+
     const donutData = useMemo(() => {
-        const items = [
-            { name: t('needs_label'), value: stats.needsPct, target: 50, color: DONUT_COLORS[0], amount: stats.needs },
-            { name: t('wants_label'), value: stats.wantsPct, target: 30, color: DONUT_COLORS[1], amount: stats.wants },
-            { name: t('savings_label'), value: stats.savingsPct, target: 20, color: DONUT_COLORS[2], amount: stats.savings },
-        ].filter(d => d.value > 0);
-        return items.length ? items : [{ name: t('breakdown_no_expenses'), value: 100, color: '#E5E7EB', amount: 0 }];
-    }, [stats, t]);
+        const activeItems = breakdownCategories
+            .filter(d => d.pct > 0)
+            .map(d => ({
+                key: d.key,
+                name: d.label,
+                value: d.pct,
+                target: d.target,
+                color: d.color,
+                amount: d.amt,
+                isSavings: d.isSavings,
+                targetRate: d.targetRate,
+            }));
+        return activeItems.length ? activeItems : [{ key: 'empty', name: t('breakdown_no_expenses'), value: 100, color: '#E5E7EB', amount: 0, target: 0, isSavings: false, targetRate: 0 }];
+    }, [breakdownCategories, t]);
+
+    const selectedCategory = useMemo(() => {
+        if (!activePieSlice) return null;
+        return breakdownCategories.find(c => c.key === activePieSlice) || null;
+    }, [activePieSlice, breakdownCategories]);
 
     /* ── 7. Challenges ── */
     const weekKey = useMemo(() => {
@@ -406,13 +451,13 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) 
                             {/* Factor chips */}
                             <div className="flex flex-wrap gap-1.5">
                                 {stats.savingsPct >= 20 && (
-                                    <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-full text-[10px] font-bold">
-                                        ✓ {t('score_positive_factor')}
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-full text-[10px] font-bold">
+                                        <CheckCircle2 size={11} className="shrink-0" /> {t('score_positive_factor')}
                                     </span>
                                 )}
                                 {stats.wantsPct > 30 && (
-                                    <span className="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded-full text-[10px] font-bold">
-                                        ⚠ {t('score_negative_factor')}
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded-full text-[10px] font-bold">
+                                        <AlertTriangle size={11} className="shrink-0" /> {t('score_negative_factor')}
                                     </span>
                                 )}
                             </div>
@@ -476,14 +521,20 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) 
                                         dataKey="value"
                                         stroke="none"
                                         paddingAngle={3}
-                                        onClick={(_, idx) => setActivePieSlice(activePieSlice === idx ? null : idx)}
+                                        onClick={(entry, idx) => {
+                                            const item = entry?.key ? entry : (donutData[idx] || entry?.payload);
+                                            const key = item?.key;
+                                            if (key && key !== 'empty') {
+                                                setActivePieSlice(activePieSlice === key ? null : key);
+                                            }
+                                        }}
                                     >
-                                        {donutData.map((entry, i) => (
+                                        {donutData.map((entry) => (
                                             <Cell
-                                                key={i}
+                                                key={entry.key || entry.name}
                                                 fill={entry.color}
-                                                opacity={activePieSlice === null || activePieSlice === i ? 1 : 0.3}
-                                                style={{ cursor: 'pointer', transition: 'opacity 0.2s' }}
+                                                opacity={activePieSlice === null || activePieSlice === entry.key ? 1 : 0.3}
+                                                style={{ cursor: entry.key !== 'empty' ? 'pointer' : 'default', transition: 'opacity 0.2s' }}
                                             />
                                         ))}
                                     </Pie>
@@ -491,10 +542,10 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) 
                                 </PieChart>
                             </ResponsiveContainer>
                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                {activePieSlice !== null && donutData[activePieSlice] ? (
+                                {selectedCategory ? (
                                     <>
-                                        <span className="text-xs font-black text-gray-900 dark:text-white">{Math.round(donutData[activePieSlice].value)}%</span>
-                                        <span className="text-[9px] text-gray-400 font-medium">{donutData[activePieSlice].name}</span>
+                                        <span className="text-xs font-black text-gray-900 dark:text-white">{Math.round(selectedCategory.pct)}%</span>
+                                        <span className="text-[9px] text-gray-400 font-medium">{selectedCategory.label}</span>
                                     </>
                                 ) : (
                                     <>
@@ -507,66 +558,73 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) 
 
                         {/* Legend / detail */}
                         <div className="flex-1 space-y-2.5">
-                            {[
-                                { label: t('needs_label'), pct: stats.needsPct, target: 50, amt: stats.needs, color: '#7c3aed', idx: 0 },
-                                { label: t('wants_label'), pct: stats.wantsPct, target: 30, amt: stats.wants, color: '#ec4899', idx: 1 },
-                                { label: t('savings_label'), pct: stats.savingsPct, target: 20, amt: stats.savings, color: '#10b981', idx: 2 },
-                            ].map(item => (
-                                <button
-                                    key={item.label}
-                                    onClick={() => setActivePieSlice(activePieSlice === item.idx ? null : item.idx)}
-                                    className={`w-full text-left transition-all duration-200 rounded-xl p-2 ${activePieSlice === item.idx ? 'bg-gray-100 dark:bg-white/10 shadow-sm' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}
-                                >
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                                            <span className="text-[11px] font-bold text-gray-700 dark:text-gray-300">{item.label}</span>
+                            {breakdownCategories.map(item => {
+                                const isGood = item.isSavings ? item.pct >= item.target : item.pct <= item.target;
+                                return (
+                                    <button
+                                        key={item.key}
+                                        onClick={() => setActivePieSlice(activePieSlice === item.key ? null : item.key)}
+                                        className={`w-full text-left transition-all duration-200 rounded-xl p-2 ${activePieSlice === item.key ? 'bg-gray-100 dark:bg-white/10 shadow-sm' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                                    >
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                                                <span className="text-[11px] font-bold text-gray-700 dark:text-gray-300">{item.label}</span>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className={`text-[11px] font-black ${isGood ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                    {Math.round(item.pct)}%
+                                                </span>
+                                                <span className="text-[9px] text-gray-400 ml-1">/ {item.target}%</span>
+                                            </div>
                                         </div>
-                                        <div className="text-right">
-                                            <span className={`text-[11px] font-black ${item.pct > item.target ? 'text-rose-500' : 'text-emerald-500'}`}>
-                                                {Math.round(item.pct)}%
-                                            </span>
-                                            <span className="text-[9px] text-gray-400 ml-1">/ {item.target}%</span>
+                                        <div className="mt-1.5 w-full h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full rounded-full transition-all duration-1000"
+                                                style={{ width: `${Math.min(100, item.pct)}%`, backgroundColor: item.color }}
+                                            />
                                         </div>
-                                    </div>
-                                    <div className="mt-1.5 w-full h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full rounded-full transition-all duration-1000"
-                                            style={{ width: `${Math.min(100, item.pct)}%`, backgroundColor: item.color }}
-                                        />
-                                    </div>
-                                </button>
-                            ))}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
                     {/* Expanded detail on tap */}
-                    {activePieSlice !== null && donutData[activePieSlice] && donutData[activePieSlice].amount !== undefined && (
+                    {selectedCategory && (
                         <div className="mt-4 p-3 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 animate-fade-in">
                             <div className="flex justify-between text-xs">
                                 <div>
-                                    <p className="text-gray-400 font-medium">{t('allocation_amount_spent')}</p>
-                                    <p className="text-gray-900 dark:text-white font-black text-base">€{donutData[activePieSlice].amount?.toFixed(2)}</p>
+                                    <p className="text-gray-400 font-medium">
+                                        {selectedCategory.isSavings ? (t('allocation_amount_saved') || 'Saved') : t('allocation_amount_spent')}
+                                    </p>
+                                    <p className="text-gray-900 dark:text-white font-black text-base">€{selectedCategory.amt?.toFixed(2)}</p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-gray-400 font-medium">{t('target_label')}</p>
-                                    {[{target:50},{target:30},{target:20}][activePieSlice] && (
-                                        <p className="text-gray-900 dark:text-white font-black text-base">
-                                            €{(stats.income * [0.5,0.3,0.2][activePieSlice]).toFixed(2)}
-                                        </p>
-                                    )}
+                                    <p className="text-gray-900 dark:text-white font-black text-base">
+                                        €{((stats.income > 0 ? stats.income : stats.total) * selectedCategory.targetRate).toFixed(2)}
+                                    </p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-gray-400 font-medium">Status</p>
-                                    <p className={`font-bold text-xs mt-0.5 ${
-                                        activePieSlice === 2
-                                            ? (Math.round(donutData[activePieSlice].value) >= 20 ? 'text-emerald-500' : 'text-rose-500')
-                                            : (Math.round(donutData[activePieSlice].value) <= [50,30,20][activePieSlice] ? 'text-emerald-500' : 'text-rose-500')
-                                    }`}>
-                                        {activePieSlice === 2
-                                            ? (Math.round(donutData[activePieSlice].value) >= 20 ? `↑ ${t('breakdown_over_target') || 'Πάνω από τον στόχο'}` : `↓ ${t('breakdown_under_target') || 'Κάτω από τον στόχο'}`)
-                                            : (Math.round(donutData[activePieSlice].value) <= [50,30,20][activePieSlice] ? t('breakdown_on_track') : `↑ ${t('breakdown_over_target')}`)}
-                                    </p>
+                                    {(() => {
+                                        const isGood = selectedCategory.isSavings
+                                            ? selectedCategory.pct >= selectedCategory.target
+                                            : selectedCategory.pct <= selectedCategory.target;
+                                        const statusLabel = selectedCategory.isSavings
+                                            ? (selectedCategory.pct >= selectedCategory.target
+                                                ? `↑ ${t('breakdown_over_target') || 'Πάνω από τον στόχο'}`
+                                                : `↓ ${t('breakdown_under_target') || 'Κάτω από τον στόχο'}`)
+                                            : (selectedCategory.pct <= selectedCategory.target
+                                                ? (t('breakdown_on_track') || 'Σε καλό δρόμο')
+                                                : `↑ ${t('breakdown_over_target') || 'Πάνω από τον στόχο'}`);
+                                        return (
+                                            <p className={`font-bold text-xs mt-0.5 ${isGood ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                {statusLabel}
+                                            </p>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                         </div>
