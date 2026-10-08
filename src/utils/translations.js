@@ -589,6 +589,7 @@ export const translations = {
         // Home View
         negative_balance: 'Αρνητικό',
         quick_access: 'Γρήγορη πρόσβαση',
+        budgets_short: 'Budgets',
         recurring_short: 'Επαναλ.',
         stats_short: 'Στατιστικά',
         tap_to_add: 'Πατήστε + για να προσθέσετε την πρώτη σας καταχώρηση',
@@ -1572,6 +1573,7 @@ export const translations = {
         // Home View
         negative_balance: 'Negative',
         quick_access: 'Quick Access',
+        budgets_short: 'Budgets',
         recurring_short: 'Recurring',
         stats_short: 'Analytics',
         tap_to_add: 'Tap + to add your first transaction',

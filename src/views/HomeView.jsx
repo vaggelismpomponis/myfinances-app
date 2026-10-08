@@ -4,7 +4,7 @@ import {
     ChevronRight, Lightbulb, ArrowUpRight, ArrowDownRight, TrendingUp,
     ArrowRight, TrendingDown, Minus, Eye, EyeOff, Zap,
     Plus, ShieldCheck, BarChart2, Bot, Calendar, PieChart, Search,
-    Flame, CheckCircle2, Clock, Plane, Home as HomeIcon, Car, Laptop, Heart, Gamepad2, AlertTriangle
+    Flame, CheckCircle2, Clock, Plane, Home as HomeIcon, Car, Laptop, Heart, Gamepad2, AlertTriangle, FileText
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 import Amount from '../components/Amount';
@@ -318,7 +318,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
             bg: 'bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20',
         },
         {
-            icon: Wallet, label: t('budgets'), delay: '50',
+            icon: Wallet, label: t('budgets_short') || t('budgets'), delay: '50',
             onClick: () => setActiveTab('budgets'),
             isPro: false, userIsPro: isPro,
             color: 'text-violet-600 dark:text-violet-400',
@@ -448,7 +448,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
             {transactions.length === 0 ? (
                 <div className="bg-white dark:bg-surface-dark2 border border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center text-center mt-2">
                     <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-3">
-                        <span className="text-xl">📝</span>
+                        <FileText size={22} strokeWidth={1.8} className="text-gray-400 dark:text-gray-500" />
                     </div>
                     <h4 className="font-bold text-[14px] text-gray-800 dark:text-white mb-1">
                         {t('no_transactions') || 'No transactions yet'}
@@ -1326,9 +1326,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
                     <Bot size={20} />
                 </div>
-                <div className="flex-1 text-left min-w-0 pr-5">
+                <div className="flex-1 text-left min-w-0 pr-1 sm:pr-4">
                     <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
-                    <p className="text-[11px] text-violet-600 dark:text-violet-300 font-semibold truncate mt-0.5">
+                    <p className="text-[11px] text-violet-600 dark:text-violet-300 font-semibold line-clamp-1 sm:line-clamp-2 mt-0.5">
                         {advisorLiveInsight}
                     </p>
                 </div>
@@ -1352,7 +1352,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     </p>
                     <ArrowRight size={12} className="text-gray-300 dark:text-gray-600 animate-pulse" />
                 </div>
-                <div className="grid grid-cols-4 gap-3 pb-1">
+                <div className="grid grid-cols-4 gap-2 sm:gap-2.5 md:gap-3 pb-1">
                     {quickActions.map((action) => {
                         const ActionIcon = action.icon;
                         return (
@@ -1364,15 +1364,15 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: parseFloat(action.delay) / 1000 }}
                                 onClick={action.onClick}
-                                className="w-full flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-[1.25rem]
+                                className="w-full min-w-0 flex flex-col items-center justify-center gap-1.5 py-2 sm:py-2.5 px-1 sm:px-2 rounded-[1.25rem]
                                            bg-white dark:bg-surface-dark3
                                            border border-gray-100/80 dark:border-white/5
                                            shadow-card hover:shadow-premium
                                            hover:border-violet-200 dark:hover:border-violet-800/50
                                            transition-all duration-300 relative"
                             >
-                                <ActionIcon size={22} className="text-violet-600 dark:text-violet-400 mb-0.5" />
-                                <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200 uppercase tracking-normal text-center leading-tight whitespace-normal break-words w-full">{action.label}</span>
+                                <ActionIcon size={20} className="text-violet-600 dark:text-violet-400 mb-0.5 shrink-0" />
+                                <span className="text-[9px] min-[375px]:text-[10px] font-extrabold text-gray-700 dark:text-gray-200 uppercase tracking-tight text-center leading-tight whitespace-nowrap truncate w-full px-0.5">{action.label}</span>
                                 {action.isPro && !action.userIsPro && (
                                     <Zap size={10} className="text-amber-400 flex-shrink-0" fill="currentColor" />
                                 )}
