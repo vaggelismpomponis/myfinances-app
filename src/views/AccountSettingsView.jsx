@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, User, CheckCircle2, X } from 'lucide-react';
+import { ArrowLeft, User, CheckCircle2, X, Zap } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../supabase';
 
 const AccountSettingsView = ({ user, onBack, hideHeader }) => {
     const { t: translate } = useSettings();
     const { showToast } = useToast();
+    const { isPro } = useSubscription();
     const [imgRetries, setImgRetries] = useState(0);
     const MAX_IMG_RETRIES = 3;
 
@@ -80,6 +82,16 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
                                 </div>
                             )}
                         </div>
+                        {isPro && (
+                            <div
+                                className="absolute -bottom-1 -right-2 select-none"
+                                title="Pro Member"
+                            >
+                                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/90 text-violet-600 dark:text-violet-400 border border-violet-200/80 dark:border-violet-800/60 shadow-sm shadow-violet-500/10">
+                                    PRO
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </div>
 

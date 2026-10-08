@@ -237,16 +237,6 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             {translate('go_pro') || 'Upgrade to Pro'}
                         </motion.button>
                     )}
-                    {/* Pro badge for subscribers */}
-                    {isPro && (
-                        <div className="absolute right-0 flex items-center gap-1 px-2.5 py-1.5 rounded-full
-                                        bg-gradient-to-r from-violet-500 to-purple-600
-                                        text-white text-[11px] font-extrabold tracking-wide
-                                        shadow-[0_2px_10px_rgba(139,92,246,0.35)]">
-                            <Zap size={11} strokeWidth={2.5} className="fill-white" />
-                            You're Pro!
-                        </div>
-                    )}
                 </div>
             </div>
 
@@ -281,9 +271,20 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                     </div>
                                 )}
                             </div>
-                            {/* Online dot */}
-                            <div className="absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full
-                                            bg-emerald-400 border-2 border-gray-50 dark:border-surface-dark shadow-sm" />
+                            {/* Corner Badge: Pro Badge or Online Dot */}
+                            {isPro ? (
+                                <div
+                                    className="absolute -bottom-1 -right-2 select-none"
+                                    title="Pro Member"
+                                >
+                                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/90 text-violet-600 dark:text-violet-400 border border-violet-200/80 dark:border-violet-800/60 shadow-sm shadow-violet-500/10">
+                                        PRO
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full
+                                                bg-emerald-400 border-2 border-gray-50 dark:border-surface-dark shadow-sm" />
+                            )}
                         </motion.div>
 
                         {/* Name */}
