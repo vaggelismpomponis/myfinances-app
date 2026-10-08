@@ -213,6 +213,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         budgets: t('budgets'),
         recurring: t('recurring'),
         profile: t('nav_profile'),
+        account: t('nav_profile'),
         general: t('general_settings'),
         security: t('security'),
         backup: t('backup'),
@@ -340,7 +341,7 @@ const DesktopLayout = ({
     const { t } = useSettings();
 
     // Tabs that should NOT show the right panel (full-width sub-pages and redesigned desktop homepage)
-    const hideRightPanel = ['home', 'profile', 'profile-details', 'general', 'security', 'backup',
+    const hideRightPanel = ['home', 'profile', 'account', 'profile-details', 'general', 'security', 'backup',
         'feedback', 'guide', 'admin', 'privacy'].includes(activeTab);
 
     return (

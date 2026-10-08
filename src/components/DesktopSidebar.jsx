@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     Home, BarChart2, History, Settings, Target,
     RefreshCw, Sparkles, LogOut, Moon, Sun, Eye, EyeOff, Zap,
-    PiggyBank
+    PiggyBank, User
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -135,9 +135,9 @@ const DesktopSidebar = ({
 
                 <NavItem
                     id="nav-profile"
-                    icon={Settings}
-                    label={t('general_settings') || 'Γενικές Ρυθμίσεις'}
-                    active={['profile', 'general', 'security', 'backup', 'feedback', 'guide', 'admin', 'profile-details'].includes(activeTab)}
+                    icon={User}
+                    label={t('nav_profile') || 'Προφίλ'}
+                    active={['profile', 'account', 'general', 'security', 'backup', 'feedback', 'guide', 'admin', 'profile-details'].includes(activeTab)}
                     onClick={() => navTo('profile')}
                 />
             </div>

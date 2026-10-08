@@ -52,7 +52,7 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
                     </button>
                     {!hideHeader && (
                         <h1 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight text-center truncate px-10">
-                            {translate('edit_profile') === 'edit_profile' ? 'Επεξεργασία προφίλ' : translate('edit_profile')}
+                            {translate('nav_profile') || 'Προφίλ'}
                         </h1>
                     )}
                 </div>
