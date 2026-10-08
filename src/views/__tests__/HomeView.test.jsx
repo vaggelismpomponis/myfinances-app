@@ -109,7 +109,7 @@ describe('HomeView', () => {
     fireEvent.click(screen.getByText('goals'));
     expect(setActiveTab).toHaveBeenCalledWith('goals');
 
-    fireEvent.click(screen.getByText('budgets'));
+    fireEvent.click(screen.getByText(/budgets/i));
     expect(setActiveTab).toHaveBeenCalledWith('budgets');
   });
 });
