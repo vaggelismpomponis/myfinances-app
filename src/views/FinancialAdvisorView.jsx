@@ -6,7 +6,7 @@ import {
     Calendar, ArrowUpRight
 } from 'lucide-react';
 import {
-    PieChart, Pie, Cell, ResponsiveContainer, Tooltip
+    PieChart, Pie, Cell, ResponsiveContainer
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSettings } from '../contexts/SettingsContext';
@@ -100,24 +100,6 @@ const InsightCard = ({ text, index, total }) => {
     );
 };
 
-/* ──────────────────────────────────────────────────────────
-   CUSTOM DONUT TOOLTIP
-────────────────────────────────────────────────────────── */
-const CustomDonutTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-        const d = payload[0].payload;
-        return (
-            <div className="bg-white dark:bg-surface-dark3 shadow-xl rounded-2xl px-4 py-2.5 border border-gray-100 dark:border-white/10 text-xs z-50">
-                <p className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
-                    {d.name}
-                </p>
-                <p className="text-gray-500 dark:text-gray-400 font-semibold mt-0.5">{Math.round(d.value)}%</p>
-            </div>
-        );
-    }
-    return null;
-};
 
 /* ──────────────────────────────────────────────────────────
    MOBILE HEADER
@@ -156,6 +138,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
     const isDesktop = useIsDesktop();
     const [activeInsight, setActiveInsight] = useState(0);
     const [activePieSlice, setActivePieSlice] = useState(null);
+    const [hoveredSlice, setHoveredSlice] = useState(null);
     const [completedChallenges, setCompletedChallenges] = useState(() => {
         try { return JSON.parse(localStorage.getItem('sw_challenges') || '{}'); }
         catch { return {}; }
@@ -363,6 +346,13 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
         if (!activePieSlice) return null;
         return breakdownCategories.find(c => c.key === activePieSlice) || null;
     }, [activePieSlice, breakdownCategories]);
+
+    const activeDisplayCategory = useMemo(() => {
+        if (hoveredSlice) {
+            return breakdownCategories.find(c => c.key === hoveredSlice) || selectedCategory;
+        }
+        return selectedCategory;
+    }, [hoveredSlice, selectedCategory, breakdownCategories]);
 
     /* ── 7. Challenges ── */
     const weekKey = useMemo(() => {
@@ -671,6 +661,13 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                 dataKey="value"
                                                 stroke="none"
                                                 paddingAngle={3}
+                                                onMouseEnter={(entry, idx) => {
+                                                    const item = entry?.key ? entry : (donutData[idx] || entry?.payload);
+                                                    if (item?.key && item.key !== 'empty') {
+                                                        setHoveredSlice(item.key);
+                                                    }
+                                                }}
+                                                onMouseLeave={() => setHoveredSlice(null)}
                                                 onClick={(entry, idx) => {
                                                     const item = entry?.key ? entry : (donutData[idx] || entry?.payload);
                                                     const key = item?.key;
@@ -679,26 +676,29 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     }
                                                 }}
                                             >
-                                                {donutData.map((entry) => (
-                                                    <Cell
-                                                        key={entry.key || entry.name}
-                                                        fill={entry.color}
-                                                        opacity={activePieSlice === null || activePieSlice === entry.key ? 1 : 0.3}
-                                                        style={{ cursor: entry.key !== 'empty' ? 'pointer' : 'default', transition: 'opacity 0.2s' }}
-                                                    />
-                                                ))}
+                                                {donutData.map((entry) => {
+                                                    const isHighlighted = (hoveredSlice || activePieSlice) === entry.key;
+                                                    const hasHighlight = hoveredSlice !== null || activePieSlice !== null;
+                                                    return (
+                                                        <Cell
+                                                            key={entry.key || entry.name}
+                                                            fill={entry.color}
+                                                            opacity={!hasHighlight || isHighlighted ? 1 : 0.3}
+                                                            style={{ cursor: entry.key !== 'empty' ? 'pointer' : 'default', transition: 'opacity 0.2s' }}
+                                                        />
+                                                    );
+                                                })}
                                             </Pie>
-                                            <Tooltip content={<CustomDonutTooltip />} />
                                         </PieChart>
                                     </ResponsiveContainer>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                        {selectedCategory ? (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
+                                        {activeDisplayCategory ? (
                                             <>
                                                 <span className="text-sm font-black text-gray-900 dark:text-white leading-tight font-display">
-                                                    {Math.round(selectedCategory.pct)}%
+                                                    {Math.round(activeDisplayCategory.pct)}%
                                                 </span>
                                                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                                                    {selectedCategory.label}
+                                                    {activeDisplayCategory.label}
                                                 </span>
                                             </>
                                         ) : (
@@ -719,12 +719,15 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                     {breakdownCategories.map(item => {
                                         const isGood = item.isSavings ? item.pct >= item.target : item.pct <= item.target;
                                         const isSelected = activePieSlice === item.key;
+                                        const isHovered = hoveredSlice === item.key;
                                         return (
                                             <button
                                                 key={item.key}
+                                                onMouseEnter={() => setHoveredSlice(item.key)}
+                                                onMouseLeave={() => setHoveredSlice(null)}
                                                 onClick={() => setActivePieSlice(activePieSlice === item.key ? null : item.key)}
                                                 className={`w-full text-left transition-all duration-200 rounded-2xl p-3 border ${
-                                                    isSelected
+                                                    isSelected || isHovered
                                                         ? 'bg-violet-50/70 dark:bg-violet-950/30 border-violet-200 dark:border-violet-900/50 shadow-sm'
                                                         : 'bg-gray-50/70 dark:bg-white/[0.03] border-transparent hover:bg-gray-100/80 dark:hover:bg-white/[0.06]'
                                                 }`}
