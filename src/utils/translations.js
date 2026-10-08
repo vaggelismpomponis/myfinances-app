@@ -913,6 +913,14 @@ export const translations = {
         no_goals_set: 'Δεν έχεις ενεργούς στόχους.',
         create_budget: 'Ορισμός Προϋπολογισμού',
         create_goal: 'Νέος Στόχος',
+        all_time_balance: 'Συνολικό Υπόλοιπο',
+        all_time_income: 'Συνολικά Έσοδα',
+        all_time_expenses: 'Συνολικά Έξοδα',
+        all_time_net: 'Καθαρή Ροή',
+        month_income: 'Έσοδα Μήνα',
+        month_net: 'Ισοζύγιο Μήνα',
+        over_daily_limit: 'Υπέρβαση Ορίου',
+        stb_exceeded_desc: 'Έχεις εξαντλήσει το ασφαλές ημερήσιο όριο για σήμερα. Περιόρισε τα έξοδα για να επανέλθεις.',
     },
     en: {
         // General Settings
@@ -1828,5 +1836,13 @@ export const translations = {
         no_goals_set: 'No active savings goals.',
         create_budget: 'Set Budget',
         create_goal: 'New Goal',
+        all_time_balance: 'Total Balance',
+        all_time_income: 'Total Income',
+        all_time_expenses: 'Total Expenses',
+        all_time_net: 'Net Flow',
+        month_income: 'This Month Income',
+        month_net: 'This Month Net',
+        over_daily_limit: 'Limit Exceeded',
+        stb_exceeded_desc: 'You have exceeded your daily safe spending limit for today.',
     }
 };

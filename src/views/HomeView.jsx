@@ -237,19 +237,17 @@ const DesktopBudgetMiniCard = ({ budget, transactions, t }) => {
                     </div>
                     <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate capitalize">{catName}</span>
                 </div>
-                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                    isDanger ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400' :
-                    isWarning ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400' :
-                    'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400'
-                }`}>
+                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isDanger ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400' :
+                        isWarning ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400' :
+                            'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400'
+                    }`}>
                     {pct.toFixed(0)}%
                 </span>
             </div>
             <div className="h-1.5 bg-gray-200/70 dark:bg-white/[0.06] rounded-full overflow-hidden">
                 <div
-                    className={`h-full rounded-full transition-all duration-700 ${
-                        isDanger ? 'bg-rose-500' : isWarning ? 'bg-amber-400' : 'bg-violet-500'
-                    }`}
+                    className={`h-full rounded-full transition-all duration-700 ${isDanger ? 'bg-rose-500' : isWarning ? 'bg-amber-400' : 'bg-violet-500'
+                        }`}
                     style={{ width: `${pct}%` }}
                 />
             </div>
@@ -402,7 +400,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 </div>
             )}
             {/* Gentle pulse animation for the whole card */}
-            <motion.div 
+            <motion.div
                 className="absolute inset-0 rounded-[2rem] pointer-events-none"
                 animate={{ opacity: [0, 1, 0] }}
                 transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
@@ -555,19 +553,33 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
     const greeting = nowDate.getHours() < 12 ? (t('good_morning') || 'Καλημέρα') : nowDate.getHours() < 18 ? (t('good_afternoon') || 'Καλό απόγευμα') : (t('good_evening') || 'Καλησπέρα');
     const effectiveName = displayName || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
 
+    // Current month cash flows for Hero Card
+    const curMonthIncome = useMemo(() => {
+        const curM = nowDate.getMonth();
+        const curY = nowDate.getFullYear();
+        return transactions
+            .filter(tx => {
+                const d = new Date(tx.date);
+                return tx.type === 'income' && d.getMonth() === curM && d.getFullYear() === curY;
+            })
+            .reduce((sum, tx) => sum + (tx.amount || 0), 0);
+    }, [transactions]);
+
+    const curMonthNet = curMonthIncome - stats.curSpent;
+    const isCurMonthNetPositive = curMonthNet >= 0;
+
     // ── DESKTOP LAYOUT ──
     if (isDesktop) {
         return (
-            <div className="space-y-7 pb-10">
-                {/* ── 1. Top Executive Greeting & Toolbar ── */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
+            <div className="space-y-6 pb-12">
+                {/* ── 1. Clean Greeting Header (No duplicate action buttons) ── */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
                     <div>
-                        <h1 className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white tracking-tight font-display flex items-center gap-2">
-                            <span>{greeting}{effectiveName ? `, ${effectiveName}` : ''}</span>
-                            <span className="text-2xl">👋</span>
+                        <h1 className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white tracking-tight font-display">
+                            {greeting}{effectiveName ? `, ${effectiveName}` : ''} 👋
                         </h1>
                         <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 font-medium mt-1 flex items-center gap-2 flex-wrap">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100/70 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 font-bold text-xs border border-violet-200/60 dark:border-violet-900/40 capitalize">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 font-bold text-xs border border-violet-200/50 dark:border-violet-900/40 capitalize">
                                 <Calendar size={13} />
                                 {currentDateStr}
                             </span>
@@ -576,7 +588,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             {stbData?.streak > 0 && (
                                 <>
                                     <span className="text-gray-300 dark:text-gray-700">•</span>
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 font-bold text-xs">
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 font-bold text-xs">
                                         <Flame size={13} />
                                         {stbData.streak} {t('streak_days') || 'μέρες σερί'}
                                     </span>
@@ -584,181 +596,252 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             )}
                         </p>
                     </div>
+                </div>
 
-                    {/* Right Toolbar */}
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                        <button
-                            onClick={togglePrivacyMode}
-                            className={`flex items-center gap-2 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 border ${
-                                privacyMode
-                                    ? 'bg-violet-600 text-white border-violet-500 shadow-md shadow-violet-500/25'
-                                    : 'bg-white dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 border-gray-200/80 dark:border-white/10 hover:border-violet-300 dark:hover:border-violet-700/50 shadow-sm'
-                            }`}
-                            title={privacyMode ? 'Εμφάνιση ποσών' : 'Απόκρυψη ποσών'}
-                        >
-                            {privacyMode ? <EyeOff size={15} /> : <Eye size={15} />}
-                            <span>{privacyMode ? 'Private Mode' : 'Public'}</span>
-                        </button>
+                {/* ── 2. Top Executive Section: Iconic Violet Hero + 4-KPI Bento Grid ── */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+                    {/* ──── Hero Card (7 cols): Vibrant Violet Gradient ──── */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 12, scale: 0.99 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.4 }}
+                        className="lg:col-span-7 relative overflow-hidden rounded-[2.25rem]
+                                   bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800
+                                   p-6 sm:p-7 text-white shadow-premium border border-white/20
+                                   flex flex-col justify-between"
+                    >
+                        {/* Ambient glowing background orbs */}
+                        <div className="absolute -top-16 -right-16 w-48 h-48 bg-white/10 blur-[50px] rounded-full pointer-events-none" />
+                        <div className="absolute -bottom-16 -left-12 w-44 h-44 bg-indigo-400/20 blur-[50px] rounded-full pointer-events-none" />
 
-                        {onAdd && (
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={onAdd}
-                                className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold
-                                           bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500
-                                           text-white shadow-lg shadow-violet-500/25 transition-all duration-200"
-                            >
-                                <Plus size={16} strokeWidth={2.5} />
-                                <span>{t('add_transaction') || 'Νέα Συναλλαγή'}</span>
-                            </motion.button>
-                        )}
+                        <div className="relative z-10">
+                            {/* Top row inside Hero */}
+                            <div className="flex items-center justify-between gap-2 mb-3">
+                                <span className="text-white/80 text-[11px] font-black uppercase tracking-[0.18em] font-display">
+                                    {t('this_month_spend') || 'Έξοδα Μήνα'}
+                                </span>
+                                {stats.diffPct > 0 && (
+                                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black backdrop-blur-md ${
+                                        stats.trend === 'below'
+                                            ? 'bg-emerald-400/20 text-emerald-200 border border-emerald-400/30'
+                                            : stats.trend === 'above'
+                                                ? 'bg-rose-400/25 text-rose-100 border border-rose-400/30'
+                                                : 'bg-white/10 text-white/80'
+                                    }`}>
+                                        {stats.trend === 'below' && <TrendingDown size={13} />}
+                                        {stats.trend === 'above' && <TrendingUp size={13} />}
+                                        {stats.trend === 'neutral' && <Minus size={13} />}
+                                        <span>
+                                            {stats.diffPct}% {stats.trend === 'below' ? (t('below_last_month') || 'κάτω') : (t('above_last_month') || 'πάνω')}
+                                        </span>
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Main Amount */}
+                            <div className="flex items-baseline gap-1 my-1">
+                                <span className="text-2xl sm:text-3xl font-extrabold text-white/70">€</span>
+                                <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight tabular-nums font-display leading-none">
+                                    <Amount value={stats.curSpent} showCurrency={false} />
+                                </h2>
+                            </div>
+
+                            {stats.lastSpent > 0 && (
+                                <p className="text-xs text-white/70 font-semibold mt-2">
+                                    {t('prev_month') || 'Προηγούμενος'}: <span className="text-white font-bold"><Amount value={stats.lastSpent} /></span>
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Bottom Row Inside Hero: Current Month Cashflow Capsules */}
+                        <div className="relative z-10 grid grid-cols-2 gap-3 mt-6 pt-4 border-t border-white/15">
+                            {/* This Month Income */}
+                            <div className="bg-white/10 backdrop-blur-md rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 border border-white/10">
+                                <div className="w-8 h-8 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center flex-shrink-0">
+                                    <ArrowUpRight size={16} />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[10px] font-black uppercase tracking-wider text-white/70 truncate">
+                                        {t('month_income') || 'Έσοδα Μήνα'}
+                                    </p>
+                                    <p className="text-sm font-black text-white truncate tabular-nums">
+                                        <Amount value={curMonthIncome} />
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* This Month Net */}
+                            <div className="bg-white/10 backdrop-blur-md rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 border border-white/10">
+                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                    isCurMonthNetPositive ? 'bg-emerald-400/20 text-emerald-300' : 'bg-rose-400/25 text-rose-200'
+                                }`}>
+                                    {isCurMonthNetPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[10px] font-black uppercase tracking-wider text-white/70 truncate">
+                                        {t('month_net') || 'Ισοζύγιο Μήνα'}
+                                    </p>
+                                    <p className={`text-sm font-black truncate tabular-nums ${
+                                        isCurMonthNetPositive ? 'text-emerald-200' : 'text-rose-200'
+                                    }`}>
+                                        {isCurMonthNetPositive ? '+' : '−'}<Amount value={Math.abs(curMonthNet)} showSign={false} />
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* ──── All-Time Financial Bento (5 cols): 2x2 Grid of Stat Cards ──── */}
+                    <div className="lg:col-span-5 grid grid-cols-2 gap-3.5">
+                        {/* 1. Total Balance */}
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-3xl p-4.5 shadow-card hover:shadow-md transition-shadow flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="w-9 h-9 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+                                    <Wallet size={18} />
+                                </div>
+                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                                    balance >= 0
+                                        ? 'bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300'
+                                        : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
+                                }`}>
+                                    {balance >= 0 ? (t('balance') || 'Υπόλοιπο') : (t('net_deficit') || 'Έλλειμμα')}
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                    {t('all_time_balance') || 'Συνολικό Υπόλοιπο'}
+                                </p>
+                                <div className={`text-xl font-black tracking-tight tabular-nums mt-0.5 font-display truncate ${
+                                    balance < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
+                                }`}>
+                                    <Amount value={balance} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 2. Total Inflows */}
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-3xl p-4.5 shadow-card hover:shadow-md transition-shadow flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                                    <ArrowUpRight size={18} />
+                                </div>
+                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+                                    {t('stats_income') || 'Έσοδα'}
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                    {t('all_time_income') || 'Συνολικά Έσοδα'}
+                                </p>
+                                <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight tabular-nums mt-0.5 font-display truncate">
+                                    <Amount value={totalIncome} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 3. Total Expenses */}
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-3xl p-4.5 shadow-card hover:shadow-md transition-shadow flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                                    <ArrowDownRight size={18} />
+                                </div>
+                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400">
+                                    {t('stats_expense') || 'Έξοδα'}
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                    {t('all_time_expenses') || 'Συνολικά Έξοδα'}
+                                </p>
+                                <div className="text-xl font-black text-gray-900 dark:text-white tracking-tight tabular-nums mt-0.5 font-display truncate">
+                                    <Amount value={totalExpense} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 4. Total Net Flow */}
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-3xl p-4.5 shadow-card hover:shadow-md transition-shadow flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                                    isNetPositive
+                                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
+                                        : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
+                                }`}>
+                                    {isNetPositive ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
+                                </div>
+                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                                    isNetPositive
+                                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'
+                                        : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400'
+                                }`}>
+                                    {isNetPositive ? (t('net_surplus') || 'Πλεόνασμα') : (t('net_deficit') || 'Έλλειμμα')}
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                    {t('all_time_net') || 'Καθαρή Ροή'}
+                                </p>
+                                <div className={`text-xl font-black tracking-tight tabular-nums mt-0.5 font-display truncate ${
+                                    isNetPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                                }`}>
+                                    {isNetPositive ? '+' : '−'}<Amount value={Math.abs(netFlow)} showSign={false} />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* ── 2. Top Bento KPI Cards Row ── */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                    {/* Card 1: Balance */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.35 }}
-                        className="relative overflow-hidden rounded-[1.75rem] p-5.5
-                                   bg-gradient-to-br from-violet-600/10 via-white to-white dark:from-violet-950/30 dark:via-surface-dark3 dark:to-surface-dark3
-                                   border border-violet-200/80 dark:border-white/10 shadow-card hover:shadow-md transition-all duration-300 group"
-                    >
-                        <div className="flex items-center justify-between mb-3.5">
-                            <div className="w-11 h-11 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-md shadow-violet-500/25 group-hover:scale-110 transition-transform duration-200">
-                                <Wallet size={20} />
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300">
-                                {t('balance') || 'Υπόλοιπο'}
-                            </span>
+                {/* ── 3. AI Advisor Sleek Horizontal Ribbon ── */}
+                <motion.button
+                    whileHover={{ scale: 1.005, y: -1 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => {
+                        if (!isPro) { openUpgradeModal('advisor'); }
+                        else { setActiveTab('advisor'); }
+                    }}
+                    className="w-full relative overflow-hidden rounded-[1.75rem] p-4
+                               bg-gradient-to-r from-violet-50 via-indigo-50/70 to-purple-50 dark:bg-surface-dark3 dark:from-transparent dark:to-transparent
+                               border border-violet-200/70 dark:border-violet-900/40
+                               shadow-sm hover:shadow-md
+                               flex items-center justify-between gap-4 group transition-all duration-300"
+                >
+                    <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-violet-500/25 flex-shrink-0 group-hover:scale-105 transition-transform">
+                            <Bot size={20} />
                         </div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                            {t('balance')}
-                        </p>
-                        <div className="text-2xl xl:text-3xl font-black text-gray-900 dark:text-white tracking-tight tabular-nums mt-0.5 font-display">
-                            <Amount value={balance} />
-                        </div>
-                        <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
-                            <span>{t('total_liquidity') || 'Διαθέσιμο κεφάλαιο'}</span>
-                        </p>
-                    </motion.div>
-
-                    {/* Card 2: This Month Expense */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.35, delay: 0.05 }}
-                        className="rounded-[1.75rem] p-5.5 bg-white dark:bg-surface-dark3
-                                   border border-gray-100 dark:border-white/10 shadow-card hover:shadow-md transition-all duration-300 group"
-                    >
-                        <div className="flex items-center justify-between mb-3.5">
-                            <div className="w-11 h-11 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                                <ArrowDownRight size={22} />
-                            </div>
-                            {stats.diffPct > 0 ? (
-                                <span className={`inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full ${
-                                    stats.trend === 'below'
-                                        ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400'
-                                        : stats.trend === 'above'
-                                            ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400'
-                                            : 'bg-gray-100 dark:bg-white/10 text-gray-500'
-                                }`}>
-                                    {stats.trend === 'below' && <TrendingDown size={11} />}
-                                    {stats.trend === 'above' && <TrendingUp size={11} />}
-                                    {stats.diffPct}% {stats.trend === 'below' ? (t('below_last_month') || 'κάτω') : (t('above_last_month') || 'πάνω')}
+                        <div className="min-w-0 text-left">
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">
+                                    SpendWise AI {t('advisor_title') || 'Σύμβουλος'}
                                 </span>
-                            ) : null}
-                        </div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                            {t('this_month_spend')}
-                        </p>
-                        <div className="text-2xl xl:text-3xl font-black text-gray-900 dark:text-white tracking-tight tabular-nums mt-0.5 font-display">
-                            <Amount value={stats.curSpent} />
-                        </div>
-                        <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 mt-2 truncate">
-                            {t('prev_month') || 'Προηγούμενος'}: <span className="font-bold text-gray-700 dark:text-gray-300"><Amount value={stats.lastSpent} /></span>
-                        </p>
-                    </motion.div>
-
-                    {/* Card 3: Total Income */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.35, delay: 0.1 }}
-                        className="rounded-[1.75rem] p-5.5 bg-white dark:bg-surface-dark3
-                                   border border-gray-100 dark:border-white/10 shadow-card hover:shadow-md transition-all duration-300 group"
-                    >
-                        <div className="flex items-center justify-between mb-3.5">
-                            <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                                <ArrowUpRight size={22} />
+                                {!isPro && (
+                                    <span className="w-4 h-4 rounded-full bg-amber-400 text-white flex items-center justify-center">
+                                        <Zap size={9} fill="currentColor" />
+                                    </span>
+                                )}
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400">
-                                + {t('stats_income') || 'Έσοδα'}
-                            </span>
+                            <p className="text-xs text-violet-700 dark:text-violet-300 font-semibold truncate mt-0.5">
+                                "{advisorLiveInsight}"
+                            </p>
                         </div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                            {t('stats_income')}
-                        </p>
-                        <div className="text-2xl xl:text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight tabular-nums mt-0.5 font-display">
-                            <Amount value={totalIncome} />
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className="text-xs font-bold text-violet-600 dark:text-violet-400 group-hover:text-violet-700 hidden sm:inline">
+                            {t('open_advisor') || 'Συνομιλία με τον AI Σύμβουλο'}
+                        </span>
+                        <div className="w-7 h-7 rounded-xl bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
+                            <ArrowRight size={14} />
                         </div>
-                        <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            <span>{t('income_inflows') || 'Συνολικές εισροές μήνα'}</span>
-                        </p>
-                    </motion.div>
+                    </div>
+                </motion.button>
 
-                    {/* Card 4: Net Flow */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.35, delay: 0.15 }}
-                        className="rounded-[1.75rem] p-5.5 bg-white dark:bg-surface-dark3
-                                   border border-gray-100 dark:border-white/10 shadow-card hover:shadow-md transition-all duration-300 group"
-                    >
-                        <div className="flex items-center justify-between mb-3.5">
-                            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200 ${
-                                isNetPositive
-                                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
-                                    : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
-                            }`}>
-                                {isNetPositive ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
-                            </div>
-                            <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full ${
-                                isNetPositive
-                                    ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400'
-                                    : 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400'
-                            }`}>
-                                {savingsRate > 0 ? `${savingsRate}% ${t('savings_rate') || 'Αποταμίευση'}` : isNetPositive ? (t('net_surplus') || 'Πλεόνασμα') : (t('net_deficit') || 'Έλλειμμα')}
-                            </span>
-                        </div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                            Net Flow
-                        </p>
-                        <div className={`text-2xl xl:text-3xl font-black tracking-tight tabular-nums mt-0.5 font-display ${
-                            isNetPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-                        }`}>
-                            {isNetPositive ? '+' : '−'}<Amount value={Math.abs(netFlow)} showSign={false} />
-                        </div>
-                        <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mt-2 truncate">
-                            {isNetPositive ? 'Θετικό μηνιαίο ισοζύγιο' : 'Αρνητικό μηνιαίο ισοζύγιο'}
-                        </p>
-                    </motion.div>
-                </div>
-
-                {/* ── 3. Main Dashboard Bento Grid (Two Columns) ── */}
+                {/* ── 4. Main 2-Column Grid (Category Breakdown + Transactions vs Safe-to-Burn, Budgets, Goals) ── */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
                     {/* ──── LEFT COLUMN (8 cols): Breakdown + Transactions ──── */}
                     <div className="lg:col-span-7 xl:col-span-8 space-y-6">
-
-                        {/* ── Monthly Category Breakdown ── */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-6 shadow-card">
-                            <div className="flex items-center justify-between mb-4">
+                        {/* Monthly Category Breakdown */}
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5.5 shadow-card">
+                            <div className="flex items-center justify-between mb-3.5">
                                 <div className="flex items-center gap-2.5">
                                     <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center">
                                         <PieChart size={17} />
@@ -782,9 +865,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             </div>
 
                             {categoryBreakdown.topCats.length > 0 ? (
-                                <div className="space-y-4">
-                                    {/* Multi-segment progress bar */}
-                                    <div className="h-3 w-full bg-gray-100 dark:bg-white/[0.06] rounded-full overflow-hidden flex gap-1 p-0.5">
+                                <div className="space-y-3.5">
+                                    {/* Multi-segment bar */}
+                                    <div className="h-3 w-full bg-gray-100 dark:bg-white/[0.06] rounded-full overflow-hidden flex gap-0.5 p-0.5">
                                         {categoryBreakdown.topCats.map(cat => (
                                             <div
                                                 key={cat.category}
@@ -798,12 +881,12 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                         ))}
                                     </div>
 
-                                    {/* Category Pills Grid */}
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                                    {/* Category Chips Grid */}
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-0.5">
                                         {categoryBreakdown.topCats.map(cat => (
                                             <div
                                                 key={cat.category}
-                                                className="p-3 rounded-2xl bg-gray-50/70 dark:bg-white/[0.02] border border-gray-100/70 dark:border-white/[0.04] space-y-1.5"
+                                                className="p-3 rounded-2xl bg-gray-50/70 dark:bg-white/[0.02] border border-gray-100/70 dark:border-white/[0.04] space-y-1"
                                             >
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-1.5 min-w-0">
@@ -830,10 +913,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             )}
                         </div>
 
-                        {/* ── Recent Transactions Feed ── */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-6 shadow-card space-y-4">
+                        {/* Recent Transactions Feed */}
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5.5 shadow-card space-y-3.5">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-gray-50 dark:border-white/[0.04]">
-                                <div className="flex items-center gap-2.5">
+                                <div className="flex items-center gap-2">
                                     <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                         <span>{t('recent') || 'Πρόσφατες Συναλλαγές'}</span>
                                         <span className="bg-gray-100 dark:bg-surface-dark4 text-gray-600 dark:text-gray-400 text-[10px] px-2 py-0.5 rounded-full font-bold">
@@ -842,43 +925,39 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     </h3>
                                 </div>
 
-                                {/* Filters + Live Search + View All */}
                                 <div className="flex items-center gap-2 flex-wrap">
                                     {/* Filter Pills */}
                                     <div className="flex items-center bg-gray-100/80 dark:bg-white/[0.06] p-0.5 rounded-xl text-[11px] font-bold">
                                         <button
                                             onClick={() => setDesktopFilter('all')}
-                                            className={`px-2.5 py-1 rounded-lg transition-all ${
-                                                desktopFilter === 'all'
+                                            className={`px-2.5 py-1 rounded-lg transition-all ${desktopFilter === 'all'
                                                     ? 'bg-white dark:bg-surface-dark3 text-gray-900 dark:text-white shadow-2xs font-extrabold'
                                                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                                            }`}
+                                                }`}
                                         >
                                             {t('all') || 'Όλες'}
                                         </button>
                                         <button
                                             onClick={() => setDesktopFilter('expense')}
-                                            className={`px-2.5 py-1 rounded-lg transition-all ${
-                                                desktopFilter === 'expense'
+                                            className={`px-2.5 py-1 rounded-lg transition-all ${desktopFilter === 'expense'
                                                     ? 'bg-white dark:bg-surface-dark3 text-rose-600 dark:text-rose-400 shadow-2xs font-extrabold'
                                                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                                            }`}
+                                                }`}
                                         >
                                             {t('stats_expense') || 'Έξοδα'}
                                         </button>
                                         <button
                                             onClick={() => setDesktopFilter('income')}
-                                            className={`px-2.5 py-1 rounded-lg transition-all ${
-                                                desktopFilter === 'income'
+                                            className={`px-2.5 py-1 rounded-lg transition-all ${desktopFilter === 'income'
                                                     ? 'bg-white dark:bg-surface-dark3 text-emerald-600 dark:text-emerald-400 shadow-2xs font-extrabold'
                                                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                                            }`}
+                                                }`}
                                         >
                                             {t('stats_income') || 'Έσοδα'}
                                         </button>
                                     </div>
 
-                                    {/* Search input */}
+                                    {/* Search Input */}
                                     <div className="relative">
                                         <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
                                         <input
@@ -886,14 +965,14 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                             value={desktopSearch}
                                             onChange={e => setDesktopSearch(e.target.value)}
                                             placeholder={t('search_placeholder') || 'Αναζήτηση...'}
-                                            className="w-32 sm:w-40 pl-7 pr-2.5 py-1 text-xs rounded-xl bg-gray-50 dark:bg-white/[0.04] border border-gray-200/60 dark:border-white/10 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
+                                            className="w-32 sm:w-36 pl-7 pr-2.5 py-1 text-xs rounded-xl bg-gray-50 dark:bg-white/[0.04] border border-gray-200/60 dark:border-white/10 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
                                         />
                                     </div>
 
-                                    {/* View All button */}
+                                    {/* History link */}
                                     <button
                                         onClick={() => setActiveTab('history')}
-                                        className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 flex items-center gap-0.5 ml-1 transition-colors"
+                                        className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 flex items-center gap-0.5 ml-0.5 transition-colors"
                                     >
                                         <span>{t('all') || 'Όλα'}</span>
                                         <ChevronRight size={13} />
@@ -901,35 +980,26 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 </div>
                             </div>
 
-                            {/* Transactions List */}
                             {filteredDesktopTransactions.length === 0 ? (
-                                <div className="py-12 flex flex-col items-center justify-center text-center">
-                                    <div className="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-950/40 text-violet-500 flex items-center justify-center mb-2.5">
-                                        <TrendingUp size={22} />
+                                <div className="py-10 flex flex-col items-center justify-center text-center">
+                                    <div className="w-11 h-11 rounded-2xl bg-violet-50 dark:bg-violet-950/40 text-violet-500 flex items-center justify-center mb-2">
+                                        <TrendingUp size={20} />
                                     </div>
                                     <h4 className="font-bold text-sm text-gray-800 dark:text-white mb-1">
                                         {t('no_transactions') || 'Δεν βρέθηκαν συναλλαγές'}
                                     </h4>
-                                    <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs mb-3">
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs">
                                         {t('no_transactions_desc') || 'Πρόσθεσε συναλλαγές για να εμφανιστούν εδώ.'}
                                     </p>
-                                    {onAdd && (
-                                        <button
-                                            onClick={onAdd}
-                                            className="px-4 py-1.5 text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/50 hover:bg-violet-100 rounded-xl transition-colors"
-                                        >
-                                            + {t('add_transaction') || 'Προσθήκη'}
-                                        </button>
-                                    )}
                                 </div>
                             ) : (
-                                <div className="space-y-3 pt-1">
+                                <div className="space-y-2.5 pt-0.5">
                                     {filteredDesktopTransactions.map((tx, idx) => (
                                         <motion.div
                                             key={tx.id}
-                                            initial={{ opacity: 0, y: 6 }}
+                                            initial={{ opacity: 0, y: 4 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.05 + (idx * 0.03) }}
+                                            transition={{ delay: 0.04 + (idx * 0.02) }}
                                         >
                                             <TransactionItem transaction={tx} onDelete={onDelete} onEdit={onEdit} />
                                         </motion.div>
@@ -939,68 +1009,22 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         </div>
                     </div>
 
-                    {/* ──── RIGHT COLUMN (4 cols): AI Advisor + Budgets + Goals + Shortcuts ──── */}
-                    <div className="lg:col-span-5 xl:col-span-4 space-y-6">
-
-                        {/* ── AI Advisor Spotlight Card ── */}
-                        <motion.div
-                            whileHover={{ scale: 1.01 }}
-                            className="relative overflow-hidden rounded-[1.75rem] p-6
-                                       bg-gradient-to-br from-violet-600 via-indigo-700 to-purple-800
-                                       text-white shadow-lg shadow-violet-500/25 border border-white/20 group"
-                        >
-                            {/* Animated background glow */}
-                            <div className="absolute -top-10 -right-10 w-36 h-36 bg-white/10 blur-2xl rounded-full pointer-events-none" />
-                            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-indigo-400/20 blur-2xl rounded-full pointer-events-none" />
-
-                            <div className="relative z-10 space-y-3.5">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2.5">
-                                        <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-sm">
-                                            <Bot size={20} />
-                                        </div>
-                                        <div>
-                                            <h4 className="text-sm font-black tracking-tight leading-tight">
-                                                SpendWise AI
-                                            </h4>
-                                            <p className="text-[10px] text-white/70 font-semibold uppercase tracking-wider">
-                                                {t('advisor_title') || 'Σύμβουλος'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {!isPro && (
-                                        <div className="w-6 h-6 rounded-full bg-amber-400 text-white flex items-center justify-center shadow-sm">
-                                            <Zap size={12} fill="currentColor" />
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Insight Quote Bubble */}
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 text-xs text-white/90 font-medium leading-relaxed">
-                                    "{advisorLiveInsight}"
-                                </div>
-
-                                {/* Action Button */}
-                                <button
-                                    onClick={() => {
-                                        if (!isPro) { openUpgradeModal('advisor'); }
-                                        else { setActiveTab('advisor'); }
-                                    }}
-                                    className="w-full py-2.5 px-4 rounded-xl bg-white text-violet-700 text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-white/90 active:scale-98 transition-all shadow-sm"
-                                >
-                                    <Sparkles size={14} fill="currentColor" />
-                                    <span>{t('open_advisor') || 'Συνομιλία με τον AI Σύμβουλο'}</span>
-                                    <ArrowRight size={13} strokeWidth={2.5} />
-                                </button>
-                            </div>
-                        </motion.div>
-
-                        {/* ── Safe-to-Burn Pace Card ── */}
+                    {/* ──── RIGHT COLUMN (4 cols): Safe-to-Burn + Budgets + Goals ──── */}
+                    <div className="lg:col-span-5 xl:col-span-4 space-y-5">
+                        {/* ── Safe-to-Burn Pace Card (Refined & Intelligent) ── */}
                         {stbData && (
-                            <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5.5 shadow-card space-y-3">
+                            <div className={`rounded-[1.75rem] p-5 shadow-card space-y-2.5 transition-all ${
+                                stbData.stb <= 0
+                                    ? 'bg-gradient-to-br from-rose-50/70 via-white to-white dark:from-rose-950/20 dark:via-surface-dark3 dark:to-surface-dark3 border border-rose-200/80 dark:border-rose-900/30'
+                                    : 'bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10'
+                            }`}>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-500 flex items-center justify-center">
+                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                                            stbData.stb <= 0
+                                                ? 'bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400'
+                                                : 'bg-amber-50 dark:bg-amber-950/40 text-amber-500'
+                                        }`}>
                                             <Flame size={17} />
                                         </div>
                                         <div>
@@ -1012,16 +1036,22 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                             </p>
                                         </div>
                                     </div>
-                                    {stbData.streak > 0 && (
+                                    {stbData.stb <= 0 ? (
+                                        <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400">
+                                            ⚠️ {t('over_daily_limit') || 'Υπέρβαση Ορίου'}
+                                        </span>
+                                    ) : stbData.streak > 0 ? (
                                         <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400">
                                             🔥 {stbData.streak} Streak
                                         </span>
-                                    )}
+                                    ) : null}
                                 </div>
 
                                 <div className="flex items-baseline justify-between pt-1">
-                                    <div className="text-2xl font-black text-gray-900 dark:text-white tabular-nums font-display">
-                                        <Amount value={stbData.stb} />
+                                    <div className={`text-2xl font-black tabular-nums font-display ${
+                                        stbData.stb <= 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
+                                    }`}>
+                                        {stbData.stb <= 0 ? '0,00 €' : <Amount value={stbData.stb} />}
                                     </div>
                                     <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500">
                                         {t('today') || 'Σήμερα'}
@@ -1029,13 +1059,15 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 </div>
 
                                 <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-snug">
-                                    {t('safe_to_burn_desc') || 'Ημερήσιο ποσό που μπορείς να ξοδέψεις με ασφάλεια σήμερα.'}
+                                    {stbData.stb <= 0
+                                        ? (t('stb_exceeded_desc') || 'Έχεις εξαντλήσει το ασφαλές ημερήσιο όριο για σήμερα. Περιόρισε τα έξοδα για να επανέλθεις.')
+                                        : (t('safe_to_burn_desc') || 'Ημερήσιο ποσό που μπορείς να ξοδέψεις με ασφάλεια σήμερα.')}
                                 </p>
                             </div>
                         )}
 
                         {/* ── Budgets Progress Widget ── */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-6 shadow-card space-y-4">
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5 shadow-card space-y-3.5">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
                                     <span>{t('budgets') || 'Προϋπολογισμοί'}</span>
@@ -1074,7 +1106,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         </div>
 
                         {/* ── Savings Goals Widget ── */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-6 shadow-card space-y-4">
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5 shadow-card space-y-3.5">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
                                     <span>{t('goals') || 'Στόχοι'}</span>
@@ -1110,27 +1142,6 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     </button>
                                 </div>
                             )}
-                        </div>
-
-                        {/* ── Quick Tools Grid ── */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-                            {quickActions.map(action => {
-                                const ActionIcon = action.icon;
-                                return (
-                                    <button
-                                        key={action.label}
-                                        onClick={action.onClick}
-                                        className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 hover:border-violet-300 dark:hover:border-violet-700/50 hover:shadow-card transition-all duration-200 group"
-                                    >
-                                        <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <ActionIcon size={16} />
-                                        </div>
-                                        <span className="text-[11px] font-bold text-gray-700 dark:text-gray-300 truncate w-full text-center">
-                                            {action.label}
-                                        </span>
-                                    </button>
-                                );
-                            })}
                         </div>
                     </div>
                 </div>
@@ -1270,7 +1281,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     </p>
                 </div>
                 {/* Gentle pulse animation for the whole card */}
-                <motion.div 
+                <motion.div
                     className="absolute inset-0 rounded-[1.75rem] pointer-events-none"
                     animate={{ opacity: [0, 1, 0] }}
                     transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
