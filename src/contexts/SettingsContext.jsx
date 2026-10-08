@@ -93,6 +93,10 @@ export const SettingsProvider = ({ children }) => {
     });
 
     useEffect(() => {
+        const themeColor = theme === 'dark' ? '#121212' : '#ffffff';
+        const metaTags = document.querySelectorAll('meta[name="theme-color"]');
+        metaTags.forEach(tag => tag.setAttribute('content', themeColor));
+
         if (theme === 'dark') {
             document.documentElement.classList.add('dark');
             localStorage.setItem('theme', 'dark');

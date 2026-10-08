@@ -36,7 +36,7 @@ export default defineConfig({
         name: 'SpendWise',
         short_name: 'SpendWise',
         description: 'Track your income and expenses easily.',
-        theme_color: '#4f46e5',
+        theme_color: '#ffffff',
         background_color: '#0f0f0f',
         display: 'standalone',
         orientation: 'portrait',
