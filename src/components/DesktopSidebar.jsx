@@ -16,15 +16,18 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
                     outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0
                     transition-all duration-200 group relative select-none
                     ${active
-                        ? 'bg-violet-600 text-white shadow-sm shadow-violet-500/25 font-bold'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white font-medium'
+                        ? 'bg-violet-50 dark:bg-violet-500/15 text-violet-700 dark:text-violet-200 border border-violet-200/60 dark:border-violet-500/25 font-bold shadow-xs'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white font-medium border border-transparent'
                     }`}
     >
+        {active && (
+            <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-4 bg-violet-600 dark:bg-violet-400 rounded-full" />
+        )}
         <Icon
             size={18}
             className={`shrink-0 transition-transform duration-200 ${
                 active
-                    ? 'text-white'
+                    ? 'text-violet-600 dark:text-violet-400 scale-105'
                     : 'text-gray-400 dark:text-gray-500 group-hover:text-violet-600 dark:group-hover:text-violet-400 group-hover:scale-110'
             }`}
         />
@@ -33,7 +36,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
             <span
                 className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                     active
-                        ? 'bg-white/20 text-white'
+                        ? 'bg-violet-600 text-white'
                         : 'bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30'
                 }`}
             >
