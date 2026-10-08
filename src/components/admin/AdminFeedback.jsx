@@ -40,7 +40,7 @@ const AdminFeedback = ({ feedback, onDelete, translate }) => {
             {feedback.map((item) => (
                 <div
                     key={item.id}
-                    className={`bg-white dark:bg-white/[0.04] rounded-2xl border ${getTypeBorder(item.type)} shadow-sm space-y-3 group overflow-hidden`}
+                    className={`bg-white dark:bg-surface-dark2 rounded-2xl border ${getTypeBorder(item.type)} shadow-sm space-y-3 group overflow-hidden`}
                 >
                     {/* Type accent strip */}
                     <div className={`h-1 w-full ${item.type === 'idea' ? 'bg-amber-400' : item.type === 'bug' ? 'bg-rose-500' : 'bg-blue-500'}`} />

@@ -32,7 +32,7 @@ const AdminUpdates = ({
                 </div>
             ) : (
                 updates.map(upd => (
-                    <div key={upd.id} className="relative bg-white dark:bg-white/[0.04] rounded-2xl p-5 border border-gray-100 dark:border-transparent shadow-sm group">
+                    <div key={upd.id} className="relative bg-white dark:bg-surface-dark2 rounded-3xl p-5 sm:p-6 border border-gray-100 dark:border-white/[0.06] shadow-sm group">
                         <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-2xl bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center text-violet-600 dark:text-violet-400">

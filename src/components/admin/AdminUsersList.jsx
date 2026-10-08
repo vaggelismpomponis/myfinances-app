@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import {
     Search, ChevronRight, MoreVertical, ExternalLink, Mail, Copy, FileText,
-    Users, ArrowUpDown, Smartphone, Monitor, Globe, Clock
+    Users, ArrowUpDown, Smartphone, Monitor, Globe, Clock, ShieldCheck, ShieldAlert
 } from 'lucide-react';
 
 /* ─── Utility ─── */
@@ -148,7 +148,17 @@ const UserRow = ({ profile, onProfileClick, onSubClick, onDropdownAction, active
                                         onClick={(e) => { e.stopPropagation(); onSubClick(profile, profile.subscription_status === 'pro' ? 'free' : 'pro'); setActiveDropdown(null); }}
                                         className="sm:hidden w-full text-left px-4 py-2.5 text-[12px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors"
                                     >
-                                        {profile.subscription_status === 'pro' ? '🔴 Revoke Pro' : '✅ Grant Pro'}
+                                        {profile.subscription_status === 'pro' ? (
+                                            <>
+                                                <ShieldAlert size={14} className="text-rose-500" />
+                                                <span>Revoke Pro</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ShieldCheck size={14} className="text-emerald-500" />
+                                                <span>Grant Pro</span>
+                                            </>
+                                        )}
                                     </button>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onDropdownAction('stripe', profile); setActiveDropdown(null); }}
@@ -242,13 +252,13 @@ const AdminUsersList = ({ profiles, sessions, onProfileClick, onSubClick, onDrop
         <div className="space-y-3 animate-fade-in">
             {/* Search */}
             <div className="relative">
-                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                     type="text"
-                    placeholder={translate('search_users') || 'Search by name or email…'}
+                    placeholder={translate('search_users') || 'Search users by name or email…'}
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-transparent rounded-2xl text-[13px] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 transition-all shadow-sm"
+                    className="w-full pl-11 pr-4 py-3 bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/[0.06] rounded-2xl text-[13px] text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 transition-all shadow-sm font-medium"
                 />
             </div>
 
@@ -258,14 +268,16 @@ const AdminUsersList = ({ profiles, sessions, onProfileClick, onSubClick, onDrop
                     {['all', 'pro', 'free'].map(t => (
                         <button key={t}
                             onClick={() => setFilter(t)}
-                            className={`px-3.5 py-1.5 rounded-xl text-[11px] font-black capitalize transition-all
-                                ${filter === t ? 'bg-violet-600 text-white shadow-md shadow-violet-500/20' : 'bg-white dark:bg-surface-dark2 text-gray-500 dark:text-white/60 border border-gray-100 dark:border-transparent hover:border-violet-200 dark:hover:border-violet-500/30'}`}
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize transition-all
+                                ${filter === t
+                                    ? 'bg-violet-600 text-white shadow-md shadow-violet-500/20'
+                                    : 'bg-white dark:bg-surface-dark2 text-gray-500 dark:text-white/60 border border-gray-100 dark:border-white/[0.06] hover:border-violet-200 dark:hover:border-violet-500/30'}`}
                         >
                             {t === 'all' ? `All (${profiles.length})` : t === 'pro' ? `Pro (${profiles.filter(p => p.subscription_status === 'pro').length})` : `Free (${profiles.filter(p => p.subscription_status === 'free').length})`}
                         </button>
                     ))}
                 </div>
-                <div className="hidden md:flex items-center gap-1 bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-transparent rounded-xl p-1 shadow-sm">
+                <div className="hidden md:flex items-center gap-1 bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/[0.06] rounded-xl p-1 shadow-sm">
                     <SortBtn col="joined" label="Joined" />
                     <SortBtn col="active" label="Active" />
                     <SortBtn col="sessions" label="Sessions" />
