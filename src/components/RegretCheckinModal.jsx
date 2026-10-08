@@ -9,16 +9,16 @@ const RegretCheckinModal = ({ isOpen, onClose, transactionId }) => {
         state.transactions.find(tx => tx.id === transactionId)
     );
 
-    if (!isOpen || !transaction) return null;
-
     const handleRate = (status) => {
+        if (!transaction) return;
         updateTransaction({ id: transaction.id, regret_status: status });
         onClose();
     };
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 pb-8 sm:p-0">
+            {isOpen && transaction && (
+                <div key="regret-checkin-modal" className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 pb-8 sm:p-0">
                 {/* Backdrop */}
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -80,6 +80,7 @@ const RegretCheckinModal = ({ isOpen, onClose, transactionId }) => {
                     </div>
                 </motion.div>
             </div>
+            )}
         </AnimatePresence>
     );
 };

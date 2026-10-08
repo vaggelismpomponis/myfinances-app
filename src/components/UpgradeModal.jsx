@@ -16,8 +16,6 @@ const UpgradeModal = () => {
     const [billing, setBilling]     = useState('monthly');
     const [loadingPlan, setLoading] = useState(null);
 
-    if (!isUpgradeModalOpen) return null;
-
     const dk = theme === 'dark';
 
     const tok = {
@@ -83,8 +81,10 @@ const UpgradeModal = () => {
 
     return (
         <AnimatePresence>
-            <motion.div
-                className="fixed inset-0 z-[200] flex flex-col justify-end items-center"
+            {isUpgradeModalOpen && (
+                <motion.div
+                    key="upgrade-modal-backdrop"
+                    className="fixed inset-0 z-[200] flex flex-col justify-end items-center"
                 style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(12px)' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -433,6 +433,7 @@ const UpgradeModal = () => {
                     </div>
                 </motion.div>
             </motion.div>
+            )}
         </AnimatePresence>
     );
 };

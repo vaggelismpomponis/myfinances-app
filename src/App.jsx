@@ -1566,13 +1566,15 @@ function MainContent() {
 
                                     {/* Global Overlays (Modals) */}
                                     <AnimatePresence>
-                                    {showAddModal && (
-                                        <AddModal
-                                            onClose={() => { setShowAddModal(false); setEditingTransaction(null); }}
-                                            onAdd={addTransaction}
-                                            initialData={editingTransaction}
-                                        />
-                                    )}
+                                        {showAddModal && (
+                                            <AddModal
+                                                key="desktop-add-modal"
+                                                onClose={() => { setShowAddModal(false); setEditingTransaction(null); }}
+                                                onAdd={addTransaction}
+                                                initialData={editingTransaction}
+                                            />
+                                        )}
+                                    </AnimatePresence>
                                     <ConfirmationModal
                                         isOpen={showDeleteModal}
                                         onClose={() => setShowDeleteModal(false)}
@@ -1604,8 +1606,6 @@ function MainContent() {
                                     />
                                     <UpgradeModal />
                                     <NotificationPanel isOpen={showNotificationPanel} onClose={() => setShowNotificationPanel(false)} />
-
-                                    </AnimatePresence>
                                 </main>
                             ) : (
                                 <main className="h-full w-full bg-surface-light dark:bg-surface-dark
@@ -1853,43 +1853,43 @@ function MainContent() {
                                                     <div id="tour-add-button" className="relative">
                                                         {/* Long-press context menu */}
                                                         <AnimatePresence>
-                                                            {showFabMenu && (
-                                                                <>
-                                                                    {/* Backdrop to dismiss */}
-                                                                    <div
-                                                                        className="fixed inset-0 z-[44]"
-                                                                        onClick={() => setShowFabMenu(false)}
-                                                                    />
-                                                                    <motion.div
-                                                                        initial={{ opacity: 0, scale: 0.85, y: 8 }}
-                                                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                                        exit={{ opacity: 0, scale: 0.85, y: 8 }}
-                                                                        transition={{ type: 'spring', damping: 20, stiffness: 350, mass: 0.6 }}
-                                                                        className="absolute bottom-[calc(100%+14px)] left-1/2 -translate-x-1/2 z-[46] flex flex-col gap-2 items-center"
+                                                            {showFabMenu && [
+                                                                /* Backdrop to dismiss */
+                                                                <div
+                                                                    key="mobile-fab-menu-backdrop"
+                                                                    className="fixed inset-0 z-[44]"
+                                                                    onClick={() => setShowFabMenu(false)}
+                                                                />,
+                                                                <motion.div
+                                                                    key="mobile-fab-menu-popover"
+                                                                    initial={{ opacity: 0, scale: 0.85, y: 8 }}
+                                                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                                    exit={{ opacity: 0, scale: 0.85, y: 8 }}
+                                                                    transition={{ type: 'spring', damping: 20, stiffness: 350, mass: 0.6 }}
+                                                                    className="absolute bottom-[calc(100%+14px)] left-1/2 -translate-x-1/2 z-[46] flex flex-col gap-2 items-center"
+                                                                >
+                                                                    {/* Income pill */}
+                                                                    <motion.button
+                                                                        whileTap={{ scale: 0.93 }}
+                                                                        onClick={() => openAddModal('income')}
+                                                                        className="flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-emerald-500 text-white text-sm font-bold shadow-lg shadow-emerald-500/40 whitespace-nowrap"
                                                                     >
-                                                                        {/* Income pill */}
-                                                                        <motion.button
-                                                                            whileTap={{ scale: 0.93 }}
-                                                                            onClick={() => openAddModal('income')}
-                                                                            className="flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-emerald-500 text-white text-sm font-bold shadow-lg shadow-emerald-500/40 whitespace-nowrap"
-                                                                        >
-                                                                            <TrendingUp size={15} />
-                                                                            <span>Έσοδο</span>
-                                                                        </motion.button>
-                                                                        {/* Expense pill */}
-                                                                        <motion.button
-                                                                            whileTap={{ scale: 0.93 }}
-                                                                            onClick={() => openAddModal('expense')}
-                                                                            className="flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-rose-500 text-white text-sm font-bold shadow-lg shadow-rose-500/40 whitespace-nowrap"
-                                                                        >
-                                                                            <TrendingDown size={15} />
-                                                                            <span>Έξοδο</span>
-                                                                        </motion.button>
-                                                                        {/* Connector dot */}
-                                                                        <div className="w-1.5 h-1.5 rounded-full bg-violet-400 opacity-60" />
-                                                                    </motion.div>
-                                                                </>
-                                                            )}
+                                                                        <TrendingUp size={15} />
+                                                                        <span>Έσοδο</span>
+                                                                    </motion.button>
+                                                                    {/* Expense pill */}
+                                                                    <motion.button
+                                                                        whileTap={{ scale: 0.93 }}
+                                                                        onClick={() => openAddModal('expense')}
+                                                                        className="flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-rose-500 text-white text-sm font-bold shadow-lg shadow-rose-500/40 whitespace-nowrap"
+                                                                    >
+                                                                        <TrendingDown size={15} />
+                                                                        <span>Έξοδο</span>
+                                                                    </motion.button>
+                                                                    {/* Connector dot */}
+                                                                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400 opacity-60" />
+                                                                </motion.div>
+                                                            ]}
                                                         </AnimatePresence>
 
                                                         {/* FAB */}
@@ -1935,6 +1935,7 @@ function MainContent() {
                                         <AnimatePresence>
                                             {showAddModal && (
                                                 <AddModal
+                                                    key="mobile-add-modal"
                                                     onClose={() => { setShowAddModal(false); setEditingTransaction(null); setFabInitialType(null); }}
                                                     onAdd={addTransaction}
                                                     initialData={editingTransaction}

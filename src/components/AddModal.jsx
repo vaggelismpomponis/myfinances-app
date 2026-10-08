@@ -495,6 +495,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                 <AnimatePresence>
                     {isListening && (
                         <motion.div
+                            key="voice-input-overlay"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -680,21 +681,20 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
                     {/* ── Category Picker Bottom Sheet ── */}
                     <AnimatePresence>
-                        {showCategoryPicker && (
-                            <>
-                                {/* Backdrop */}
-                                <motion.div
-                                    key="cat-backdrop"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.2 }}
-                                    className="absolute inset-0 z-30 bg-black/30 backdrop-blur-[2px]"
-                                    onClick={() => { setShowCategoryPicker(false); setIsAddingCategory(false); setCategorySearch(''); }}
-                                />
-                                {/* Sheet */}
-                                <motion.div
-                                    key="cat-sheet"
+                        {showCategoryPicker && [
+                            /* Backdrop */
+                            <motion.div
+                                key="cat-backdrop"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="absolute inset-0 z-30 bg-black/30 backdrop-blur-[2px]"
+                                onClick={() => { setShowCategoryPicker(false); setIsAddingCategory(false); setCategorySearch(''); }}
+                            />,
+                            /* Sheet */
+                            <motion.div
+                                key="cat-sheet"
                                     initial={{ y: '100%' }}
                                     animate={{ y: 0 }}
                                     exit={{ y: '100%' }}
@@ -881,8 +881,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                         </div>
                                     </div>
                                 </motion.div>
-                            </>
-                        )}
+                            ]}
                     </AnimatePresence>
 
                     {/* Collapsible Note */}
@@ -962,6 +961,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                     <AnimatePresence>
                         {amountError && (
                             <motion.div
+                                key="amount-error"
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}

@@ -284,7 +284,13 @@ const CalendarSection = ({
             {typeof document !== 'undefined' && createPortal(
                 <AnimatePresence>
                     {selectedDay !== null && (
-                        <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none">
+                        <motion.div
+                            key="calendar-day-panel"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none"
+                        >
                             {/* Backdrop */}
                             <motion.div 
                                 initial={{ opacity: 0 }}
@@ -443,7 +449,7 @@ const CalendarSection = ({
                                     </div>
                                 </div>
                             </motion.div>
-                        </div>
+                        </motion.div>
                     )}
                 </AnimatePresence>,
                 document.body

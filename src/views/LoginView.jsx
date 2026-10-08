@@ -711,7 +711,7 @@ const LoginView = ({
             {/* ── Forgot Password Bottom Sheet / Modal ── */}
             <AnimatePresence>
                 {showForgotModal && (
-                    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+                    <div key="forgot-password-modal-container" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
                         {/* Backdrop */}
                         <motion.div
                             initial={{ opacity: 0 }}

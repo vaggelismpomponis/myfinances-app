@@ -54,7 +54,12 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
     return (
         <AnimatePresence>
             {isOpen && (
-                <div
+                <motion.div
+                    key="playstore-modal-container"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
                     className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
                     role="dialog"
                     aria-modal="true"
@@ -220,7 +225,7 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                             </button>
                         </div>
                     </motion.div>
-                </div>
+                </motion.div>
             )}
         </AnimatePresence>
     );

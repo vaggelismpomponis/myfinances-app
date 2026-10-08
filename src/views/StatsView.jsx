@@ -364,6 +364,7 @@ const StatsView = ({ transactions }) => {
             <AnimatePresence>
                 {timeRange === 'custom' && (
                     <motion.div
+                        key="custom-date-picker"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
@@ -756,7 +757,13 @@ const StatsView = ({ transactions }) => {
             {typeof document !== 'undefined' && createPortal(
                 <AnimatePresence>
                     {selectedCategory && (
-                        <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none">
+                        <motion.div
+                            key="category-drilldown-portal"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none"
+                        >
                             {/* Backdrop */}
                             <motion.div 
                                 initial={{ opacity: 0 }}
@@ -849,7 +856,7 @@ const StatsView = ({ transactions }) => {
                                     ))}
                                 </div>
                             </motion.div>
-                        </div>
+                        </motion.div>
                     )}
                 </AnimatePresence>,
                 document.body

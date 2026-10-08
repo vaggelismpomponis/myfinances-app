@@ -258,21 +258,20 @@ const NotificationPanel = ({ isOpen, onClose }) => {
 
     return (
         <AnimatePresence>
-            {isOpen && (
-                <>
-                    {/* Backdrop */}
-                    <motion.div
-                        key="notif-backdrop"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.18 }}
-                        className="fixed inset-0 z-[50] bg-black/30 backdrop-blur-[2px]"
-                        onClick={onClose}
-                    />
+            {isOpen && [
+                /* Backdrop */
+                <motion.div
+                    key="notif-backdrop"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.18 }}
+                    className="fixed inset-0 z-[50] bg-black/30 backdrop-blur-[2px]"
+                    onClick={onClose}
+                />,
 
-                    {/* Panel */}
-                    <motion.div
+                /* Panel */
+                <motion.div
                         key="notif-panel"
                         initial={{ opacity: 0, y: -12, scale: 0.97 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -437,7 +436,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                     <AnimatePresence initial={false}>
                                         {notifications.map((notif, idx) => (
                                             <NotificationItem
-                                                key={notif.id}
+                                                key={notif.id || `notif-${idx}`}
                                                 notif={notif}
                                                 idx={idx}
                                                 isOpen={swipedId === notif.id}
@@ -452,8 +451,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                             )}
                         </div>
                     </motion.div>
-                </>
-            )}
+                ]}
         </AnimatePresence>
     );
 };
