@@ -44,7 +44,7 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
     return (
         <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300 overflow-hidden">
             {/* ─────── Header ─────── */}
-            <div className={`shrink-0 sticky top-0 z-20 transition-colors duration-300 ${hideHeader ? 'bg-transparent border-none px-4 pt-4 pb-2' : 'bg-gray-50 dark:bg-surface-dark backdrop-blur-xl border-b border-gray-100 dark:border-transparent px-4 pb-3'}`} style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' } : {}}>
+            <div className={`shrink-0 sticky top-0 z-20 transition-colors duration-300 ${hideHeader ? 'bg-transparent border-none px-4 pt-4 pb-2' : 'bg-gray-50/90 dark:bg-[#121212]/90 backdrop-blur-xl border-b border-gray-100 dark:border-white/[0.06] px-4 pb-3'}`} style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' } : {}}>
                 <div className="flex items-center justify-center relative min-h-[32px]">
                     <button
                         onClick={onBack}

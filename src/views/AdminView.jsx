@@ -570,7 +570,7 @@ const AdminView = ({ onBack, hideHeader }) => {
             ) : (
                 /* ─────── Mobile Sticky Header ─────── */
                 <div
-                    className="shrink-0 transition-colors duration-300 sticky top-0 z-20 bg-gray-50/90 dark:bg-surface-dark/90 backdrop-blur-xl border-b border-gray-100 dark:border-white/[0.06] px-4 pb-3"
+                    className="shrink-0 transition-colors duration-300 sticky top-0 z-20 bg-gray-50/90 dark:bg-[#121212]/90 backdrop-blur-xl border-b border-gray-100 dark:border-white/[0.06] px-4 pb-3"
                     style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
                 >
                     <div className="flex items-center justify-between min-h-[36px] mb-3">

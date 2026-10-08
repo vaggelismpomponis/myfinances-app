@@ -523,3 +523,25 @@ button:active {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ── Surface Dark Opacity Utilities ── */
+.dark .dark\:bg-surface-dark\/90,
+.dark .bg-surface-dark\/90 {
+  background-color: rgba(18, 18, 18, 0.9) !important;
+}
+.dark .dark\:bg-surface-dark\/80,
+.dark .bg-surface-dark\/80 {
+  background-color: rgba(18, 18, 18, 0.8) !important;
+}
+.dark .dark\:bg-surface-dark\/95,
+.dark .bg-surface-dark\/95 {
+  background-color: rgba(18, 18, 18, 0.95) !important;
+}
+.dark .dark\:bg-surface-dark2\/90,
+.dark .bg-surface-dark2\/90 {
+  background-color: rgba(26, 26, 26, 0.9) !important;
+}
+.dark .dark\:bg-surface-dark2\/95,
+.dark .bg-surface-dark2\/95 {
+  background-color: rgba(26, 26, 26, 0.95) !important;
+}
