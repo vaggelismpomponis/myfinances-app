@@ -79,7 +79,7 @@ const DesktopSidebar = ({
     return (
         <aside className="
             h-full flex flex-col bg-white dark:bg-surface-dark2
-            border-r border-gray-200/90 dark:border-white/[0.08]
+            border-r border-gray-200 dark:border-white/10
             shadow-[4px_0_20px_-4px_rgba(0,0,0,0.03)] dark:shadow-[4px_0_24px_-4px_rgba(0,0,0,0.4)]
             overflow-y-auto custom-scrollbar
             w-[264px] xl:w-[272px] flex-shrink-0 select-none z-20 relative

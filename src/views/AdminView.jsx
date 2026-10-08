@@ -621,7 +621,7 @@ const AdminView = ({ onBack, hideHeader }) => {
             <div className="flex-1 flex overflow-hidden">
 
                 {/* Desktop Left Sidebar (hidden on mobile) */}
-                <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-white dark:bg-surface-dark2 border-r border-gray-100 dark:border-white/[0.06] p-4 gap-2 overflow-y-auto">
+                <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-white dark:bg-surface-dark2 border-r border-gray-200 dark:border-white/10 p-4 gap-2 overflow-y-auto">
                     <div className="px-3 pt-2 pb-1 flex items-center justify-between">
                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
                             <SlidersHorizontal size={12} />
