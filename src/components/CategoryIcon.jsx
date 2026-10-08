@@ -21,7 +21,6 @@ export const CATEGORY_ACCENT = {
     shopping:    '#ec4899',
     transport:   '#3b82f6',
     bills:       '#8b5cf6',
-    health:      '#10b981',
     entertainment: '#06b6d4',
     education:   '#6366f1',
     salary:      '#10b981',

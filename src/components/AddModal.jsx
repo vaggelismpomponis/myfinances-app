@@ -47,8 +47,29 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [showNote, setShowNote] = useState(false);
+    const [isNoteFocused, setIsNoteFocused] = useState(false);
+    const noteInputRef = useRef(null);
+    const contentRef = useRef(null);
     const transcriptRef = useRef('');
     const recognitionRef = useRef(null);
+
+    const handleOpenNote = () => {
+        setShowNote(true);
+        setTimeout(() => {
+            noteInputRef.current?.focus();
+        }, 50);
+    };
+
+    useEffect(() => {
+        if (isNoteFocused && noteInputRef.current) {
+            const timer = setTimeout(() => {
+                noteInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+            return () => clearTimeout(timer);
+        } else if (!isNoteFocused && contentRef.current) {
+            contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [isNoteFocused]);
 
     // Batch mode state
     const [batchQueue, setBatchQueue] = useState([]);
@@ -85,6 +106,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
             setCategory('');
             setNote('');
             setShowNote(false);
+            setIsNoteFocused(false);
         }
     }, [initialData]);
 
@@ -147,6 +169,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
         if (extractedNote) {
             // Capitalize first letter of note
             setNote(extractedNote.charAt(0).toUpperCase() + extractedNote.slice(1));
+            setShowNote(true);
         }
     };
 
@@ -314,7 +337,10 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
     const loadFromBatchItem = (item) => {
         if (item.amount) setAmount(item.amount.toString());
-        if (item.note) setNote(item.note.substring(0, 30));
+        if (item.note) {
+            setNote(item.note.substring(0, 30));
+            setShowNote(true);
+        }
         setType('expense');
         setCategory('');
     };
@@ -400,7 +426,10 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
     const handleScanComplete = (data) => {
         if (data.amount) setAmount(data.amount.toString());
-        if (data.note) setNote(data.note.substring(0, 30));
+        if (data.note) {
+            setNote(data.note.substring(0, 30));
+            setShowNote(true);
+        }
         setType('expense');
     };
 
@@ -531,7 +560,15 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                 </div>
 
                 {/* ── Content area (scrollable if needed) ── */}
-                <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-h-0">
+                <div
+                    ref={contentRef}
+                    onPointerDown={(e) => {
+                        if (isNoteFocused && noteInputRef.current && !noteInputRef.current.contains(e.target) && !e.target.closest('button')) {
+                            noteInputRef.current.blur();
+                        }
+                    }}
+                    className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-h-0"
+                >
 
                     {/* Type Toggle */}
                     <div className="px-5 pt-4 pb-2 flex-shrink-0">
@@ -562,16 +599,23 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                     </div>
 
                     {/* Amount Display */}
-                    <div className="px-5 py-4 text-center flex-1 flex items-center justify-center">
+                    <div className={`px-5 text-center flex items-center justify-center transition-all duration-200 ${
+                        isNoteFocused ? 'py-2 flex-shrink-0' : 'py-4 flex-1'
+                    }`}>
                         <motion.div
                             key={amount}
                             initial={{ scale: 0.95, opacity: 0.8 }}
                             animate={{ scale: 1, opacity: 1 }}
                             className="flex items-baseline justify-center gap-1"
                         >
-                            {!privacyMode && <span className="text-2xl font-bold text-gray-300 dark:text-gray-500">€</span>}
-                            <span className={`text-5xl font-extrabold tracking-tight transition-colors ${amount ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-600'
-                                }`}>
+                            {!privacyMode && (
+                                <span className={`font-bold text-gray-300 dark:text-gray-500 transition-all ${
+                                    isNoteFocused ? 'text-lg' : 'text-2xl'
+                                }`}>€</span>
+                            )}
+                            <span className={`font-extrabold tracking-tight transition-all ${
+                                isNoteFocused ? 'text-3xl' : 'text-5xl'
+                            } ${amount ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
                                 {privacyMode ? '****' : (amount || '0')}
                             </span>
                         </motion.div>
@@ -839,34 +883,73 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                     <div className="px-5 pb-2 flex-shrink-0">
                         {showNote ? (
                             <div className="relative">
-                                    <input
-                                        type="text"
-                                        value={note}
-                                        onChange={(e) => setNote(e.target.value.substring(0, NOTE_MAX_LENGTH))}
-                                        placeholder={t('note_placeholder')}
-                                        aria-label={t('note_placeholder') || 'Note'}
-                                        autoFocus
-                                        maxLength={NOTE_MAX_LENGTH}
-                                        className="w-full bg-white dark:bg-surface-dark3 border border-slate-200/60 dark:border-transparent rounded-xl px-4 py-2.5 pr-14 text-sm text-gray-800 dark:text-white/90 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:font-medium shadow-premium"
-                                        onBlur={() => { if (!note) setShowNote(false); }}
-                                    />
-                                    <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium tabular-nums ${note.length >= NOTE_MAX_LENGTH ? 'text-rose-500' : 'text-gray-300 dark:text-gray-600'
-                                        }`}>
+                                <input
+                                    ref={noteInputRef}
+                                    type="text"
+                                    value={note}
+                                    onChange={(e) => setNote(e.target.value.substring(0, NOTE_MAX_LENGTH))}
+                                    placeholder={t('note_placeholder')}
+                                    aria-label={t('note_placeholder') || 'Note'}
+                                    maxLength={NOTE_MAX_LENGTH}
+                                    onFocus={() => setIsNoteFocused(true)}
+                                    onBlur={() => {
+                                        setIsNoteFocused(false);
+                                        if (!note.trim()) setShowNote(false);
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            noteInputRef.current?.blur();
+                                        }
+                                    }}
+                                    className="w-full bg-white dark:bg-surface-dark3 border border-slate-200/60 dark:border-transparent rounded-xl px-4 py-2.5 pr-20 text-sm text-gray-800 dark:text-white/90 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:font-medium shadow-premium"
+                                />
+                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                                    <span className={`text-[10px] font-medium tabular-nums ${
+                                        note.length >= NOTE_MAX_LENGTH ? 'text-rose-500' : 'text-gray-300 dark:text-gray-600'
+                                    }`}>
                                         {note.length}/{NOTE_MAX_LENGTH}
                                     </span>
+                                    {note.length > 0 && (
+                                        <button
+                                            type="button"
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            onClick={() => {
+                                                setNote('');
+                                                noteInputRef.current?.focus();
+                                            }}
+                                            className="p-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                                            aria-label="Clear note"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    )}
+                                    {isNoteFocused && (
+                                        <button
+                                            type="button"
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            onClick={() => noteInputRef.current?.blur()}
+                                            className="p-1 rounded-lg bg-indigo-500 text-white shadow-sm hover:bg-indigo-600 active:scale-95 transition-all"
+                                            aria-label={t('done') || 'Done'}
+                                            title={t('done') || 'Done'}
+                                        >
+                                            <Check size={14} />
+                                        </button>
+                                    )}
                                 </div>
-                            ) : (
-                                <div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowNote(true)}
-                                        className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors w-full justify-center py-1"
-                                    >
-                                        <MessageSquare size={14} />
-                                        <span>{t('note_placeholder')}</span>
-                                    </button>
-                                </div>
-                            )}
+                            </div>
+                        ) : (
+                            <div>
+                                <button
+                                    type="button"
+                                    onClick={handleOpenNote}
+                                    className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors w-full justify-center py-1"
+                                >
+                                    <MessageSquare size={14} />
+                                    <span>{t('note_placeholder')}</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Amount validation error */}
@@ -887,55 +970,57 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                     </AnimatePresence>
 
                     {/* Tool Strip — voice, scan, bulk */}
-                    <div className="px-5 pb-3 flex justify-center gap-3 flex-shrink-0">
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            type="button"
-                            onClick={startListening}
-                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-white bg-gradient-to-r from-red-500 to-pink-500 shadow-md shadow-red-200/50 dark:shadow-red-900/30"
-                        >
-                            <Mic size={14} />
-                            {t('voice')}
-                        </motion.button>
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            type="button"
-                            onClick={() => {
-                                if (!isPro) {
-                                    openUpgradeModal('scanner');
-                                    return;
-                                }
-                                setShowScanner(true);
-                            }}
-                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20"
-                        >
-                            <Camera size={14} />
-                            {t('scan')}
-                            {!isPro && <Zap size={12} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
-                        </motion.button>
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            type="button"
-                            onClick={() => {
-                                if (!isPro) {
-                                    openUpgradeModal('scanner');
-                                    return;
-                                }
-                                setShowBulkScanner(true);
-                            }}
-                            className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/20"
-                        >
-                            <Layers size={14} />
-                            {t('bulk')}
-                            {!isPro && <Zap size={12} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
-                        </motion.button>
-                    </div>
+                    {!isNoteFocused && (
+                        <div className="px-5 pb-3 flex justify-center gap-3 flex-shrink-0">
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                type="button"
+                                onClick={startListening}
+                                className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-white bg-gradient-to-r from-red-500 to-pink-500 shadow-md shadow-red-200/50 dark:shadow-red-900/30"
+                            >
+                                <Mic size={14} />
+                                {t('voice')}
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                type="button"
+                                onClick={() => {
+                                    if (!isPro) {
+                                        openUpgradeModal('scanner');
+                                        return;
+                                    }
+                                    setShowScanner(true);
+                                }}
+                                className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20"
+                            >
+                                <Camera size={14} />
+                                {t('scan')}
+                                {!isPro && <Zap size={12} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                type="button"
+                                onClick={() => {
+                                    if (!isPro) {
+                                        openUpgradeModal('scanner');
+                                        return;
+                                    }
+                                    setShowBulkScanner(true);
+                                }}
+                                className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/20"
+                            >
+                                <Layers size={14} />
+                                {t('bulk')}
+                                {!isPro && <Zap size={12} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
+                            </motion.button>
+                        </div>
+                    )}
 
                     {/* Batch Skip */}
-                    {inBatchMode && (
+                    {inBatchMode && !isNoteFocused && (
                         <div className="px-5 pb-2 flex-shrink-0">
                             <motion.button
                                 whileTap={{ scale: 0.98 }}
@@ -950,46 +1035,48 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                 </div>
 
                 {/* ── Numpad ── */}
-                <div className="bg-gray-50 dark:bg-surface-dark border-t border-gray-200 dark:border-transparent p-3 pb-[calc(0.75rem+env(safe-area-inset-top))] flex-shrink-0">
-                    {/* Digits 1-9 */}
-                    <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
-                        {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(key => (
+                {!isNoteFocused && (
+                    <div className="bg-gray-50 dark:bg-surface-dark border-t border-gray-200 dark:border-transparent p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] flex-shrink-0">
+                        {/* Digits 1-9 */}
+                        <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+                            {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(key => (
+                                <motion.button
+                                    key={key}
+                                    whileTap={{ scale: 0.9 }}
+                                    type="button"
+                                    onClick={() => handleNumpadPress(key)}
+                                    className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent"
+                                >
+                                    {key}
+                                </motion.button>
+                            ))}
+                        </div>
+                        {/* Bottom row: .  0  ⌫  ✓ */}
+                        <div className="grid grid-cols-4 gap-2 max-w-xs mx-auto mt-2">
+                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('.')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">.</motion.button>
+                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('0')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">0</motion.button>
+                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('backspace')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-gray-200 dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
+                                <Delete size={22} />
+                            </motion.button>
                             <motion.button
-                                key={key}
                                 whileTap={{ scale: 0.9 }}
                                 type="button"
-                                onClick={() => handleNumpadPress(key)}
-                                className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent"
+                                onClick={handleSubmit}
+                                disabled={!amount || !category || isSubmitting}
+                                className={`h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all ${!amount || !category
+                                    ? 'bg-gray-200 dark:bg-surface-dark3 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                    : 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30 hover:bg-indigo-700'
+                                    }`}
                             >
-                                {key}
+                                {isSubmitting ? (
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                ) : (
+                                    <Check size={24} />
+                                )}
                             </motion.button>
-                        ))}
+                        </div>
                     </div>
-                    {/* Bottom row: .  0  ⌫  ✓ */}
-                    <div className="grid grid-cols-4 gap-2 max-w-xs mx-auto mt-2">
-                        <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('.')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">.</motion.button>
-                        <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('0')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">0</motion.button>
-                        <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('backspace')} className="h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all bg-gray-200 dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
-                            <Delete size={22} />
-                        </motion.button>
-                        <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={!amount || !category || isSubmitting}
-                            className={`h-14 rounded-2xl text-xl font-bold flex items-center justify-center transition-all ${!amount || !category
-                                ? 'bg-gray-200 dark:bg-surface-dark3 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                                : 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30 hover:bg-indigo-700'
-                                }`}
-                        >
-                            {isSubmitting ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                            ) : (
-                                <Check size={24} />
-                            )}
-                        </motion.button>
-                    </div>
-                </div>
+                )}
 
                 {showScanner && <ScannerModal onClose={() => setShowScanner(false)} onScanComplete={handleScanComplete} />}
                 {showBulkScanner && <BulkScannerModal onClose={() => setShowBulkScanner(false)} onScanComplete={handleBulkScanComplete} />}
