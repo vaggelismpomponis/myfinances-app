@@ -10,69 +10,64 @@ import {
     AlertTriangle,
     FileJson,
     RefreshCw,
-    ChevronRight,
     Info,
     UserCheck,
-    Layers
+    Layers,
+    Sparkles,
+    Check,
+    Lock
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 
-/* ── Section Label ── */
-const SectionLabel = ({ children }) => (
-    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-white/50 mb-2 ml-1 px-1">
-        {children}
-    </p>
-);
-
-/* ── Action Row ── */
-const ActionRow = ({ icon: Icon, iconBg, iconColor, label, sublabel, right, onClick, last = false, disabled = false }) => (
-    <button
-        onClick={onClick}
-        disabled={disabled}
-        className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-left
-                    active:scale-[0.98] transition-all duration-150
-                    hover:bg-black/[0.03] dark:hover:bg-white/[0.04]
-                    disabled:opacity-40 disabled:cursor-not-allowed
-                    ${!last ? 'border-b border-gray-100/80 dark:border-transparent' : ''}`}
-    >
-        <div className={`w-9 h-9 rounded-[11px] flex items-center justify-center flex-shrink-0 ${iconBg}`}>
-            <Icon size={16} className={iconColor} strokeWidth={2.2} />
-        </div>
-        <div className="flex-1 min-w-0 text-left">
-            <span className="block font-semibold text-[13.5px] text-gray-800 dark:text-white/90 leading-tight">
-                {label}
-            </span>
-            {sublabel && (
-                <span className="block text-[11px] text-gray-400 dark:text-white/35 mt-0.5 leading-tight">{sublabel}</span>
-            )}
-        </div>
-        {right !== undefined ? right : <ChevronRight size={14} className="text-gray-300 dark:text-white/40 flex-shrink-0" />}
-    </button>
-);
-
 /* ── Restore Mode Selector ── */
-const RestoreModeButton = ({ active, onClick, icon: Icon, label, sublabel }) => (
-    <button
-        onClick={onClick}
-        className={`flex-1 flex flex-col items-center gap-2 p-3.5 rounded-2xl border-2 transition-all duration-200
-                    ${active
-                ? 'border-violet-500 bg-violet-50 dark:bg-violet-500/10'
-                : 'border-gray-100 dark:border-transparent bg-white dark:bg-white/[0.03]'}`}
-    >
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center
-                        ${active ? 'bg-violet-500' : 'bg-gray-100 dark:bg-white/[0.07]'}`}>
-            <Icon size={18} className={active ? 'text-white' : 'text-gray-400 dark:text-white/60'} strokeWidth={2} />
-        </div>
-        <div className="text-center">
-            <p className={`text-[12px] font-bold leading-tight ${active ? 'text-violet-600 dark:text-violet-400' : 'text-gray-700 dark:text-white/70'}`}>
-                {label}
-            </p>
-            <p className="text-[10px] text-gray-400 dark:text-white/50 mt-0.5 leading-tight">{sublabel}</p>
-        </div>
-    </button>
-);
+const RestoreModeButton = ({ active, onClick, icon: Icon, label, sublabel, color = 'violet' }) => {
+    const isRose = color === 'rose';
+    return (
+        <button
+            onClick={onClick}
+            type="button"
+            className={`flex-1 flex flex-col items-center sm:items-start text-center sm:text-left gap-2 p-4 rounded-2xl border transition-all duration-200 ${
+                active
+                    ? isRose
+                        ? 'border-rose-400 bg-rose-50/80 dark:bg-rose-500/10 shadow-sm ring-1 ring-rose-400/30'
+                        : 'border-violet-400 bg-violet-50/80 dark:bg-violet-500/10 shadow-sm ring-1 ring-violet-400/30'
+                    : 'border-gray-200/70 dark:border-white/[0.06] bg-white dark:bg-surface-dark2 hover:bg-gray-50 dark:hover:bg-white/[0.03]'
+            }`}
+        >
+            <div className="flex items-center gap-2.5">
+                <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                        active
+                            ? isRose
+                                ? 'bg-rose-500 text-white'
+                                : 'bg-violet-600 text-white'
+                            : 'bg-gray-100 dark:bg-white/[0.06] text-gray-400 dark:text-white/60'
+                    }`}
+                >
+                    <Icon size={18} strokeWidth={2.2} />
+                </div>
+                <div>
+                    <p
+                        className={`text-xs font-bold leading-tight ${
+                            active
+                                ? isRose
+                                    ? 'text-rose-700 dark:text-rose-300'
+                                    : 'text-violet-700 dark:text-violet-300'
+                                : 'text-gray-900 dark:text-white'
+                        }`}
+                    >
+                        {label}
+                    </p>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
+                        {sublabel}
+                    </p>
+                </div>
+            </div>
+        </button>
+    );
+};
 
 const BackupView = ({ user, onBack, hideHeader }) => {
     const { t: translate, customCategories, language, currency, theme } = useSettings();
@@ -147,10 +142,10 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                 budgets: (budgets || []).length,
                 recurring: (recurring || []).length,
             });
-            showToast(translate('backup_success'), 'success');
+            showToast(translate('backup_success') || 'Backup exported successfully!', 'success');
         } catch (err) {
             console.error('Backup export error:', err);
-            showToast(translate('backup_error'), 'error');
+            showToast(translate('backup_error') || 'Failed to export backup.', 'error');
         } finally {
             setIsExporting(false);
         }
@@ -165,13 +160,13 @@ const BackupView = ({ user, onBack, hideHeader }) => {
             try {
                 const json = JSON.parse(ev.target.result);
                 if (!json._meta || json._meta.app !== 'SpendWise') {
-                    showToast(translate('backup_invalid'), 'error');
+                    showToast(translate('backup_invalid') || 'Invalid or unsupported backup file.', 'error');
                     return;
                 }
                 setParsedBackup(json);
                 setImportStep('preview');
             } catch {
-                showToast(translate('backup_parse_error'), 'error');
+                showToast(translate('backup_parse_error') || 'Could not parse backup file.', 'error');
             }
         };
         reader.readAsText(file);
@@ -219,11 +214,11 @@ const BackupView = ({ user, onBack, hideHeader }) => {
             await batchInsert('recurring_transactions', strip(recurringTransactions));
 
             setImportStep('done');
-            showToast(translate('restore_success'), 'success');
+            showToast(translate('restore_success') || 'Backup restored successfully!', 'success');
         } catch (err) {
             console.error('Restore error:', err);
             setImportStep('preview');
-            showToast(translate('restore_error'), 'error');
+            showToast(translate('restore_error') || 'Failed to restore backup.', 'error');
         } finally {
             setIsImporting(false);
         }
@@ -237,272 +232,439 @@ const BackupView = ({ user, onBack, hideHeader }) => {
     const meta = parsedBackup?._meta;
 
     return (
-        <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col animate-fade-in transition-colors duration-300">
-
-            {/* ── Header ── */}
-            <div
-                className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
-                            ${hideHeader 
-                                ? 'bg-transparent border-none px-4 pt-4 pb-2' 
-                                : 'bg-gray-50 dark:bg-surface-dark border-b border-gray-100 dark:border-transparent px-4 pb-4 backdrop-blur-xl'}`}
-                style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
-            >
-                <div className="flex items-center justify-center relative min-h-[36px]">
-                    <button
-                        onClick={onBack}
-                        className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08]
-                                   flex items-center justify-center text-gray-500 dark:text-white/50
-                                   hover:bg-gray-200 dark:hover:bg-white/[0.14]
-                                   active:scale-90 transition-all duration-150"
-                    >
-                        <ArrowLeft size={15} strokeWidth={2.5} />
-                    </button>
-                    {!hideHeader && (
+        <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300 overflow-hidden">
+            {/* ─────── Mobile Sticky Header ─────── */}
+            {!hideHeader && (
+                <div
+                    className="shrink-0 transition-colors duration-300 sticky top-0 z-20 bg-gray-50/90 dark:bg-surface-dark/90 backdrop-blur-xl border-b border-gray-100 dark:border-white/[0.06] px-4 pb-3"
+                    style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+                >
+                    <div className="flex items-center justify-between min-h-[36px]">
+                        <button
+                            onClick={onBack}
+                            className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center text-gray-700 dark:text-white/70 hover:bg-gray-200 dark:hover:bg-white/[0.14] active:scale-90 transition-all duration-150"
+                            aria-label="Back"
+                        >
+                            <ArrowLeft size={16} strokeWidth={2.5} />
+                        </button>
                         <div className="text-center">
-                            <h2 className="text-[17px] font-bold text-gray-900 dark:text-white leading-tight">
-                                {translate('backup_restore')}
+                            <h2 className="text-[17px] font-extrabold text-gray-900 dark:text-white leading-tight">
+                                {translate('backup_restore') || 'Backup & Restore'}
                             </h2>
-                            <p className="text-[11px] text-gray-400 dark:text-white/35">
-                                {translate('backup_subtitle')}
+                            <p className="text-[11px] font-medium text-gray-500 dark:text-white/50 leading-none mt-0.5">
+                                {translate('backup_subtitle') || 'Data preservation & vault'}
                             </p>
                         </div>
-                    )}
-                </div>
-            </div>
-
-            {/* ── Content ── */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-5 pb-10">
-
-                {/* Info Banner */}
-                <div className="bg-violet-50 dark:bg-violet-500/[0.08] rounded-2xl p-4
-                                border border-violet-100 dark:border-violet-500/20
-                                flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-violet-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Info size={15} className="text-violet-500 dark:text-violet-400" />
+                        <div className="w-9" />
                     </div>
-                    <p className="text-[12px] text-violet-700 dark:text-violet-300/80 leading-relaxed">
-                        {translate('backup_info')}
-                    </p>
                 </div>
+            )}
 
-                {/* ── Export Section ── */}
-                <div>
-                    <SectionLabel>{translate('backup_export_title')}</SectionLabel>
-                    <div className="bg-white dark:bg-white/[0.04] rounded-2xl overflow-hidden
-                                    shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-none
-                                    border border-gray-100 dark:border-transparent">
-                        <ActionRow
-                            icon={Download}
-                            iconBg="bg-violet-50 dark:bg-violet-500/10"
-                            iconColor="text-violet-600 dark:text-violet-400"
-                            label={translate('backup_export_label')}
-                            sublabel={translate('backup_export_sublabel')}
-                            right={isExporting
-                                ? <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-                                : <ChevronRight size={14} className="text-gray-300 dark:text-white/40" />
-                            }
-                            onClick={handleExportBackup}
-                            disabled={isExporting}
-                            last
-                        />
-                    </div>
+            {/* ─────── Main Scroll Container ─────── */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-8 space-y-6">
 
-                    {/* Last export info */}
-                    {lastExportInfo && (
-                        <div className="mt-3 px-3 py-3 bg-emerald-50 dark:bg-emerald-500/[0.07] rounded-xl
-                                        border border-emerald-100 dark:border-emerald-500/20
-                                        flex items-start gap-2.5">
-                            <CheckCircle2 size={15} className="text-emerald-500 mt-0.5 flex-shrink-0" />
-                            <div>
-                                <p className="text-[12px] font-semibold text-emerald-700 dark:text-emerald-300">
-                                    {translate('backup_exported')}
-                                </p>
-                                <p className="text-[11px] text-emerald-600/70 dark:text-emerald-400/60 mt-0.5">
-                                    {lastExportInfo.date} · {lastExportInfo.transactions} {translate('backup_tx')} ·{' '}
-                                    {lastExportInfo.goals} {translate('backup_goals')} ·{' '}
-                                    {lastExportInfo.budgets} {translate('backup_budgets')}
-                                </p>
+                    {/* Desktop Navigation Breadcrumb Bar */}
+                    {hideHeader && (
+                        <div className="flex items-center justify-between pb-1">
+                            <button
+                                onClick={onBack}
+                                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-white/[0.05] border border-gray-200/80 dark:border-white/[0.08] text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.1] active:scale-95 shadow-sm transition-all"
+                            >
+                                <ArrowLeft size={14} strokeWidth={2.5} />
+                                <span>{translate('guide_back_to_settings') || 'Back to Settings'}</span>
+                            </button>
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-500/10 border border-violet-200/60 dark:border-violet-500/20 text-xs font-semibold text-violet-700 dark:text-violet-300">
+                                <Database size={13} className="shrink-0 text-violet-600 dark:text-violet-400" />
+                                <span>SpendWise Vault & Backups</span>
                             </div>
                         </div>
                     )}
-                </div>
 
-                {/* ── Restore Section ── */}
-                <div>
-                    <SectionLabel>{translate('backup_restore_title')}</SectionLabel>
-
-                    {importStep === 'idle' && (
-                        <div className="bg-white dark:bg-white/[0.04] rounded-2xl overflow-hidden
-                                        shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-none
-                                        border border-gray-100 dark:border-transparent">
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept=".json,application/json"
-                                aria-label={translate('backup_choose_file')}
-                                className="hidden"
-                                onChange={handleFilePick}
-                            />
-                            <ActionRow
-                                icon={Upload}
-                                iconBg="bg-cyan-50 dark:bg-cyan-500/10"
-                                iconColor="text-cyan-600 dark:text-cyan-400"
-                                label={translate('backup_choose_file')}
-                                sublabel={translate('backup_choose_sublabel')}
-                                onClick={() => fileInputRef.current?.click()}
-                                last
-                            />
+                    {/* ─────── Hero Hub ─────── */}
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-indigo-800 dark:from-violet-950 dark:via-indigo-950 dark:to-surface-dark3 border border-violet-400/30 dark:border-white/10 shadow-xl shadow-violet-500/15 text-white p-6 sm:p-8">
+                        {/* Ambient decorative glowing backdrop lights */}
+                        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-violet-400/20 blur-3xl pointer-events-none" />
+                        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-indigo-400/20 blur-3xl pointer-events-none" />
+                        <div className="absolute top-1/2 right-10 -translate-y-1/2 opacity-10 pointer-events-none hidden md:block">
+                            <Database size={160} strokeWidth={1} />
                         </div>
-                    )}
 
-                    {/* Preview Step */}
-                    {importStep === 'preview' && meta && (
-                        <div className="space-y-3">
-                            {/* Backup metadata card */}
-                            <div className="bg-white dark:bg-white/[0.04] rounded-2xl
-                                            shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-none
-                                            border border-gray-100 dark:border-transparent overflow-hidden">
-                                <div className="px-4 py-3.5 border-b border-gray-100 dark:border-transparent flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-[11px] bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center">
-                                        <FileJson size={16} className="text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
+                        <div className="relative z-10 max-w-2xl space-y-3">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
+                                <ShieldCheck size={13} />
+                                <span>Secure Data Vault</span>
+                            </div>
+                            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                                {translate('backup_restore') || 'Backup & Restore'}
+                            </h2>
+                            <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
+                                {translate('backup_info') || 'A backup includes all your transactions, goals, budgets, recurring rules, and app settings. You can restore it to any SpendWise account.'}
+                            </p>
+
+                            {/* Attribute Chips */}
+                            <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-violet-100/90">
+                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                    Full Data Portability
+                                </span>
+                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                    Client-Side JSON
+                                </span>
+                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                    Zero Lock-In
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ─────── Main Actions: Export & Import Bento Grid ─────── */}
+                    {importStep === 'idle' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                            {/* Export Card */}
+                            <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm flex flex-col justify-between space-y-6">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-500/20 flex items-center justify-center shrink-0">
+                                            <Download size={22} strokeWidth={2.3} />
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
+                                                Export
+                                            </span>
+                                            <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
+                                                {translate('backup_export_title') || 'Create Full Backup'}
+                                            </h3>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="font-bold text-[13.5px] text-gray-800 dark:text-white/90">
-                                            {translate('backup_file_preview')}
-                                        </p>
-                                        <p className="text-[11px] text-gray-400 dark:text-white/35">SpendWise v{meta.version}</p>
+
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                                        {translate('backup_export_sublabel') || 'Export all your transactions, goals, budgets, recurring rules, and custom categories into a secure JSON file.'}
+                                    </p>
+
+                                    {/* Checklist */}
+                                    <div className="space-y-2 pt-1">
+                                        {[
+                                            'All historical income & expense transactions',
+                                            'Active and completed savings goals',
+                                            'Monthly category budgets and threshold rules',
+                                            'Recurring bills and subscriptions',
+                                            'Custom categories & regional settings'
+                                        ].map((item, idx) => (
+                                            <div key={idx} className="flex items-center gap-2">
+                                                <div className="w-4 h-4 rounded-md bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0">
+                                                    <Check size={11} strokeWidth={3} />
+                                                </div>
+                                                <span className="text-[12px] text-gray-700 dark:text-gray-300">
+                                                    {item}
+                                                </span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 
+                                <div className="space-y-3 pt-2">
+                                    {/* Action Button */}
+                                    <button
+                                        onClick={handleExportBackup}
+                                        disabled={isExporting}
+                                        className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold text-xs shadow-lg shadow-violet-500/25 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                    >
+                                        {isExporting ? (
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        ) : (
+                                            <>
+                                                <Download size={15} strokeWidth={2.3} />
+                                                <span>{translate('backup_export_label') || 'Export Full Backup'}</span>
+                                            </>
+                                        )}
+                                    </button>
+
+                                    {/* Last Export Badge */}
+                                    {lastExportInfo && (
+                                        <div className="px-3.5 py-2.5 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-200/60 dark:border-emerald-500/20 flex items-start gap-2.5">
+                                            <CheckCircle2 size={14} className="text-emerald-500 mt-0.5 shrink-0" />
+                                            <div className="text-[11px] leading-snug">
+                                                <p className="font-bold text-emerald-700 dark:text-emerald-300">
+                                                    {translate('backup_exported') || 'Backup Created'}
+                                                </p>
+                                                <p className="text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">
+                                                    {lastExportInfo.date} &bull; {lastExportInfo.transactions} {translate('backup_tx') || 'transactions'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Restore Card */}
+                            <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm flex flex-col justify-between space-y-6">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 border border-cyan-500/20 flex items-center justify-center shrink-0">
+                                            <Upload size={22} strokeWidth={2.3} />
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700 dark:bg-cyan-500/10 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-500/20">
+                                                Restore
+                                            </span>
+                                            <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
+                                                {translate('backup_restore_title') || 'Restore from Backup'}
+                                            </h3>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                                        {translate('backup_choose_sublabel') || 'Select a previously exported .json SpendWise backup file to recover or sync your account data.'}
+                                    </p>
+
+                                    {/* Key Capabilities */}
+                                    <div className="space-y-2 pt-1">
+                                        {[
+                                            'Dual restore modes: Merge or Clean Replace',
+                                            'Pre-import data validation & schema checking',
+                                            'Re-associates records to current authenticated user',
+                                            'Safe batch insertion preventing network timeouts',
+                                            'Automatic duplicate avoidance when merging'
+                                        ].map((item, idx) => (
+                                            <div key={idx} className="flex items-center gap-2">
+                                                <div className="w-4 h-4 rounded-md bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
+                                                    <Check size={11} strokeWidth={3} />
+                                                </div>
+                                                <span className="text-[12px] text-gray-700 dark:text-gray-300">
+                                                    {item}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="pt-2">
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept=".json,application/json"
+                                        aria-label={translate('backup_choose_file') || 'Choose Backup File'}
+                                        className="hidden"
+                                        onChange={handleFilePick}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="w-full py-3.5 px-5 rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <FileJson size={15} strokeWidth={2.3} />
+                                        <span>{translate('backup_choose_file') || 'Choose Backup File'}</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    )}
+
+                    {/* ─────── Preview Step Card ─────── */}
+                    {importStep === 'preview' && meta && (
+                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                            <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.06] pb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 border border-cyan-500/20 flex items-center justify-center shrink-0">
+                                        <FileJson size={22} strokeWidth={2.2} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight">
+                                            {translate('backup_file_preview') || 'Backup File Preview'}
+                                        </h3>
+                                        <p className="text-[11px] font-semibold text-gray-400 dark:text-white/40">
+                                            SpendWise Schema v{meta.version}
+                                        </p>
+                                    </div>
+                                </div>
+                                <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-500/20">
+                                    Valid Format
+                                </span>
+                            </div>
+
+                            {/* Metadata Table */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {[
-                                    { icon: Clock, label: translate('backup_date'), value: new Date(meta.exportedAt).toLocaleString() },
-                                    { icon: UserCheck, label: translate('backup_owner'), value: meta.exportedBy || '—' },
-                                    { icon: Database, label: translate('backup_transactions_count'), value: meta.transactionCount },
-                                    { icon: Layers, label: translate('backup_other_data'), value: `${meta.goalsCount} / ${meta.budgetsCount} / ${meta.recurringCount}` },
-                                ].map(({ icon: Ico, label, value }, i, arr) => (
-                                    <div key={label} className={`flex items-center gap-3 px-4 py-3 ${i < arr.length - 1 ? 'border-b border-gray-100 dark:border-transparent' : ''}`}>
-                                        <Ico size={14} className="text-gray-400 dark:text-white/50 flex-shrink-0" />
-                                        <span className="text-[12px] text-gray-500 dark:text-white/60 flex-1">{label}</span>
-                                        <span className="text-[12px] font-semibold text-gray-700 dark:text-white/70">{value}</span>
+                                    { icon: Clock, label: translate('backup_date') || 'Exported At', value: new Date(meta.exportedAt).toLocaleString() },
+                                    { icon: UserCheck, label: translate('backup_owner') || 'Original Owner', value: meta.exportedBy || '—' },
+                                    { icon: Database, label: translate('backup_transactions_count') || 'Transactions', value: `${meta.transactionCount} records` },
+                                    { icon: Layers, label: translate('backup_other_data') || 'Goals / Budgets / Recurring', value: `${meta.goalsCount} / ${meta.budgetsCount} / ${meta.recurringCount}` },
+                                ].map(({ icon: Ico, label, value }) => (
+                                    <div
+                                        key={label}
+                                        className="p-3.5 rounded-2xl bg-gray-50/70 dark:bg-surface-dark border border-gray-200/60 dark:border-white/[0.06] flex items-center gap-3"
+                                    >
+                                        <div className="w-8 h-8 rounded-xl bg-gray-200/60 dark:bg-white/[0.08] flex items-center justify-center shrink-0 text-gray-600 dark:text-gray-300">
+                                            <Ico size={15} />
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                                {label}
+                                            </p>
+                                            <p className="text-xs font-bold text-gray-900 dark:text-white truncate mt-0.5">
+                                                {value}
+                                            </p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Restore mode */}
-                            <div>
-                                <p className="text-[11px] font-semibold text-gray-400 dark:text-white/50 uppercase tracking-widest mb-2 px-1">
-                                    {translate('backup_restore_mode')}
-                                </p>
-                                <div className="flex gap-2">
+                            {/* Restore Mode Selector */}
+                            <div className="space-y-3 pt-2">
+                                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                    {translate('backup_restore_mode') || 'Choose Restore Mode'}
+                                </label>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <RestoreModeButton
                                         active={restoreMode === 'merge'}
                                         onClick={() => setRestoreMode('merge')}
                                         icon={RefreshCw}
-                                        label={translate('backup_mode_merge')}
-                                        sublabel={translate('backup_mode_merge_desc')}
+                                        label={translate('backup_mode_merge') || 'Merge Data'}
+                                        sublabel={translate('backup_mode_merge_desc') || 'Append backup to existing transactions'}
+                                        color="violet"
                                     />
                                     <RestoreModeButton
                                         active={restoreMode === 'replace'}
                                         onClick={() => setRestoreMode('replace')}
                                         icon={Database}
-                                        label={translate('backup_mode_replace')}
-                                        sublabel={translate('backup_mode_replace_desc')}
+                                        label={translate('backup_mode_replace') || 'Clean Replace'}
+                                        sublabel={translate('backup_mode_replace_desc') || 'Delete current data and restore exact backup'}
+                                        color="rose"
                                     />
                                 </div>
                             </div>
 
-                            {/* Replace warning */}
+                            {/* Warning when Replace is selected */}
                             {restoreMode === 'replace' && (
-                                <div className="bg-rose-50 dark:bg-rose-500/[0.07] rounded-xl px-3.5 py-3
-                                                border border-rose-100 dark:border-rose-500/20
-                                                flex items-start gap-2.5">
-                                    <AlertTriangle size={15} className="text-rose-500 mt-0.5 flex-shrink-0" />
-                                    <p className="text-[12px] text-rose-700 dark:text-rose-300 leading-relaxed">
-                                        {translate('backup_replace_warning')}
+                                <div className="bg-rose-50 dark:bg-rose-500/10 rounded-2xl p-4 border border-rose-200/70 dark:border-rose-500/20 flex items-start gap-3">
+                                    <AlertTriangle size={18} className="text-rose-500 shrink-0 mt-0.5" />
+                                    <p className="text-xs text-rose-700 dark:text-rose-300 leading-relaxed font-medium">
+                                        {translate('backup_replace_warning') || 'This will permanently delete all your existing transactions, budgets, and goals before restoring. This action cannot be undone.'}
                                     </p>
                                 </div>
                             )}
 
-                            {/* Action buttons */}
-                            <div className="flex gap-2.5 pt-1">
+                            {/* Actions */}
+                            <div className="flex items-center gap-3 pt-2">
                                 <button
+                                    type="button"
                                     onClick={resetImport}
-                                    className="flex-1 py-3.5 bg-gray-100 dark:bg-white
-                                               text-gray-700 dark:text-black font-bold rounded-xl text-[14px]
-                                               hover:bg-gray-200 dark:hover:bg-gray-100
-                                               active:scale-95 transition-all"
+                                    className="flex-1 py-3.5 px-5 rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-gray-700 dark:text-gray-200 font-extrabold text-xs active:scale-[0.98] transition-all"
                                 >
-                                    {translate('cancel')}
+                                    {translate('cancel') || 'Cancel'}
                                 </button>
                                 <button
+                                    type="button"
                                     onClick={handleRestoreBackup}
-                                    className={`flex-1 py-3.5 font-bold rounded-xl text-white text-[14px]
-                                               active:scale-95 transition-all
-                                               ${restoreMode === 'replace'
-                                            ? 'bg-rose-500 hover:bg-rose-600 shadow-[0_4px_16px_rgba(239,68,68,0.35)]'
-                                            : 'bg-violet-600 hover:bg-violet-700 shadow-[0_4px_16px_rgba(124,58,237,0.35)]'}`}
+                                    disabled={isImporting}
+                                    className={`flex-1 py-3.5 px-5 rounded-2xl text-white font-extrabold text-xs active:scale-[0.98] transition-all shadow-lg ${
+                                        restoreMode === 'replace'
+                                            ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-500/25'
+                                            : 'bg-violet-600 hover:bg-violet-700 shadow-violet-500/25'
+                                    }`}
                                 >
-                                    {translate('backup_restore_btn')}
+                                    {translate('backup_restore_btn') || 'Restore Backup Now'}
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    {/* Importing progress */}
+                    {/* ─────── Importing Progress State ─────── */}
                     {importStep === 'importing' && (
-                        <div className="bg-white dark:bg-white/[0.04] rounded-2xl p-8
-                                        shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-none
-                                        border border-gray-100 dark:border-transparent
-                                        flex flex-col items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center">
-                                <div className="w-7 h-7 border-[3px] border-violet-500 border-t-transparent rounded-full animate-spin" />
+                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-10 text-center space-y-4">
+                            <div className="w-14 h-14 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 flex items-center justify-center mx-auto">
+                                <div className="w-7 h-7 border-3 border-violet-500 border-t-transparent rounded-full animate-spin" />
                             </div>
-                            <div className="text-center">
-                                <p className="font-bold text-[15px] text-gray-800 dark:text-white/90">
-                                    {translate('backup_restoring')}
-                                </p>
-                                <p className="text-[12px] text-gray-400 dark:text-white/35 mt-1">
-                                    {translate('backup_restoring_desc')}
+                            <div className="space-y-1">
+                                <h3 className="text-base font-extrabold text-gray-900 dark:text-white">
+                                    {translate('backup_restoring') || 'Restoring your data...'}
+                                </h3>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {translate('backup_restoring_desc') || 'Please wait while we populate transactions and settings into your account.'}
                                 </p>
                             </div>
                         </div>
                     )}
 
-                    {/* Done state */}
+                    {/* ─────── Done State ─────── */}
                     {importStep === 'done' && (
-                        <div className="bg-white dark:bg-white/[0.04] rounded-2xl p-8
-                                        shadow-[0_1px_12px_rgba(0,0,0,0.06)] dark:shadow-none
-                                        border border-gray-100 dark:border-transparent
-                                        flex flex-col items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
-                                <ShieldCheck size={28} className="text-emerald-500" strokeWidth={1.5} />
+                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-8 sm:p-10 text-center space-y-5">
+                            <div className="w-16 h-16 rounded-3xl bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/25 dark:text-emerald-400 flex items-center justify-center mx-auto">
+                                <ShieldCheck size={34} strokeWidth={2.2} />
                             </div>
-                            <div className="text-center">
-                                <p className="font-bold text-[15px] text-gray-800 dark:text-white/90">
-                                    {translate('backup_done_title')}
-                                </p>
-                                <p className="text-[12px] text-gray-400 dark:text-white/35 mt-1 leading-relaxed">
-                                    {meta?.transactionCount} {translate('backup_tx')} {translate('backup_done_imported')}
+                            <div className="space-y-1">
+                                <h3 className="text-lg font-extrabold text-gray-900 dark:text-white">
+                                    {translate('backup_done_title') || 'Data Restored Successfully'}
+                                </h3>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {meta?.transactionCount} {translate('backup_tx') || 'transactions'} {translate('backup_done_imported') || 'imported into your account'}
                                 </p>
                             </div>
                             <button
+                                type="button"
                                 onClick={resetImport}
-                                className="px-6 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10
-                                           text-emerald-600 dark:text-emerald-400 font-bold text-[13px]
-                                           hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all active:scale-95"
+                                className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs active:scale-95 transition-all shadow-sm shadow-emerald-500/20"
                             >
-                                {translate('backup_restore_another')}
+                                {translate('backup_restore_another') || 'Done'}
                             </button>
                         </div>
                     )}
-                </div>
 
-                {/* Security Note */}
-                <div className="flex items-start gap-2.5 px-2">
-                    <ShieldCheck size={13} className="text-gray-300 dark:text-white/40 mt-0.5 flex-shrink-0" />
-                    <p className="text-[11px] text-gray-400 dark:text-white/25 leading-relaxed">
-                        {translate('backup_security_note')}
-                    </p>
+                    {/* ─────── Bottom Bento: Trust & Safety ─────── */}
+                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 shadow-sm">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+                                <Lock size={20} strokeWidth={2.3} />
+                            </div>
+                            <div>
+                                <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
+                                    Data Sovereignty & Security Notice
+                                </h4>
+                                <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                                    You own your financial data completely
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                            <div className="flex items-start gap-2.5">
+                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
+                                    <CheckCircle2 size={13} strokeWidth={2.5} />
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
+                                    Backups are standard JSON files that you can inspect or import anytime.
+                                </p>
+                            </div>
+
+                            <div className="flex items-start gap-2.5">
+                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
+                                    <ShieldCheck size={13} strokeWidth={2.5} />
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
+                                    Keep your exported backups in a safe location (e.g. password manager or encrypted drive).
+                                </p>
+                            </div>
+
+                            <div className="flex items-start gap-2.5">
+                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
+                                    <Sparkles size={13} strokeWidth={2.5} />
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
+                                    Seamlessly migrate your data between different phones, devices, or accounts.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer Signature */}
+                    <div className="text-center pt-2 pb-8">
+                        <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
+                            SpendWise &bull; Financial Data Vault &bull; Version 2.0
+                        </p>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -510,12 +672,3 @@ const BackupView = ({ user, onBack, hideHeader }) => {
 };
 
 export default BackupView;
-
-
-
-
-
-
-
-
-
