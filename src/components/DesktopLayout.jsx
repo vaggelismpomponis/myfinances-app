@@ -90,7 +90,7 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
     return (
         <aside id="tour-quick-access" className="
             h-full flex flex-col gap-4 overflow-y-auto custom-scrollbar
-            w-[280px] flex-shrink-0 py-6 pr-4 pl-2
+            w-[330px] xl:w-[350px] flex-shrink-0 py-6 pr-5 pl-2
         ">
             {/* ── Cash Flow ── */}
             <div className="bg-white dark:bg-surface-dark3
@@ -377,7 +377,7 @@ const DesktopLayout = ({
                 <div className="flex-1 flex overflow-hidden">
                     {/* Main scrollable area */}
                     <main className="flex-1 overflow-y-auto custom-scrollbar">
-                        <div className={`h-full ${activeTab === 'home' ? 'px-6 lg:px-10 py-6 max-w-[1680px] mx-auto' : 'px-6 lg:px-12 xl:px-20 2xl:px-32'}`}>
+                        <div className={`h-full ${activeTab === 'home' ? 'px-6 lg:px-10 py-6 max-w-[1680px] mx-auto' : 'px-4 lg:px-6 xl:px-8 py-6'}`}>
                             {children}
                         </div>
                     </main>
