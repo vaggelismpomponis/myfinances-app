@@ -1334,6 +1334,9 @@ function MainContent() {
                     setActiveTab={setActiveTab}
                     onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
                     isDesktop={isDesktop}
+                    user={user}
+                    displayName={displayName}
+                    onAdd={() => openAddModal()}
                 />
             )}
             {activeTab === 'stats' && <ProtectedStatsView transactions={transactions} />}

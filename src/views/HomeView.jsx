@@ -3,11 +3,12 @@ import {
     Target, Wallet, RefreshCw, BarChart,
     ChevronRight, Sparkles, ArrowUpRight, ArrowDownRight, TrendingUp,
     ArrowRight, TrendingDown, Minus, Eye, EyeOff, Zap,
-    Plus, ShieldCheck, BarChart2, Bot
+    Plus, ShieldCheck, BarChart2, Bot, Calendar, PieChart, Search,
+    Flame, CheckCircle2, Clock
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 import Amount from '../components/Amount';
-import CategoryIcon from '../components/CategoryIcon';
+import CategoryIcon, { CATEGORY_ACCENT } from '../components/CategoryIcon';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -162,257 +163,54 @@ const QuickAction = ({ icon: Icon, label, color, bg, onClick, delay, isPro, user
 );
 
 /* ─────────────────────────────────────────────
-   Desktop Stat Cards Row (replaces Hero Card)
+   Desktop Mini Widgets (Budgets & Goals)
 ───────────────────────────────────────────── */
-const DesktopStatCards = ({ balance, totalIncome, totalExpense, stats, t, privacyMode }) => {
-    const netFlow = totalIncome - totalExpense;
-    const isPositive = netFlow >= 0;
+const getGoalEmoji = (goal) => {
+    if (goal?.emoji) return goal.emoji;
+    const title = (goal?.title || '').toLowerCase();
+    if (title.includes('ταξ') || title.includes('trav')) return '✈️';
+    if (title.includes('σπίτ') || title.includes('home')) return '🏠';
+    if (title.includes('αυτ') || title.includes('car')) return '🚗';
+    if (title.includes('τεχ') || title.includes('laptop') || title.includes('tech') || title.includes('phone')) return '💻';
+    if (title.includes('γάμ') || title.includes('wed')) return '💍';
+    if (title.includes('υγ') || title.includes('health')) return '🏥';
+    if (title.includes('παιχ') || title.includes('game')) return '🎮';
+    if (title.includes('σκύλ') || title.includes('γάτ') || title.includes('pet')) return '🐾';
+    return '🎯';
+};
 
-    const cards = [
-        {
-            id: 'balance',
-            label: t('balance'),
-            value: balance,
-            icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>,
-            iconBg: 'bg-violet-100 dark:bg-violet-900/40',
-            iconColor: 'text-violet-600 dark:text-violet-400',
-            badge: stats.diffPct > 0 ? (
-                <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${stats.trend === 'below'
-                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
-                    : stats.trend === 'above'
-                        ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
-                        : 'bg-gray-100 dark:bg-white/10 text-gray-500'
-                    }`}>
-                    {stats.trend === 'below' && <TrendingDown size={10} />}
-                    {stats.trend === 'above' && <TrendingUp size={10} />}
-                    {stats.trend === 'neutral' && <Minus size={10} />}
-                    {stats.diffPct}% {t('this_month_spend')?.slice(0, 6)}
-                </span>
-            ) : null,
-            border: 'border-violet-100/80 dark:border-violet-900/20',
-            delay: 0,
-        },
-        {
-            id: 'income',
-            label: t('stats_income'),
-            value: totalIncome,
-            icon: <ArrowUpRight size={20} />,
-            iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
-            iconColor: 'text-emerald-600 dark:text-emerald-400',
-            badge: null,
-            border: 'border-emerald-100/80 dark:border-emerald-900/20',
-            delay: 0.05,
-        },
-        {
-            id: 'expenses',
-            label: t('stats_expense'),
-            value: totalExpense,
-            icon: <ArrowDownRight size={20} />,
-            iconBg: 'bg-rose-100 dark:bg-rose-900/30',
-            iconColor: 'text-rose-600 dark:text-rose-400',
-            badge: null,
-            border: 'border-rose-100/80 dark:border-rose-900/20',
-            delay: 0.1,
-        },
-        {
-            id: 'netflow',
-            label: 'Net Flow',
-            value: Math.abs(netFlow),
-            rawPrefix: isPositive ? '+' : '−',
-            icon: isPositive ? <TrendingUp size={20} /> : <TrendingDown size={20} />,
-            iconBg: isPositive ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-rose-100 dark:bg-rose-900/30',
-            iconColor: isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400',
-            valueColor: isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400',
-            badge: null,
-            border: isPositive ? 'border-emerald-100/80 dark:border-emerald-900/20' : 'border-rose-100/80 dark:border-rose-900/20',
-            delay: 0.15,
-        },
-    ];
+const DesktopGoalMiniCard = ({ goal }) => {
+    const current = goal.current_amount || 0;
+    const target = goal.target_amount || 1;
+    const pct = Math.min(100, Math.round((current / target) * 100));
+    const emoji = getGoalEmoji(goal);
 
     return (
-        <div className="grid grid-cols-2 gap-4">
-            {/* ── Monthly Overview Hero Card (Purple) ── */}
-            <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.5, type: 'spring', damping: 20 }}
-                className="col-span-2 relative overflow-hidden rounded-[2rem]
-                           bg-gradient-to-br from-violet-600 to-indigo-700 dark:from-surface-dark3 dark:to-surface-dark4
-                           p-7 border border-white/20 dark:border-white/10
-                           shadow-premium"
-            >
-                <div className="absolute inset-0 bg-white/5 backdrop-blur-xl pointer-events-none" />
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-violet-400/[0.1] dark:bg-violet-500/[0.07] blur-[50px] rounded-full pointer-events-none" />
-                <div className="relative z-10 flex items-center justify-between">
-                    <div className="relative z-10">
-                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-white/80 dark:text-violet-300/50 mb-2 font-display">
-                            {t('this_month_spend')}
-                        </p>
-                        <div className="flex items-start gap-1">
-                            {!privacyMode && (
-                                <span className="text-xl font-bold text-white/60 mt-1">€</span>
-                            )}
-                            <span className="text-[3rem] leading-none font-black text-white tracking-tighter tabular-nums drop-shadow-sm font-display">
-                                <Amount value={stats.curSpent} showCurrency={false} minimumFractionDigits={2} maximumFractionDigits={2} />
-                            </span>
-                        </div>
-                    </div>
-                    <div className="relative z-10 text-right flex flex-col items-end">
-                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${stats.trend === 'below'
-                            ? 'text-emerald-300 bg-emerald-400/20'
-                            : stats.trend === 'above'
-                                ? 'text-rose-300 bg-rose-400/20'
-                                : 'text-white/60 bg-white/[0.10]'
-                            }`}>
-                            {stats.trend === 'below' && <TrendingDown size={14} />}
-                            {stats.trend === 'above' && <TrendingUp size={14} />}
-                            {stats.trend === 'neutral' && <Minus size={14} />}
-                            <span>
-                                {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
-                            </span>
-                        </div>
-                    </div>
+        <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-100/80 dark:border-white/[0.04] space-y-2.5 hover:border-violet-200 dark:hover:border-violet-800/40 transition-colors">
+            <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-base flex-shrink-0">{emoji}</span>
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{goal.title}</span>
                 </div>
-            </motion.div>
-
-            {/* ── The 4 Stat Cards ── */}
-            {cards.map((card) => (
-                <motion.div
-                    key={card.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, delay: card.delay }}
-                    className={`bg-white dark:bg-surface-dark3
-                                border ${card.border}
-                                rounded-2xl p-5
-                                shadow-card dark:shadow-card-dark hover:shadow-md
-                                transition-all duration-200 group`}
-                >
-                    <div className="flex items-start justify-between mb-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${card.iconBg} ${card.iconColor} transition-transform duration-200 group-hover:scale-110`}>
-                            {card.icon}
-                        </div>
-                    </div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
-                        {card.label}
-                    </p>
-                    <p className={`text-2xl font-black tracking-tight tabular-nums ${card.valueColor || 'text-gray-900 dark:text-white'
-                        }`}>
-                        {card.rawPrefix && !privacyMode && (
-                            <span className="text-lg font-bold mr-0.5">{card.rawPrefix}</span>
-                        )}
-                        <Amount value={card.value} showSign={false} />
-                    </p>
-                </motion.div>
-            ))}
+                <span className="text-[10px] font-black text-violet-600 dark:text-violet-400 tabular-nums bg-violet-50 dark:bg-violet-950/40 px-2 py-0.5 rounded-full border border-violet-100 dark:border-violet-900/30">
+                    {pct}%
+                </span>
+            </div>
+            <div className="h-1.5 bg-gray-200/70 dark:bg-white/[0.06] rounded-full overflow-hidden">
+                <div
+                    className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-700"
+                    style={{ width: `${pct}%` }}
+                />
+            </div>
+            <div className="flex items-center justify-between text-[10px] font-bold text-gray-400 dark:text-gray-500 tabular-nums">
+                <span><Amount value={current} /></span>
+                <span><Amount value={target} /></span>
+            </div>
         </div>
     );
 };
 
-/* ─────────────────────────────────────────────
-   Desktop Financial Summary Card
-───────────────────────────────────────────── */
-const FinancialSummaryCard = ({ totalIncome, totalExpense, t }) => {
-    const netFlow = totalIncome - totalExpense;
-    const isPositive = netFlow >= 0;
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px]
-                       p-6 space-y-4"
-        >
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">
-                {t('this_month_spend') || 'This Month'}
-            </h3>
-
-            {/* Income */}
-            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/70 dark:bg-white/10 text-emerald-600 dark:text-emerald-400 flex-shrink-0">
-                    <ArrowUpRight size={17} />
-                </div>
-                <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('stats_income')}</p>
-                    <p className="text-base font-black text-gray-900 dark:text-white truncate tabular-nums">
-                        <Amount value={totalIncome} />
-                    </p>
-                </div>
-            </div>
-
-            {/* Expense */}
-            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-900/20">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/70 dark:bg-white/10 text-rose-600 dark:text-rose-400 flex-shrink-0">
-                    <ArrowDownRight size={17} />
-                </div>
-                <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('stats_expense')}</p>
-                    <p className="text-base font-black text-gray-900 dark:text-white truncate tabular-nums">
-                        <Amount value={totalExpense} />
-                    </p>
-                </div>
-            </div>
-
-            {/* Net Flow */}
-            <div className={`flex items-center justify-between px-4 py-3 rounded-2xl
-                            ${isPositive
-                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
-                    : 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400'
-                }`}>
-                <div className="flex items-center gap-2">
-                    {isPositive ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
-                    <span className="text-xs font-black uppercase tracking-wider">Net Flow</span>
-                </div>
-                <span className="text-base font-black tabular-nums">
-                    {isPositive ? '+' : '−'}<Amount value={Math.abs(netFlow)} showSign={false} />
-                </span>
-            </div>
-        </motion.div>
-    );
-};
-
-/* ─────────────────────────────────────────────
-   Desktop Budget Progress Card
-───────────────────────────────────────────── */
-const BudgetProgressCard = ({ budgets, transactions, setActiveTab, t }) => {
-    const activeBudgets = useMemo(() => budgets.slice(0, 5), [budgets]);
-
-    if (activeBudgets.length === 0) return null;
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px]
-                       p-6 space-y-4"
-        >
-            <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">
-                    {t('budgets')}
-                </h3>
-                <button
-                    onClick={() => setActiveTab('budgets')}
-                    className="text-[10px] font-black text-violet-600 dark:text-violet-400 hover:text-violet-500 transition-colors flex items-center gap-0.5"
-                >
-                    {t('all')} <ChevronRight size={11} />
-                </button>
-            </div>
-
-            <div className="space-y-4">
-                {activeBudgets.map(budget => (
-                    <BudgetBar key={budget.id} budget={budget} transactions={transactions} t={t} />
-                ))}
-            </div>
-        </motion.div>
-    );
-};
-
-/* ─────────────────────────────────────────────
-   Budget Bar (inline, no separate component needed)
-───────────────────────────────────────────── */
-const BudgetBar = ({ budget, transactions, t }) => {
+const DesktopBudgetMiniCard = ({ budget, transactions, t }) => {
     const spent = useMemo(() => {
         const now = new Date();
         return transactions
@@ -428,28 +226,34 @@ const BudgetBar = ({ budget, transactions, t }) => {
     const pct = Math.min((spent / budget.amount) * 100, 100);
     const isWarning = pct >= 75;
     const isDanger = pct >= 100;
-
-    const displayCategory = getCategoryTranslation(budget.category, t);
+    const catName = getCategoryTranslation(budget.category, t);
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <CategoryIcon category={budget.category} type="expense" size={14} />
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 capitalize">{displayCategory}</span>
+        <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-100/80 dark:border-white/[0.04] space-y-2.5 hover:border-violet-200 dark:hover:border-violet-800/40 transition-colors">
+            <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-white dark:bg-white/10 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                        <CategoryIcon category={budget.category} type="expense" size={13} />
+                    </div>
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate capitalize">{catName}</span>
                 </div>
-                <span className={`text-[10px] font-black ${isDanger ? 'text-rose-500' : isWarning ? 'text-amber-500' : 'text-gray-400 dark:text-gray-500'}`}>
+                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                    isDanger ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400' :
+                    isWarning ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400' :
+                    'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400'
+                }`}>
                     {pct.toFixed(0)}%
                 </span>
             </div>
-            <div className="h-1.5 bg-gray-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
+            <div className="h-1.5 bg-gray-200/70 dark:bg-white/[0.06] rounded-full overflow-hidden">
                 <div
-                    className={`h-full rounded-full transition-all duration-700
-                                ${isDanger ? 'bg-rose-500' : isWarning ? 'bg-amber-400' : 'bg-violet-500'}`}
+                    className={`h-full rounded-full transition-all duration-700 ${
+                        isDanger ? 'bg-rose-500' : isWarning ? 'bg-amber-400' : 'bg-violet-500'
+                    }`}
                     style={{ width: `${pct}%` }}
                 />
             </div>
-            <div className="flex justify-between text-[9px] font-bold text-gray-400 dark:text-gray-600">
+            <div className="flex items-center justify-between text-[10px] font-bold text-gray-400 dark:text-gray-500 tabular-nums">
                 <span><Amount value={spent} /></span>
                 <span><Amount value={budget.amount} /></span>
             </div>
@@ -460,8 +264,8 @@ const BudgetBar = ({ budget, transactions, t }) => {
 /* ─────────────────────────────────────────────
    Main HomeView
 ───────────────────────────────────────────── */
-const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, onDelete, onEdit, setActiveTab, onRecurring, isDesktop }) => {
-    const { t, privacyMode, togglePrivacyMode } = useSettings();
+const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions = [], budgets = [], onDelete, onEdit, setActiveTab, onRecurring, isDesktop, user, displayName, onAdd }) => {
+    const { t, privacyMode, togglePrivacyMode, language } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
 
     // ── Data Calculations ──
@@ -671,118 +475,664 @@ const HomeView = ({ balance, totalIncome, totalExpense, transactions, budgets, o
         </div>
     );
 
+    // ── Desktop Specific Calculations & State ──
+    const [desktopFilter, setDesktopFilter] = useState('all');
+    const [desktopSearch, setDesktopSearch] = useState('');
+
+    const netFlow = totalIncome - totalExpense;
+    const isNetPositive = netFlow >= 0;
+    const savingsRate = totalIncome > 0 ? Math.max(0, Math.round(((totalIncome - totalExpense) / totalIncome) * 100)) : 0;
+
+    const stbData = useMemo(() => {
+        try {
+            return useAppStore.getState().getSafeToBurn();
+        } catch {
+            return { stb: 0, todayStartingBudget: 0, isGlideActive: false, streak: 0 };
+        }
+    }, [transactions]);
+
+    const storeGoals = useAppStore(state => state.goals || []);
+    const activeGoals = useMemo(() => (storeGoals || []).slice(0, 3), [storeGoals]);
+    const activeBudgets = useMemo(() => (budgets || []).slice(0, 4), [budgets]);
+
+    const categoryBreakdown = useMemo(() => {
+        const now = new Date();
+        const curMonth = now.getMonth();
+        const curYear = now.getFullYear();
+
+        const monthExpenseTxs = transactions.filter(tx => {
+            const d = new Date(tx.date);
+            return tx.type === 'expense' && d.getMonth() === curMonth && d.getFullYear() === curYear;
+        });
+
+        const totalMonthSpent = monthExpenseTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+
+        const catMap = {};
+        monthExpenseTxs.forEach(tx => {
+            const cat = tx.category || 'other';
+            catMap[cat] = (catMap[cat] || 0) + (tx.amount || 0);
+        });
+
+        const sortedCats = Object.entries(catMap)
+            .map(([category, amount]) => ({
+                category,
+                amount,
+                percentage: totalMonthSpent > 0 ? Math.round((amount / totalMonthSpent) * 100) : 0,
+                accent: CATEGORY_ACCENT[category.toLowerCase()] || '#8b5cf6'
+            }))
+            .sort((a, b) => b.amount - a.amount);
+
+        return {
+            totalMonthSpent,
+            topCats: sortedCats.slice(0, 4),
+            allCats: sortedCats
+        };
+    }, [transactions]);
+
+    const filteredDesktopTransactions = useMemo(() => {
+        return transactions.filter(tx => {
+            if (desktopFilter === 'expense' && tx.type !== 'expense') return false;
+            if (desktopFilter === 'income' && tx.type !== 'income') return false;
+            if (desktopSearch.trim()) {
+                const q = desktopSearch.toLowerCase();
+                const cat = (tx.category || '').toLowerCase();
+                const note = (tx.note || '').toLowerCase();
+                const tr = getCategoryTranslation(tx.category, t).toLowerCase();
+                return cat.includes(q) || note.includes(q) || tr.includes(q);
+            }
+            return true;
+        }).slice(0, 8);
+    }, [transactions, desktopFilter, desktopSearch, t]);
+
+    const dateLocale = language === 'el' ? 'el-GR' : 'en-US';
+    const nowDate = new Date();
+    const currentDateStr = nowDate.toLocaleDateString(dateLocale, {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    const greeting = nowDate.getHours() < 12 ? (t('good_morning') || 'Καλημέρα') : nowDate.getHours() < 18 ? (t('good_afternoon') || 'Καλό απόγευμα') : (t('good_evening') || 'Καλησπέρα');
+    const effectiveName = displayName || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
+
     // ── DESKTOP LAYOUT ──
     if (isDesktop) {
         return (
-            <div className="space-y-5 p-6 lg:p-7">
+            <div className="space-y-7 pb-10">
+                {/* ── 1. Top Executive Greeting & Toolbar ── */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
+                    <div>
+                        <h1 className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white tracking-tight font-display flex items-center gap-2">
+                            <span>{greeting}{effectiveName ? `, ${effectiveName}` : ''}</span>
+                            <span className="text-2xl">👋</span>
+                        </h1>
+                        <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 font-medium mt-1 flex items-center gap-2 flex-wrap">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100/70 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 font-bold text-xs border border-violet-200/60 dark:border-violet-900/40 capitalize">
+                                <Calendar size={13} />
+                                {currentDateStr}
+                            </span>
+                            <span className="text-gray-300 dark:text-gray-700">•</span>
+                            <span>{t('financial_overview') || 'Οικονομική Επισκόπηση'}</span>
+                            {stbData?.streak > 0 && (
+                                <>
+                                    <span className="text-gray-300 dark:text-gray-700">•</span>
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 font-bold text-xs">
+                                        <Flame size={13} />
+                                        {stbData.streak} {t('streak_days') || 'μέρες σερί'}
+                                    </span>
+                                </>
+                            )}
+                        </p>
+                    </div>
 
-                {/* ── Stat Cards Row ── */}
-                <DesktopStatCards
-                    balance={balance}
-                    totalIncome={totalIncome}
-                    totalExpense={totalExpense}
-                    stats={stats}
-                    t={t}
-                    privacyMode={privacyMode}
-                />
+                    {/* Right Toolbar */}
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                        <button
+                            onClick={togglePrivacyMode}
+                            className={`flex items-center gap-2 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 border ${
+                                privacyMode
+                                    ? 'bg-violet-600 text-white border-violet-500 shadow-md shadow-violet-500/25'
+                                    : 'bg-white dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 border-gray-200/80 dark:border-white/10 hover:border-violet-300 dark:hover:border-violet-700/50 shadow-sm'
+                            }`}
+                            title={privacyMode ? 'Εμφάνιση ποσών' : 'Απόκρυψη ποσών'}
+                        >
+                            {privacyMode ? <EyeOff size={15} /> : <Eye size={15} />}
+                            <span>{privacyMode ? 'Private Mode' : 'Public'}</span>
+                        </button>
 
-                {/* ── Dashboard Content ── */}
-                <div className="space-y-4">
-                    {/* AI Advisor CTA — compact inline card */}
-                    <motion.button
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        whileHover={{ scale: 1.01 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => {
-                            if (!isPro) { openUpgradeModal('advisor'); }
-                            else { setActiveTab('advisor'); }
-                        }}
-                        className="w-full relative overflow-hidden
-                                   bg-gradient-to-r from-violet-600 to-indigo-600
-                                   p-4 rounded-2xl
-                                   shadow-lg shadow-violet-500/20
-                                   flex items-center gap-3 group transition-all duration-200"
-                    >
-                        {/* Subtle shimmer overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0
-                                        translate-x-[-100%] group-hover:translate-x-[100%]
-                                        transition-transform duration-700 pointer-events-none" />
-                        {!isPro && (
-                            <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10 shadow-sm">
-                                <Zap size={10} className="text-white" fill="currentColor" />
-                            </div>
-                        )}
-                        <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white flex-shrink-0">
-                            <Sparkles size={18} fill="currentColor" />
-                        </div>
-                        <div className="flex-1 text-left min-w-0">
-                            <h4 className="text-sm font-bold text-white leading-tight">{t('advisor_title')}</h4>
-                            <p className="text-[11px] text-white/70 font-medium truncate mt-0.5">
-                                {advisorLiveInsight}
-                            </p>
-                        </div>
-                        <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:translate-x-0.5 transition-transform flex-shrink-0">
-                            <ArrowRight size={14} />
-                        </div>
-                    </motion.button>
-
-                    {/* Recent Transactions */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.15 }}
-                        className="bg-white dark:bg-surface-dark3
-                                   border border-gray-100 dark:border-white/[0.05]
-                                   rounded-2xl"
-                    >
-                        <div className="flex justify-between items-center px-5 py-4 border-b border-gray-50 dark:border-white/[0.04]">
-                            <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                                {t('recent')}
-                                <span className="bg-gray-100 dark:bg-surface-dark4 text-gray-500 dark:text-gray-400 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                                    {transactions.length}
-                                </span>
-                            </h2>
-                            <button
-                                onClick={() => setActiveTab('history')}
-                                className="flex items-center gap-1 text-xs font-bold text-violet-600 dark:text-violet-400
-                                           hover:text-violet-500 transition-colors"
+                        {onAdd && (
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={onAdd}
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold
+                                           bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500
+                                           text-white shadow-lg shadow-violet-500/25 transition-all duration-200"
                             >
-                                {t('all')} <ChevronRight size={13} />
-                            </button>
+                                <Plus size={16} strokeWidth={2.5} />
+                                <span>{t('add_transaction') || 'Νέα Συναλλαγή'}</span>
+                            </motion.button>
+                        )}
+                    </div>
+                </div>
+
+                {/* ── 2. Top Bento KPI Cards Row ── */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                    {/* Card 1: Balance */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35 }}
+                        className="relative overflow-hidden rounded-[1.75rem] p-5.5
+                                   bg-gradient-to-br from-violet-600/10 via-white to-white dark:from-violet-950/30 dark:via-surface-dark3 dark:to-surface-dark3
+                                   border border-violet-200/80 dark:border-white/10 shadow-card hover:shadow-md transition-all duration-300 group"
+                    >
+                        <div className="flex items-center justify-between mb-3.5">
+                            <div className="w-11 h-11 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-md shadow-violet-500/25 group-hover:scale-110 transition-transform duration-200">
+                                <Wallet size={20} />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300">
+                                {t('balance') || 'Υπόλοιπο'}
+                            </span>
+                        </div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                            {t('balance')}
+                        </p>
+                        <div className="text-2xl xl:text-3xl font-black text-gray-900 dark:text-white tracking-tight tabular-nums mt-0.5 font-display">
+                            <Amount value={balance} />
+                        </div>
+                        <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+                            <span>{t('total_liquidity') || 'Διαθέσιμο κεφάλαιο'}</span>
+                        </p>
+                    </motion.div>
+
+                    {/* Card 2: This Month Expense */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, delay: 0.05 }}
+                        className="rounded-[1.75rem] p-5.5 bg-white dark:bg-surface-dark3
+                                   border border-gray-100 dark:border-white/10 shadow-card hover:shadow-md transition-all duration-300 group"
+                    >
+                        <div className="flex items-center justify-between mb-3.5">
+                            <div className="w-11 h-11 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                                <ArrowDownRight size={22} />
+                            </div>
+                            {stats.diffPct > 0 ? (
+                                <span className={`inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full ${
+                                    stats.trend === 'below'
+                                        ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400'
+                                        : stats.trend === 'above'
+                                            ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400'
+                                            : 'bg-gray-100 dark:bg-white/10 text-gray-500'
+                                }`}>
+                                    {stats.trend === 'below' && <TrendingDown size={11} />}
+                                    {stats.trend === 'above' && <TrendingUp size={11} />}
+                                    {stats.diffPct}% {stats.trend === 'below' ? (t('below_last_month') || 'κάτω') : (t('above_last_month') || 'πάνω')}
+                                </span>
+                            ) : null}
+                        </div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                            {t('this_month_spend')}
+                        </p>
+                        <div className="text-2xl xl:text-3xl font-black text-gray-900 dark:text-white tracking-tight tabular-nums mt-0.5 font-display">
+                            <Amount value={stats.curSpent} />
+                        </div>
+                        <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 mt-2 truncate">
+                            {t('prev_month') || 'Προηγούμενος'}: <span className="font-bold text-gray-700 dark:text-gray-300"><Amount value={stats.lastSpent} /></span>
+                        </p>
+                    </motion.div>
+
+                    {/* Card 3: Total Income */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, delay: 0.1 }}
+                        className="rounded-[1.75rem] p-5.5 bg-white dark:bg-surface-dark3
+                                   border border-gray-100 dark:border-white/10 shadow-card hover:shadow-md transition-all duration-300 group"
+                    >
+                        <div className="flex items-center justify-between mb-3.5">
+                            <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                                <ArrowUpRight size={22} />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400">
+                                + {t('stats_income') || 'Έσοδα'}
+                            </span>
+                        </div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                            {t('stats_income')}
+                        </p>
+                        <div className="text-2xl xl:text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight tabular-nums mt-0.5 font-display">
+                            <Amount value={totalIncome} />
+                        </div>
+                        <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <span>{t('income_inflows') || 'Συνολικές εισροές μήνα'}</span>
+                        </p>
+                    </motion.div>
+
+                    {/* Card 4: Net Flow */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, delay: 0.15 }}
+                        className="rounded-[1.75rem] p-5.5 bg-white dark:bg-surface-dark3
+                                   border border-gray-100 dark:border-white/10 shadow-card hover:shadow-md transition-all duration-300 group"
+                    >
+                        <div className="flex items-center justify-between mb-3.5">
+                            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200 ${
+                                isNetPositive
+                                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
+                                    : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
+                            }`}>
+                                {isNetPositive ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
+                            </div>
+                            <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full ${
+                                isNetPositive
+                                    ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400'
+                                    : 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400'
+                            }`}>
+                                {savingsRate > 0 ? `${savingsRate}% ${t('savings_rate') || 'Αποταμίευση'}` : isNetPositive ? (t('net_surplus') || 'Πλεόνασμα') : (t('net_deficit') || 'Έλλειμμα')}
+                            </span>
+                        </div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                            Net Flow
+                        </p>
+                        <div className={`text-2xl xl:text-3xl font-black tracking-tight tabular-nums mt-0.5 font-display ${
+                            isNetPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                        }`}>
+                            {isNetPositive ? '+' : '−'}<Amount value={Math.abs(netFlow)} showSign={false} />
+                        </div>
+                        <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mt-2 truncate">
+                            {isNetPositive ? 'Θετικό μηνιαίο ισοζύγιο' : 'Αρνητικό μηνιαίο ισοζύγιο'}
+                        </p>
+                    </motion.div>
+                </div>
+
+                {/* ── 3. Main Dashboard Bento Grid (Two Columns) ── */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+                    {/* ──── LEFT COLUMN (8 cols): Breakdown + Transactions ──── */}
+                    <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+
+                        {/* ── Monthly Category Breakdown ── */}
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-6 shadow-card">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+                                        <PieChart size={17} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                                            {t('monthly_category_breakdown') || 'Κατανομή Εξόδων Μήνα'}
+                                        </h3>
+                                        <p className="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
+                                            {t('top_categories_desc') || 'Κορυφαίες κατηγορίες αυτού του μήνα'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setActiveTab('stats')}
+                                    className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 flex items-center gap-1 transition-colors"
+                                >
+                                    <span>{t('nav_stats') || 'Ανάλυση'}</span>
+                                    <ChevronRight size={14} />
+                                </button>
+                            </div>
+
+                            {categoryBreakdown.topCats.length > 0 ? (
+                                <div className="space-y-4">
+                                    {/* Multi-segment progress bar */}
+                                    <div className="h-3 w-full bg-gray-100 dark:bg-white/[0.06] rounded-full overflow-hidden flex gap-1 p-0.5">
+                                        {categoryBreakdown.topCats.map(cat => (
+                                            <div
+                                                key={cat.category}
+                                                className="h-full rounded-full transition-all duration-700"
+                                                style={{
+                                                    width: `${Math.max(cat.percentage, 3)}%`,
+                                                    backgroundColor: cat.accent
+                                                }}
+                                                title={`${getCategoryTranslation(cat.category, t)}: ${cat.percentage}%`}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {/* Category Pills Grid */}
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                                        {categoryBreakdown.topCats.map(cat => (
+                                            <div
+                                                key={cat.category}
+                                                className="p-3 rounded-2xl bg-gray-50/70 dark:bg-white/[0.02] border border-gray-100/70 dark:border-white/[0.04] space-y-1.5"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-1.5 min-w-0">
+                                                        <CategoryIcon category={cat.category} type="expense" size={13} />
+                                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate capitalize">
+                                                            {getCategoryTranslation(cat.category, t)}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-[10px] font-black px-1.5 py-0.2 rounded-full tabular-nums" style={{ color: cat.accent, backgroundColor: `${cat.accent}18` }}>
+                                                        {cat.percentage}%
+                                                    </span>
+                                                </div>
+                                                <div className="text-xs font-black text-gray-900 dark:text-white tabular-nums">
+                                                    <Amount value={cat.amount} />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="py-6 text-center text-xs text-gray-400 dark:text-gray-500 font-medium">
+                                    {t('no_expenses_month') || 'Δεν υπάρχουν ακόμη καταγεγραμμένα έξοδα για αυτόν τον μήνα.'}
+                                </div>
+                            )}
                         </div>
 
-                        {transactions.length === 0 ? (
-                            <div className="flex items-center gap-4 px-5 py-6">
-                                <div className="w-12 h-12 rounded-xl bg-violet-50 dark:bg-violet-900/30
-                                                flex items-center justify-center flex-shrink-0">
-                                    <TrendingUp size={22} className="text-violet-400" />
+                        {/* ── Recent Transactions Feed ── */}
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-6 shadow-card space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-gray-50 dark:border-white/[0.04]">
+                                <div className="flex items-center gap-2.5">
+                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        <span>{t('recent') || 'Πρόσφατες Συναλλαγές'}</span>
+                                        <span className="bg-gray-100 dark:bg-surface-dark4 text-gray-600 dark:text-gray-400 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                            {transactions.length}
+                                        </span>
+                                    </h3>
                                 </div>
-                                <div>
-                                    <p className="font-bold text-gray-700 dark:text-white/90 text-sm">
-                                        {t('no_transactions')}
-                                    </p>
-                                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                                        {t('tap_to_add')}
-                                    </p>
+
+                                {/* Filters + Live Search + View All */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    {/* Filter Pills */}
+                                    <div className="flex items-center bg-gray-100/80 dark:bg-white/[0.06] p-0.5 rounded-xl text-[11px] font-bold">
+                                        <button
+                                            onClick={() => setDesktopFilter('all')}
+                                            className={`px-2.5 py-1 rounded-lg transition-all ${
+                                                desktopFilter === 'all'
+                                                    ? 'bg-white dark:bg-surface-dark3 text-gray-900 dark:text-white shadow-2xs font-extrabold'
+                                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                            }`}
+                                        >
+                                            {t('all') || 'Όλες'}
+                                        </button>
+                                        <button
+                                            onClick={() => setDesktopFilter('expense')}
+                                            className={`px-2.5 py-1 rounded-lg transition-all ${
+                                                desktopFilter === 'expense'
+                                                    ? 'bg-white dark:bg-surface-dark3 text-rose-600 dark:text-rose-400 shadow-2xs font-extrabold'
+                                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                            }`}
+                                        >
+                                            {t('stats_expense') || 'Έξοδα'}
+                                        </button>
+                                        <button
+                                            onClick={() => setDesktopFilter('income')}
+                                            className={`px-2.5 py-1 rounded-lg transition-all ${
+                                                desktopFilter === 'income'
+                                                    ? 'bg-white dark:bg-surface-dark3 text-emerald-600 dark:text-emerald-400 shadow-2xs font-extrabold'
+                                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                            }`}
+                                        >
+                                            {t('stats_income') || 'Έσοδα'}
+                                        </button>
+                                    </div>
+
+                                    {/* Search input */}
+                                    <div className="relative">
+                                        <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            value={desktopSearch}
+                                            onChange={e => setDesktopSearch(e.target.value)}
+                                            placeholder={t('search_placeholder') || 'Αναζήτηση...'}
+                                            className="w-32 sm:w-40 pl-7 pr-2.5 py-1 text-xs rounded-xl bg-gray-50 dark:bg-white/[0.04] border border-gray-200/60 dark:border-white/10 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
+                                        />
+                                    </div>
+
+                                    {/* View All button */}
+                                    <button
+                                        onClick={() => setActiveTab('history')}
+                                        className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 flex items-center gap-0.5 ml-1 transition-colors"
+                                    >
+                                        <span>{t('all') || 'Όλα'}</span>
+                                        <ChevronRight size={13} />
+                                    </button>
                                 </div>
                             </div>
-                        ) : (
-                            <div className="p-3 space-y-3">
-                                {transactions.slice(0, 10).map((tx, idx) => (
-                                    <motion.div
-                                        key={tx.id}
-                                        initial={{ opacity: 0, x: -6 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.18 + (idx * 0.03) }}
-                                    >
-                                        <TransactionItem transaction={tx} onDelete={onDelete} onEdit={onEdit} />
-                                    </motion.div>
-                                ))}
+
+                            {/* Transactions List */}
+                            {filteredDesktopTransactions.length === 0 ? (
+                                <div className="py-12 flex flex-col items-center justify-center text-center">
+                                    <div className="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-950/40 text-violet-500 flex items-center justify-center mb-2.5">
+                                        <TrendingUp size={22} />
+                                    </div>
+                                    <h4 className="font-bold text-sm text-gray-800 dark:text-white mb-1">
+                                        {t('no_transactions') || 'Δεν βρέθηκαν συναλλαγές'}
+                                    </h4>
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs mb-3">
+                                        {t('no_transactions_desc') || 'Πρόσθεσε συναλλαγές για να εμφανιστούν εδώ.'}
+                                    </p>
+                                    {onAdd && (
+                                        <button
+                                            onClick={onAdd}
+                                            className="px-4 py-1.5 text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/50 hover:bg-violet-100 rounded-xl transition-colors"
+                                        >
+                                            + {t('add_transaction') || 'Προσθήκη'}
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="space-y-3 pt-1">
+                                    {filteredDesktopTransactions.map((tx, idx) => (
+                                        <motion.div
+                                            key={tx.id}
+                                            initial={{ opacity: 0, y: 6 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.05 + (idx * 0.03) }}
+                                        >
+                                            <TransactionItem transaction={tx} onDelete={onDelete} onEdit={onEdit} />
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* ──── RIGHT COLUMN (4 cols): AI Advisor + Budgets + Goals + Shortcuts ──── */}
+                    <div className="lg:col-span-5 xl:col-span-4 space-y-6">
+
+                        {/* ── AI Advisor Spotlight Card ── */}
+                        <motion.div
+                            whileHover={{ scale: 1.01 }}
+                            className="relative overflow-hidden rounded-[1.75rem] p-6
+                                       bg-gradient-to-br from-violet-600 via-indigo-700 to-purple-800
+                                       text-white shadow-lg shadow-violet-500/25 border border-white/20 group"
+                        >
+                            {/* Animated background glow */}
+                            <div className="absolute -top-10 -right-10 w-36 h-36 bg-white/10 blur-2xl rounded-full pointer-events-none" />
+                            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-indigo-400/20 blur-2xl rounded-full pointer-events-none" />
+
+                            <div className="relative z-10 space-y-3.5">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-sm">
+                                            <Bot size={20} />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-black tracking-tight leading-tight">
+                                                SpendWise AI
+                                            </h4>
+                                            <p className="text-[10px] text-white/70 font-semibold uppercase tracking-wider">
+                                                {t('advisor_title') || 'Σύμβουλος'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {!isPro && (
+                                        <div className="w-6 h-6 rounded-full bg-amber-400 text-white flex items-center justify-center shadow-sm">
+                                            <Zap size={12} fill="currentColor" />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Insight Quote Bubble */}
+                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 text-xs text-white/90 font-medium leading-relaxed">
+                                    "{advisorLiveInsight}"
+                                </div>
+
+                                {/* Action Button */}
+                                <button
+                                    onClick={() => {
+                                        if (!isPro) { openUpgradeModal('advisor'); }
+                                        else { setActiveTab('advisor'); }
+                                    }}
+                                    className="w-full py-2.5 px-4 rounded-xl bg-white text-violet-700 text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-white/90 active:scale-98 transition-all shadow-sm"
+                                >
+                                    <Sparkles size={14} fill="currentColor" />
+                                    <span>{t('open_advisor') || 'Συνομιλία με τον AI Σύμβουλο'}</span>
+                                    <ArrowRight size={13} strokeWidth={2.5} />
+                                </button>
+                            </div>
+                        </motion.div>
+
+                        {/* ── Safe-to-Burn Pace Card ── */}
+                        {stbData && (
+                            <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5.5 shadow-card space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-500 flex items-center justify-center">
+                                            <Flame size={17} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                                Safe-to-Burn
+                                            </h3>
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                                                {t('safe_to_burn_daily') || 'Ημερήσιο Όριο'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {stbData.streak > 0 && (
+                                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400">
+                                            🔥 {stbData.streak} Streak
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="flex items-baseline justify-between pt-1">
+                                    <div className="text-2xl font-black text-gray-900 dark:text-white tabular-nums font-display">
+                                        <Amount value={stbData.stb} />
+                                    </div>
+                                    <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500">
+                                        {t('today') || 'Σήμερα'}
+                                    </span>
+                                </div>
+
+                                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-snug">
+                                    {t('safe_to_burn_desc') || 'Ημερήσιο ποσό που μπορείς να ξοδέψεις με ασφάλεια σήμερα.'}
+                                </p>
                             </div>
                         )}
-                    </motion.div>
+
+                        {/* ── Budgets Progress Widget ── */}
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-6 shadow-card space-y-4">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
+                                    <span>{t('budgets') || 'Προϋπολογισμοί'}</span>
+                                    <span className="text-[10px] font-black px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-300">
+                                        {activeBudgets.length}
+                                    </span>
+                                </h3>
+                                <button
+                                    onClick={() => setActiveTab('budgets')}
+                                    className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 flex items-center gap-0.5 transition-colors"
+                                >
+                                    <span>{t('all') || 'Όλοι'}</span>
+                                    <ChevronRight size={13} />
+                                </button>
+                            </div>
+
+                            {activeBudgets.length > 0 ? (
+                                <div className="space-y-3">
+                                    {activeBudgets.map(b => (
+                                        <DesktopBudgetMiniCard key={b.id} budget={b} transactions={transactions} t={t} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="py-4 text-center">
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-2.5">
+                                        {t('no_budgets_set') || 'Δεν έχεις ορίσει προϋπολογισμούς.'}
+                                    </p>
+                                    <button
+                                        onClick={() => setActiveTab('budgets')}
+                                        className="px-3.5 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 text-xs font-bold hover:bg-violet-100 transition-colors"
+                                    >
+                                        + {t('create_budget') || 'Ορισμός Προϋπολογισμού'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ── Savings Goals Widget ── */}
+                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-6 shadow-card space-y-4">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
+                                    <span>{t('goals') || 'Στόχοι'}</span>
+                                    <span className="text-[10px] font-black px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-300">
+                                        {activeGoals.length}
+                                    </span>
+                                </h3>
+                                <button
+                                    onClick={() => setActiveTab('goals')}
+                                    className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 flex items-center gap-0.5 transition-colors"
+                                >
+                                    <span>{t('all') || 'Όλοι'}</span>
+                                    <ChevronRight size={13} />
+                                </button>
+                            </div>
+
+                            {activeGoals.length > 0 ? (
+                                <div className="space-y-3">
+                                    {activeGoals.map(g => (
+                                        <DesktopGoalMiniCard key={g.id} goal={g} t={t} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="py-4 text-center">
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-2.5">
+                                        {t('no_goals_set') || 'Δεν έχεις ενεργούς στόχους.'}
+                                    </p>
+                                    <button
+                                        onClick={() => setActiveTab('goals')}
+                                        className="px-3.5 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 text-xs font-bold hover:bg-violet-100 transition-colors"
+                                    >
+                                        + {t('create_goal') || 'Νέος Στόχος'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ── Quick Tools Grid ── */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                            {quickActions.map(action => {
+                                const ActionIcon = action.icon;
+                                return (
+                                    <button
+                                        key={action.label}
+                                        onClick={action.onClick}
+                                        className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 hover:border-violet-300 dark:hover:border-violet-700/50 hover:shadow-card transition-all duration-200 group"
+                                    >
+                                        <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                            <ActionIcon size={16} />
+                                        </div>
+                                        <span className="text-[11px] font-bold text-gray-700 dark:text-gray-300 truncate w-full text-center">
+                                            {action.label}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
             </div>
         );

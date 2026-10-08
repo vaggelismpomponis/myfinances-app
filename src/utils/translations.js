@@ -893,6 +893,26 @@ export const translations = {
         willpower_subtext_1: 'Με εκτιμώμενη ετήσια απόδοση ',
         willpower_subtext_2: '%, τα χρήματα που εξοικονομήσατε θα αυξηθούν σημαντικά.',
         recently_resisted: 'Πρόσφατες Αποφυγές',
+
+        // Desktop Homepage Dashboard
+        financial_overview: 'Οικονομική Επισκόπηση',
+        total_liquidity: 'Διαθέσιμο κεφάλαιο',
+        prev_month: 'Προηγούμενος',
+        income_inflows: 'Συνολικές εισροές μήνα',
+        net_surplus: 'Πλεόνασμα',
+        net_deficit: 'Έλλειμμα',
+        savings_rate: 'Αποταμίευση',
+        monthly_category_breakdown: 'Κατανομή Εξόδων Μήνα',
+        top_categories_desc: 'Κορυφαίες κατηγορίες αυτού του μήνα',
+        open_advisor: 'Συνομιλία με τον AI Σύμβουλο',
+        safe_to_burn_daily: 'Ημερήσιο Όριο',
+        safe_to_burn_desc: 'Ημερήσιο ποσό που μπορείς να ξοδέψεις με ασφάλεια σήμερα.',
+        streak_days: 'μέρες σερί',
+        no_expenses_month: 'Δεν υπάρχουν ακόμη καταγεγραμμένα έξοδα για αυτόν τον μήνα.',
+        no_budgets_set: 'Δεν έχεις ορίσει προϋπολογισμούς.',
+        no_goals_set: 'Δεν έχεις ενεργούς στόχους.',
+        create_budget: 'Ορισμός Προϋπολογισμού',
+        create_goal: 'Νέος Στόχος',
     },
     en: {
         // General Settings
@@ -1788,5 +1808,25 @@ export const translations = {
         willpower_subtext_1: 'Assuming a ',
         willpower_subtext_2: '% annual compounding return, your resisted impulses will grow massively.',
         recently_resisted: 'Recently Resisted',
+
+        // Desktop Homepage Dashboard
+        financial_overview: 'Financial Overview',
+        total_liquidity: 'Available liquidity',
+        prev_month: 'Previous',
+        income_inflows: 'Monthly total inflows',
+        net_surplus: 'Surplus',
+        net_deficit: 'Deficit',
+        savings_rate: 'Savings',
+        monthly_category_breakdown: 'Monthly Expense Breakdown',
+        top_categories_desc: 'Top spending categories this month',
+        open_advisor: 'Chat with AI Advisor',
+        safe_to_burn_daily: 'Daily Limit',
+        safe_to_burn_desc: 'Daily safe spending allowance for today.',
+        streak_days: 'days streak',
+        no_expenses_month: 'No expenses recorded yet for this month.',
+        no_budgets_set: 'No budgets created yet.',
+        no_goals_set: 'No active savings goals.',
+        create_budget: 'Set Budget',
+        create_goal: 'New Goal',
     }
 };
