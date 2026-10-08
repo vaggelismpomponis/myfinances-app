@@ -934,6 +934,7 @@ export const translations = {
         month_net: 'Ισοζύγιο Μήνα',
         over_daily_limit: 'Υπέρβαση Ορίου',
         stb_exceeded_desc: 'Έχεις εξαντλήσει το ασφαλές ημερήσιο όριο για σήμερα. Περιόρισε τα έξοδα για να επανέλθεις.',
+        pro_member: 'Συνδρομητής Pro',
     },
     en: {
         // General Settings
@@ -1870,5 +1871,6 @@ export const translations = {
         month_net: 'This Month Net',
         over_daily_limit: 'Limit Exceeded',
         stb_exceeded_desc: 'You have exceeded your daily safe spending limit for today.',
+        pro_member: 'Pro Member',
     }
 };
