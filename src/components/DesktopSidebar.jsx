@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import {
     Home, BarChart2, Wallet, Settings, Target,
-    RefreshCw, Shield, Database, MessageSquare, Sparkles,
-    LogOut, Moon, Sun, Eye, EyeOff, BookOpen,
-    Bell, Zap, User, LayoutDashboard
+    RefreshCw, Sparkles, LogOut, Moon, Sun, Eye, EyeOff, Zap
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -113,16 +111,13 @@ const DesktopSidebar = ({
 
                 <SectionLabel label={t('settings') || 'Settings'} />
 
-                <NavItem id="nav-profile" icon={User} label={t('nav_profile')} active={activeTab === 'profile'} onClick={() => navTo('profile')} />
-                <NavItem icon={Settings} label={t('general_settings')} active={activeTab === 'general'} onClick={() => navTo('general')} />
-                <NavItem icon={Shield} label={t('security')} active={activeTab === 'security'} onClick={() => navTo('security')} />
-                <NavItem icon={Database} label={t('backup')} active={activeTab === 'backup'} onClick={() => navTo('backup')} />
-                <NavItem icon={MessageSquare} label={t('feedback')} active={activeTab === 'feedback'} onClick={() => navTo('feedback')} />
-                <NavItem icon={BookOpen} label={t('guide')} active={activeTab === 'guide'} onClick={() => navTo('guide')} />
-
-                {user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
-                    <NavItem icon={LayoutDashboard} label={t('admin_panel')} active={activeTab === 'admin'} onClick={() => navTo('admin')} />
-                )}
+                <NavItem
+                    id="nav-profile"
+                    icon={Settings}
+                    label={t('general_settings') || 'Γενικές Ρυθμίσεις'}
+                    active={['profile', 'general', 'security', 'backup', 'feedback', 'guide', 'admin', 'profile-details'].includes(activeTab)}
+                    onClick={() => navTo('profile')}
+                />
             </div>
 
             {/* ── Bottom Controls ── */}
