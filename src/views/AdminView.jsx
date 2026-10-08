@@ -3,7 +3,7 @@ import {
     ArrowLeft, RefreshCw, Search, X,
     LayoutDashboard, Users, MessageSquare, Radio,
     Filter, ChevronLeft, ChevronRight, ShieldCheck,
-    Sparkles, Activity, CheckCircle2, SlidersHorizontal, ArrowRight
+    Activity, CheckCircle2, SlidersHorizontal, ArrowRight
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
@@ -696,7 +696,7 @@ const AdminView = ({ onBack, hideHeader }) => {
 
                             <div className="relative z-10 max-w-3xl space-y-3">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
-                                    <Sparkles size={13} />
+                                    <Activity size={13} />
                                     <span>System Command Center</span>
                                 </div>
 

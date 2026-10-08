@@ -8,7 +8,6 @@ import {
     EyeOff,
     X,
     Check,
-    Sparkles,
     ShieldCheck,
     KeyRound,
     HelpCircle,

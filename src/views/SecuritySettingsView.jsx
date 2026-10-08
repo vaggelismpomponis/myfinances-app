@@ -17,7 +17,6 @@ import {
     Clock,
     AlertTriangle,
     Shield,
-    Sparkles,
     Check
 } from 'lucide-react';
 import PasswordInput from '../components/PasswordInput';
@@ -626,7 +625,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
 
                             <div className="flex items-start gap-2.5">
                                 <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <Sparkles size={13} strokeWidth={2.5} />
+                                    <Lock size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
                                     Zero-knowledge data privacy — your passwords and raw PINs are never stored plain-text.

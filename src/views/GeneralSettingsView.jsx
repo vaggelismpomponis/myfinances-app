@@ -9,7 +9,6 @@ import {
     Database,
     UserX,
     Shield,
-    Sparkles,
     CheckCircle2,
     SlidersHorizontal,
     X,
@@ -228,7 +227,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
 
                         <div className="relative z-10 max-w-2xl space-y-3">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
-                                <Sparkles size={13} />
+                                <SlidersHorizontal size={13} />
                                 <span>Configuration Hub</span>
                             </div>
                             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
@@ -532,7 +531,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
 
                             <div className="flex items-start gap-2.5">
                                 <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <Sparkles size={13} strokeWidth={2.5} />
+                                    <CheckCircle2 size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
                                     Account deletion purges database rows and auth identity completely.

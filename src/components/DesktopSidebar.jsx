@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Home, BarChart2, History, Settings, Target,
-    RefreshCw, Sparkles, LogOut, Moon, Sun, Eye, EyeOff, Zap,
+    RefreshCw, Lightbulb, LogOut, Moon, Sun, Eye, EyeOff, Zap,
     PiggyBank, User
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
@@ -135,7 +135,7 @@ const DesktopSidebar = ({
                 <NavItem icon={Target} label={t('goals')} active={activeTab === 'goals'} onClick={() => navTo('goals')} />
                 <NavItem icon={PiggyBank} label={t('budgets')} active={activeTab === 'budgets'} onClick={() => navTo('budgets')} />
                 <NavItem icon={RefreshCw} label={t('recurring')} active={activeTab === 'recurring'} onClick={() => { setPreviousTab('home'); navTo('recurring'); }} />
-                <NavItem icon={Sparkles} label={t('advisor_title')} active={activeTab === 'advisor'} onClick={() => navTo('advisor')} />
+                <NavItem icon={Lightbulb} label={t('advisor_title')} active={activeTab === 'advisor'} onClick={() => navTo('advisor')} />
 
                 <SectionLabel label={t('settings') || 'Settings'} />
 

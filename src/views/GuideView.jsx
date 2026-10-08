@@ -6,7 +6,6 @@ import {
     Camera,
     Repeat,
     ShieldCheck,
-    Sparkles,
     Wallet,
     PieChart,
     Rocket,
@@ -144,7 +143,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
             tab: 'advisor',
             category: 'smart',
             badge: translate('guide_badge_advisor') || 'AI Insights',
-            icon: Sparkles,
+            icon: Lightbulb,
             title: translate('nav_advisor') || 'Financial Advisor',
             description: translate('guide_advisor_desc') || 'Personalized insights based on your habits.',
             items: [
@@ -253,7 +252,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                 <span>{translate('guide_back_to_settings') || 'Back to Settings'}</span>
                             </button>
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-500/10 border border-violet-200/60 dark:border-violet-500/20 text-xs font-semibold text-violet-700 dark:text-violet-300">
-                                <Sparkles size={13} className="shrink-0 text-violet-600 dark:text-violet-400" />
+                                <BookOpen size={13} className="shrink-0 text-violet-600 dark:text-violet-400" />
                                 <span>SpendWise Knowledge Base</span>
                             </div>
                         </div>
@@ -271,7 +270,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                             <div className="max-w-2xl space-y-3">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
-                                    <Sparkles size={13} />
+                                    <BookOpen size={13} />
                                     <span>SpendWise Manual</span>
                                 </div>
                                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white leading-tight">

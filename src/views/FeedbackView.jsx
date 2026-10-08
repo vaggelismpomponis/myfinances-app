@@ -5,7 +5,6 @@ import {
     MessageSquare,
     Lightbulb,
     Bug,
-    Sparkles,
     CheckCircle2,
     ShieldCheck,
     Zap,
@@ -159,7 +158,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                                 <span>{translate('guide_back_to_settings') || 'Back to Settings'}</span>
                             </button>
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-500/10 border border-violet-200/60 dark:border-violet-500/20 text-xs font-semibold text-violet-700 dark:text-violet-300">
-                                <Sparkles size={13} className="shrink-0 text-violet-600 dark:text-violet-400" />
+                                <MessageSquare size={13} className="shrink-0 text-violet-600 dark:text-violet-400" />
                                 <span>SpendWise Community Voice</span>
                             </div>
                         </div>
@@ -176,7 +175,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
 
                         <div className="relative z-10 max-w-2xl space-y-3">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
-                                <Sparkles size={13} />
+                                <MessageSquare size={13} />
                                 <span>We Are Listening</span>
                             </div>
                             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
@@ -367,7 +366,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
 
                             <div className="flex items-start gap-2.5">
                                 <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <Sparkles size={13} strokeWidth={2.5} />
+                                    <CheckCircle2 size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
                                     {translate('feedback_promise_3') || 'Reported bugs and suggestions are prioritized in regular releases.'}

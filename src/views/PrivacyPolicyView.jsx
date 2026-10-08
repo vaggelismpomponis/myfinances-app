@@ -11,7 +11,6 @@ import {
     UserCheck,
     FileText,
     CheckCircle2,
-    Sparkles,
     Shield,
     Check,
     MessageSquare
@@ -109,7 +108,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                                 </span>
 
                                 <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-violet-100/90 flex items-center gap-1.5">
-                                    <Sparkles size={12} strokeWidth={2.5} />
+                                    <ShieldCheck size={12} strokeWidth={2.5} className="text-violet-300" />
                                     <span>{isEL ? 'Πλήρης Κυριαρχία Δεδομένων' : 'Full Data Sovereignty'}</span>
                                 </span>
                             </div>

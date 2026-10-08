@@ -368,13 +368,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                             <text x="103" y="30" fontSize="11" fontWeight="700" fill="#A78BFA" opacity="0.75" fontFamily="sans-serif">z</text>
                                             <text x="111" y="19" fontSize="13" fontWeight="700" fill="#A78BFA" opacity="0.6" fontFamily="sans-serif">z</text>
 
-                                            {/* Sparkles */}
-                                            <g opacity="0.8">
-                                                <path d="M28 38 L29.5 34 L31 38 L35 39.5 L31 41 L29.5 45 L28 41 L24 39.5Z" fill="#C4B5FD"/>
-                                                <path d="M108 52 L109 49 L110 52 L113 53 L110 54 L109 57 L108 54 L105 53Z" fill="#C4B5FD"/>
-                                                <path d="M40 20 L40.8 18 L41.6 20 L43.6 20.8 L41.6 21.6 L40.8 23.6 L40 21.6 L38 20.8Z" fill="#E9D5FF"/>
-                                                <path d="M115 75 L115.6 73.5 L116.2 75 L117.7 75.6 L116.2 76.2 L115.6 77.7 L115 76.2 L113.5 75.6Z" fill="#DDD6FE"/>
-                                            </g>
+
 
                                             {/* Coins */}
                                             <circle cx="38" cy="112" r="9" fill="#F9A8D4" opacity="0.9"/>

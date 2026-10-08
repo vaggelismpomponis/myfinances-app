@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
     ArrowLeft, Target, Plus, Trash2, PiggyBank, Pencil,
-    Check, X, Sparkles, TrendingUp, Trophy, Star, Zap
+    Check, X, TrendingUp, Trophy, Star, Zap
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
@@ -321,7 +321,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                     {/* Main savings info */}
                                     <div className="flex-1 min-w-0">
                                         <p className="text-violet-200 text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 font-display">
-                                            <Sparkles size={11} /> {t('total_savings')}
+                                            <Target size={11} /> {t('total_savings')}
                                         </p>
                                         <p className="text-4xl font-black leading-none truncate mb-1 font-display drop-shadow-md">
                                             <Amount value={totalSaved} minimumFractionDigits={0} />

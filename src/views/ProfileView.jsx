@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     User, LogOut, ChevronRight,
     ShieldAlert as Shield, ArrowLeft, Moon,
-    Sparkles, Smartphone, HardDriveDownload,
+    Smartphone, HardDriveDownload,
     Languages, LayoutDashboard, MessageSquare, BookOpen,
     Settings, Info, Trash2, UserX,
     Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff,
@@ -459,7 +459,6 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                     {/* ════ Footer ════ */}
                     <div className="flex flex-col items-center gap-1.5 pt-1 pb-2 mt-4">
                         <div className="flex items-center gap-1.5">
-                            <Sparkles size={10} className="text-violet-400" />
                             <span className="text-[11px] font-bold gradient-text">SpendWise</span>
                         </div>
                         <p className="text-[10px] text-gray-300 dark:text-white/60 tracking-wide">

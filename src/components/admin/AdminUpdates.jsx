@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, Plus, Trash2, Star, Shield, Zap, CheckCircle2, HardDriveDownload, Sparkles, X, Calendar } from 'lucide-react';
+import { RefreshCw, Plus, Trash2, Star, Shield, Zap, CheckCircle2, HardDriveDownload, X, Calendar } from 'lucide-react';
 
 const iconOptions = [
     { id: 'star', component: Star },
@@ -7,7 +7,6 @@ const iconOptions = [
     { id: 'zap', component: Zap },
     { id: 'check', component: CheckCircle2 },
     { id: 'download', component: HardDriveDownload },
-    { id: 'sparkles', component: Sparkles },
 ];
 
 const AdminUpdates = ({
@@ -120,7 +119,7 @@ const AdminUpdates = ({
                                     ))}
                                     {newUpdate.features.length === 0 && (
                                         <div className="py-10 border-2 border-dashed border-gray-100 dark:border-white/10 rounded-2xl flex flex-col items-center justify-center text-gray-300">
-                                            <Sparkles size={24} className="mb-2 opacity-40" />
+                                            <Plus size={24} className="mb-2 opacity-40" />
                                             <p className="text-[11px] font-medium">{translate('admin_add_feature_hint')}</p>
                                         </div>
                                     )}

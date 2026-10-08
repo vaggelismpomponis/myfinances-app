@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, Zap, Crown, ArrowLeft, Star, Sparkles } from 'lucide-react';
+import { X, Check, Zap, Crown, ArrowLeft, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';

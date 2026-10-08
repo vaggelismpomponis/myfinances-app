@@ -478,7 +478,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40 backdrop-blur-sm p-0"
+            className="fixed inset-0 z-[70] flex items-end lg:items-center justify-center bg-black/40 backdrop-blur-sm p-0 lg:p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="add-modal-title"

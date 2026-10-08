@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, CheckCircle2, Shield, HardDriveDownload, Zap, X, Star } from 'lucide-react';
+import { CheckCircle2, Shield, HardDriveDownload, Zap, X, Star } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 
 const WhatsNewModal = ({ isOpen, onClose, data }) => {
@@ -15,7 +15,7 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
         zap: Zap,
         check: CheckCircle2,
         star: Star,
-        sparkles: Sparkles
+        sparkles: Star
     };
 
     // If data.features exists use it, otherwise show a simplified version
@@ -60,7 +60,7 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
 
                     <div className="relative z-10 flex flex-col items-center">
                         <div className="flex items-center gap-2 mb-1 text-center px-4">
-                            <Sparkles size={20} className="text-amber-300 flex-shrink-0" />
+                            <Star size={20} className="text-amber-300 flex-shrink-0" />
                             <h2 id="whatsnew-modal-title" className="text-xl font-black text-white leading-tight">
                                 {title || (isEL ? 'Τι νέο υπάρχει;' : "What's New?")}
                             </h2>

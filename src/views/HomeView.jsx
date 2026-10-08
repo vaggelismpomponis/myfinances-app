@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
     Target, Wallet, RefreshCw, BarChart,
-    ChevronRight, Sparkles, ArrowUpRight, ArrowDownRight, TrendingUp,
+    ChevronRight, Lightbulb, ArrowUpRight, ArrowDownRight, TrendingUp,
     ArrowRight, TrendingDown, Minus, Eye, EyeOff, Zap,
     Plus, ShieldCheck, BarChart2, Bot, Calendar, PieChart, Search,
     Flame, CheckCircle2, Clock, Plane, Home as HomeIcon, Car, Laptop, Heart, Gamepad2, AlertTriangle
@@ -411,7 +411,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
 
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
                             shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
-                <Sparkles size={22} fill="currentColor" />
+                <Lightbulb size={22} />
             </div>
             <div className="flex-1 text-left min-w-0 pr-6">
                 <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>

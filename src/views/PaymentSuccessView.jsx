@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, ArrowRight, Zap, Sparkles, BarChart2, Target, Lock, ScanLine } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Zap, BarChart2, Target, Lock, ScanLine } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
@@ -101,9 +101,7 @@ const PaymentSuccessView = ({ onContinue }) => {
                     transform:  visible ? 'translateY(0)' : 'translateY(10px)',
                     transition: 'opacity 0.5s 0.12s both, transform 0.5s 0.12s both',
                 }}>
-                    <Sparkles size={11} color="rgba(255,255,255,0.5)" />
                     <span>{t('payment_success_label')}</span>
-                    <Sparkles size={11} color="rgba(255,255,255,0.5)" />
                 </div>
 
                 {/* Headline */}

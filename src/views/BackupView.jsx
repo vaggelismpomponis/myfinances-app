@@ -13,7 +13,6 @@ import {
     Info,
     UserCheck,
     Layers,
-    Sparkles,
     Check,
     Lock
 } from 'lucide-react';
@@ -649,7 +648,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
 
                             <div className="flex items-start gap-2.5">
                                 <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <Sparkles size={13} strokeWidth={2.5} />
+                                    <CheckCircle2 size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
                                     Seamlessly migrate your data between different phones, devices, or accounts.

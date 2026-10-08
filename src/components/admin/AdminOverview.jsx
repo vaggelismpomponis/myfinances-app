@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import {
     Users, RefreshCw, MessageSquare, Zap, Award, Activity, TrendingUp,
     Clock, Calendar, Smartphone, Monitor, Globe, ChevronRight, ArrowUpRight,
-    Crown, Trophy, ArrowRight, ShieldCheck, CheckCircle2, Sparkles
+    Crown, Trophy, ArrowRight, ShieldCheck, CheckCircle2
 } from 'lucide-react';
 
 /* ─── Donut Chart (Enhanced SVG) ─── */

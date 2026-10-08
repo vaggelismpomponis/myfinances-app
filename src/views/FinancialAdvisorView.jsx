@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import {
     TrendingUp, ShieldCheck, Zap, Info, Target, ChevronRight, ArrowLeft,
     Lightbulb, CheckCircle2, Trophy, Flame, Coffee, Wallet, TrendingDown,
-    AlertTriangle, Star, Award, RefreshCw, ChevronLeft, Sparkles
+    AlertTriangle, Star, Award, RefreshCw, ChevronLeft
 } from 'lucide-react';
 import {
     PieChart, Pie, Cell, ResponsiveContainer, Tooltip
@@ -355,7 +355,7 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) 
                 <Header onBack={onBack} hideHeader={hideHeader} t={t} />
                 <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-6">
                     <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-2xl shadow-violet-500/30">
-                        <Sparkles size={44} className="text-white" fill="currentColor" />
+                        <Lightbulb size={44} className="text-white" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{t('advisor_empty_title')}</h2>
@@ -425,7 +425,7 @@ const FinancialAdvisorView = ({ transactions, goals = [], onBack, hideHeader }) 
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2 text-sm">
                             <span className="w-7 h-7 rounded-xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
-                                <Sparkles size={14} className="text-violet-600 dark:text-violet-400" />
+                                <Lightbulb size={14} className="text-violet-600 dark:text-violet-400" />
                             </span>
                             {t('daily_insights_title')}
                         </h3>
