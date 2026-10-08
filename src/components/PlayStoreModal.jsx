@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Star, ShieldCheck, Zap, Bell, RefreshCw, QrCode } from 'lucide-react';
+import { X, ExternalLink, Star, ShieldCheck, Zap, CheckCircle2, QrCode, Smartphone } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { PLAY_STORE_URL } from '../utils/platform';
 
@@ -105,8 +105,8 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                                         }}
                                         className="w-16 h-16 rounded-[18px] object-cover shadow-lg border border-black/5 dark:border-white/10"
                                     />
-                                    <div className="absolute -bottom-1.5 -right-1.5 p-1 bg-white dark:bg-slate-800 rounded-full shadow-md border border-gray-100 dark:border-white/10 flex items-center justify-center">
-                                        <GooglePlayIcon size={14} />
+                                    <div className="absolute -bottom-1.5 -right-1.5 p-1 bg-white dark:bg-slate-800 rounded-full shadow-md border border-gray-100 dark:border-white/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                        <Smartphone size={13} strokeWidth={2.2} />
                                     </div>
                                 </div>
                                 <div className="min-w-0">
@@ -121,7 +121,7 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                                     </p>
                                     <div className="flex items-center gap-1.5 mt-1.5">
                                         <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-500/20">
-                                            <ShieldCheck size={11} /> {t('play_store_badge_protect') || 'Play Protect Verified'}
+                                            <ShieldCheck size={11} strokeWidth={2.5} /> {t('play_store_badge_protect') || 'Play Protect Verified'}
                                         </span>
                                     </div>
                                 </div>
@@ -130,8 +130,8 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                             {/* Store Highlights Grid */}
                             <div className="grid grid-cols-3 gap-2 py-3 px-3.5 bg-gray-50/90 dark:bg-white/[0.04] rounded-2xl border border-gray-100 dark:border-white/5 text-center">
                                 <div>
-                                    <div className="flex items-center justify-center gap-1 text-[13px] font-black text-amber-500">
-                                        <Star size={13} className="fill-amber-400 text-amber-400" />
+                                    <div className="flex items-center justify-center gap-1.5 text-[13px] font-black text-amber-500">
+                                        <Star size={14} className="fill-amber-400 text-amber-400" />
                                         <span>4.9</span>
                                     </div>
                                     <p className="text-[10px] font-medium text-gray-400 dark:text-white/40 mt-0.5">
@@ -139,8 +139,8 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                                     </p>
                                 </div>
                                 <div className="border-x border-gray-200/60 dark:border-white/10">
-                                    <div className="flex items-center justify-center gap-1 text-[13px] font-black text-emerald-600 dark:text-emerald-400">
-                                        <Zap size={13} />
+                                    <div className="flex items-center justify-center gap-1.5 text-[13px] font-black text-emerald-600 dark:text-emerald-400">
+                                        <Zap size={14} className="fill-emerald-500 text-emerald-500" />
                                         <span>100%</span>
                                     </div>
                                     <p className="text-[10px] font-medium text-gray-400 dark:text-white/40 mt-0.5">
@@ -148,8 +148,8 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                                     </p>
                                 </div>
                                 <div>
-                                    <div className="flex items-center justify-center gap-1 text-[13px] font-black text-blue-600 dark:text-blue-400">
-                                        <ShieldCheck size={13} />
+                                    <div className="flex items-center justify-center gap-1.5 text-[13px] font-black text-blue-600 dark:text-blue-400">
+                                        <ShieldCheck size={14} strokeWidth={2} />
                                         <span>Google</span>
                                     </div>
                                     <p className="text-[10px] font-medium text-gray-400 dark:text-white/40 mt-0.5">
@@ -164,24 +164,18 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                                     'Κατεβάστε την επίσημη εφαρμογή απευθείας από το Google Play Store για άμεσες ειδοποιήσεις, αυτόματες ενημερώσεις και μέγιστη ασφάλεια.'}
                             </p>
 
-                            {/* Feature Pills */}
-                            <div className="space-y-2 text-left">
-                                <div className="flex items-center gap-2.5 text-[12px] font-semibold text-gray-700 dark:text-white/80">
-                                    <div className="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
-                                        <Bell size={13} />
-                                    </div>
+                            {/* Feature Checklist — Pure Lucide Icons */}
+                            <div className="space-y-2.5 text-left py-1">
+                                <div className="flex items-center gap-3 text-[13px] font-semibold text-gray-700 dark:text-white/85">
+                                    <CheckCircle2 size={17} className="text-emerald-500 dark:text-emerald-400 flex-shrink-0" strokeWidth={2} />
                                     <span>{t('play_store_feature_push') || 'Άμεσες ειδοποιήσεις & υπενθυμίσεις εξόδων'}</span>
                                 </div>
-                                <div className="flex items-center gap-2.5 text-[12px] font-semibold text-gray-700 dark:text-white/80">
-                                    <div className="w-6 h-6 rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center flex-shrink-0">
-                                        <Zap size={13} />
-                                    </div>
+                                <div className="flex items-center gap-3 text-[13px] font-semibold text-gray-700 dark:text-white/85">
+                                    <CheckCircle2 size={17} className="text-emerald-500 dark:text-emerald-400 flex-shrink-0" strokeWidth={2} />
                                     <span>{t('play_store_feature_perf') || 'Ταχύτερη απόδοση & λειτουργία εκτός σύνδεσης'}</span>
                                 </div>
-                                <div className="flex items-center gap-2.5 text-[12px] font-semibold text-gray-700 dark:text-white/80">
-                                    <div className="w-6 h-6 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
-                                        <RefreshCw size={13} />
-                                    </div>
+                                <div className="flex items-center gap-3 text-[13px] font-semibold text-gray-700 dark:text-white/85">
+                                    <CheckCircle2 size={17} className="text-emerald-500 dark:text-emerald-400 flex-shrink-0" strokeWidth={2} />
                                     <span>{t('play_store_feature_updates') || 'Αυτόματες ενημερώσεις & μέγιστη ασφάλεια'}</span>
                                 </div>
                             </div>

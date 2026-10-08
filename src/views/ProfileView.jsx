@@ -10,7 +10,7 @@ import {
     Zap
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
-import PlayStoreModal, { GooglePlayIcon } from '../components/PlayStoreModal';
+import PlayStoreModal from '../components/PlayStoreModal';
 import PasswordInput from '../components/PasswordInput';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
@@ -399,7 +399,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             <SettingRow icon={HardDriveDownload} label={translate('backup_restore') || 'Backup & Restore'} onClick={onBackup} />
                             {!isNativeApp && (
                                 <SettingRow
-                                    icon={GooglePlayIcon}
+                                    icon={Smartphone}
                                     label={translate('install_android') || 'Εφαρμογή Android (Play Store)'}
                                     onClick={() => setShowPlayStoreModal(true)}
                                     right={
