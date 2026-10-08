@@ -543,19 +543,28 @@ function MainContent() {
 
                 // Render the native Google button — shows "SpendWise" in the popup
                 // renderButton manages its own click/FedCM flow independently from prompt()
-                const btnContainer = document.getElementById('google-signin-button');
-                if (btnContainer) {
-                    btnContainer.innerHTML = ''; // clear any stale render
-                    window.google.accounts.id.renderButton(btnContainer, {
-                        type: 'standard',
-                        shape: 'rectangular',
-                        theme: 'outline',
-                        text: 'continue_with',
-                        size: 'large',
-                        logo_alignment: 'left',
-                        width: btnContainer.offsetWidth || 320
-                    });
-                }
+                const renderGoogleButton = () => {
+                    const btnContainer = document.getElementById('google-signin-button');
+                    if (btnContainer && window.google?.accounts?.id) {
+                        btnContainer.innerHTML = ''; // clear any stale render
+                        try {
+                            const containerWidth = btnContainer.offsetWidth || 320;
+                            window.google.accounts.id.renderButton(btnContainer, {
+                                type: 'standard',
+                                shape: 'rectangular',
+                                theme: 'outline',
+                                text: 'continue_with',
+                                size: 'large',
+                                logo_alignment: 'left',
+                                width: Math.min(400, Math.max(200, containerWidth))
+                            });
+                        } catch (err) {
+                            logger.warn('Failed to render GSI button', err, 'App');
+                        }
+                    }
+                };
+                window.__renderGoogleButton = renderGoogleButton;
+                renderGoogleButton();
                 // NOTE: We intentionally do NOT call prompt() here.
                 // One Tap prompt() fires automatically and hits Supabase /auth/v1/token
                 // without a valid nonce, causing 500 errors. The rendered button is sufficient.

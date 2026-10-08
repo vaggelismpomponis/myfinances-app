@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-    Mail, 
-    Lock, 
-    ArrowRight, 
-    ArrowLeft, 
-    Eye, 
-    EyeOff, 
-    X, 
-    Check, 
-    Sparkles, 
-    ShieldCheck, 
-    KeyRound, 
+import {
+    Mail,
+    Lock,
+    ArrowRight,
+    ArrowLeft,
+    Eye,
+    EyeOff,
+    X,
+    Check,
+    Sparkles,
+    ShieldCheck,
+    KeyRound,
     HelpCircle,
     CheckCircle2
 } from 'lucide-react';
@@ -21,14 +21,14 @@ import { validateEmail } from '../utils/emailValidation';
 import PasswordInput from '../components/PasswordInput';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const LoginView = ({ 
-    onEmailLogin, 
-    onRegister, 
-    onGoogleLogin, 
-    onVerifyOtp, 
-    onResendOtp, 
-    isVerifying, 
-    onCancelVerification 
+const LoginView = ({
+    onEmailLogin,
+    onRegister,
+    onGoogleLogin,
+    onVerifyOtp,
+    onResendOtp,
+    isVerifying,
+    onCancelVerification
 }) => {
     const { t } = useSettings();
     const [isLogin, setIsLogin] = useState(true);
@@ -57,7 +57,7 @@ const LoginView = ({
 
     const handleCodeChange = (idx, val) => {
         if (!/^\d*$/.test(val)) return;
-        
+
         const newCode = [...verificationCode];
         newCode[idx] = val.slice(-1);
         setVerificationCode(newCode);
@@ -87,14 +87,14 @@ const LoginView = ({
         e.preventDefault();
         const pastedData = e.clipboardData.getData('text').trim();
         const digits = pastedData.replace(/\D/g, '').slice(0, 8);
-        
+
         if (digits.length > 0) {
             const newCode = [...verificationCode];
             digits.split('').forEach((digit, i) => {
                 if (i < 8) newCode[i] = digit;
             });
             setVerificationCode(newCode);
-            
+
             const nextIdx = Math.min(digits.length, 7);
             codeRefs.current[nextIdx]?.focus();
 
@@ -127,17 +127,41 @@ const LoginView = ({
     const [formError, setFormError] = useState('');
     const [gsiFailed, setGsiFailed] = useState(false);
 
-    // Detect if the GSI button fails to render
+    // Detect & maintain the GSI button when returning to the choice screen
     useEffect(() => {
         if (Capacitor.isNativePlatform()) return;
-        const timer = setTimeout(() => {
+        if (showEmailForm || showVerification) return;
+
+        const checkGsi = () => {
+            const container = document.getElementById('google-signin-button');
+            if (container) {
+                if (container.children.length === 0) {
+                    if (typeof window.__renderGoogleButton === 'function') {
+                        window.__renderGoogleButton();
+                    }
+                } else {
+                    setGsiFailed(false);
+                }
+            }
+        };
+
+        checkGsi();
+        const t1 = setTimeout(checkGsi, 100);
+        const t2 = setTimeout(checkGsi, 400);
+
+        const failTimer = setTimeout(() => {
             const container = document.getElementById('google-signin-button');
             if (container && container.children.length === 0) {
                 setGsiFailed(true);
             }
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, []);
+        }, 2500);
+
+        return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+            clearTimeout(failTimer);
+        };
+    }, [showEmailForm, showVerification]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -229,7 +253,7 @@ const LoginView = ({
             <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-fuchsia-600/10 blur-[120px] pointer-events-none" />
 
             {/* Micro Dot Matrix Grid */}
-            <div 
+            <div
                 className="fixed inset-0 pointer-events-none opacity-[0.14]"
                 style={{
                     backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px)',
@@ -239,9 +263,9 @@ const LoginView = ({
 
             {/* Center Content Container */}
             <div className="w-full max-w-[420px] my-auto py-2 z-10 relative flex flex-col items-center">
-                
+
                 {/* ── Brand Header ── */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: -16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
@@ -251,9 +275,9 @@ const LoginView = ({
                     <div className="relative group cursor-pointer mb-3.5">
                         <div className="absolute -inset-1 rounded-[26px] bg-gradient-to-tr from-violet-600 via-indigo-500 to-fuchsia-500 opacity-60 blur-xl group-hover:opacity-90 transition duration-500" />
                         <div className="relative w-20 h-20 sm:w-[88px] sm:h-[88px] rounded-[24px] bg-[#12101F] border border-white/20 p-3.5 shadow-2xl flex items-center justify-center backdrop-blur-xl ring-1 ring-white/10 group-hover:scale-105 transition-transform duration-300">
-                            <img 
-                                src="/spendwise-mark.png" 
-                                alt="SpendWise Icon" 
+                            <img
+                                src="/spendwise-mark.png"
+                                alt="SpendWise Icon"
                                 className="w-full h-full object-contain filter drop-shadow-[0_8px_16px_rgba(124,58,237,0.45)]"
                             />
                         </div>
@@ -266,8 +290,8 @@ const LoginView = ({
                     <p className="text-xs sm:text-sm text-gray-400 font-medium mt-1 text-center max-w-[280px]">
                         {showVerification
                             ? (t('verification_title') || 'Επαλήθευση ασφαλείας')
-                            : (isLogin 
-                                ? 'Καλωσήρθες πίσω • Έξυπνη διαχείριση' 
+                            : (isLogin
+                                ? 'Καλωσήρθες πίσω'
                                 : 'Δημιούργησε λογαριασμό σε 30 δευτερόλεπτα')}
                     </p>
                 </motion.div>
@@ -293,7 +317,7 @@ const LoginView = ({
                                 transition={{ duration: 0.25 }}
                                 className="space-y-6"
                             >
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => {
                                         setShowVerification(false);
@@ -361,14 +385,14 @@ const LoginView = ({
                                 </motion.button>
 
                                 <div className="text-center pt-2">
-                                    <button 
+                                    <button
                                         type="button"
                                         disabled={resendTimer > 0}
                                         className="text-xs font-bold text-violet-400 hover:text-violet-300 disabled:opacity-50 disabled:no-underline transition-colors"
                                         onClick={handleResend}
                                     >
-                                        {resendTimer > 0 
-                                            ? `${t('resend_code') || 'Επαναποστολή κωδικού'} (${resendTimer}s)` 
+                                        {resendTimer > 0
+                                            ? `${t('resend_code') || 'Επαναποστολή κωδικού'} (${resendTimer}s)`
                                             : (t('resend_code') || 'Επαναποστολή κωδικού')}
                                     </button>
                                 </div>
@@ -385,13 +409,12 @@ const LoginView = ({
                                 <div className="bg-white/[0.05] p-1.5 rounded-2xl flex relative border border-white/[0.08] mb-6">
                                     <button
                                         type="button"
-                                        onClick={() => { 
-                                            setIsLogin(true); 
-                                            setFormError(''); 
+                                        onClick={() => {
+                                            setIsLogin(true);
+                                            setFormError('');
                                         }}
-                                        className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold relative z-10 transition-colors ${
-                                            isLogin ? 'text-white' : 'text-gray-400 hover:text-gray-200'
-                                        }`}
+                                        className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold relative z-10 transition-colors ${isLogin ? 'text-white' : 'text-gray-400 hover:text-gray-200'
+                                            }`}
                                     >
                                         {isLogin && (
                                             <motion.div
@@ -405,13 +428,12 @@ const LoginView = ({
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => { 
-                                            setIsLogin(false); 
-                                            setFormError(''); 
+                                        onClick={() => {
+                                            setIsLogin(false);
+                                            setFormError('');
                                         }}
-                                        className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold relative z-10 transition-colors ${
-                                            !isLogin ? 'text-white' : 'text-gray-400 hover:text-gray-200'
-                                        }`}
+                                        className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold relative z-10 transition-colors ${!isLogin ? 'text-white' : 'text-gray-400 hover:text-gray-200'
+                                            }`}
                                     >
                                         {!isLogin && (
                                             <motion.div
@@ -425,17 +447,9 @@ const LoginView = ({
                                     </button>
                                 </div>
 
-                                <AnimatePresence mode="wait">
                                     {/* ── View A: Quick Choice (Google & Email Entry) ── */}
-                                    {!showEmailForm ? (
-                                        <motion.div
-                                            key="choice-screen"
-                                            initial={{ opacity: 0, y: 8 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -8 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="space-y-4"
-                                        >
+                                    {/* Kept permanently mounted in DOM so Google's rendered button iframe is preserved */}
+                                    <div className={showEmailForm ? 'hidden' : 'space-y-4 animate-fade-in'}>
                                             {/* Google Sign-In */}
                                             {Capacitor.isNativePlatform() ? (
                                                 <motion.button
@@ -519,23 +533,16 @@ const LoginView = ({
                                                     </span>
                                                 </div>
                                             )}
-                                        </motion.div>
-                                    ) : (
-                                        /* ── View B: Email & Password Form ── */
-                                        <motion.div
-                                            key="form-screen"
-                                            initial={{ opacity: 0, x: 12 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -12 }}
-                                            transition={{ duration: 0.2 }}
-                                        >
+                                    </div>
+                                    {/* ── View B: Email & Password Form ── */}
+                                    <div className={!showEmailForm ? 'hidden' : 'space-y-4 animate-fade-in'}>
                                             {/* Header with Back Button */}
                                             <div className="flex items-center justify-between mb-5">
-                                                <button 
+                                                <button
                                                     type="button"
-                                                    onClick={() => { 
-                                                        setShowEmailForm(false); 
-                                                        setFormError(''); 
+                                                    onClick={() => {
+                                                        setShowEmailForm(false);
+                                                        setFormError('');
                                                     }}
                                                     className="flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-white transition-colors group"
                                                 >
@@ -603,11 +610,11 @@ const LoginView = ({
                                                     <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs p-3.5 rounded-2xl flex flex-col gap-2 animate-fade-in">
                                                         <span>{formError}</span>
                                                         {formError === (t('email_in_use') || 'Το email χρησιμοποιείται ήδη.') && (
-                                                            <button 
+                                                            <button
                                                                 type="button"
-                                                                onClick={() => { 
-                                                                    setIsLogin(true); 
-                                                                    setFormError(''); 
+                                                                onClick={() => {
+                                                                    setIsLogin(true);
+                                                                    setFormError('');
                                                                 }}
                                                                 className="text-violet-400 font-bold hover:underline self-start mt-0.5"
                                                             >
@@ -624,19 +631,18 @@ const LoginView = ({
                                                             className="flex items-center gap-2 cursor-pointer group select-none"
                                                             onClick={() => setRememberMe(!rememberMe)}
                                                         >
-                                                            <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-all ${
-                                                                rememberMe
+                                                            <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-all ${rememberMe
                                                                     ? 'bg-violet-600 border-violet-500 shadow-[0_0_8px_rgba(124,58,237,0.5)]'
                                                                     : 'border-white/20 bg-white/5 group-hover:border-violet-400'
-                                                            }`}>
+                                                                }`}>
                                                                 {rememberMe && <Check size={11} className="text-white" strokeWidth={3} />}
                                                             </div>
                                                             <span className="text-xs font-medium text-gray-300 group-hover:text-white transition-colors">
                                                                 {t('remember_me') || 'Να με θυμάσαι'}
                                                             </span>
                                                         </label>
-                                                        <button 
-                                                            type="button" 
+                                                        <button
+                                                            type="button"
                                                             onClick={() => setShowForgotModal(true)}
                                                             className="text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors"
                                                         >
@@ -646,10 +652,10 @@ const LoginView = ({
                                                 )}
 
                                                 {/* Submit Button */}
-                                                <motion.button 
+                                                <motion.button
                                                     whileHover={{ scale: 1.01 }}
                                                     whileTap={{ scale: 0.98 }}
-                                                    type="submit" 
+                                                    type="submit"
                                                     disabled={isLoading}
                                                     className="w-full py-4 rounded-2xl font-bold text-sm text-white
                                                              bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-500
@@ -672,19 +678,17 @@ const LoginView = ({
                                                     )}
                                                 </motion.button>
                                             </form>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+                                    </div>
 
                                 {/* Footer Toggle (Δεν έχεις λογαριασμό; / Έχεις ήδη;) */}
                                 <div className="mt-6 pt-5 border-t border-white/[0.08] text-center">
                                     <p className="text-xs sm:text-sm text-gray-400 font-medium">
                                         {isLogin ? "Δεν έχεις λογαριασμό;" : "Έχεις ήδη λογαριασμό;"}
-                                        <button 
+                                        <button
                                             type="button"
-                                            onClick={() => { 
-                                                setIsLogin(!isLogin); 
-                                                setFormError(''); 
+                                            onClick={() => {
+                                                setIsLogin(!isLogin);
+                                                setFormError('');
                                             }}
                                             className="ml-2 font-bold text-violet-400 hover:text-violet-300 hover:underline transition-colors"
                                         >
@@ -709,16 +713,16 @@ const LoginView = ({
                 {showForgotModal && (
                     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
                         {/* Backdrop */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/70 backdrop-blur-md"
-                            onClick={() => setShowForgotModal(false)} 
+                            onClick={() => setShowForgotModal(false)}
                         />
-                        
+
                         {/* Sheet Container */}
-                        <motion.div 
+                        <motion.div
                             initial={{ y: '100%' }}
                             animate={{ y: 0 }}
                             exit={{ y: '100%' }}
@@ -741,7 +745,7 @@ const LoginView = ({
                                         {t('reset_password') || 'Επαναφορά Κωδικού'}
                                     </h3>
                                 </div>
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => setShowForgotModal(false)}
                                     className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
@@ -792,10 +796,10 @@ const LoginView = ({
                                             />
                                         </div>
                                     </div>
-                                    <motion.button 
+                                    <motion.button
                                         whileHover={{ scale: 1.01 }}
                                         whileTap={{ scale: 0.98 }}
-                                        type="submit" 
+                                        type="submit"
                                         disabled={resetStatus.loading}
                                         className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-500
                                                  text-white font-bold text-sm
