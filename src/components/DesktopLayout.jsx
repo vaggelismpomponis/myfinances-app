@@ -229,7 +229,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         <div className="flex-shrink-0 flex items-center justify-between
                         px-6 py-3 min-h-[60px]
                         bg-gray-50 dark:bg-surface-dark
-                        border-b border-gray-100 dark:border-white/5
+                        border-b border-gray-200/80 dark:border-white/10
                         relative z-50">
 
             {/* ── Left: Profile Avatar ── */}

@@ -16,19 +16,16 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
                     outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0
                     transition-all duration-200 group relative select-none
                     ${active
-                        ? 'bg-violet-50 dark:bg-violet-500/15 text-violet-700 dark:text-violet-200 border border-violet-200/60 dark:border-violet-500/25 font-bold shadow-xs'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white font-medium border border-transparent'
+                        ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold shadow-md shadow-violet-500/25'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/90 dark:hover:bg-white/[0.06] hover:text-gray-950 dark:hover:text-white font-medium border border-transparent'
                     }`}
     >
-        {active && (
-            <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-4 bg-violet-600 dark:bg-violet-400 rounded-full" />
-        )}
         <Icon
             size={18}
             className={`shrink-0 transition-transform duration-200 ${
                 active
-                    ? 'text-violet-600 dark:text-violet-400 scale-105'
-                    : 'text-gray-400 dark:text-gray-500 group-hover:text-violet-600 dark:group-hover:text-violet-400 group-hover:scale-110'
+                    ? 'text-white scale-105'
+                    : 'text-gray-500 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 group-hover:scale-110'
             }`}
         />
         <span className="text-sm flex-1 truncate">{label}</span>
@@ -36,7 +33,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
             <span
                 className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                     active
-                        ? 'bg-violet-600 text-white'
+                        ? 'bg-white/20 text-white border border-white/20'
                         : 'bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30'
                 }`}
             >
@@ -53,7 +50,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
 );
 
 const SectionLabel = ({ label }) => (
-    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-400/80 dark:text-gray-500/80 px-3.5 mb-1 mt-4 select-none">
+    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500 px-3.5 mb-1.5 mt-5 select-none">
         {label}
     </p>
 );
@@ -82,12 +79,13 @@ const DesktopSidebar = ({
     return (
         <aside className="
             h-full flex flex-col bg-white dark:bg-surface-dark2
-            border-r border-gray-100 dark:border-white/[0.06]
+            border-r border-gray-200/90 dark:border-white/[0.08]
+            shadow-[4px_0_20px_-4px_rgba(0,0,0,0.03)] dark:shadow-[4px_0_24px_-4px_rgba(0,0,0,0.4)]
             overflow-y-auto custom-scrollbar
-            w-[260px] flex-shrink-0 select-none
+            w-[264px] xl:w-[272px] flex-shrink-0 select-none z-20 relative
         ">
             {/* ── Brand Header ── */}
-            <div className="px-5 pt-6 pb-3">
+            <div className="px-5 pt-5 pb-4 border-b border-gray-100 dark:border-white/[0.06]">
                 <button
                     onClick={() => navTo('home')}
                     style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
@@ -110,12 +108,12 @@ const DesktopSidebar = ({
                                 SpendWise
                             </h1>
                             {isPro && (
-                                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30 shrink-0">
+                                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30 shrink-0">
                                     PRO
                                 </span>
                             )}
                         </div>
-                        <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 truncate -mt-0.5">
+                        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 truncate -mt-0.5">
                             Personal Finance
                         </p>
                     </div>
@@ -149,14 +147,14 @@ const DesktopSidebar = ({
             </div>
 
             {/* ── User Profile & Quick Controls Footer ── */}
-            <div className="p-3 border-t border-gray-100 dark:border-white/[0.06] space-y-2 mt-auto bg-gray-50/50 dark:bg-white/[0.01]">
+            <div className="p-3.5 border-t border-gray-200/90 dark:border-white/[0.08] space-y-2.5 mt-auto bg-gray-50/70 dark:bg-white/[0.02]">
                 {/* User Profile Mini Capsule */}
                 <div
                     onClick={() => navTo('profile')}
-                    className={`flex items-center gap-2.5 p-2 rounded-xl transition-all cursor-pointer group ${
+                    className={`flex items-center gap-2.5 p-2.5 rounded-xl transition-all cursor-pointer group border ${
                         activeTab === 'profile'
-                            ? 'bg-violet-50 dark:bg-violet-950/30 border border-violet-200/50 dark:border-violet-800/30'
-                            : 'hover:bg-gray-100/80 dark:hover:bg-white/[0.05]'
+                            ? 'bg-violet-50 dark:bg-violet-950/30 border-violet-200 dark:border-violet-800/40'
+                            : 'bg-white dark:bg-surface-dark3 border-gray-200/70 dark:border-white/5 hover:border-violet-200 dark:hover:border-violet-800/30 hover:shadow-xs'
                     }`}
                 >
                     <div className="relative shrink-0">
@@ -165,7 +163,7 @@ const DesktopSidebar = ({
                                 src={photoURL}
                                 alt={effectiveName}
                                 onError={() => setImgError(true)}
-                                className="w-8 h-8 rounded-full object-cover ring-2 ring-violet-500/20"
+                                className="w-8 h-8 rounded-full object-cover ring-2 ring-violet-500/30"
                             />
                         ) : (
                             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
@@ -182,18 +180,18 @@ const DesktopSidebar = ({
                         <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                             {effectiveName}
                         </p>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
+                        <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 truncate">
                             {isPro ? (t('pro_member') || 'Pro Member') : (user?.email || 'SpendWise')}
                         </p>
                     </div>
                 </div>
 
                 {/* Compact Utility Action Row (Theme, Privacy, Logout) */}
-                <div className="flex items-center justify-between gap-1 pt-0.5">
+                <div className="flex items-center justify-between gap-1.5 pt-0.5">
                     <button
                         onClick={toggleTheme}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-400 bg-gray-100/80 dark:bg-white/[0.05] hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400 outline-none focus:outline-none focus-visible:outline-none active:outline-none transition-all"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-surface-dark3 border border-gray-200/70 dark:border-white/10 hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-200 dark:hover:border-violet-800/40 outline-none focus:outline-none active:scale-95 transition-all shadow-2xs"
                         title={theme === 'dark' ? t('switch_to_light') || 'Light mode' : t('switch_to_dark') || 'Dark mode'}
                     >
                         {theme === 'dark' ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} />}
@@ -203,10 +201,10 @@ const DesktopSidebar = ({
                     <button
                         onClick={togglePrivacyMode}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold outline-none focus:outline-none focus-visible:outline-none active:outline-none transition-all ${
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold outline-none focus:outline-none active:scale-95 transition-all border ${
                             privacyMode
-                                ? 'bg-violet-600 text-white shadow-xs font-bold'
-                                : 'text-gray-600 dark:text-gray-400 bg-gray-100/80 dark:bg-white/[0.05] hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400'
+                                ? 'bg-violet-600 text-white border-violet-600 shadow-xs font-bold'
+                                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-surface-dark3 border-gray-200/70 dark:border-white/10 hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-200 dark:hover:border-violet-800/40 shadow-2xs'
                         }`}
                         title={privacyMode ? t('show_amounts') || 'Show amounts' : t('hide_amounts') || 'Hide amounts'}
                     >
@@ -217,11 +215,11 @@ const DesktopSidebar = ({
                     <button
                         onClick={onSignOut}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                        className="p-1.5 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 outline-none focus:outline-none focus-visible:outline-none active:outline-none transition-all shrink-0"
+                        className="p-2 rounded-xl text-rose-500 hover:text-rose-600 bg-white dark:bg-surface-dark3 border border-gray-200/70 dark:border-white/10 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-900/40 outline-none focus:outline-none active:scale-95 transition-all shrink-0 shadow-2xs"
                         title={t('sign_out') || 'Sign out'}
                         aria-label="Sign out"
                     >
-                        <LogOut size={15} />
+                        <LogOut size={14} />
                     </button>
                 </div>
             </div>
