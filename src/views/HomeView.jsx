@@ -866,95 +866,140 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     {/* ──── LEFT COLUMN (8 cols): Breakdown + Transactions ──── */}
                     <div className="lg:col-span-7 xl:col-span-8 space-y-6">
                         {/* Monthly Category Breakdown */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5.5 shadow-card">
-                            <div className="flex items-center justify-between mb-3.5">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                                        <PieChart size={17} />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                                            {t('monthly_category_breakdown') || 'Κατανομή Εξόδων Μήνα'}
-                                        </h3>
-                                        <p className="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
-                                            {t('top_categories_desc') || 'Κορυφαίες κατηγορίες αυτού του μήνα'}
-                                        </p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => setActiveTab('stats')}
-                                    className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 flex items-center gap-1 transition-colors"
-                                >
-                                    <span>{t('nav_stats') || 'Ανάλυση'}</span>
-                                    <ChevronRight size={14} />
-                                </button>
-                            </div>
+                        {(() => {
+                            const topCatsSpent = categoryBreakdown.topCats.reduce((sum, c) => sum + c.amount, 0);
+                            const remainingSpent = Math.max(0, categoryBreakdown.totalMonthSpent - topCatsSpent);
+                            const remainingPct = categoryBreakdown.totalMonthSpent > 0
+                                ? Math.max(0, 100 - categoryBreakdown.topCats.reduce((sum, c) => sum + c.percentage, 0))
+                                : 0;
 
-                            {categoryBreakdown.topCats.length > 0 ? (
-                                <div className="space-y-3.5">
-                                    {/* Multi-segment bar */}
-                                    <div className="h-3 w-full bg-gray-100 dark:bg-white/[0.06] rounded-full overflow-hidden flex gap-0.5 p-0.5">
-                                        {categoryBreakdown.topCats.map(cat => (
-                                            <div
-                                                key={cat.category}
-                                                className="h-full rounded-full transition-all duration-700"
-                                                style={{
-                                                    width: `${Math.max(cat.percentage, 3)}%`,
-                                                    backgroundColor: cat.accent
-                                                }}
-                                                title={`${getCategoryTranslation(cat.category, t)}: ${cat.percentage}%`}
-                                            />
-                                        ))}
-                                    </div>
-
-                                    {/* Category Chips Grid */}
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-                                        {categoryBreakdown.topCats.map(cat => (
-                                            <div
-                                                key={cat.category}
-                                                className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5 hover:border-violet-200 dark:hover:border-violet-900/50 transition-all flex flex-col justify-between group"
-                                            >
-                                                <div className="flex items-center justify-between gap-1.5 mb-2">
-                                                    <div className="flex items-center gap-2 min-w-0">
-                                                        <CategoryIcon
-                                                            category={cat.category}
-                                                            type="expense"
-                                                            size={13}
-                                                            className="w-6 h-6 rounded-lg p-0 flex-shrink-0"
-                                                        />
-                                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate capitalize">
-                                                            {getCategoryTranslation(cat.category, t)}
+                            return (
+                                <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5.5 shadow-card hover:shadow-card-hover transition-all">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-xl bg-violet-500/10 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center border border-violet-500/20 shadow-2xs">
+                                                <PieChart size={18} />
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                                                        {t('monthly_category_breakdown') || 'Κατανομή Εξόδων Μήνα'}
+                                                    </h3>
+                                                    {categoryBreakdown.totalMonthSpent > 0 && (
+                                                        <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30 tabular-nums">
+                                                            <Amount value={categoryBreakdown.totalMonthSpent} />
                                                         </span>
-                                                    </div>
-                                                    <span
-                                                        className="text-[10px] font-black px-2 py-0.5 rounded-full tabular-nums flex-shrink-0"
-                                                        style={{ color: cat.accent, backgroundColor: `${cat.accent}18` }}
-                                                    >
-                                                        {cat.percentage}%
-                                                    </span>
+                                                    )}
                                                 </div>
+                                                <p className="text-[11px] text-gray-400 dark:text-gray-500 font-medium mt-0.5">
+                                                    {t('top_categories_desc') || 'Κορυφαίες κατηγορίες αυτού του μήνα'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setActiveTab('stats')}
+                                            className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:text-violet-500 flex items-center gap-1 group transition-colors self-start sm:self-center"
+                                        >
+                                            <span>{t('nav_stats') || 'Ανάλυση'}</span>
+                                            <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                                        </button>
+                                    </div>
 
-                                                <div>
-                                                    <div className="text-base font-black text-gray-900 dark:text-white tabular-nums tracking-tight font-display">
-                                                        <Amount value={cat.amount} />
-                                                    </div>
-                                                    <div className="w-full h-1 bg-gray-200/60 dark:bg-white/10 rounded-full mt-2 overflow-hidden">
+                                    {categoryBreakdown.topCats.length > 0 ? (
+                                        <div className="space-y-4">
+                                            {/* Multi-segment distribution strip (full 100% spectrum) */}
+                                            <div className="space-y-1.5">
+                                                <div className="h-2.5 w-full bg-gray-100 dark:bg-white/[0.05] rounded-full overflow-hidden flex gap-1 p-0.5">
+                                                    {categoryBreakdown.topCats.map(cat => (
                                                         <div
-                                                            className="h-full rounded-full transition-all duration-500"
-                                                            style={{ width: `${Math.min(100, Math.max(5, cat.percentage))}%`, backgroundColor: cat.accent }}
+                                                            key={cat.category}
+                                                            className="h-full rounded-full transition-all duration-700 hover:brightness-110"
+                                                            style={{
+                                                                width: `${cat.percentage}%`,
+                                                                backgroundColor: cat.accent
+                                                            }}
+                                                            title={`${getCategoryTranslation(cat.category, t)}: ${cat.percentage}%`}
                                                         />
-                                                    </div>
+                                                    ))}
+                                                    {remainingPct > 0 && (
+                                                        <div
+                                                            className="h-full rounded-full transition-all duration-700 bg-gray-300 dark:bg-white/20 hover:brightness-110"
+                                                            style={{ width: `${remainingPct}%` }}
+                                                            title={`${t('other') || 'Λοιπά'}: ${remainingPct}%`}
+                                                        />
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center justify-between text-[10px] font-semibold text-gray-400 dark:text-gray-500 px-0.5">
+                                                    <span>{categoryBreakdown.topCats.length} κορυφαίες κατηγορίες</span>
+                                                    {remainingPct > 0 && <span>+ {remainingPct}% λοιπά έξοδα</span>}
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+
+                                            {/* Category Chips Grid */}
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-0.5">
+                                                {categoryBreakdown.topCats.map(cat => (
+                                                    <div
+                                                        key={cat.category}
+                                                        onClick={() => setActiveTab('stats')}
+                                                        className="p-3.5 rounded-2xl bg-gray-50/70 dark:bg-white/[0.03] hover:bg-white dark:hover:bg-white/[0.06] border border-gray-100 dark:border-white/[0.06] hover:border-violet-300/50 dark:hover:border-violet-500/30 hover:shadow-sm transition-all duration-200 flex flex-col justify-between group cursor-pointer"
+                                                    >
+                                                        {/* Top: Icon + Percentage Badge */}
+                                                        <div className="flex items-center justify-between gap-2">
+                                                            <div
+                                                                className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105"
+                                                                style={{ backgroundColor: `${cat.accent}18`, color: cat.accent }}
+                                                            >
+                                                                <CategoryIcon
+                                                                    category={cat.category}
+                                                                    type="expense"
+                                                                    size={15}
+                                                                    className="p-0"
+                                                                />
+                                                            </div>
+                                                            <span
+                                                                className="text-[11px] font-black px-2 py-0.5 rounded-full tabular-nums border"
+                                                                style={{
+                                                                    color: cat.accent,
+                                                                    backgroundColor: `${cat.accent}14`,
+                                                                    borderColor: `${cat.accent}30`
+                                                                }}
+                                                            >
+                                                                {cat.percentage}%
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Middle: Category Label + Amount */}
+                                                        <div className="mt-3">
+                                                            <span className="text-[12px] font-bold text-gray-500 dark:text-gray-400 truncate block capitalize">
+                                                                {getCategoryTranslation(cat.category, t)}
+                                                            </span>
+                                                            <div className="text-[17px] font-black text-gray-900 dark:text-white tabular-nums tracking-tight font-display mt-0.5">
+                                                                <Amount value={cat.amount} />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Bottom: Proportional Mini Bar */}
+                                                        <div className="w-full h-1.5 bg-gray-200/50 dark:bg-white/[0.06] rounded-full mt-2.5 overflow-hidden">
+                                                            <div
+                                                                className="h-full rounded-full transition-all duration-500"
+                                                                style={{
+                                                                    width: `${Math.min(100, Math.max(8, cat.percentage))}%`,
+                                                                    backgroundColor: cat.accent
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="py-6 text-center text-xs text-gray-400 dark:text-gray-500 font-medium">
+                                            {t('no_expenses_month') || 'Δεν υπάρχουν ακόμη καταγεγραμμένα έξοδα για αυτόν τον μήνα.'}
+                                        </div>
+                                    )}
                                 </div>
-                            ) : (
-                                <div className="py-6 text-center text-xs text-gray-400 dark:text-gray-500 font-medium">
-                                    {t('no_expenses_month') || 'Δεν υπάρχουν ακόμη καταγεγραμμένα έξοδα για αυτόν τον μήνα.'}
-                                </div>
-                            )}
-                        </div>
+                            );
+                        })()}
 
                         {/* Recent Transactions Feed */}
                         <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5.5 shadow-card space-y-3.5">

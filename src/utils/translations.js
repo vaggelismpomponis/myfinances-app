@@ -1847,7 +1847,7 @@ export const translations = {
         financial_overview: 'Financial Overview',
         total_liquidity: 'Available liquidity',
         prev_month: 'Previous',
-        income_inflows: 'Monthly total inflows',
+        income_inflows: 'Total Inflows',
         net_surplus: 'Surplus',
         net_deficit: 'Deficit',
         savings_rate: 'Savings',
