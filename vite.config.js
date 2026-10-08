@@ -58,6 +58,34 @@ export default defineConfig({
             type: 'image/png',
             purpose: 'maskable'
           }
+        ],
+        shortcuts: [
+          {
+            name: 'Add Expense',
+            short_name: 'Expense',
+            description: 'Quickly log a new expense',
+            url: '/?action=add-expense',
+            icons: [
+              {
+                src: 'pwa-192x192.png',
+                sizes: '192x192',
+                type: 'image/png'
+              }
+            ]
+          },
+          {
+            name: 'Add Income',
+            short_name: 'Income',
+            description: 'Quickly log a new income',
+            url: '/?action=add-income',
+            icons: [
+              {
+                src: 'pwa-192x192.png',
+                sizes: '192x192',
+                type: 'image/png'
+              }
+            ]
+          }
         ]
       },
       devOptions: {

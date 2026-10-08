@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="shortcut_add_expense_short">Έξοδο</string>
+    <string name="shortcut_add_expense_long">Προσθήκη Εξόδου</string>
+    <string name="shortcut_add_income_short">Έσοδο</string>
+    <string name="shortcut_add_income_long">Προσθήκη Εσόδου</string>
+</resources>

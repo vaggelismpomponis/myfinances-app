@@ -38,6 +38,12 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
 
     const [type, setType] = useState(initialType || 'expense');
+
+    useEffect(() => {
+        if (initialType) {
+            setType(initialType);
+        }
+    }, [initialType]);
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('');
     const [note, setNote] = useState('');

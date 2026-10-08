@@ -120,6 +120,7 @@ function MainContent() {
 
     const [showAddModal, setShowAddModal] = useState(false);
     const [fabInitialType, setFabInitialType] = useState(null);
+    const [pendingShortcutAction, setPendingShortcutAction] = useState(null);
     const [showFabMenu, setShowFabMenu] = useState(false);
     const fabLongPressRef = useRef(null);
     const fabPressStartRef = useRef(false);
@@ -341,18 +342,36 @@ function MainContent() {
         if (!Capacitor.isNativePlatform()) return;
 
         const handleDeepLink = (data) => {
-            const url = new URL(data.url);
+            if (!data || !data.url) return;
+            try {
+                const rawUrl = data.url;
+                const searchPart = rawUrl.includes('?') ? rawUrl.slice(rawUrl.indexOf('?')) : '';
+                const searchParams = new URLSearchParams(searchPart);
 
-            // Check for payment success
-            if (url.searchParams.get('upgraded') === 'true' || url.pathname.includes('payment-success')) {
-                setShowPaymentSuccess(true);
-                Browser.close().catch(() => { }); // Close the in-app browser if it's still open
-            }
+                // Check for home screen app shortcuts (Add Expense / Add Income)
+                const action = searchParams.get('action');
+                if (action === 'add-expense') {
+                    setPendingShortcutAction('expense');
+                    return;
+                }
+                if (action === 'add-income') {
+                    setPendingShortcutAction('income');
+                    return;
+                }
 
-            // Check for payment cancellation
-            if (url.searchParams.get('canceled') === 'true' || url.pathname.includes('payment-cancel')) {
-                setShowPaymentCanceled(true);
-                Browser.close().catch(() => { });
+                // Check for payment success
+                if (searchParams.get('upgraded') === 'true' || rawUrl.includes('payment-success')) {
+                    setShowPaymentSuccess(true);
+                    Browser.close().catch(() => { }); // Close the in-app browser if it's still open
+                }
+
+                // Check for payment cancellation
+                if (searchParams.get('canceled') === 'true' || rawUrl.includes('payment-cancel')) {
+                    setShowPaymentCanceled(true);
+                    Browser.close().catch(() => { });
+                }
+            } catch (err) {
+                logger.error('Error handling deep link', err, 'App');
             }
         };
 
@@ -368,6 +387,28 @@ function MainContent() {
         return () => {
             listener.remove();
         };
+    }, []);
+
+    // Check for PWA home screen shortcut launches (?action=add-expense or ?action=add-income)
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const searchParams = new URLSearchParams(window.location.search);
+            const action = searchParams.get('action');
+            if (action === 'add-expense') {
+                setPendingShortcutAction('expense');
+                const url = new URL(window.location.href);
+                url.searchParams.delete('action');
+                window.history.replaceState({}, document.title, url.pathname + (url.search || '') + (url.hash || ''));
+            } else if (action === 'add-income') {
+                setPendingShortcutAction('income');
+                const url = new URL(window.location.href);
+                url.searchParams.delete('action');
+                window.history.replaceState({}, document.title, url.pathname + (url.search || '') + (url.hash || ''));
+            }
+        } catch (e) {
+            // ignore
+        }
     }, []);
 
     // 1. Initialize Auth via Supabase
@@ -1305,13 +1346,21 @@ function MainContent() {
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
     const photoURL = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
 
-    // ── Helper: open add modal (optionally pre-set type via long-press)
+    // ── Helper: open add modal (optionally pre-set type via long-press or app shortcuts)
     const openAddModal = (initialType) => {
         setEditingTransaction(null);
         setShowAddModal(true);
         setShowFabMenu(false);
         setFabInitialType(initialType || null);
     };
+
+    // Trigger deferred app shortcut action once user is authenticated and app is unlocked
+    useEffect(() => {
+        if (pendingShortcutAction && user && !loading && !isLocked) {
+            openAddModal(pendingShortcutAction);
+            setPendingShortcutAction(null);
+        }
+    }, [pendingShortcutAction, user, loading, isLocked]);
 
     const overlayVariants = {
         initial: { y: '100%' },
