@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    X, Camera, Layers, Mic, Delete, Check, Plus,
+    X, Camera, Layers, Mic, Delete, Check, Plus, Search,
     Coffee, ShoppingCart, Home as HomeIcon, Receipt,
     Gift, Utensils, Banknote, LineChart, Shapes,
     MessageSquare, Martini, MoreHorizontal, AlertCircle, Zap,
@@ -478,7 +478,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-            className="fixed inset-0 z-[70] flex items-end lg:items-center justify-center bg-black/40 backdrop-blur-sm p-0 lg:p-4"
+            className="fixed inset-0 z-[70] flex items-end lg:items-center justify-center bg-black/40 backdrop-blur-sm p-0 lg:p-3"
             role="dialog"
             aria-modal="true"
             aria-labelledby="add-modal-title"
@@ -488,7 +488,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.18, ease: 'easeOut' }}
-                className="bg-white dark:bg-surface-dark2 w-full max-w-md lg:max-w-[720px] xl:max-w-[780px] h-[100dvh] lg:h-[720px] lg:min-h-[580px] lg:max-h-[90vh] rounded-none lg:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
+                className="bg-white dark:bg-surface-dark2 w-full max-w-md lg:max-w-[740px] xl:max-w-[800px] h-[100dvh] lg:h-[880px] xl:h-[940px] lg:min-h-[700px] lg:max-h-[96vh] rounded-none lg:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
             >
 
                 {/* Voice Input Overlay */}
@@ -604,23 +604,20 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                     </div>
 
                     {/* Amount Display */}
-                    <div className={`px-5 text-center flex items-center justify-center transition-all duration-200 ${
-                        isNoteFocused ? 'py-2 flex-shrink-0' : 'py-4 lg:py-6 flex-1'
-                    }`}>
+                    <div className={`px-5 text-center flex items-center justify-center transition-all duration-200 ${isNoteFocused ? 'py-2 flex-shrink-0' : 'py-4 lg:py-8 xl:py-10 flex-1'
+                        }`}>
                         <motion.div
                             key={amount}
                             initial={{ scale: 0.95, opacity: 0.8 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="flex items-baseline justify-center gap-1"
+                            className="flex items-baseline justify-center gap-1.5"
                         >
                             {!privacyMode && (
-                                <span className={`font-bold text-gray-300 dark:text-gray-500 transition-all ${
-                                    isNoteFocused ? 'text-lg' : 'text-2xl lg:text-3xl'
-                                }`}>€</span>
+                                <span className={`font-bold text-gray-300 dark:text-gray-500 transition-all ${isNoteFocused ? 'text-lg' : 'text-2xl lg:text-3xl xl:text-4xl'
+                                    }`}>€</span>
                             )}
-                            <span className={`font-extrabold tracking-tight transition-all ${
-                                isNoteFocused ? 'text-3xl' : 'text-5xl lg:text-6xl'
-                            } ${amount ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
+                            <span className={`font-extrabold tracking-tight transition-all ${isNoteFocused ? 'text-3xl' : 'text-5xl lg:text-6xl xl:text-7xl'
+                                } ${amount ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
                                 {privacyMode ? '****' : (amount || '0')}
                             </span>
                         </motion.div>
@@ -634,7 +631,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                             id="category-selector-btn"
                             aria-label="Select category"
                             onClick={() => { setCategorySearch(''); setShowCategoryPicker(true); }}
-                            className="w-full flex items-center gap-3 lg:gap-4 px-4 lg:px-5 py-3 lg:py-3.5 rounded-2xl border transition-all duration-200
+                            className="w-full flex items-center gap-3 lg:gap-4 px-4 lg:px-6 py-3 lg:py-4 rounded-2xl border transition-all duration-200
                                 bg-gray-50 dark:bg-surface-dark3
                                 border-gray-200 dark:border-white/5
                                 hover:border-indigo-300 dark:hover:border-indigo-500/50
@@ -647,29 +644,29 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 return (
                                     <>
                                         <div
-                                            className="w-8 h-8 rounded-xl flex items-center justify-center relative overflow-hidden flex-shrink-0"
+                                            className="w-8 h-8 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center relative overflow-hidden flex-shrink-0"
                                             style={{ backgroundColor: `${accentHex}20` }}
                                         >
                                             <div className="absolute inset-0 opacity-30 blur-md" style={{ backgroundColor: accentHex }} />
-                                            <Icon size={15} className="relative z-10" style={{ color: accentHex }} />
+                                            <Icon size={16} className="relative z-10" style={{ color: accentHex }} />
                                         </div>
-                                        <span className="flex-1 text-left text-sm font-semibold" style={{ color: accentHex }}>
+                                        <span className="flex-1 text-left text-sm lg:text-base font-semibold" style={{ color: accentHex }}>
                                             {getCategoryTranslation(category, t)}
                                         </span>
-                                        <span className="text-xs text-gray-400 dark:text-gray-500 group-hover:text-indigo-400 transition-colors">
+                                        <span className="text-xs lg:text-sm text-gray-400 dark:text-gray-500 group-hover:text-indigo-400 transition-colors">
                                             {t('change_category') || 'Αλλαγή'}
                                         </span>
                                     </>
                                 );
                             })() : (
                                 <>
-                                    <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gray-200 dark:bg-white/10 flex-shrink-0">
-                                        <Shapes size={15} className="text-gray-400 dark:text-gray-500" />
+                                    <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center bg-gray-200 dark:bg-white/10 flex-shrink-0">
+                                        <Shapes size={16} className="text-gray-400 dark:text-gray-500" />
                                     </div>
-                                    <span className="flex-1 text-left text-sm font-medium text-gray-400 dark:text-gray-500">
+                                    <span className="flex-1 text-left text-sm lg:text-base font-medium text-gray-400 dark:text-gray-500">
                                         {t('select_category') || 'Επιλογή κατηγορίας…'}
                                     </span>
-                                    <span className="text-xs text-indigo-400 dark:text-indigo-500 font-semibold">
+                                    <span className="text-xs lg:text-sm text-indigo-400 dark:text-indigo-500 font-semibold">
                                         {t('tap_to_pick') || 'Πάτησε'}
                                     </span>
                                 </>
@@ -693,193 +690,190 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                             /* Sheet */
                             <motion.div
                                 key="cat-sheet"
-                                    initial={{ y: '100%' }}
-                                    animate={{ y: 0 }}
-                                    exit={{ y: '100%' }}
-                                    transition={{ type: 'spring', damping: 32, stiffness: 340, mass: 0.9 }}
-                                    className="absolute bottom-0 left-0 right-0 z-40 bg-white dark:bg-surface-dark2 rounded-t-[2rem] shadow-2xl flex flex-col"
-                                    style={{ maxHeight: '72%' }}
-                                >
-                                    {/* Sheet handle */}
-                                    <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-                                        <div className="w-10 h-1 rounded-full bg-gray-200 dark:bg-white/10" />
+                                initial={{ y: '100%' }}
+                                animate={{ y: 0 }}
+                                exit={{ y: '100%' }}
+                                transition={{ type: 'spring', damping: 32, stiffness: 340, mass: 0.9 }}
+                                className="absolute bottom-0 left-0 right-0 z-40 bg-white dark:bg-surface-dark2 rounded-t-[2rem] shadow-2xl flex flex-col"
+                                style={{ maxHeight: '82%' }}
+                            >
+                                {/* Sheet handle */}
+                                <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+                                    <div className="w-10 h-1 rounded-full bg-gray-200 dark:bg-white/10" />
+                                </div>
+
+                                {/* Sheet header */}
+                                <div className="px-5 pb-3 flex items-center justify-between flex-shrink-0">
+                                    <h4 className="text-base font-bold text-gray-900 dark:text-white">
+                                        {t('select_category') || 'Κατηγορία'}
+                                    </h4>
+                                    <motion.button
+                                        whileTap={{ scale: 0.9 }}
+                                        type="button"
+                                        onClick={() => { setShowCategoryPicker(false); setIsAddingCategory(false); setCategorySearch(''); }}
+                                        className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                                    >
+                                        <X size={18} />
+                                    </motion.button>
+                                </div>
+
+                                {/* Search input */}
+                                <div className="px-5 pb-3 flex-shrink-0">
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={categorySearch}
+                                            onChange={(e) => setCategorySearch(e.target.value)}
+                                            placeholder={t('search_category') || 'Αναζήτηση…'}
+                                            aria-label="Search categories"
+                                            className="w-full bg-gray-100 dark:bg-surface-dark3 rounded-xl px-4 py-2.5 pl-9 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400/50 placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all"
+                                        />
+                                        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                                     </div>
+                                </div>
 
-                                    {/* Sheet header */}
-                                    <div className="px-5 pb-3 flex items-center justify-between flex-shrink-0">
-                                        <h4 className="text-base font-bold text-gray-900 dark:text-white">
-                                            {t('select_category') || 'Κατηγορία'}
-                                        </h4>
-                                        <motion.button
-                                            whileTap={{ scale: 0.9 }}
-                                            type="button"
-                                            onClick={() => { setShowCategoryPicker(false); setIsAddingCategory(false); setCategorySearch(''); }}
-                                            className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
-                                        >
-                                            <X size={18} />
-                                        </motion.button>
-                                    </div>
-
-                                    {/* Search input */}
-                                    <div className="px-5 pb-3 flex-shrink-0">
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                value={categorySearch}
-                                                onChange={(e) => setCategorySearch(e.target.value)}
-                                                placeholder={t('search_category') || 'Αναζήτηση…'}
-                                                aria-label="Search categories"
-                                                className="w-full bg-gray-100 dark:bg-surface-dark3 rounded-xl px-4 py-2.5 pl-9 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400/50 placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all"
-                                            />
-                                            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                                            </svg>
-                                        </div>
-                                    </div>
-
-                                    {/* Category grid — scrollable */}
-                                    <div className="overflow-y-auto flex-1 px-4 pb-4">
-                                        <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-3">
-                                            {categories
-                                                .filter(cat => !categorySearch || getCategoryTranslation(cat, t).toLowerCase().includes(categorySearch.toLowerCase()) || cat.toLowerCase().includes(categorySearch.toLowerCase()))
-                                                .map(cat => {
-                                                    const Icon = categoryIcons[cat] || MoreHorizontal;
-                                                    const isSelected = category === cat;
-                                                    const accentHex = CATEGORY_ACCENT[cat.toLowerCase()] || (type === 'income' ? '#10b981' : '#f43f5e');
-                                                    return (
-                                                        <motion.button
-                                                            whileTap={{ scale: 0.93 }}
-                                                            key={cat}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setCategory(cat);
-                                                                setShowCategoryPicker(false);
-                                                                setIsAddingCategory(false);
-                                                                setCategorySearch('');
-                                                            }}
-                                                            className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all duration-200 ${
-                                                                isSelected
-                                                                    ? 'shadow-premium'
-                                                                    : 'border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-surface-dark3 hover:bg-gray-100 dark:hover:bg-white/5'
-                                                            }`}
-                                                            style={isSelected ? {
-                                                                backgroundColor: `${accentHex}12`,
-                                                                borderColor: `${accentHex}40`,
-                                                            } : {}}
-                                                        >
-                                                            <div
-                                                                className="w-10 h-10 rounded-xl flex items-center justify-center relative overflow-hidden"
-                                                                style={{ backgroundColor: `${accentHex}20` }}
-                                                            >
-                                                                <div className="absolute inset-0 opacity-30 blur-md" style={{ backgroundColor: accentHex }} />
-                                                                <Icon size={18} className="relative z-10" style={{ color: accentHex }} />
-                                                                {isSelected && (
-                                                                    <motion.div
-                                                                        initial={{ scale: 0 }}
-                                                                        animate={{ scale: 1 }}
-                                                                        className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center"
-                                                                        style={{ boxShadow: `0 0 0 1.5px ${accentHex}` }}
-                                                                    >
-                                                                        <Check size={8} style={{ color: accentHex }} />
-                                                                    </motion.div>
-                                                                )}
-                                                            </div>
-                                                            <span
-                                                                className="text-[11px] font-semibold text-center leading-tight line-clamp-2"
-                                                                style={isSelected ? { color: accentHex } : {}}
-                                                            >
-                                                                {getCategoryTranslation(cat, t)}
-                                                            </span>
-                                                        </motion.button>
-                                                    );
-                                            })}
-
-                                            {/* Add new category cell */}
-                                            {!isAddingCategory ? (
-                                                <motion.button
-                                                    whileTap={{ scale: 0.93 }}
-                                                    type="button"
-                                                    aria-label="Add new category"
-                                                    onClick={() => {
-                                                        if (!isPro) {
-                                                            openUpgradeModal('categories');
-                                                            setShowCategoryPicker(false);
-                                                            return;
-                                                        }
-                                                        setIsAddingCategory(true);
-                                                    }}
-                                                    className="flex flex-col items-center gap-1.5 p-3 rounded-2xl border border-dashed border-gray-300 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:text-indigo-500 transition-all bg-transparent"
-                                                >
-                                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-white/5">
-                                                        <Plus size={18} />
-                                                    </div>
-                                                    <span className="text-[11px] font-semibold text-center leading-tight">
-                                                        {t('new_category') || 'Νέα'}
-                                                        {!isPro && <Zap size={9} className="text-amber-500 ml-0.5 inline-block" fill="currentColor" />}
-                                                    </span>
-                                                </motion.button>
-                                            ) : (
-                                                <motion.div
-                                                    initial={{ opacity: 0, scale: 0.9 }}
-                                                    animate={{ opacity: 1, scale: 1 }}
-                                                    className="col-span-3 flex items-center gap-2 mt-1"
-                                                >
-                                                    <input
-                                                        type="text"
-                                                        value={newCategoryName}
-                                                        onChange={(e) => setNewCategoryName(e.target.value.substring(0, CATEGORY_NAME_MAX_LENGTH))}
-                                                        placeholder={t('name_placeholder') || 'Όνομα κατηγορίας…'}
-                                                        aria-label={t('name_placeholder') || 'New category name'}
-                                                        autoFocus
-                                                        maxLength={CATEGORY_NAME_MAX_LENGTH}
-                                                        className="flex-1 px-3 py-2 rounded-xl text-sm border border-indigo-300 dark:border-indigo-500/50 bg-white dark:bg-surface-dark3 text-gray-800 dark:text-white focus:outline-none focus:border-indigo-500"
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === 'Enter' && newCategoryName.trim()) {
-                                                                e.preventDefault();
-                                                                addCustomCategory(type, newCategoryName.trim());
-                                                                setCategory(newCategoryName.trim());
-                                                                setNewCategoryName('');
-                                                                setIsAddingCategory(false);
-                                                                setShowCategoryPicker(false);
-                                                                setCategorySearch('');
-                                                            } else if (e.key === 'Escape') {
-                                                                setIsAddingCategory(false);
-                                                                setNewCategoryName('');
-                                                            }
-                                                        }}
-                                                    />
+                                {/* Category grid — scrollable */}
+                                <div className="overflow-y-auto flex-1 px-4 pb-4">
+                                    <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-3.5">
+                                        {categories
+                                            .filter(cat => !categorySearch || getCategoryTranslation(cat, t).toLowerCase().includes(categorySearch.toLowerCase()) || cat.toLowerCase().includes(categorySearch.toLowerCase()))
+                                            .map(cat => {
+                                                const Icon = categoryIcons[cat] || MoreHorizontal;
+                                                const isSelected = category === cat;
+                                                const accentHex = CATEGORY_ACCENT[cat.toLowerCase()] || (type === 'income' ? '#10b981' : '#f43f5e');
+                                                return (
                                                     <motion.button
-                                                        whileTap={{ scale: 0.85 }}
+                                                        whileTap={{ scale: 0.93 }}
+                                                        key={cat}
                                                         type="button"
                                                         onClick={() => {
-                                                            if (newCategoryName.trim()) {
-                                                                addCustomCategory(type, newCategoryName.trim());
-                                                                setCategory(newCategoryName.trim());
-                                                                setShowCategoryPicker(false);
-                                                                setCategorySearch('');
-                                                            }
+                                                            setCategory(cat);
+                                                            setShowCategoryPicker(false);
+                                                            setIsAddingCategory(false);
+                                                            setCategorySearch('');
+                                                        }}
+                                                        className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all duration-200 ${isSelected
+                                                                ? 'shadow-premium'
+                                                                : 'border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-surface-dark3 hover:bg-gray-100 dark:hover:bg-white/5'
+                                                            }`}
+                                                        style={isSelected ? {
+                                                            backgroundColor: `${accentHex}12`,
+                                                            borderColor: `${accentHex}40`,
+                                                        } : {}}
+                                                    >
+                                                        <div
+                                                            className="w-10 h-10 rounded-xl flex items-center justify-center relative overflow-hidden"
+                                                            style={{ backgroundColor: `${accentHex}20` }}
+                                                        >
+                                                            <div className="absolute inset-0 opacity-30 blur-md" style={{ backgroundColor: accentHex }} />
+                                                            <Icon size={18} className="relative z-10" style={{ color: accentHex }} />
+                                                            {isSelected && (
+                                                                <motion.div
+                                                                    initial={{ scale: 0 }}
+                                                                    animate={{ scale: 1 }}
+                                                                    className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center"
+                                                                    style={{ boxShadow: `0 0 0 1.5px ${accentHex}` }}
+                                                                >
+                                                                    <Check size={8} style={{ color: accentHex }} />
+                                                                </motion.div>
+                                                            )}
+                                                        </div>
+                                                        <span
+                                                            className="text-[11px] font-semibold text-center leading-tight line-clamp-2"
+                                                            style={isSelected ? { color: accentHex } : {}}
+                                                        >
+                                                            {getCategoryTranslation(cat, t)}
+                                                        </span>
+                                                    </motion.button>
+                                                );
+                                            })}
+
+                                        {/* Add new category cell */}
+                                        {!isAddingCategory ? (
+                                            <motion.button
+                                                whileTap={{ scale: 0.93 }}
+                                                type="button"
+                                                aria-label="Add new category"
+                                                onClick={() => {
+                                                    if (!isPro) {
+                                                        openUpgradeModal('categories');
+                                                        setShowCategoryPicker(false);
+                                                        return;
+                                                    }
+                                                    setIsAddingCategory(true);
+                                                }}
+                                                className="flex flex-col items-center gap-1.5 p-3 rounded-2xl border border-dashed border-gray-300 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:text-indigo-500 transition-all bg-transparent"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-white/5">
+                                                    <Plus size={18} />
+                                                </div>
+                                                <span className="text-[11px] font-semibold text-center leading-tight">
+                                                    {t('new_category') || 'Νέα'}
+                                                    {!isPro && <Zap size={9} className="text-amber-500 ml-0.5 inline-block" fill="currentColor" />}
+                                                </span>
+                                            </motion.button>
+                                        ) : (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                className="col-span-3 flex items-center gap-2 mt-1"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    value={newCategoryName}
+                                                    onChange={(e) => setNewCategoryName(e.target.value.substring(0, CATEGORY_NAME_MAX_LENGTH))}
+                                                    placeholder={t('name_placeholder') || 'Όνομα κατηγορίας…'}
+                                                    aria-label={t('name_placeholder') || 'New category name'}
+                                                    autoFocus
+                                                    maxLength={CATEGORY_NAME_MAX_LENGTH}
+                                                    className="flex-1 px-3 py-2 rounded-xl text-sm border border-indigo-300 dark:border-indigo-500/50 bg-white dark:bg-surface-dark3 text-gray-800 dark:text-white focus:outline-none focus:border-indigo-500"
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' && newCategoryName.trim()) {
+                                                            e.preventDefault();
+                                                            addCustomCategory(type, newCategoryName.trim());
+                                                            setCategory(newCategoryName.trim());
                                                             setNewCategoryName('');
                                                             setIsAddingCategory(false);
-                                                        }}
-                                                        className="p-2 rounded-xl bg-indigo-500 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30"
-                                                    >
-                                                        <Check size={16} />
-                                                    </motion.button>
-                                                    <motion.button
-                                                        whileTap={{ scale: 0.85 }}
-                                                        type="button"
-                                                        onClick={() => { setIsAddingCategory(false); setNewCategoryName(''); }}
-                                                        className="p-2 rounded-xl bg-gray-100 dark:bg-surface-dark3 text-gray-500 dark:text-gray-400"
-                                                        >
-                                                        <X size={16} />
-                                                    </motion.button>
-                                                </motion.div>
-                                            )}
+                                                            setShowCategoryPicker(false);
+                                                            setCategorySearch('');
+                                                        } else if (e.key === 'Escape') {
+                                                            setIsAddingCategory(false);
+                                                            setNewCategoryName('');
+                                                        }
+                                                    }}
+                                                />
+                                                <motion.button
+                                                    whileTap={{ scale: 0.85 }}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (newCategoryName.trim()) {
+                                                            addCustomCategory(type, newCategoryName.trim());
+                                                            setCategory(newCategoryName.trim());
+                                                            setShowCategoryPicker(false);
+                                                            setCategorySearch('');
+                                                        }
+                                                        setNewCategoryName('');
+                                                        setIsAddingCategory(false);
+                                                    }}
+                                                    className="p-2 rounded-xl bg-indigo-500 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30"
+                                                >
+                                                    <Check size={16} />
+                                                </motion.button>
+                                                <motion.button
+                                                    whileTap={{ scale: 0.85 }}
+                                                    type="button"
+                                                    onClick={() => { setIsAddingCategory(false); setNewCategoryName(''); }}
+                                                    className="p-2 rounded-xl bg-gray-100 dark:bg-surface-dark3 text-gray-500 dark:text-gray-400"
+                                                >
+                                                    <X size={16} />
+                                                </motion.button>
+                                            </motion.div>
+                                        )}
 
-                                        </div>
                                     </div>
-                                </motion.div>
-                            ]}
+                                </div>
+                            </motion.div>
+                        ]}
                     </AnimatePresence>
 
                     {/* Collapsible Note */}
@@ -908,9 +902,8 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                     className="w-full bg-white dark:bg-surface-dark3 border border-slate-200/60 dark:border-transparent rounded-xl px-4 py-2.5 pr-20 text-sm text-gray-800 dark:text-white/90 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:font-medium shadow-premium"
                                 />
                                 <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                                    <span className={`text-[10px] font-medium tabular-nums ${
-                                        note.length >= NOTE_MAX_LENGTH ? 'text-rose-500' : 'text-gray-300 dark:text-gray-600'
-                                    }`}>
+                                    <span className={`text-[10px] font-medium tabular-nums ${note.length >= NOTE_MAX_LENGTH ? 'text-rose-500' : 'text-gray-300 dark:text-gray-600'
+                                        }`}>
                                         {note.length}/{NOTE_MAX_LENGTH}
                                     </span>
                                     {note.length > 0 && (
@@ -975,15 +968,15 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
                     {/* Tool Strip — voice, scan, bulk */}
                     {!isNoteFocused && (
-                        <div className="px-5 lg:px-8 pb-3 lg:pb-4 flex justify-center gap-3 lg:gap-4 flex-shrink-0">
+                        <div className="px-5 lg:px-8 pb-3 lg:pb-5 flex justify-center gap-3 lg:gap-4 flex-shrink-0">
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 type="button"
                                 onClick={startListening}
-                                className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-white bg-gradient-to-r from-red-500 to-pink-500 shadow-md shadow-red-200/50 dark:shadow-red-900/30"
+                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-full text-white bg-gradient-to-r from-red-500 to-pink-500 shadow-md shadow-red-200/50 dark:shadow-red-900/30"
                             >
-                                <Mic size={14} />
+                                <Mic size={15} />
                                 {t('voice')}
                             </motion.button>
                             <motion.button
@@ -997,11 +990,11 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                     }
                                     setShowScanner(true);
                                 }}
-                                className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20"
+                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-full text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20"
                             >
-                                <Camera size={14} />
+                                <Camera size={15} />
                                 {t('scan')}
-                                {!isPro && <Zap size={12} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
+                                {!isPro && <Zap size={13} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
                             </motion.button>
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
@@ -1014,11 +1007,11 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                     }
                                     setShowBulkScanner(true);
                                 }}
-                                className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/20"
+                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:violet-500/20"
                             >
-                                <Layers size={14} />
+                                <Layers size={15} />
                                 {t('bulk')}
-                                {!isPro && <Zap size={12} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
+                                {!isPro && <Zap size={13} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
                             </motion.button>
                         </div>
                     )}
@@ -1040,34 +1033,34 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
                 {/* ── Numpad ── */}
                 {!isNoteFocused && (
-                    <div className="bg-gray-50 dark:bg-surface-dark border-t border-gray-200 dark:border-transparent p-3 lg:p-5 lg:pb-6 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] flex-shrink-0">
+                    <div className="bg-gray-50 dark:bg-surface-dark border-t border-gray-200 dark:border-transparent p-3 lg:p-6 lg:pb-8 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] flex-shrink-0">
                         {/* Digits 1-9 */}
-                        <div className="grid grid-cols-3 gap-2 lg:gap-3 max-w-xs lg:max-w-md mx-auto">
+                        <div className="grid grid-cols-3 gap-2 lg:gap-3.5 max-w-xs lg:max-w-lg mx-auto">
                             {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(key => (
                                 <motion.button
                                     key={key}
                                     whileTap={{ scale: 0.9 }}
                                     type="button"
                                     onClick={() => handleNumpadPress(key)}
-                                    className="h-14 lg:h-16 rounded-2xl lg:rounded-2xl text-xl lg:text-2xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent"
+                                    className="h-14 lg:h-[72px] xl:h-[76px] rounded-2xl text-xl lg:text-3xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent"
                                 >
                                     {key}
                                 </motion.button>
                             ))}
                         </div>
                         {/* Bottom row: .  0  ⌫  ✓ */}
-                        <div className="grid grid-cols-4 gap-2 lg:gap-3 max-w-xs lg:max-w-md mx-auto mt-2 lg:mt-3">
-                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('.')} className="h-14 lg:h-16 rounded-2xl lg:rounded-2xl text-xl lg:text-2xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">.</motion.button>
-                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('0')} className="h-14 lg:h-16 rounded-2xl lg:rounded-2xl text-xl lg:text-2xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">0</motion.button>
-                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('backspace')} className="h-14 lg:h-16 rounded-2xl lg:rounded-2xl text-xl lg:text-2xl font-bold flex items-center justify-center transition-all bg-gray-200 dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
-                                <Delete size={22} />
+                        <div className="grid grid-cols-4 gap-2 lg:gap-3.5 max-w-xs lg:max-w-lg mx-auto mt-2 lg:mt-3.5">
+                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('.')} className="h-14 lg:h-[72px] xl:h-[76px] rounded-2xl text-xl lg:text-3xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">.</motion.button>
+                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('0')} className="h-14 lg:h-[72px] xl:h-[76px] rounded-2xl text-xl lg:text-3xl font-bold flex items-center justify-center transition-all bg-white dark:bg-surface-dark2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-transparent">0</motion.button>
+                            <motion.button whileTap={{ scale: 0.9 }} type="button" onClick={() => handleNumpadPress('backspace')} className="h-14 lg:h-[72px] xl:h-[76px] rounded-2xl text-xl lg:text-3xl font-bold flex items-center justify-center transition-all bg-gray-200 dark:bg-surface-dark3 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
+                                <Delete size={24} />
                             </motion.button>
                             <motion.button
                                 whileTap={{ scale: 0.9 }}
                                 type="button"
                                 onClick={handleSubmit}
                                 disabled={!amount || !category || isSubmitting}
-                                className={`h-14 lg:h-16 rounded-2xl lg:rounded-2xl text-xl lg:text-2xl font-bold flex items-center justify-center transition-all ${!amount || !category
+                                className={`h-14 lg:h-[72px] xl:h-[76px] rounded-2xl text-xl lg:text-3xl font-bold flex items-center justify-center transition-all ${!amount || !category
                                     ? 'bg-gray-200 dark:bg-surface-dark3 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                                     : 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30 hover:bg-indigo-700'
                                     }`}
@@ -1075,7 +1068,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 {isSubmitting ? (
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                 ) : (
-                                    <Check size={24} />
+                                    <Check size={26} />
                                 )}
                             </motion.button>
                         </div>
