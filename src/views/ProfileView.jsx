@@ -316,11 +316,11 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                     </div>
 
                     {/* ════ Top Action Cards ════ */}
-                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    <div className="grid grid-cols-3 gap-2 sm:gap-3">
                         {/* Card 1: Subscription */}
                         <div
                             onClick={() => isPro ? openBillingPortal() : openUpgradeModal('profile')}
-                            className={`flex-1 min-w-[105px] h-[75px] rounded-[20px] p-3 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center gap-1 ${
+                            className={`min-w-0 h-[75px] rounded-[20px] p-2 sm:p-3 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center gap-1 ${
                                 isPro ? 'bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5' : ''
                             }`}
                             style={!isPro ? {
@@ -330,21 +330,21 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         >
                             {!isPro
                                 ? (
-                                    <div className="flex items-center justify-center gap-1.5">
-                                        <Zap size={16} fill="#fff" strokeWidth={0} className="text-white" />
-                                        <p className="text-[12px] font-extrabold text-white">{translate('go_pro') || 'Upgrade to Pro'}</p>
+                                    <div className="flex items-center justify-center gap-1">
+                                        <Zap size={14} fill="#fff" strokeWidth={0} className="text-white shrink-0" />
+                                        <p className="text-[11px] sm:text-[12px] font-extrabold text-white leading-tight">{translate('go_pro') || 'Upgrade to Pro'}</p>
                                     </div>
                                 )
-                                : <p className={`text-[13px] font-extrabold text-violet-600 dark:text-violet-400`}>{translate('manage') || 'Manage Pro'}</p>
+                                : <p className={`text-[12px] sm:text-[13px] font-extrabold text-violet-600 dark:text-violet-400 leading-tight`}>{translate('manage') || 'Manage Pro'}</p>
                             }
                         </div>
 
                         {/* Card 2: Guide */}
                         <div
                             onClick={onGuide}
-                            className="flex-1 min-w-[105px] h-[75px] rounded-[20px] bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5 p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center"
+                            className="min-w-0 h-[75px] rounded-[20px] bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5 p-2 sm:p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center"
                         >
-                            <p className="text-[14px] font-extrabold text-blue-600 dark:text-blue-400">
+                            <p className="text-[12px] sm:text-[14px] font-extrabold text-blue-600 dark:text-blue-400 leading-tight">
                                 {translate('user_guide') || 'Οδηγός'}
                             </p>
                         </div>
@@ -352,9 +352,9 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         {/* Card 3: Feedback */}
                         <div
                             onClick={onFeedback}
-                            className="flex-1 min-w-[105px] h-[75px] rounded-[20px] bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5 p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center"
+                            className="min-w-0 h-[75px] rounded-[20px] bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5 p-2 sm:p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center"
                         >
-                            <p className="text-[14px] font-extrabold text-gray-900 dark:text-white">
+                            <p className="text-[12px] sm:text-[14px] font-extrabold text-gray-900 dark:text-white leading-tight">
                                 {translate('feedback') || 'Support'}
                             </p>
                         </div>
