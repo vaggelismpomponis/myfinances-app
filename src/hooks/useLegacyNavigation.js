@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 
 export function useLegacyNavigation() {
     const location = useLocation();
@@ -47,21 +47,30 @@ export function useLegacyNavigation() {
             'advisor': '/advisor',
             'upgrade': '/upgrade',
         };
-        navigate(paths[tab] || '/');
+        const targetPath = paths[tab] || '/';
+        if (location.pathname !== targetPath) {
+            navigate(targetPath);
+        }
     };
 
     // The logic previously maintained a previousTab state in local storage
-    const previousTab = localStorage.getItem('lastPreviousTab') || 'home';
-    const setPreviousTab = (tab) => localStorage.setItem('lastPreviousTab', tab);
+    const [previousTab, setPreviousTabState] = useState(() => {
+        return (typeof window !== 'undefined' && localStorage.getItem('lastPreviousTab')) || 'home';
+    });
+    const setPreviousTab = (tab) => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('lastPreviousTab', tab);
+        }
+        setPreviousTabState(tab);
+    };
 
     // Save activeTab to local storage for backward compatibility
     useEffect(() => {
-        localStorage.setItem('lastActiveTab', activeTab);
-        if (typeof window !== 'undefined' && window.history) {
-            // Replace state so that window.history.state.tab exists
-            window.history.replaceState({ tab: activeTab }, '', location.pathname);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('lastActiveTab', activeTab);
         }
-    }, [activeTab, location.pathname]);
+    }, [activeTab]);
 
     return { activeTab, setActiveTab, previousTab, setPreviousTab };
 }
+

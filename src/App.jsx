@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'; // App Root
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useLegacyNavigation } from './hooks/useLegacyNavigation'; // App Root
 import {
     Plus,
     TrendingDown,
@@ -86,15 +87,7 @@ function MainContent() {
     const { addNotification, unreadCount } = useNotifications();
     const windowWidth = useWindowWidth();
     const isDesktop = windowWidth >= 1024;
-    const [activeTab, setActiveTab] = useState(() => {
-        if (typeof window !== 'undefined' && window.history.state?.tab) {
-            return window.history.state.tab;
-        }
-        return localStorage.getItem('lastActiveTab') || 'home';
-    });
-    const [previousTab, setPreviousTab] = useState(() => {
-        return localStorage.getItem('lastPreviousTab') || 'home';
-    });
+    const { activeTab, setActiveTab, previousTab, setPreviousTab } = useLegacyNavigation();
     const [loading, setLoading] = useState(true);
 
     const [showAddModal, setShowAddModal] = useState(false);
@@ -217,42 +210,6 @@ function MainContent() {
         setTourKey(k => k + 1);
         setTimeout(() => setRunTour(true), 300);
     };
-
-    // Browser History Navigation Logic
-    const isPopping = useRef(false);
-    const gsiInitialized = useRef(false);
-
-    useEffect(() => {
-        if (!window.history.state?.tab) {
-            window.history.replaceState({ tab: activeTab }, '', '');
-        }
-
-        const handlePopState = (event) => {
-            if (event.state && event.state.tab) {
-                isPopping.current = true;
-                setActiveTab(event.state.tab);
-            } else {
-                isPopping.current = true;
-                setActiveTab('home');
-            }
-        };
-
-        window.addEventListener('popstate', handlePopState);
-        return () => window.removeEventListener('popstate', handlePopState);
-    }, []);
-
-    useEffect(() => {
-        localStorage.setItem('lastActiveTab', activeTab);
-        if (isPopping.current) {
-            isPopping.current = false;
-            return;
-        }
-        window.history.pushState({ tab: activeTab }, '', '');
-    }, [activeTab]);
-
-    useEffect(() => {
-        localStorage.setItem('lastPreviousTab', previousTab);
-    }, [previousTab]);
 
     // Reset image retries when user photo changes
     useEffect(() => {
