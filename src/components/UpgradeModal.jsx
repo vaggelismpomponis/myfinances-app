@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../supabase';
+import { isNative } from '../utils/platform';
+import { Browser } from '@capacitor/browser';
 
 const YEARLY_SAVINGS_PERCENT = 16;
 const MONTHLY_PRICE = 2.99;
@@ -71,9 +73,16 @@ const UpgradeModal = () => {
             const link = billing === 'yearly'
                 ? 'https://buy.stripe.com/3cI8wPgtNcy21Z03Rh1gs00'
                 : 'https://buy.stripe.com/00wfZh5P941w8nocnN1gs01';
-            window.location.href = `${link}?client_reference_id=${user.id}&prefilled_email=${encodeURIComponent(user.email)}`;
+            const checkoutUrl = `${link}?client_reference_id=${user.id}&prefilled_email=${encodeURIComponent(user.email)}`;
+
+            if (isNative()) {
+                sessionStorage.setItem('pending_stripe_checkout', 'true');
+                await Browser.open({ url: checkoutUrl, windowName: '_blank' });
+            } else {
+                window.location.href = checkoutUrl;
+            }
         } catch (e) {
-            console.error(e);
+            console.error('Error opening checkout:', e);
         } finally {
             setLoading(null);
         }

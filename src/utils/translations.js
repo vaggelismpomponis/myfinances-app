@@ -952,6 +952,8 @@ export const translations = {
         payment_success_title: 'Είσαι Pro!',
         payment_success_subtitle: 'Η συνδρομή σου είναι ενεργή. Όλες οι Pro λειτουργίες είναι ξεκλειδωμένες.',
         payment_success_cta: 'Ξεκίνα να χρησιμοποιείς το Pro',
+        open_in_spendwise_app: 'Άνοιγμα στην εφαρμογή SpendWise',
+        payment_success_continue_web: 'Συνέχεια στο web',
         payment_success_manage: 'Διαχειρίσου τη συνδρομή σου ανά πάσα στιγμή από το προφίλ σου.',
 
         // Payment Canceled
@@ -1964,6 +1966,8 @@ export const translations = {
         payment_success_title: "You're Pro!",
         payment_success_subtitle: 'Your subscription is active. All Pro features are now unlocked.',
         payment_success_cta: 'Start using Pro',
+        open_in_spendwise_app: 'Open in SpendWise App',
+        payment_success_continue_web: 'Continue on web',
         payment_success_manage: 'Manage your subscription anytime from your profile.',
 
         // Payment Canceled

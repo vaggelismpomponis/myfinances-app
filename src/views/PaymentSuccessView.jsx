@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, ArrowRight, Zap, BarChart2, Target, Lock, ScanLine } from 'lucide-react';
+import { CheckCircle2, ArrowRight, BarChart2, Target, Lock, ScanLine, Smartphone } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import { isNative } from '../utils/platform';
 
 const PRO_FEATURES = [
     { icon: BarChart2, label: 'Full Analytics & History', color: '#a78bfa' },
@@ -31,6 +32,12 @@ const PaymentSuccessView = ({ onContinue }) => {
     const [visible, setVisible] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
+    const isMobileWeb = !isNative() && (typeof navigator !== 'undefined' && /android|iphone|ipad|ipod/i.test(navigator.userAgent));
+    const isAndroidWeb = !isNative() && (typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent));
+    const appDeepLink = 'com.bomponis.spendwise://payment-success?upgraded=true';
+    const androidIntentLink = 'intent://payment-success?upgraded=true#Intent;scheme=com.bomponis.spendwise;package=com.bomponis.spendwise;end';
+    const mobileAppUrl = isAndroidWeb ? androidIntentLink : appDeepLink;
+
     useEffect(() => {
         if (!hasAnimated.current) {
             hasAnimated.current = true;
@@ -42,6 +49,16 @@ const PaymentSuccessView = ({ onContinue }) => {
         const raf = requestAnimationFrame(() => setVisible(true));
         return () => cancelAnimationFrame(raf);
     }, []);
+
+    // If on mobile browser after payment redirect, try handing off to the installed native app
+    useEffect(() => {
+        if (!isNative() && isMobileWeb) {
+            const timer = setTimeout(() => {
+                window.location.href = mobileAppUrl;
+            }, 600);
+            return () => clearTimeout(timer);
+        }
+    }, [isMobileWeb, mobileAppUrl]);
 
     // Call syncSubscription on mount — this directly queries Stripe, updates the
     // DB, then re-reads it. No dependency on webhooks.
@@ -151,6 +168,33 @@ const PaymentSuccessView = ({ onContinue }) => {
                     ))}
                 </div>
 
+                {/* Mobile App Hand-off Button (When rendered on Web/Chrome) */}
+                {isMobileWeb && (
+                    <a
+                        href={mobileAppUrl}
+                        style={{
+                            ...styles.cta,
+                            opacity: visible ? 1 : 0,
+                            transform: visible ? 'translateY(0)' : 'translateY(10px)',
+                            transition: 'opacity 0.5s 0.62s both, transform 0.5s 0.62s both',
+                            textDecoration: 'none',
+                            marginBottom: 10,
+                            background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+                            boxShadow: '0 12px 32px -6px rgba(124,58,237,0.5)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        <Smartphone size={19} color="#ffffff" strokeWidth={2.2} />
+                        <span style={{ ...styles.ctaText, color: '#ffffff' }}>
+                            {t('open_in_spendwise_app', 'Άνοιγμα στην εφαρμογή SpendWise')}
+                        </span>
+                        <ArrowRight size={17} color="#ffffff" strokeWidth={2.2} style={{ marginLeft: 'auto' }} />
+                    </a>
+                )}
+
                 {/* CTA Button */}
                 <button
                     onClick={async () => {
@@ -169,21 +213,28 @@ const PaymentSuccessView = ({ onContinue }) => {
                         opacity:    visible ? 1 : 0,
                         transform:  visible ? 'translateY(0)' : 'translateY(10px)',
                         transition: 'opacity 0.5s 0.68s both, transform 0.5s 0.68s both',
+                        ...(isMobileWeb ? {
+                            background: 'rgba(255,255,255,0.08)',
+                            border: '1px solid rgba(255,255,255,0.15)',
+                            boxShadow: 'none',
+                        } : {}),
                     }}
                     onMouseEnter={e => {
                         e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-                        e.currentTarget.style.boxShadow = '0 20px 48px -8px rgba(124,58,237,0.55)';
+                        e.currentTarget.style.boxShadow = isMobileWeb ? 'none' : '0 20px 48px -8px rgba(124,58,237,0.55)';
                     }}
                     onMouseLeave={e => {
                         e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                        e.currentTarget.style.boxShadow = styles.cta.boxShadow;
+                        e.currentTarget.style.boxShadow = isMobileWeb ? 'none' : styles.cta.boxShadow;
                     }}
                     onMouseDown={e  => { e.currentTarget.style.transform = 'scale(0.97)'; }}
                     onMouseUp={e    => { e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'; }}
                 >
-                    <CheckCircle2 size={19} color="#7c3aed" strokeWidth={2.2} />
-                    <span style={styles.ctaText}>{t('payment_success_cta')}</span>
-                    <ArrowRight size={17} color="#7c3aed" strokeWidth={2.2} style={{ marginLeft: 'auto' }} />
+                    <CheckCircle2 size={19} color={isMobileWeb ? "#ffffff" : "#7c3aed"} strokeWidth={2.2} />
+                    <span style={{ ...styles.ctaText, ...(isMobileWeb ? { color: '#ffffff' } : {}) }}>
+                        {isMobileWeb ? t('payment_success_continue_web', 'Συνέχεια στο web') : t('payment_success_cta')}
+                    </span>
+                    <ArrowRight size={17} color={isMobileWeb ? "#ffffff" : "#7c3aed"} strokeWidth={2.2} style={{ marginLeft: 'auto' }} />
                 </button>
 
                 {/* Manage note */}

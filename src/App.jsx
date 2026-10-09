@@ -384,8 +384,25 @@ function MainContent() {
             }
         });
 
+        // Also check if returning from Stripe checkout in in-app browser
+        const checkPendingCheckout = () => {
+            if (sessionStorage.getItem('pending_stripe_checkout') === 'true') {
+                sessionStorage.removeItem('pending_stripe_checkout');
+                setShowPaymentSuccess(true);
+            }
+        };
+
+        const browserFinishedPromise = Browser.addListener('browserFinished', checkPendingCheckout);
+        const appStatePromise = CapApp.addListener('appStateChange', ({ isActive }) => {
+            if (isActive) {
+                checkPendingCheckout();
+            }
+        });
+
         return () => {
-            listener.remove();
+            Promise.resolve(listener).then(h => h?.remove?.()).catch(() => {});
+            Promise.resolve(browserFinishedPromise).then(h => h?.remove?.()).catch(() => {});
+            Promise.resolve(appStatePromise).then(h => h?.remove?.()).catch(() => {});
         };
     }, []);
 
