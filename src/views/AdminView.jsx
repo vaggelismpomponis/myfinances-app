@@ -25,25 +25,25 @@ const SidebarTab = ({ tab, isActive, onClick }) => {
     return (
         <button
             onClick={onClick}
-            className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-left transition-all duration-200 group relative
+            className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-left transition-all duration-200 group relative border
                 ${isActive
-                    ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-500/25 font-bold'
-                    : 'text-gray-600 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white font-semibold'}`}
+                    ? 'bg-violet-50/90 dark:bg-violet-500/15 text-violet-700 dark:text-violet-300 font-bold border-violet-200/90 dark:border-violet-500/30 shadow-xs shadow-violet-500/5'
+                    : 'text-gray-600 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white font-semibold border-transparent'}`}
         >
             <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors
-                ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 dark:bg-white/[0.06] text-gray-400 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400'}`}>
+                ${isActive ? 'bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400' : 'bg-gray-100 dark:bg-white/[0.06] text-gray-400 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400'}`}>
                 <Icon size={16} strokeWidth={2.2} />
             </div>
             <span className="text-[13px] flex-1 truncate">{tab.label}</span>
             {tab.badge !== undefined && tab.badge !== null && (
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 transition-colors
                     ${isActive
-                        ? 'bg-white/20 text-white'
+                        ? 'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-700/50'
                         : 'bg-gray-100 dark:bg-white/[0.08] text-gray-500 dark:text-gray-400 group-hover:bg-violet-50 dark:group-hover:bg-violet-500/10 group-hover:text-violet-600 dark:group-hover:text-violet-400'}`}>
                     {tab.badge}
                 </span>
             )}
-            {isActive && <ChevronRight size={14} className="text-white/70 ml-1 shrink-0" />}
+            {isActive && <ChevronRight size={14} className="text-violet-500/80 ml-1 shrink-0" />}
         </button>
     );
 };

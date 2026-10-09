@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import {
     Home, BarChart2, History, Settings, Target,
-    RefreshCw, Lightbulb, LogOut, Moon, Sun, Eye, EyeOff, Zap,
-    PiggyBank, User
+    RefreshCw, Lightbulb, LogOut, Moon, Sun, Eye, EyeOff,
+    PiggyBank, User, ShieldCheck
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -14,17 +14,17 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
         className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left
                     outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0
-                    transition-all duration-200 group relative select-none
+                    transition-all duration-200 group relative select-none border
                     ${active
-                        ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold shadow-md shadow-violet-500/25'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/90 dark:hover:bg-white/[0.06] hover:text-gray-950 dark:hover:text-white font-medium border border-transparent'
+                        ? 'bg-violet-50/90 dark:bg-violet-500/15 text-violet-700 dark:text-violet-300 font-bold border-violet-200/90 dark:border-violet-500/30 shadow-xs shadow-violet-500/5 hover:bg-violet-100/70 dark:hover:bg-violet-500/20'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/90 dark:hover:bg-white/[0.06] hover:text-gray-950 dark:hover:text-white font-medium border-transparent'
                     }`}
     >
         <Icon
             size={18}
             className={`shrink-0 transition-transform duration-200 ${
                 active
-                    ? 'text-white scale-105'
+                    ? 'text-violet-600 dark:text-violet-400 scale-105'
                     : 'text-gray-500 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 group-hover:scale-110'
             }`}
         />
@@ -33,7 +33,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
             <span
                 className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                     active
-                        ? 'bg-white/20 text-white border border-white/20'
+                        ? 'bg-violet-100 dark:bg-violet-900/60 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-700/50'
                         : 'bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30'
                 }`}
             >
@@ -42,7 +42,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
         )}
         {showCrown && !active && (
             <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/40 flex items-center gap-0.5 shrink-0">
-                <Zap size={9} fill="currentColor" />
+                <ShieldCheck size={10} className="shrink-0" />
                 <span>PRO</span>
             </span>
         )}
@@ -172,7 +172,7 @@ const DesktopSidebar = ({
                         )}
                         {isPro && (
                             <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-400 rounded-full flex items-center justify-center text-slate-950 shadow-2xs">
-                                <Zap size={8} fill="currentColor" />
+                                <ShieldCheck size={9} className="shrink-0 text-slate-950" />
                             </div>
                         )}
                     </div>
