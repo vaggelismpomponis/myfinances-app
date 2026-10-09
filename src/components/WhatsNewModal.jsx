@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Shield, HardDriveDownload, Zap, X, Star } from 'lucide-react';
+import { CheckCircle2, Shield, HardDriveDownload, ShieldCheck, X, Star } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 
 const WhatsNewModal = ({ isOpen, onClose, data }) => {
@@ -12,7 +12,8 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
     const iconMap = {
         shield: Shield,
         download: HardDriveDownload,
-        zap: Zap,
+        zap: ShieldCheck,
+        shield_check: ShieldCheck,
         check: CheckCircle2,
         star: Star,
         sparkles: Star

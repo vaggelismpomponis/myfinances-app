@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     ArrowLeft, Infinity, TrendingUp, ScanLine, Bell,
     Tags, Fingerprint, Download, Headphones, Repeat,
-    Check,
+    Check, ShieldCheck,
 } from 'lucide-react';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../supabase';
@@ -150,7 +150,7 @@ const PricingCard = ({ label, price, sub, badge, selected, onSelect }) => (
                 <p style={{ fontSize: 13, color: C.textSec, marginBottom: sub ? 4 : 0 }}>{price}</p>
                 {sub && (
                     <div className="flex items-center gap-1.5">
-                        <Zap size={10} color={C.amber} fill={C.amber} strokeWidth={0} />
+                        <ShieldCheck size={11} color={C.amber} strokeWidth={2.2} />
                         <span style={{ fontSize: 11, color: C.textMute }}>{sub}</span>
                     </div>
                 )}
@@ -289,7 +289,7 @@ const UpgradePage = ({ onBack }) => {
                             pointerEvents: 'none',
                         }} />
 
-                        {/* ⚡ icon card */}
+                        {/* Pro badge icon card */}
                         <div style={{
                             position: 'absolute', right: 24, top: 24,
                             width: 72, height: 72, borderRadius: 20,
@@ -297,7 +297,7 @@ const UpgradePage = ({ onBack }) => {
                             boxShadow: '0 12px 32px rgba(245,158,11,0.55)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
-                            <Zap size={34} color="#fff" fill="#fff" strokeWidth={0} />
+                            <ShieldCheck size={36} color="#fff" strokeWidth={2.2} />
                         </div>
 
                         <div className="p-6 pt-8">
@@ -316,7 +316,7 @@ const UpgradePage = ({ onBack }) => {
 
                 {/* Features header */}
                 <div className="flex items-center gap-2.5 px-4 mb-1">
-                    <Zap size={14} color={C.amber} fill={C.amber} strokeWidth={0} />
+                    <ShieldCheck size={14} color={C.amber} strokeWidth={2.2} />
                     <span style={{
                         fontSize: 12, fontWeight: 700, letterSpacing: '0.8px',
                         textTransform: 'uppercase', color: C.textSec,
@@ -395,7 +395,7 @@ const UpgradePage = ({ onBack }) => {
                         }} />
                     ) : (
                         <>
-                            <Zap size={17} color="#0d0d14" fill="#0d0d14" strokeWidth={0} />
+                            <ShieldCheck size={18} color="#0d0d14" strokeWidth={2.2} />
                             Δωρεάν δοκιμή 7 ημερών
                         </>
                     )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, User, CheckCircle2, X, Zap } from 'lucide-react';
+import { ArrowLeft, User, CheckCircle2, X } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 import { useSubscription } from '../contexts/SubscriptionContext';

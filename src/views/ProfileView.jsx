@@ -7,7 +7,7 @@ import {
     Languages, LayoutDashboard, MessageSquare, BookOpen,
     Settings, Info, Trash2, UserX,
     Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff,
-    Zap
+    ShieldCheck
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import PlayStoreModal from '../components/PlayStoreModal';
@@ -194,7 +194,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                        shadow-[0_2px_12px_rgba(251,146,60,0.45)]
                                        hover:shadow-[0_4px_20px_rgba(251,146,60,0.55)] transition-shadow"
                         >
-                            <Zap size={11} strokeWidth={2.5} className="fill-white" />
+                            <ShieldCheck size={12} strokeWidth={2.5} className="shrink-0" />
                             {translate('go_pro') || 'Upgrade to Pro'}
                         </motion.button>
                     ) : null
@@ -292,7 +292,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             {!isPro
                                 ? (
                                     <div className="flex items-center justify-center gap-1">
-                                        <Zap size={14} fill="#fff" strokeWidth={0} className="text-white shrink-0" />
+                                        <ShieldCheck size={14} strokeWidth={2.2} className="text-white shrink-0" />
                                         <p className="text-[11px] sm:text-[12px] font-extrabold text-white leading-tight">{translate('go_pro') || 'Upgrade to Pro'}</p>
                                     </div>
                                 )

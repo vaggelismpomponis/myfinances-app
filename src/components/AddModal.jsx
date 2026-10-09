@@ -3,7 +3,7 @@ import {
     X, Camera, Layers, Mic, Delete, Check, Plus, Search,
     Coffee, ShoppingCart, Home as HomeIcon, Receipt,
     Gift, Utensils, Banknote, LineChart, Shapes,
-    MessageSquare, Martini, MoreHorizontal, AlertCircle, Zap,
+    MessageSquare, Martini, MoreHorizontal, AlertCircle, ShieldCheck,
     Fuel, HeartPulse
 } from 'lucide-react';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
@@ -809,7 +809,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                                 </div>
                                                 <span className="text-[11px] font-semibold text-center leading-tight">
                                                     {t('new_category') || 'Νέα'}
-                                                    {!isPro && <Zap size={9} className="text-amber-500 ml-0.5 inline-block" fill="currentColor" />}
+                                                    {!isPro && <ShieldCheck size={11} className="text-amber-500 ml-0.5 inline-block" />}
                                                 </span>
                                             </motion.button>
                                         ) : (
@@ -994,7 +994,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                             >
                                 <Camera size={15} />
                                 {t('scan')}
-                                {!isPro && <Zap size={13} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
+                                {!isPro && <ShieldCheck size={13} className="text-amber-500 ml-1 inline-block" />}
                             </motion.button>
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
@@ -1011,7 +1011,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                             >
                                 <Layers size={15} />
                                 {t('bulk')}
-                                {!isPro && <Zap size={13} className="text-amber-500 ml-1 inline-block" fill="currentColor" />}
+                                {!isPro && <ShieldCheck size={13} className="text-amber-500 ml-1 inline-block" />}
                             </motion.button>
                         </div>
                     )}

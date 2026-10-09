@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Zap, TrendingDown, TrendingUp, Minus } from 'lucide-react';
+import { Target, TrendingDown, TrendingUp, Minus } from 'lucide-react';
 import Amount from './Amount';
 
 const SafeToBurnCard = ({ 
@@ -110,7 +110,7 @@ const SafeToBurnCard = ({
                 <div className="mt-2 h-8 flex items-center justify-center">
                     {isGlideActive ? (
                         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 shadow-sm animate-pulse">
-                            <Zap size={14} className="text-amber-500" />
+                            <Target size={14} className="text-amber-500" />
                             <span>Glide Active</span>
                         </div>
                     ) : (

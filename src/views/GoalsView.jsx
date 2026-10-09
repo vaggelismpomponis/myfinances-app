@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
     ArrowLeft, Target, Plus, Trash2, PiggyBank, Pencil,
-    Check, X, TrendingUp, Trophy, Star, Zap
+    Check, X, TrendingUp, Trophy, Star, ShieldCheck
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
@@ -276,7 +276,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                             <div className="pl-10 min-w-0">
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none truncate">{t('goals')}</h2>
                                 <p className="text-xs text-gray-400 mt-1 truncate">
-                                    {!isPro ? <span>{goals.length}/2 {t('active').toLowerCase()} <Zap size={11} className="inline-block text-amber-500 relative -top-[1px] ml-1" fill="currentColor" /></span> : `${goals.length} ` + t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
+                                    {!isPro ? <span>{goals.length}/2 {t('active').toLowerCase()} <ShieldCheck size={12} className="inline-block text-amber-500 relative -top-[1px] ml-1" /></span> : `${goals.length} ` + t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
                                 </p>
                             </div>
                         )}
@@ -289,7 +289,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                    shadow-lg shadow-violet-500/25
                                    transition-all active:scale-95"
                     >
-                        {(!isPro && goals.length >= 2) ? <Zap size={14} className="inline-block text-amber-500 mr-1" fill="currentColor" /> : <Plus size={16} />} {t('add_goal')}
+                        {(!isPro && goals.length >= 2) ? <ShieldCheck size={15} className="inline-block text-amber-300 mr-1" /> : <Plus size={16} />} {t('add_goal')}
                     </button>
                 </div>
             </div>

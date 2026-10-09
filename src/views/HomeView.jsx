@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import {
     Target, Wallet, RefreshCw, BarChart,
     ChevronRight, Lightbulb, ArrowUpRight, ArrowDownRight, TrendingUp,
-    ArrowRight, TrendingDown, Minus, Eye, EyeOff, Zap,
+    ArrowRight, TrendingDown, Minus, Eye, EyeOff,
     Plus, ShieldCheck, BarChart2, Bot, Calendar, PieChart, Search,
     Flame, CheckCircle2, Clock, Plane, Home as HomeIcon, Car, Laptop, Heart, Gamepad2, AlertTriangle, FileText
 } from 'lucide-react';
@@ -154,7 +154,7 @@ const QuickAction = ({ icon: Icon, label, color, bg, onClick, delay, isPro, user
             <Icon size={24} className={color} />
             {isPro && !userIsPro && (
                 <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10">
-                    <Zap size={12} className="text-amber-400" fill="currentColor" />
+                    <ShieldCheck size={14} className="text-amber-500" />
                 </div>
             )}
         </div>
@@ -398,7 +398,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
         >
             {!isPro && (
                 <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10 z-10">
-                    <Zap size={12} className="text-amber-400" fill="currentColor" />
+                    <ShieldCheck size={14} className="text-amber-500" />
                 </div>
             )}
             {/* Gentle pulse animation for the whole card */}
@@ -807,8 +807,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     {t('advisor_title') || 'SpendWise AI Σύμβουλος'}
                                 </span>
                                 {!isPro && (
-                                    <span className="w-4 h-4 rounded-full bg-amber-400 text-white flex items-center justify-center">
-                                        <Zap size={9} fill="currentColor" />
+                                    <span className="w-4 h-4 rounded-full bg-amber-400/20 text-amber-500 flex items-center justify-center">
+                                        <ShieldCheck size={11} className="text-amber-500" />
                                     </span>
                                 )}
                             </div>
@@ -1320,8 +1320,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                            flex items-center gap-3.5 group transition-all duration-300"
             >
                 {!isPro && (
-                    <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10 shadow-sm">
-                        <Zap size={10} className="text-white" fill="currentColor" />
+                    <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-amber-400/20 flex items-center justify-center z-10 shadow-sm">
+                        <ShieldCheck size={13} className="text-amber-500" />
                     </div>
                 )}
                 <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
@@ -1376,7 +1376,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 <ActionIcon size={20} className="text-violet-600 dark:text-violet-400 mb-0.5 shrink-0" />
                                 <span className="text-[9px] min-[375px]:text-[10px] font-extrabold text-gray-700 dark:text-gray-200 uppercase tracking-tight text-center leading-tight whitespace-nowrap truncate w-full px-0.5">{action.label}</span>
                                 {action.isPro && !action.userIsPro && (
-                                    <Zap size={10} className="text-amber-400 flex-shrink-0" fill="currentColor" />
+                                    <ShieldCheck size={11} className="text-amber-500 flex-shrink-0" />
                                 )}
                             </motion.button>
                         );

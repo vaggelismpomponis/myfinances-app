@@ -1,8 +1,8 @@
 import React from 'react';
-import { Zap } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 /**
- * ProBadge — inline amber-orange "⚡ PRO" chip.
+ * ProBadge — inline amber-orange "PRO" chip.
  * Used next to locked features throughout the app.
  */
 const ProBadge = () => (
@@ -14,7 +14,7 @@ const ProBadge = () => (
             boxShadow: '0 2px 8px rgba(245,158,11,0.35)',
         }}
     >
-        <Zap size={9} fill="#fff" strokeWidth={0} />
+        <ShieldCheck size={11} strokeWidth={2.5} className="shrink-0" />
         PRO
     </span>
 );

@@ -102,12 +102,12 @@ const PaymentSuccessView = ({ onContinue }) => {
                 transition: 'opacity 0.55s cubic-bezier(0.16,1,0.3,1), transform 0.55s cubic-bezier(0.16,1,0.3,1)',
             }}>
 
-                {/* Crown Badge */}
+                {/* Success Badge */}
                 <div style={styles.badgeWrap}>
                     <div style={styles.badgePing} className="animate-ping-pulse" />
                     <div style={styles.badgeRing} />
                     <div style={styles.badgeInner}>
-                        <Zap size={36} color="#fbbf24" strokeWidth={1.8} fill="currentColor" />
+                        <CheckCircle2 size={36} color="#10b981" strokeWidth={2.2} />
                     </div>
                 </div>
 

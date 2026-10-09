@@ -11,7 +11,7 @@ import {
     Pencil,
     X,
     Check,
-    Zap,
+    CheckCircle2,
     RefreshCw,
     ArrowUpCircle,
     ArrowDownCircle,
@@ -315,7 +315,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                     </div>
                                     <div className="flex-1 bg-white/10 rounded-2xl py-2 px-3 text-center">
                                         <p className="text-violet-200 text-[10px] font-medium flex items-center justify-center gap-1">
-                                            <Zap size={9} /> {translate('active') || 'Active'}
+                                            <CheckCircle2 size={9} /> {translate('active') || 'Active'}
                                         </p>
                                         <p className="text-white font-bold text-sm mt-0.5">{rules.length}</p>
                                     </div>

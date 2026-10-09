@@ -1,10 +1,10 @@
 import React from 'react';
-import { RefreshCw, Plus, Trash2, Star, Shield, Zap, CheckCircle2, HardDriveDownload, X, Calendar } from 'lucide-react';
+import { RefreshCw, Plus, Trash2, Star, Shield, ShieldCheck, CheckCircle2, HardDriveDownload, X, Calendar } from 'lucide-react';
 
 const iconOptions = [
     { id: 'star', component: Star },
     { id: 'shield', component: Shield },
-    { id: 'zap', component: Zap },
+    { id: 'zap', component: ShieldCheck },
     { id: 'check', component: CheckCircle2 },
     { id: 'download', component: HardDriveDownload },
 ];

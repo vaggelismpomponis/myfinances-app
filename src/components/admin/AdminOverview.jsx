@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import {
-    Users, RefreshCw, MessageSquare, Zap, Award, Activity, TrendingUp,
+    Users, RefreshCw, MessageSquare, Award, Activity, TrendingUp,
     Clock, Calendar, Smartphone, Monitor, Globe, ChevronRight, ArrowUpRight,
     Crown, Trophy, ArrowRight, ShieldCheck, CheckCircle2
 } from 'lucide-react';
@@ -185,7 +185,7 @@ const UserLeaderboardRow = ({ user, idx, onClick }) => {
             {/* Sessions count */}
             <div className="text-right shrink-0">
                 <div className="flex items-center gap-1 justify-end">
-                    <Zap size={12} className="text-violet-500" />
+                    <Activity size={12} className="text-violet-500" />
                     <p className="text-base font-black text-gray-900 dark:text-white">{user.sessionCount}</p>
                 </div>
                 <p className="text-[9px] text-gray-400 uppercase font-extrabold tracking-wider">sessions</p>
@@ -273,7 +273,7 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
                     badge={stats.feedback > 0 ? `${stats.feedback} Submissions` : 'Zero Bugs'}
                 />
                 <StatCard
-                    icon={Zap}
+                    icon={Activity}
                     label="Total App Sessions"
                     value={stats.activity}
                     subtext={`${metrics.active7Days} active in last 7d`}

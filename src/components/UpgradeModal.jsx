@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, Zap, Crown, ArrowLeft, Star } from 'lucide-react';
+import { X, Check, ShieldCheck, Crown, ArrowLeft, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -154,7 +154,7 @@ const UpgradeModal = () => {
                                 boxShadow: '0 8px 28px rgba(245,158,11,0.4)',
                             }}
                         >
-                            <Zap size={28} color="#fff" fill="#fff" strokeWidth={0} />
+                            <ShieldCheck size={32} color="#fff" strokeWidth={2.2} />
                         </motion.div>
 
                         <motion.h2
@@ -341,7 +341,7 @@ const UpgradeModal = () => {
                                             background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
                                             boxShadow: '0 4px 12px rgba(245,158,11,0.4)',
                                         }}>
-                                            <Zap size={15} color="#fff" fill="#fff" strokeWidth={0} />
+                                            <ShieldCheck size={18} color="#fff" strokeWidth={2.2} />
                                         </div>
                                         <span style={{
                                             fontSize: 12, fontWeight: 800, letterSpacing: '1.4px',
@@ -424,7 +424,7 @@ const UpgradeModal = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <Zap size={18} fill="#fff" strokeWidth={0} />
+                                                <ShieldCheck size={18} strokeWidth={2.2} />
                                                 {t('upgrade_cta_checkout', 'Δωρεάν δοκιμή 7 ημερών')}
                                             </>
                                         )}
