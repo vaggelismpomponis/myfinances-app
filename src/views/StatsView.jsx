@@ -447,7 +447,9 @@ const StatsView = ({ transactions }) => {
                             {t('saving_streak')}
                         </span>
                         <span className="text-lg font-black text-violet-600 dark:text-violet-400 mt-2">
-                            {t('streak_days', { days: calendarInsights.maxStreak })}
+                            {calendarInsights.maxStreak === 1
+                                ? (t('streak_day_single') || '1 μέρα σερί')
+                                : t('streak_days', { days: calendarInsights.maxStreak })}
                         </span>
                     </div>
 

@@ -588,9 +588,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             {stbData?.streak > 0 && (
                                 <>
                                     <span className="text-gray-300 dark:text-gray-700">•</span>
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 font-bold text-xs">
-                                        <Flame size={13} />
-                                        {stbData.streak} {t('streak_days') || 'μέρες σερί'}
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 font-bold text-xs">
+                                        <Target size={13} />
+                                        {stbData.streak} {t('streak_days_suffix') || 'μέρες σερί'}
                                     </span>
                                 </>
                             )}

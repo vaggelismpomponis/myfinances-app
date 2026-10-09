@@ -34,4 +34,13 @@ describe('Translations Consistency', () => {
       expect(typeof val === 'string' || typeof val === 'number').toBe(true);
     });
   });
+
+  it('correctly defines streak translation templates', () => {
+    expect(translations.el.streak_days).toContain('{days}');
+    expect(translations.en.streak_days).toContain('{days}');
+    expect(translations.el).toHaveProperty('streak_days_suffix');
+    expect(translations.en).toHaveProperty('streak_days_suffix');
+    expect(translations.el).toHaveProperty('streak_day_single');
+    expect(translations.en).toHaveProperty('streak_day_single');
+  });
 });
