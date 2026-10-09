@@ -1362,7 +1362,7 @@ function MainContent() {
 
     // Derive display name and photo from Supabase user_metadata
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
-    const photoURL = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+    const photoURL = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.photoURL;
 
     // ── Helper: open add modal (optionally pre-set type via long-press or app shortcuts)
     const openAddModal = (initialType) => {

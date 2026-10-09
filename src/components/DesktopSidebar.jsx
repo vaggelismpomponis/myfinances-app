@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Home, BarChart2, History, Settings, Target,
     RefreshCw, Lightbulb, LogOut, Moon, Sun, Eye, EyeOff,
@@ -64,9 +64,15 @@ const DesktopSidebar = ({
 }) => {
     const { t, theme, toggleTheme, privacyMode, togglePrivacyMode } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
-    const [imgError, setImgError] = useState(false);
+    const [imgRetries, setImgRetries] = useState(0);
+    const MAX_IMG_RETRIES = 3;
 
     const effectiveName = displayName || user?.user_metadata?.full_name || user?.email?.split('@')[0] || t('user') || 'User';
+    const effectivePhoto = photoURL || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.photoURL;
+
+    useEffect(() => {
+        setImgRetries(0);
+    }, [effectivePhoto]);
 
     const navTo = (tab) => {
         if ((tab === 'advisor' || tab === 'recurring' || tab === 'stats') && !isPro) {
@@ -158,11 +164,13 @@ const DesktopSidebar = ({
                     }`}
                 >
                     <div className="relative shrink-0">
-                        {photoURL && !imgError ? (
+                        {effectivePhoto && imgRetries < MAX_IMG_RETRIES ? (
                             <img
-                                src={photoURL}
+                                src={imgRetries > 0 ? `${effectivePhoto}${effectivePhoto.includes('?') ? '&' : '?'}retry=${imgRetries}` : effectivePhoto}
                                 alt={effectiveName}
-                                onError={() => setImgError(true)}
+                                referrerPolicy="no-referrer"
+                                crossOrigin="anonymous"
+                                onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
                                 className="w-8 h-8 rounded-full object-cover ring-2 ring-violet-500/30"
                             />
                         ) : (
