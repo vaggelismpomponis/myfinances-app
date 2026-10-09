@@ -591,17 +591,17 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                             <div className="relative z-1 space-y-4 sm:space-y-5">
                                 {/* Top Header within Hero */}
                                 <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-1.5 text-violet-200/90 text-[10px] font-black uppercase tracking-[0.16em]">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-1.5 text-violet-200/90 text-[10px] font-black uppercase tracking-wider">
                                             <ShieldCheck size={12} className="shrink-0" />
-                                            <span>{t('wellness_score')}</span>
+                                            <span className="truncate">{t('wellness_score')}</span>
                                         </div>
-                                        <h2 className="text-2xl sm:text-3xl font-black font-display tracking-tight text-white mt-1 leading-tight">
+                                        <h2 className="text-2xl sm:text-3xl font-black font-display tracking-tight text-white mt-1 leading-tight truncate">
                                             {getScoreLabel(wellnessScore)}
                                         </h2>
                                     </div>
                                     {prevMonthScore !== null && (
-                                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black backdrop-blur-md border shrink-0 ${
+                                        <div className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-black backdrop-blur-md border shrink-0 ${
                                             scoreTrend > 0
                                                 ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
                                                 : scoreTrend < 0
@@ -609,10 +609,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     : 'bg-white/10 text-violet-200 border-white/10'
                                         }`}>
                                             {scoreTrend > 0 ? <TrendingUp size={13} className="shrink-0" /> : scoreTrend < 0 ? <TrendingDown size={13} className="shrink-0" /> : null}
-                                            <span className="sm:hidden">
+                                            <span className="lg:hidden">
                                                 {scoreTrend > 0 ? `+${scoreTrend}` : scoreTrend} {t('points_short', 'μον.')}
                                             </span>
-                                            <span className="hidden sm:inline">
+                                            <span className="hidden lg:inline">
                                                 {scoreTrend > 0
                                                     ? t('score_trend_up').replace('{pts}', scoreTrend)
                                                     : scoreTrend < 0
@@ -663,18 +663,18 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                     {/* Bottom Row (Full Width): 3 Diagnostic Factor Cards (Needs, Wants, Savings) */}
                                     <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full">
                                         {/* Needs */}
-                                        <div className={`rounded-2xl p-2.5 sm:p-3.5 backdrop-blur-md border transition-all ${
+                                        <div className={`rounded-2xl p-2 sm:p-3.5 backdrop-blur-md border transition-all ${
                                             stats.needsPct <= 50
                                                 ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
                                                 : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
                                         }`}>
                                             <div className="flex items-center justify-between gap-1 mb-1">
-                                                <span className="text-[10px] sm:text-xs font-bold text-white/90 uppercase tracking-wider truncate">
+                                                <span className="text-[11px] sm:text-xs font-bold text-white/95 capitalize truncate">
                                                     {t('needs_label')}
                                                 </span>
                                                 {stats.needsPct <= 50
-                                                    ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
-                                                    : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
+                                                    ? <CheckCircle2 size={12} className="text-emerald-300 shrink-0" />
+                                                    : <AlertTriangle size={12} className="text-rose-300 shrink-0" />}
                                             </div>
                                             <div className="flex items-baseline justify-between gap-1">
                                                 <span className="text-sm sm:text-base font-black text-white leading-tight">
@@ -684,7 +684,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     ≤50%
                                                 </span>
                                             </div>
-                                            <p className={`text-[9px] sm:text-[10px] font-bold truncate mt-1 ${
+                                            <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${
                                                 stats.needsPct <= 50 ? 'text-emerald-300' : 'text-rose-300'
                                             }`}>
                                                 {stats.needsPct <= 50 ? t('breakdown_on_track') : t('breakdown_over_target')}
@@ -692,18 +692,18 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                         </div>
 
                                         {/* Wants */}
-                                        <div className={`rounded-2xl p-2.5 sm:p-3.5 backdrop-blur-md border transition-all ${
+                                        <div className={`rounded-2xl p-2 sm:p-3.5 backdrop-blur-md border transition-all ${
                                             stats.wantsPct <= 30
                                                 ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
                                                 : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
                                         }`}>
                                             <div className="flex items-center justify-between gap-1 mb-1">
-                                                <span className="text-[10px] sm:text-xs font-bold text-white/90 uppercase tracking-wider truncate">
+                                                <span className="text-[11px] sm:text-xs font-bold text-white/95 capitalize truncate">
                                                     {t('wants_label')}
                                                 </span>
                                                 {stats.wantsPct <= 30
-                                                    ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
-                                                    : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
+                                                    ? <CheckCircle2 size={12} className="text-emerald-300 shrink-0" />
+                                                    : <AlertTriangle size={12} className="text-rose-300 shrink-0" />}
                                             </div>
                                             <div className="flex items-baseline justify-between gap-1">
                                                 <span className="text-sm sm:text-base font-black text-white leading-tight">
@@ -713,7 +713,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     ≤30%
                                                 </span>
                                             </div>
-                                            <p className={`text-[9px] sm:text-[10px] font-bold truncate mt-1 ${
+                                            <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${
                                                 stats.wantsPct <= 30 ? 'text-emerald-300' : 'text-rose-300'
                                             }`}>
                                                 {stats.wantsPct <= 30 ? t('breakdown_on_track') : t('breakdown_over_target')}
@@ -721,18 +721,18 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                         </div>
 
                                         {/* Savings */}
-                                        <div className={`rounded-2xl p-2.5 sm:p-3.5 backdrop-blur-md border transition-all ${
+                                        <div className={`rounded-2xl p-2 sm:p-3.5 backdrop-blur-md border transition-all ${
                                             stats.savingsPct >= 20
                                                 ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
                                                 : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
                                         }`}>
                                             <div className="flex items-center justify-between gap-1 mb-1">
-                                                <span className="text-[10px] sm:text-xs font-bold text-white/90 uppercase tracking-wider truncate">
+                                                <span className="text-[11px] sm:text-xs font-bold text-white/95 capitalize truncate">
                                                     {t('savings_label')}
                                                 </span>
                                                 {stats.savingsPct >= 20
-                                                    ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
-                                                    : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
+                                                    ? <CheckCircle2 size={12} className="text-emerald-300 shrink-0" />
+                                                    : <AlertTriangle size={12} className="text-rose-300 shrink-0" />}
                                             </div>
                                             <div className="flex items-baseline justify-between gap-1">
                                                 <span className="text-sm sm:text-base font-black text-white leading-tight">
@@ -742,7 +742,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     ≥20%
                                                 </span>
                                             </div>
-                                            <p className={`text-[9px] sm:text-[10px] font-bold truncate mt-1 ${
+                                            <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${
                                                 stats.savingsPct >= 20 ? 'text-emerald-300' : 'text-rose-300'
                                             }`}>
                                                 {stats.savingsPct >= 20 ? t('breakdown_on_track') : t('breakdown_under_target')}
@@ -777,7 +777,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                             </div>
 
                             {/* Donut Chart + Breakdown Rows */}
-                            <div className="flex flex-col md:flex-row items-center gap-6">
+                            <div className="flex flex-col lg:flex-row items-center gap-6">
                                 {/* Donut graphic */}
                                 <div className="relative w-[150px] h-[150px] shrink-0 outline-none focus:outline-none">
                                     <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none" style={{ outline: 'none' }}>
@@ -870,12 +870,12 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                         : 'bg-gray-50/70 dark:bg-white/[0.03] border-transparent hover:bg-gray-100/80 dark:hover:bg-white/[0.06]'
                                                 }`}
                                             >
-                                                <div className="flex items-center justify-between gap-2 mb-1.5">
-                                                    <div className="flex items-center gap-2 min-w-0">
+                                                <div className="flex items-center justify-between gap-3 mb-1.5">
+                                                    <div className="flex items-center gap-2 min-w-0 flex-1">
                                                         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">{item.label}</span>
+                                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{item.label}</span>
                                                     </div>
-                                                    <div className="flex items-baseline gap-2 text-right shrink-0">
+                                                    <div className="flex items-center gap-2 text-right shrink-0">
                                                         <span className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold">
                                                             <Amount value={item.amt} />
                                                         </span>
