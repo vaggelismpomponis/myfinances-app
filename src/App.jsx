@@ -50,21 +50,6 @@ function useWindowWidth() {
     return width;
 }
 
-const ProtectedAdvisorView = ({ transactions, goals, onBack, hideHeader }) => {
-    const { isPro } = useSubscription();
-    return isPro ? <FinancialAdvisorView transactions={transactions} goals={goals} onBack={onBack} hideHeader={hideHeader} /> : null;
-};
-
-const ProtectedRecurringView = ({ user, onBack, hideHeader }) => {
-    const { isPro } = useSubscription();
-    return isPro ? <RecurringView user={user} onBack={onBack} hideHeader={hideHeader} /> : null;
-};
-
-const ProtectedStatsView = ({ transactions }) => {
-    const { isPro } = useSubscription();
-    return isPro ? <StatsView transactions={transactions} /> : null;
-};
-
 // Inner component to safely access useSubscription and register the upgrade navigator
 const UpgradeNavigatorRegistrar = ({ activeTab, setActiveTab, setPreviousTab }) => {
     const { registerUpgradeNavigator } = useSubscription();
@@ -96,6 +81,7 @@ function MainContent() {
     const [showFabMenu, setShowFabMenu] = useState(false);
     const fabLongPressRef = useRef(null);
     const fabPressStartRef = useRef(false);
+    const gsiInitialized = useRef(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);

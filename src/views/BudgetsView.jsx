@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import {
     Plus, Trash2, AlertCircle, Bell, Pencil,
     Check, X, ArrowLeft, Target, Wallet, ChevronRight, ChevronDown, ChevronUp,
-    ShoppingCart, Utensils, Coffee, Home as HomeIcon, Receipt, Martini, Shapes,
+    ShoppingCart, Utensils, Coffee, Home as HomeIcon, Receipt, Martini, Shapes, Package,
     TrendingUp, TrendingDown, ShieldCheck, Lightbulb, Flame, Fuel, HeartPulse
 } from 'lucide-react';
 import { supabase } from '../supabase';
