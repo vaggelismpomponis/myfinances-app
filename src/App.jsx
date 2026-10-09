@@ -103,7 +103,7 @@ const UpgradeNavigatorRegistrar = ({ activeTab, setActiveTab, setPreviousTab }) 
 };
 
 function MainContent() {
-    const { isPro } = useSubscription();
+    const { isPro: isContextPro } = useSubscription();
     const { isLocked, theme, toggleTheme, t: translate, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode } = useSettings();
     const { showToast } = useToast();
     const { addNotification, unreadCount } = useNotifications();
@@ -137,6 +137,11 @@ function MainContent() {
     const goals = useAppStore(state => state.goals);
     const setGoals = useAppStore(state => state.setGoals);
     const [user, setUser] = useState(null);
+    const isPro = useMemo(() => {
+        if (isContextPro) return true;
+        if (!user?.id) return false;
+        return localStorage.getItem(`isPro_${user.id}`) === 'true';
+    }, [isContextPro, user?.id]);
     const [isVerifying, setIsVerifying] = useState(false);
     const [imgRetries, setImgRetries] = useState(0);
     const [showNotificationPanel, setShowNotificationPanel] = useState(false);

@@ -7,7 +7,17 @@ const SubscriptionContext = createContext(null);
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {
-    throw new Error('useSubscription must be used within a SubscriptionProvider');
+    return {
+      isPro: false,
+      subscriptionStatus: 'free',
+      subscriptionExpiry: null,
+      openUpgradeModal: () => {},
+      closeUpgradeModal: () => {},
+      isUpgradeModalOpen: false,
+      syncSubscription: async () => {},
+      upgradeFeatureKey: null,
+      registerUpgradeNavigator: () => {},
+    };
   }
   return context;
 };
