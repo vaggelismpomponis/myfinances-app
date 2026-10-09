@@ -319,7 +319,7 @@ const StatsView = ({ transactions }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="relative overflow-hidden bg-gradient-to-br from-violet-600 to-indigo-700 dark:from-violet-600/20 dark:to-indigo-800/20 selection:bg-white selection:text-violet-950 rounded-[2.5rem] p-6 text-white dark:text-violet-100 shadow-xl border border-white/10 dark:border-white/5">
+                className="relative overflow-hidden bg-gradient-to-br from-violet-600 to-indigo-700 dark:from-violet-600/20 dark:to-indigo-800/20 selection-inverted rounded-[2.5rem] p-6 text-white dark:text-violet-100 shadow-xl border border-white/10 dark:border-white/5">
                 <div className="absolute top-0 right-0 -mr-8 -mt-8 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
                 <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 bg-cyan-400/10 rounded-full blur-2xl" />
                 

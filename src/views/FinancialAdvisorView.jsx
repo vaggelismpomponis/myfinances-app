@@ -582,7 +582,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                         <motion.div
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800 selection:bg-white selection:text-violet-950 rounded-[2.25rem] p-5 sm:p-6 lg:p-7 text-white shadow-xl shadow-violet-500/20 border border-white/15 relative overflow-hidden flex flex-col justify-between"
+                            className="bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800 selection-inverted rounded-[2.25rem] p-5 sm:p-6 lg:p-7 text-white shadow-xl shadow-violet-500/20 border border-white/15 relative overflow-hidden flex flex-col justify-between"
                         >
                             {/* Decorative ambient glowing blobs */}
                             <div className="absolute -top-16 -right-16 w-52 h-52 bg-white/10 blur-[50px] rounded-full pointer-events-none" />

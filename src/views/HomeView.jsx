@@ -607,7 +607,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         transition={{ duration: 0.4 }}
                         className="lg:col-span-7 relative overflow-hidden rounded-[2.25rem]
                                    bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800
-                                   selection:bg-white selection:text-violet-950
+                                   selection-inverted
                                    p-6 sm:p-7 text-white shadow-premium border border-white/20
                                    flex flex-col justify-between"
                     >
@@ -1213,7 +1213,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 transition={{ duration: 0.6, type: 'spring', bounce: 0.3 }}
                 className="relative overflow-hidden rounded-[2.5rem]
                            bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800 dark:from-surface-dark3 dark:via-surface-dark4 dark:to-black
-                           selection:bg-white selection:text-violet-950
+                           selection-inverted
                            p-7 pb-6 shadow-premium border border-white/20 dark:border-white/10"
             >
                 <div className="absolute inset-0 bg-white/5 backdrop-blur-3xl pointer-events-none" />

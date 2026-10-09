@@ -51,6 +51,20 @@ body {
   color: #ffffff;
 }
 
+/* High-contrast text selection for vibrant and dark gradient cards */
+.selection-inverted,
+.selection-inverted * {
+  &::selection {
+    background-color: #ffffff !important;
+    color: #311068 !important;
+    -webkit-text-fill-color: #311068 !important;
+  }
+  &::-moz-selection {
+    background-color: #ffffff !important;
+    color: #311068 !important;
+  }
+}
+
 #root {
   height: 100%;
   height: 100dvh;
