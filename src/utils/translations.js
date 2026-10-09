@@ -840,6 +840,7 @@ export const translations = {
         score_trend_up: '↑ {pts} μονάδες από τον προηγούμενο μήνα',
         score_trend_down: '↓ {pts} μονάδες από τον προηγούμενο μήνα',
         score_trend_same: 'Σταθερό σε σχέση με τον προηγούμενο μήνα',
+        points_short: 'μονάδες',
         score_positive_factor: 'Καλή αποταμίευση',
         score_negative_factor: 'Υψηλές επιθυμίες',
 
@@ -1855,6 +1856,7 @@ export const translations = {
         score_trend_up: '↑ {pts} pts from last month',
         score_trend_down: '↓ {pts} pts from last month',
         score_trend_same: 'Steady from last month',
+        points_short: 'pts',
         score_positive_factor: 'Good savings rate',
         score_negative_factor: 'High discretionary spend',
 

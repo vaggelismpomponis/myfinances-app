@@ -582,25 +582,26 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                         <motion.div
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800 rounded-[2.25rem] p-6 lg:p-7 text-white shadow-xl shadow-violet-500/20 border border-white/15 relative overflow-hidden flex flex-col justify-between"
+                            className="bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800 rounded-[2.25rem] p-5 sm:p-6 lg:p-7 text-white shadow-xl shadow-violet-500/20 border border-white/15 relative overflow-hidden flex flex-col justify-between"
                         >
                             {/* Decorative ambient glowing blobs */}
                             <div className="absolute -top-16 -right-16 w-52 h-52 bg-white/10 blur-[50px] rounded-full pointer-events-none" />
                             <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-indigo-400/20 blur-[50px] rounded-full pointer-events-none" />
 
-                            <div className="relative z-10">
+                            <div className="relative z-10 space-y-4 sm:space-y-5">
                                 {/* Top Header within Hero */}
-                                <div className="flex items-center justify-between gap-2 mb-4">
-                                    <div>
-                                        <p className="text-violet-200 text-[10px] font-black uppercase tracking-[0.18em]">
-                                            {t('wellness_score')}
-                                        </p>
-                                        <h2 className="text-2xl lg:text-3xl font-black font-display tracking-tight text-white mt-0.5">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-1.5 text-violet-200/90 text-[10px] font-black uppercase tracking-[0.16em]">
+                                            <ShieldCheck size={12} className="shrink-0" />
+                                            <span>{t('wellness_score')}</span>
+                                        </div>
+                                        <h2 className="text-2xl sm:text-3xl font-black font-display tracking-tight text-white mt-1 leading-tight">
                                             {getScoreLabel(wellnessScore)}
                                         </h2>
                                     </div>
                                     {prevMonthScore !== null && (
-                                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black backdrop-blur-md border ${
+                                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black backdrop-blur-md border shrink-0 ${
                                             scoreTrend > 0
                                                 ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
                                                 : scoreTrend < 0
@@ -608,7 +609,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     : 'bg-white/10 text-violet-200 border-white/10'
                                         }`}>
                                             {scoreTrend > 0 ? <TrendingUp size={13} className="shrink-0" /> : scoreTrend < 0 ? <TrendingDown size={13} className="shrink-0" /> : null}
-                                            <span>
+                                            <span className="sm:hidden">
+                                                {scoreTrend > 0 ? `+${scoreTrend}` : scoreTrend} {t('points_short', 'μον.')}
+                                            </span>
+                                            <span className="hidden sm:inline">
                                                 {scoreTrend > 0
                                                     ? t('score_trend_up').replace('{pts}', scoreTrend)
                                                     : scoreTrend < 0
@@ -621,10 +625,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                 </div>
 
                                 {/* Core Gauge & Diagnostic Matrix */}
-                                <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6 mt-4">
+                                <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-5 sm:gap-6">
                                     {/* Gauge ring */}
-                                    <div className="relative shrink-0 w-[140px] h-[140px] flex items-center justify-center">
-                                        <GaugeRing score={wellnessScore} />
+                                    <div className="relative shrink-0 w-[130px] h-[130px] sm:w-[140px] sm:h-[140px] flex items-center justify-center">
+                                        <GaugeRing score={wellnessScore} size={isDesktop ? 140 : 130} />
                                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                                             <span className="text-4xl font-black font-display leading-none text-white tracking-tight">
                                                 {wellnessScore}
@@ -636,51 +640,113 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                     </div>
 
                                     {/* Health Diagnostic Details */}
-                                    <div className="flex-1 flex flex-col justify-between space-y-3 w-full">
-                                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 text-xs text-white/95 leading-relaxed font-medium">
-                                            {wellnessScore >= 80 ? (
-                                                t('advisor_good_job')
-                                            ) : stats.needsPct > 50 ? (
-                                                t('advisor_needs_high')
-                                            ) : stats.wantsPct > 30 ? (
-                                                t('advisor_wants_high')
-                                            ) : (
-                                                t('advisor_savings_low')
-                                            )}
+                                    <div className="flex-1 flex flex-col justify-between gap-3 w-full">
+                                        {/* AI Recommendation Message */}
+                                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 text-xs text-white/95 leading-relaxed font-medium flex items-start gap-2.5 shadow-xs">
+                                            <div className="w-6 h-6 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
+                                                <Lightbulb size={13} />
+                                            </div>
+                                            <p className="flex-1">
+                                                {wellnessScore >= 80 ? (
+                                                    t('advisor_good_job')
+                                                ) : stats.needsPct > 50 ? (
+                                                    t('advisor_needs_high')
+                                                ) : stats.wantsPct > 30 ? (
+                                                    t('advisor_wants_high')
+                                                ) : (
+                                                    t('advisor_savings_low')
+                                                )}
+                                            </p>
                                         </div>
 
-                                        {/* Diagnostic Factor Badges */}
-                                        <div className="flex flex-wrap gap-2">
-                                            {stats.savingsPct >= 20 ? (
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 rounded-full text-[11px] font-bold">
-                                                    <CheckCircle2 size={13} className="shrink-0 text-emerald-300" />
-                                                    {t('score_positive_factor')} ({Math.round(stats.savingsPct)}%)
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-200 border border-rose-400/30 rounded-full text-[11px] font-bold">
-                                                    <AlertTriangle size={13} className="shrink-0 text-rose-300" />
-                                                    {t('advisor_savings_low').slice(0, 24)}...
-                                                </span>
-                                            )}
+                                        {/* Diagnostic Factor Cards (3 Pillars: Needs, Wants, Savings) */}
+                                        <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+                                            {/* Needs */}
+                                            <div className={`rounded-2xl p-2.5 sm:p-3 backdrop-blur-md border transition-all ${
+                                                stats.needsPct <= 50
+                                                    ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
+                                                    : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
+                                            }`}>
+                                                <div className="flex items-center justify-between gap-1 mb-1">
+                                                    <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider truncate">
+                                                        {t('needs_label')}
+                                                    </span>
+                                                    {stats.needsPct <= 50
+                                                        ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
+                                                        : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
+                                                </div>
+                                                <div className="flex items-baseline justify-between gap-1">
+                                                    <span className="text-sm sm:text-base font-black text-white leading-tight">
+                                                        {Math.round(stats.needsPct)}%
+                                                    </span>
+                                                    <span className="text-[10px] text-white/50 font-medium">
+                                                        ≤50%
+                                                    </span>
+                                                </div>
+                                                <p className={`text-[9px] font-bold truncate mt-1 ${
+                                                    stats.needsPct <= 50 ? 'text-emerald-300' : 'text-rose-300'
+                                                }`}>
+                                                    {stats.needsPct <= 50 ? t('breakdown_on_track') : t('breakdown_over_target')}
+                                                </p>
+                                            </div>
 
-                                            {stats.needsPct <= 50 ? (
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 rounded-full text-[11px] font-bold">
-                                                    <CheckCircle2 size={13} className="shrink-0 text-emerald-300" />
-                                                    {t('needs_label')} {t('breakdown_on_track')} ({Math.round(stats.needsPct)}%)
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-200 border border-rose-400/30 rounded-full text-[11px] font-bold">
-                                                    <AlertTriangle size={13} className="shrink-0 text-rose-300" />
-                                                    {t('needs_label')} {t('breakdown_over_target')} ({Math.round(stats.needsPct)}%)
-                                                </span>
-                                            )}
+                                            {/* Wants */}
+                                            <div className={`rounded-2xl p-2.5 sm:p-3 backdrop-blur-md border transition-all ${
+                                                stats.wantsPct <= 30
+                                                    ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
+                                                    : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
+                                            }`}>
+                                                <div className="flex items-center justify-between gap-1 mb-1">
+                                                    <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider truncate">
+                                                        {t('wants_label')}
+                                                    </span>
+                                                    {stats.wantsPct <= 30
+                                                        ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
+                                                        : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
+                                                </div>
+                                                <div className="flex items-baseline justify-between gap-1">
+                                                    <span className="text-sm sm:text-base font-black text-white leading-tight">
+                                                        {Math.round(stats.wantsPct)}%
+                                                    </span>
+                                                    <span className="text-[10px] text-white/50 font-medium">
+                                                        ≤30%
+                                                    </span>
+                                                </div>
+                                                <p className={`text-[9px] font-bold truncate mt-1 ${
+                                                    stats.wantsPct <= 30 ? 'text-emerald-300' : 'text-rose-300'
+                                                }`}>
+                                                    {stats.wantsPct <= 30 ? t('breakdown_on_track') : t('breakdown_over_target')}
+                                                </p>
+                                            </div>
 
-                                            {stats.wantsPct > 30 && (
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-500/20 text-rose-200 border border-rose-400/30 rounded-full text-[11px] font-bold">
-                                                    <AlertTriangle size={13} className="shrink-0 text-rose-300" />
-                                                    {t('score_negative_factor')} ({Math.round(stats.wantsPct)}%)
-                                                </span>
-                                            )}
+                                            {/* Savings */}
+                                            <div className={`rounded-2xl p-2.5 sm:p-3 backdrop-blur-md border transition-all ${
+                                                stats.savingsPct >= 20
+                                                    ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
+                                                    : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
+                                            }`}>
+                                                <div className="flex items-center justify-between gap-1 mb-1">
+                                                    <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider truncate">
+                                                        {t('savings_label')}
+                                                    </span>
+                                                    {stats.savingsPct >= 20
+                                                        ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
+                                                        : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
+                                                </div>
+                                                <div className="flex items-baseline justify-between gap-1">
+                                                    <span className="text-sm sm:text-base font-black text-white leading-tight">
+                                                        {Math.round(stats.savingsPct)}%
+                                                    </span>
+                                                    <span className="text-[10px] text-white/50 font-medium">
+                                                        ≥20%
+                                                    </span>
+                                                </div>
+                                                <p className={`text-[9px] font-bold truncate mt-1 ${
+                                                    stats.savingsPct >= 20 ? 'text-emerald-300' : 'text-rose-300'
+                                                }`}>
+                                                    {stats.savingsPct >= 20 ? t('breakdown_on_track') : t('breakdown_under_target')}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
