@@ -719,7 +719,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                             <Pie
                                                 data={donutData}
                                                 cx="50%" cy="50%"
-                                                innerRadius={46} outerRadius={68}
+                                                innerRadius={48} outerRadius={70}
                                                 dataKey="value"
                                                 stroke="none"
                                                 strokeWidth={0}
@@ -763,23 +763,23 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                             </Pie>
                                         </PieChart>
                                     </ResponsiveContainer>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none text-center px-1">
                                         {activeDisplayCategory ? (
                                             <>
                                                 <span className="text-sm font-black text-gray-900 dark:text-white leading-tight font-display">
                                                     {Math.round(activeDisplayCategory.pct)}%
                                                 </span>
-                                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider max-w-[84px] truncate">
                                                     {activeDisplayCategory.label}
                                                 </span>
                                             </>
                                         ) : (
                                             <>
-                                                <span className="text-xs font-black text-gray-900 dark:text-white leading-tight font-display">
+                                                <span className="text-sm font-black text-gray-900 dark:text-white leading-tight font-display tracking-tight">
                                                     50/30/20
                                                 </span>
-                                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">
-                                                    {t('rule_50_30_20')}
+                                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider max-w-[84px] truncate">
+                                                    {t('rule_label') || 'Κανόνας'}
                                                 </span>
                                             </>
                                         )}
