@@ -59,6 +59,14 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
         };
     }, []);
 
+    const handleToggleSms = () => {
+        if (!isPro) {
+            openUpgradeModal('sms_reading');
+            return;
+        }
+        openNotificationSettings();
+    };
+
     // Delete Account State
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deletePassword, setDeletePassword] = useState('');
@@ -277,7 +285,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
 
                                     {/* SMS / Bank App Reading */}
                                     <div
-                                        onClick={openNotificationSettings}
+                                        onClick={handleToggleSms}
                                         className="flex items-center justify-between gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-gray-100/60 dark:hover:bg-white/[0.05] transition-all cursor-pointer"
                                     >
                                         <div className="flex items-center gap-3.5 min-w-0 flex-1">
@@ -285,15 +293,18 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                                                 <Bell size={18} strokeWidth={2.2} />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <span className="block font-bold text-sm text-gray-900 dark:text-white leading-tight">
-                                                    {translate('enable_sms_reading') || 'Enable SMS/App Reading'}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="block font-bold text-sm text-gray-900 dark:text-white leading-tight">
+                                                        {translate('enable_sms_reading') || 'Automatic Bank & SMS Tracking'}
+                                                    </span>
+                                                    {!isPro && <ProBadge />}
+                                                </div>
                                                 <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight block mt-0.5">
                                                     {translate('sms_reading_desc') || 'Automatic transaction tracking from notifications'}
                                                 </span>
                                             </div>
                                         </div>
-                                        <Toggle enabled={isSmsEnabled} onClick={openNotificationSettings} />
+                                        <Toggle enabled={isSmsEnabled} onClick={handleToggleSms} />
                                     </div>
 
                                     {/* Privacy Policy */}

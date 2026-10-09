@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-    ArrowLeft, Zap, Infinity, TrendingUp, ScanLine,
+    ArrowLeft, Infinity, TrendingUp, ScanLine, Bell,
     Tags, Fingerprint, Download, Headphones, Repeat,
     Check,
 } from 'lucide-react';
@@ -25,6 +25,11 @@ const FEATURES = [
         icon: Infinity,
         title: 'Απεριόριστα budgets & στόχοι',
         desc: 'Χωρίς όρια στις κατηγορίες και τους στόχους σου',
+    },
+    {
+        icon: Bell,
+        title: 'Αυτόματη καταγραφή SMS & Τραπεζών',
+        desc: 'Google Pay, Revolut, Winbank, Alpha κ.α. Μόνο πραγματικές συναλλαγές',
     },
     {
         icon: TrendingUp,

@@ -446,217 +446,217 @@ const LoginView = ({
                                     </button>
                                 </div>
 
-                                    {/* ── View A: Quick Choice (Google & Email Entry) ── */}
-                                    {/* Kept permanently mounted in DOM so Google's rendered button iframe is preserved */}
-                                    <div className={showEmailForm ? 'hidden' : 'space-y-4 animate-fade-in'}>
-                                            {/* Google Sign-In */}
-                                            {Capacitor.isNativePlatform() ? (
-                                                <motion.button
-                                                    whileHover={{ scale: 1.01 }}
-                                                    whileTap={{ scale: 0.98 }}
-                                                    type="button"
-                                                    onClick={onGoogleLogin}
-                                                    className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-2xl 
+                                {/* ── View A: Quick Choice (Google & Email Entry) ── */}
+                                {/* Kept permanently mounted in DOM so Google's rendered button iframe is preserved */}
+                                <div className={showEmailForm ? 'hidden' : 'space-y-4 animate-fade-in'}>
+                                    {/* Google Sign-In */}
+                                    {Capacitor.isNativePlatform() ? (
+                                        <motion.button
+                                            whileHover={{ scale: 1.01 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            type="button"
+                                            onClick={onGoogleLogin}
+                                            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-2xl 
                                                              border border-white/20 bg-white text-gray-900 font-bold text-sm 
                                                              shadow-[0_4px_16px_rgba(0,0,0,0.3)] transition-all"
-                                                >
-                                                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                                                    </svg>
-                                                    <span>{isLogin ? 'Σύνδεση με Google' : 'Εγγραφή με Google'}</span>
-                                                </motion.button>
-                                            ) : gsiFailed ? (
-                                                <motion.button
-                                                    whileHover={{ scale: 1.01 }}
-                                                    whileTap={{ scale: 0.98 }}
-                                                    type="button"
-                                                    onClick={() => window.__googleOAuthPopup?.()}
-                                                    className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-2xl
+                                        >
+                                            <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                            </svg>
+                                            <span>{isLogin ? 'Σύνδεση με Google' : 'Εγγραφή με Google'}</span>
+                                        </motion.button>
+                                    ) : gsiFailed ? (
+                                        <motion.button
+                                            whileHover={{ scale: 1.01 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            type="button"
+                                            onClick={() => window.__googleOAuthPopup?.()}
+                                            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-2xl
                                                              border border-white/20 bg-white text-gray-900 font-bold text-sm
                                                              shadow-[0_4px_16px_rgba(0,0,0,0.3)] transition-all"
-                                                >
-                                                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                                                    </svg>
-                                                    <span>{isLogin ? 'Σύνδεση με Google' : 'Εγγραφή με Google'}</span>
-                                                </motion.button>
-                                            ) : (
-                                                <div
-                                                    id="google-signin-button"
-                                                    className="w-full flex items-center justify-center rounded-2xl overflow-hidden min-h-[44px]"
-                                                />
-                                            )}
+                                        >
+                                            <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                            </svg>
+                                            <span>{isLogin ? 'Σύνδεση με Google' : 'Εγγραφή με Google'}</span>
+                                        </motion.button>
+                                    ) : (
+                                        <div
+                                            id="google-signin-button"
+                                            className="w-full flex items-center justify-center rounded-2xl overflow-hidden min-h-[44px]"
+                                        />
+                                    )}
 
-                                            {/* Modern Divider */}
-                                            <div className="flex items-center gap-3 my-5">
-                                                <div className="flex-1 h-px bg-white/10" />
-                                                <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                                                    {t('or_divider') || 'ή'}
-                                                </span>
-                                                <div className="flex-1 h-px bg-white/10" />
-                                            </div>
+                                    {/* Modern Divider */}
+                                    <div className="flex items-center gap-3 my-5">
+                                        <div className="flex-1 h-px bg-white/10" />
+                                        <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                                            {t('or_divider') || 'ή'}
+                                        </span>
+                                        <div className="flex-1 h-px bg-white/10" />
+                                    </div>
 
-                                            {/* Email Action Button */}
-                                            <motion.button
-                                                whileHover={{ scale: 1.01 }}
-                                                whileTap={{ scale: 0.98 }}
-                                                type="button"
-                                                onClick={() => setShowEmailForm(true)}
-                                                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-2xl
+                                    {/* Email Action Button */}
+                                    <motion.button
+                                        whileHover={{ scale: 1.01 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        type="button"
+                                        onClick={() => setShowEmailForm(true)}
+                                        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-2xl
                                                          bg-white/[0.08] hover:bg-white/[0.12]
                                                          border border-white/15 hover:border-white/25
                                                          text-white font-bold text-sm
                                                          shadow-sm transition-all"
-                                            >
-                                                <Mail size={18} className="text-violet-400" />
-                                                <span>{isLogin ? 'Σύνδεση με Email' : 'Εγγραφή με Email'}</span>
-                                            </motion.button>
+                                    >
+                                        <Mail size={18} className="text-violet-400" />
+                                        <span>{isLogin ? 'Σύνδεση με Email' : 'Εγγραφή με Email'}</span>
+                                    </motion.button>
 
-                                            {/* Trust features row for Sign Up */}
-                                            {!isLogin && (
-                                                <div className="mt-5 pt-4 border-t border-white/[0.08] flex items-center justify-around text-[11px] text-gray-400">
-                                                    <span className="flex items-center gap-1.5">
-                                                        <CheckCircle2 size={13} className="text-emerald-400" /> 100% Δωρεάν
-                                                    </span>
-                                                    <span className="flex items-center gap-1.5">
-                                                        <CheckCircle2 size={13} className="text-emerald-400" /> Χωρίς κάρτα
-                                                    </span>
-                                                    <span className="flex items-center gap-1.5">
-                                                        <CheckCircle2 size={13} className="text-emerald-400" /> Ασφαλές
-                                                    </span>
-                                                </div>
-                                            )}
-                                    </div>
-                                    {/* ── View B: Email & Password Form ── */}
-                                    <div className={!showEmailForm ? 'hidden' : 'space-y-4 animate-fade-in'}>
-                                            {/* Header with Back Button */}
-                                            <div className="flex items-center justify-between mb-5">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setShowEmailForm(false);
-                                                        setFormError('');
-                                                    }}
-                                                    className="flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-white transition-colors group"
-                                                >
-                                                    <div className="w-7 h-7 rounded-full bg-white/5 group-hover:bg-white/10 flex items-center justify-center transition-colors">
-                                                        <ArrowLeft size={14} />
-                                                    </div>
-                                                    <span>{t('back') || 'Πίσω'}</span>
-                                                </button>
-                                                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                                                    {isLogin ? 'Είσοδος' : 'Νέος Λογαριασμός'}
-                                                </span>
+                                    {/* Trust features row for Sign Up */}
+                                    {!isLogin && (
+                                        <div className="mt-5 pt-4 border-t border-white/[0.08] flex items-center justify-around text-[11px] text-gray-400">
+                                            <span className="flex items-center gap-1.5">
+                                                <CheckCircle2 size={13} className="text-emerald-400" /> 100% Δωρεάν
+                                            </span>
+                                            <span className="flex items-center gap-1.5">
+                                                <CheckCircle2 size={13} className="text-emerald-400" /> Χωρίς κάρτα
+                                            </span>
+                                            <span className="flex items-center gap-1.5">
+                                                <CheckCircle2 size={13} className="text-emerald-400" /> Ασφαλές
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                {/* ── View B: Email & Password Form ── */}
+                                <div className={!showEmailForm ? 'hidden' : 'space-y-4 animate-fade-in'}>
+                                    {/* Header with Back Button */}
+                                    <div className="flex items-center justify-between mb-5">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setShowEmailForm(false);
+                                                setFormError('');
+                                            }}
+                                            className="flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-white transition-colors group"
+                                        >
+                                            <div className="w-7 h-7 rounded-full bg-white/5 group-hover:bg-white/10 flex items-center justify-center transition-colors">
+                                                <ArrowLeft size={14} />
                                             </div>
+                                            <span>{t('back') || 'Πίσω'}</span>
+                                        </button>
+                                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                                            {isLogin ? 'Είσοδος' : 'Νέος Λογαριασμός'}
+                                        </span>
+                                    </div>
 
-                                            <form onSubmit={handleSubmit} className="space-y-4">
-                                                {/* Email Input */}
-                                                <div>
-                                                    <label className="block text-xs font-semibold text-gray-300 mb-1.5 tracking-wide text-left">
-                                                        Email
-                                                    </label>
-                                                    <div className="relative group">
-                                                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-violet-400 transition-colors pointer-events-none" size={17} />
-                                                        <input
-                                                            type="email"
-                                                            value={email}
-                                                            onChange={e => { setEmail(e.target.value); setFormError(''); }}
-                                                            placeholder={t('email_placeholder') || 'youremail@gmail.com'}
-                                                            required
-                                                            autoComplete="email"
-                                                            autoCapitalize="none"
-                                                            spellCheck="false"
-                                                            className="w-full pl-11 pr-4 py-3.5 rounded-2xl text-sm font-medium
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        {/* Email Input */}
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-300 mb-1.5 tracking-wide text-left">
+                                                Email
+                                            </label>
+                                            <div className="relative group">
+                                                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-violet-400 transition-colors pointer-events-none" size={17} />
+                                                <input
+                                                    type="email"
+                                                    value={email}
+                                                    onChange={e => { setEmail(e.target.value); setFormError(''); }}
+                                                    placeholder={t('email_placeholder') || 'youremail@gmail.com'}
+                                                    required
+                                                    autoComplete="email"
+                                                    autoCapitalize="none"
+                                                    spellCheck="false"
+                                                    className="w-full pl-11 pr-4 py-3.5 rounded-2xl text-sm font-medium
                                                                      bg-white/[0.05] hover:bg-white/[0.07] focus:bg-white/[0.08]
                                                                      border border-white/10 focus:border-violet-500
                                                                      focus:ring-4 focus:ring-violet-500/15
                                                                      text-white placeholder:text-gray-500
                                                                      outline-none transition-all duration-200"
-                                                        />
-                                                    </div>
-                                                </div>
+                                                />
+                                            </div>
+                                        </div>
 
-                                                {/* Password Input */}
-                                                <div>
-                                                    <div className="flex items-center justify-between mb-1.5">
-                                                        <label className="text-xs font-semibold text-gray-300 tracking-wide text-left">
-                                                            {t('password') || 'Κωδικός'}
-                                                        </label>
-                                                        {!isLogin && (
-                                                            <span className="text-[10px] text-gray-400 font-medium">
-                                                                Ελάχ. 8 χαρακτήρες
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <PasswordInput
-                                                        value={password}
-                                                        onChange={e => { setPassword(e.target.value); setFormError(''); }}
-                                                        placeholder={t('password_placeholder') || '••••••••'}
-                                                        icon={Lock}
-                                                        required
-                                                        inputClassName="bg-white/[0.05] hover:bg-white/[0.07] focus:bg-white/[0.08] border-white/10 focus:border-violet-500 text-white placeholder:text-gray-500 rounded-2xl py-3.5"
-                                                    />
-                                                </div>
-
-                                                {/* Error banner */}
-                                                {formError && (
-                                                    <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs p-3.5 rounded-2xl flex flex-col gap-2 animate-fade-in">
-                                                        <span>{formError}</span>
-                                                        {formError === (t('email_in_use') || 'Το email χρησιμοποιείται ήδη.') && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    setIsLogin(true);
-                                                                    setFormError('');
-                                                                }}
-                                                                className="text-violet-400 font-bold hover:underline self-start mt-0.5"
-                                                            >
-                                                                {t('login_now') || 'Σύνδεση τώρα'}
-                                                            </button>
-                                                        )}
-                                                    </div>
+                                        {/* Password Input */}
+                                        <div>
+                                            <div className="flex items-center justify-between mb-1.5">
+                                                <label className="text-xs font-semibold text-gray-300 tracking-wide text-left">
+                                                    {t('password') || 'Κωδικός'}
+                                                </label>
+                                                {!isLogin && (
+                                                    <span className="text-[10px] text-gray-400 font-medium">
+                                                        Ελάχ. 8 χαρακτήρες
+                                                    </span>
                                                 )}
+                                            </div>
+                                            <PasswordInput
+                                                value={password}
+                                                onChange={e => { setPassword(e.target.value); setFormError(''); }}
+                                                placeholder={t('password_placeholder') || '••••••••'}
+                                                icon={Lock}
+                                                required
+                                                inputClassName="bg-white/[0.05] hover:bg-white/[0.07] focus:bg-white/[0.08] border-white/10 focus:border-violet-500 text-white placeholder:text-gray-500 rounded-2xl py-3.5"
+                                            />
+                                        </div>
 
-                                                {/* Remember Me & Forgot Password */}
-                                                {isLogin && (
-                                                    <div className="flex items-center justify-between pt-1">
-                                                        <label
-                                                            className="flex items-center gap-2 cursor-pointer group select-none"
-                                                            onClick={() => setRememberMe(!rememberMe)}
-                                                        >
-                                                            <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-all ${rememberMe
-                                                                    ? 'bg-violet-600 border-violet-500 shadow-[0_0_8px_rgba(124,58,237,0.5)]'
-                                                                    : 'border-white/20 bg-white/5 group-hover:border-violet-400'
-                                                                }`}>
-                                                                {rememberMe && <Check size={11} className="text-white" strokeWidth={3} />}
-                                                            </div>
-                                                            <span className="text-xs font-medium text-gray-300 group-hover:text-white transition-colors">
-                                                                {t('remember_me') || 'Να με θυμάσαι'}
-                                                            </span>
-                                                        </label>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setShowForgotModal(true)}
-                                                            className="text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors"
-                                                        >
-                                                            {t('forgot_password') || 'Ξέχασα τον κωδικό;'}
-                                                        </button>
-                                                    </div>
+                                        {/* Error banner */}
+                                        {formError && (
+                                            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs p-3.5 rounded-2xl flex flex-col gap-2 animate-fade-in">
+                                                <span>{formError}</span>
+                                                {formError === (t('email_in_use') || 'Το email χρησιμοποιείται ήδη.') && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setIsLogin(true);
+                                                            setFormError('');
+                                                        }}
+                                                        className="text-violet-400 font-bold hover:underline self-start mt-0.5"
+                                                    >
+                                                        {t('login_now') || 'Σύνδεση τώρα'}
+                                                    </button>
                                                 )}
+                                            </div>
+                                        )}
 
-                                                {/* Submit Button */}
-                                                <motion.button
-                                                    whileHover={{ scale: 1.01 }}
-                                                    whileTap={{ scale: 0.98 }}
-                                                    type="submit"
-                                                    disabled={isLoading}
-                                                    className="w-full py-4 rounded-2xl font-bold text-sm text-white
+                                        {/* Remember Me & Forgot Password */}
+                                        {isLogin && (
+                                            <div className="flex items-center justify-between pt-1">
+                                                <label
+                                                    className="flex items-center gap-2 cursor-pointer group select-none"
+                                                    onClick={() => setRememberMe(!rememberMe)}
+                                                >
+                                                    <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-all ${rememberMe
+                                                        ? 'bg-violet-600 border-violet-500 shadow-[0_0_8px_rgba(124,58,237,0.5)]'
+                                                        : 'border-white/20 bg-white/5 group-hover:border-violet-400'
+                                                        }`}>
+                                                        {rememberMe && <Check size={11} className="text-white" strokeWidth={3} />}
+                                                    </div>
+                                                    <span className="text-xs font-medium text-gray-300 group-hover:text-white transition-colors">
+                                                        {t('remember_me') || 'Να με θυμάσαι'}
+                                                    </span>
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowForgotModal(true)}
+                                                    className="text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors"
+                                                >
+                                                    {t('forgot_password') || 'Ξέχασα τον κωδικό;'}
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {/* Submit Button */}
+                                        <motion.button
+                                            whileHover={{ scale: 1.01 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            type="submit"
+                                            disabled={isLoading}
+                                            className="w-full py-4 rounded-2xl font-bold text-sm text-white
                                                              bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-500
                                                              hover:from-violet-500 hover:to-indigo-500
                                                              shadow-[0_8px_25px_rgba(124,58,237,0.35)]
@@ -664,20 +664,20 @@ const LoginView = ({
                                                              flex items-center justify-center gap-2
                                                              transition-all duration-200 mt-2
                                                              disabled:opacity-60 disabled:cursor-not-allowed"
-                                                >
-                                                    {isLoading ? (
-                                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                    ) : (
-                                                        <>
-                                                            <span>
-                                                                {isLogin ? (t('login_btn') || 'Σύνδεση') : (t('register_btn') || 'Δημιουργία Λογαριασμού')}
-                                                            </span>
-                                                            <ArrowRight size={16} />
-                                                        </>
-                                                    )}
-                                                </motion.button>
-                                            </form>
-                                    </div>
+                                        >
+                                            {isLoading ? (
+                                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            ) : (
+                                                <>
+                                                    <span>
+                                                        {isLogin ? (t('login_btn') || 'Σύνδεση') : (t('register_btn') || 'Δημιουργία Λογαριασμού')}
+                                                    </span>
+                                                    <ArrowRight size={16} />
+                                                </>
+                                            )}
+                                        </motion.button>
+                                    </form>
+                                </div>
 
                                 {/* Footer Toggle (Δεν έχεις λογαριασμό; / Έχεις ήδη;) */}
                                 <div className="mt-6 pt-5 border-t border-white/[0.08] text-center">
@@ -700,11 +700,6 @@ const LoginView = ({
                     </AnimatePresence>
                 </motion.div>
 
-                {/* ── Security Trust Footer ── */}
-                <div className="flex items-center justify-center gap-2 text-[11px] text-gray-400 mt-6 sm:mt-8">
-                    <ShieldCheck size={14} className="text-emerald-400" />
-                    <span>Τραπεζική κρυπτογράφηση δεδομένων 256-bit</span>
-                </div>
             </div>
 
             {/* ── Forgot Password Bottom Sheet / Modal ── */}

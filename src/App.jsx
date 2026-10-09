@@ -23,6 +23,7 @@ import { SubscriptionProvider, useSubscription } from './contexts/SubscriptionCo
 import { NotificationProvider, useNotifications } from './contexts/NotificationContext';
 import { trackSession } from './utils/session';
 import { setupNotificationListener } from './utils/notificationListener';
+import { parseNotificationTransaction } from './utils/transactionParser';
 import { useAppStore } from './store/useAppStore';
 
 // Components
@@ -102,6 +103,7 @@ const UpgradeNavigatorRegistrar = ({ activeTab, setActiveTab, setPreviousTab }) 
 };
 
 function MainContent() {
+    const { isPro } = useSubscription();
     const { isLocked, theme, toggleTheme, t: translate, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode } = useSettings();
     const { showToast } = useToast();
     const { addNotification, unreadCount } = useNotifications();
@@ -127,6 +129,7 @@ function MainContent() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);
+    const [pendingNotificationTransactions, setPendingNotificationTransactions] = useState([]);
     const transactions = useAppStore(state => state.transactions);
     const setTransactions = useAppStore(state => state.setTransactions);
     const budgets = useAppStore(state => state.budgets);
@@ -274,32 +277,29 @@ function MainContent() {
         setImgRetries(0);
     }, [user?.user_metadata?.avatar_url, user?.user_metadata?.picture]);
 
-    // Notification Listener
+    // Notification Listener for Bank & Wallet Transactions
     useEffect(() => {
-        const cleanup = setupNotificationListener((transactions) => {
-            if (transactions && transactions.length > 0) {
-                const tx = transactions[transactions.length - 1];
-                let text = tx.text || "";
-                // console.log("[DEBUG] Parsing text:", text);
-                const simpleMatch = text.match(/(\d+[.,]\d+)/);
-                let amount = 0;
-                if (simpleMatch) {
-                    let amountStr = simpleMatch[1].replace(',', '.');
-                    amount = parseFloat(amountStr);
-                } else {
-                    logger.debug('No amount match found in notification text', 'NotificationListener');
-                }
-                setEditingTransaction({
-                    amount: amount || 0,
-                    note: (tx.title || "") + " - " + text,
-                    type: 'expense',
-                    category: 'shopping',
-                    date: new Date().toISOString()
-                });
-                // console.log("[DEBUG] Setting editing transaction with amount:", amount);
-                setShowAddModal(true);
-                showToast("Εντοπίστηκε νέα συναλλαγή!", "info");
+        const cleanup = setupNotificationListener((rawTransactions) => {
+            if (!rawTransactions || rawTransactions.length === 0) return;
+
+            // Strict Pro gating: Only subscribers can use automated notification transaction tracking
+            if (!isPro) {
+                logger.info('Notification transactions received but feature is gated for Pro users', 'App');
+                return;
             }
+
+            // Rigorously filter and parse ONLY authentic transactions
+            const validTransactions = rawTransactions
+                .map(raw => parseNotificationTransaction(raw))
+                .filter(parsed => parsed && parsed.isValidTransaction);
+
+            if (validTransactions.length === 0) {
+                logger.debug('No valid transaction notifications found in batch', 'App');
+                return;
+            }
+
+            logger.info(`Queuing ${validTransactions.length} valid transaction notification(s)`, 'App');
+            setPendingNotificationTransactions(prev => [...prev, ...validTransactions]);
         });
 
         // Listen for Regret Check-in Action
@@ -319,7 +319,28 @@ function MainContent() {
                 notificationListener.then(listener => listener.remove());
             }
         };
-    }, []);
+    }, [isPro]);
+
+    // Sequential Queue Processing for Pending Notification Transactions
+    useEffect(() => {
+        if (!showAddModal && pendingNotificationTransactions.length > 0) {
+            const nextTx = pendingNotificationTransactions[0];
+            setPendingNotificationTransactions(prev => prev.slice(1));
+
+            setEditingTransaction({
+                amount: nextTx.amount,
+                note: nextTx.note,
+                type: nextTx.type,
+                category: nextTx.category,
+                date: nextTx.date || new Date().toISOString()
+            });
+            setShowAddModal(true);
+            showToast(
+                `Εντοπίστηκε νέα συναλλαγή από ${nextTx.sourceName}: ${nextTx.amount.toFixed(2)}€!`,
+                'info'
+            );
+        }
+    }, [showAddModal, pendingNotificationTransactions]);
 
     // Privacy Screen — enable/disable based on setting
     useEffect(() => {
