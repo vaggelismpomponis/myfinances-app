@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
     Search, ChevronRight, MoreVertical, ExternalLink, Mail, Copy, FileText,
     Users, ArrowUpDown, Smartphone, Monitor, Globe, Clock, ShieldCheck, ShieldAlert
@@ -52,12 +52,25 @@ const UserRow = ({ profile, onProfileClick, onSubClick, onDropdownAction, active
         return <Globe size={11} />;
     };
 
+    const isDropdownOpen = activeDropdown === profile.id;
+
+    useEffect(() => {
+        if (!isDropdownOpen) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                setActiveDropdown(null);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isDropdownOpen, setActiveDropdown]);
+
     return (
         <div
             onClick={() => onProfileClick(profile)}
-            className="group relative bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-100 dark:border-transparent shadow-sm
-                       hover:shadow-md hover:border-violet-100 dark:hover:border-violet-500/20 hover:scale-[1.005]
-                       active:scale-[0.998] transition-all cursor-pointer overflow-hidden"
+            className={`group relative bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-100 dark:border-white/[0.06] shadow-sm
+                       hover:shadow-md hover:border-violet-100 dark:hover:border-violet-500/20 transition-all cursor-pointer
+                       ${isDropdownOpen ? 'z-30' : 'z-0 hover:scale-[1.005] active:scale-[0.998]'}`}
         >
             <div className="flex items-center gap-3 p-4">
                 {/* Avatar */}
@@ -134,15 +147,20 @@ const UserRow = ({ profile, onProfileClick, onSubClick, onDropdownAction, active
                     {/* Dropdown */}
                     <div className="relative">
                         <button
-                            onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown === profile.id ? null : profile.id); }}
-                            className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                            onClick={(e) => { e.stopPropagation(); setActiveDropdown(isDropdownOpen ? null : profile.id); }}
+                            className={`p-2 rounded-xl transition-colors ${
+                                isDropdownOpen
+                                    ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400'
+                                    : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10'
+                            }`}
+                            aria-label="User actions"
                         >
                             <MoreVertical size={16} />
                         </button>
-                        {activeDropdown === profile.id && (
+                        {isDropdownOpen && (
                             <>
                                 <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setActiveDropdown(null); }} />
-                                <div className="absolute right-0 top-full mt-1 w-52 bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl z-50 overflow-hidden py-1.5 animate-fade-in">
+                                <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl z-50 overflow-hidden py-1.5 animate-fade-in">
                                     {/* Mobile only: grant/revoke */}
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onSubClick(profile, profile.subscription_status === 'pro' ? 'free' : 'pro'); setActiveDropdown(null); }}
