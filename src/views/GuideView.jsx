@@ -16,7 +16,6 @@ import {
     CheckCircle2,
     Lightbulb,
     SearchX,
-    Zap,
     MessageSquare,
     RotateCcw
 } from 'lucide-react';
@@ -461,7 +460,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                             <div>
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="w-10 h-10 rounded-2xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                                        <Zap size={20} strokeWidth={2.3} />
+                                        <Lightbulb size={20} strokeWidth={2.3} />
                                     </div>
                                     <div>
                                         <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">

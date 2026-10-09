@@ -7,7 +7,6 @@ import {
     Bug,
     CheckCircle2,
     ShieldCheck,
-    Zap,
     Tag,
     Heart
 } from 'lucide-react';
@@ -303,7 +302,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                     <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 shadow-sm">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                                <Zap size={20} strokeWidth={2.3} />
+                                <ShieldCheck size={20} strokeWidth={2.3} />
                             </div>
                             <div>
                                 <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
