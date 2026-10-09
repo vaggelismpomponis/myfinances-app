@@ -1547,7 +1547,7 @@ function MainContent() {
                             />
                             {isDesktop ? (
                                 <main className="h-full w-full font-sans text-gray-900 dark:text-white
-                                                selection:bg-violet-100 dark:selection:bg-violet-900
+                                                selection:bg-violet-600 selection:text-white dark:selection:bg-violet-500 dark:selection:text-white
                                                 transition-colors duration-300">
 
                                     {/* Payment Success/Cancel Overlay */}
@@ -1649,7 +1649,7 @@ function MainContent() {
                             ) : (
                                 <main className="h-full w-full bg-surface-light dark:bg-surface-dark
                                                 font-sans text-gray-900 dark:text-white
-                                                selection:bg-violet-100 dark:selection:bg-violet-900
+                                                selection:bg-violet-600 selection:text-white dark:selection:bg-violet-500 dark:selection:text-white
                                                 flex justify-center items-start transition-colors duration-300">
 
                                     {/* Mobile container */}

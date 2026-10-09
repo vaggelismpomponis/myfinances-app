@@ -45,6 +45,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── Accessible Text Selection Default ── */
+::selection {
+  background-color: #7c3aed;
+  color: #ffffff;
+}
+
 #root {
   height: 100%;
   height: 100dvh;
