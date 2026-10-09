@@ -82,7 +82,8 @@ export default function MobileLayout({
                                                 bg-gray-100 dark:bg-white/[0.08]
                                                 flex items-center justify-center
                                                 text-gray-400 dark:text-gray-500
-                                                transition-all duration-200 overflow-hidden"
+                                                transition-all duration-200 overflow-hidden outline-none focus:outline-none focus-visible:outline-none select-none border-none"
+                                    style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                                     title={translate('nav_profile')}
                                 >
                                     {photoURL && imgRetries < MAX_IMG_RETRIES ? (
@@ -113,7 +114,7 @@ export default function MobileLayout({
                             ) : (
                                 <h2 className="absolute left-1/2 -translate-x-1/2
                                                 text-[16px] font-bold text-gray-900 dark:text-white
-                                                truncate max-w-[160px] text-center">
+                                                truncate max-w-[160px] text-center select-none">
                                     {activeTab === 'history' && translate('nav_history')}
                                     {activeTab === 'stats' && translate('nav_stats')}
                                     {activeTab === 'goals' && translate('goals')}
@@ -134,7 +135,8 @@ export default function MobileLayout({
                                         text-gray-500 dark:text-white/50
                                         hover:bg-violet-100 dark:hover:bg-violet-900/30
                                         hover:text-violet-600 dark:hover:text-violet-400
-                                        transition-all duration-200"
+                                        transition-all duration-200 outline-none focus:outline-none focus-visible:outline-none select-none border-none"
+                                style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                                 aria-label="Notifications"
                             >
                                 <Bell size={18} />
@@ -232,7 +234,8 @@ export default function MobileLayout({
                                         clearTimeout(fabLongPressRef.current);
                                     }}
                                     aria-label="Add transaction"
-                                    className="relative w-14 h-14 rounded-full bg-violet-600 text-white flex items-center justify-center border border-violet-500/30"
+                                    className="relative w-14 h-14 rounded-full bg-violet-600 text-white flex items-center justify-center border border-violet-500/30 outline-none focus:outline-none focus-visible:outline-none select-none"
+                                    style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                                 >
                                     <motion.div
                                         animate={{ rotate: showFabMenu ? 45 : 0 }}

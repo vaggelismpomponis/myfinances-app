@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Home, BarChart, Wallet, User, Zap } from 'lucide-react';
+import { Home, BarChart, Wallet, User, ShieldCheck } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
@@ -38,6 +38,9 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             openUpgradeModal('stats');
             return;
         }
+        if (typeof document !== 'undefined' && document.activeElement && typeof document.activeElement.blur === 'function') {
+            document.activeElement.blur();
+        }
         setActiveTab(id);
     };
 
@@ -47,9 +50,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
         const label = translate(labelKey);
 
         const iconActiveClass = isDark ? 'text-violet-400' : 'text-violet-600';
-        const iconInactiveClass = isDark
-            ? 'text-gray-400 group-hover:text-gray-200'
-            : 'text-gray-500 group-hover:text-gray-700';
+        const iconInactiveClass = isDark ? 'text-gray-400' : 'text-gray-500';
         const labelActiveClass = isDark ? 'text-violet-400 font-semibold' : 'text-violet-600 font-semibold';
         const labelInactiveClass = isDark ? 'text-gray-400 font-medium' : 'text-gray-500 font-medium';
 
@@ -57,26 +58,49 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             <button
                 key={id}
                 id={`nav-${id}`}
-                onClick={() => handleNavClick(id)}
+                onClick={(e) => {
+                    e.currentTarget.blur();
+                    handleNavClick(id);
+                }}
+                onPointerDown={(e) => {
+                    e.currentTarget.blur();
+                }}
                 aria-label={label}
                 aria-current={active ? 'page' : undefined}
-                className="flex flex-col items-center justify-center flex-1 h-full gap-1 relative group"
-                style={{ transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+                className="flex flex-col items-center justify-center flex-1 h-full gap-1 relative group outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0 select-none border-none"
+                style={{
+                    transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    outline: 'none',
+                    border: 'none',
+                    boxShadow: 'none',
+                    WebkitTapHighlightColor: 'transparent',
+                    userSelect: 'none',
+                }}
             >
-
                 <div
-                    className={`relative flex items-center justify-center rounded-xl p-1 transition-all duration-300
-                        ${active ? `scale-110` : `scale-100 group-hover:scale-105`}`}
+                    className={`relative flex items-center justify-center rounded-xl p-1 transition-all duration-300 outline-none focus:outline-none focus-visible:outline-none select-none border-none
+                        ${active ? `scale-110` : `scale-100`}`}
+                    style={{
+                        outline: 'none',
+                        border: 'none',
+                        boxShadow: 'none',
+                        WebkitTapHighlightColor: 'transparent',
+                    }}
                 >
-                    <Icon size={24} strokeWidth={active ? 2.5 : 2} className={active ? iconActiveClass : iconInactiveClass} />
+                    <Icon
+                        size={24}
+                        strokeWidth={active ? 2.5 : 2}
+                        className={`${active ? iconActiveClass : iconInactiveClass} outline-none focus:outline-none select-none`}
+                        style={{ outline: 'none', border: 'none' }}
+                    />
                     {isProLocked && (
-                        <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-amber-400 rounded-full flex items-center justify-center shadow-sm">
-                            <Zap size={8} className="text-white" strokeWidth={2.5} fill="currentColor" />
+                        <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-amber-400 rounded-full flex items-center justify-center shadow-sm pointer-events-none">
+                            <ShieldCheck size={8} className="text-white shrink-0" strokeWidth={2.5} fill="currentColor" />
                         </span>
                     )}
                 </div>
 
-                <span className={`text-[10px] tracking-wide capitalize transition-all duration-300
+                <span className={`text-[10px] tracking-wide capitalize transition-all duration-300 select-none
                     ${active ? labelActiveClass : labelInactiveClass}`}>
                     {label}
                 </span>

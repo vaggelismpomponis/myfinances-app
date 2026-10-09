@@ -76,31 +76,53 @@ button,
 [role="button"],
 a,
 svg,
+nav,
 .recharts-wrapper,
 .recharts-surface,
 .recharts-responsive-container {
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 button:focus,
+button:focus-visible,
 button:active,
+[role="button"]:focus,
+[role="button"]:focus-visible,
+[role="button"]:active,
+a:focus,
+a:focus-visible,
+a:active,
+nav button:focus,
+nav button:focus-visible,
+nav button:active,
 svg:focus,
+svg:focus-visible,
 svg:active,
 svg *:focus,
+svg *:focus-visible,
 .recharts-wrapper:focus,
+.recharts-wrapper:focus-visible,
 .recharts-wrapper:active,
 .recharts-wrapper *:focus,
+.recharts-wrapper *:focus-visible,
 .recharts-surface:focus,
+.recharts-surface:focus-visible,
 .recharts-surface:active,
 .recharts-surface *:focus,
+.recharts-surface *:focus-visible,
 .recharts-responsive-container:focus,
+.recharts-responsive-container:focus-visible,
 .recharts-responsive-container *:focus,
+.recharts-responsive-container *:focus-visible,
 .recharts-pie:focus,
+.recharts-pie:focus-visible,
 .recharts-pie *:focus,
+.recharts-pie *:focus-visible,
 .recharts-sector:focus,
-.recharts-sector *:focus {
+.recharts-sector:focus-visible,
+.recharts-sector *:focus,
+.recharts-sector *:focus-visible {
   outline: none !important;
-  border: none !important;
   box-shadow: none !important;
 }
 
