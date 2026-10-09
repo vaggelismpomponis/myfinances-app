@@ -713,16 +713,19 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                             {/* Donut Chart + Breakdown Rows */}
                             <div className="flex flex-col sm:flex-row items-center gap-6">
                                 {/* Donut graphic */}
-                                <div className="relative w-[150px] h-[150px] shrink-0">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
+                                <div className="relative w-[150px] h-[150px] shrink-0 outline-none focus:outline-none">
+                                    <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none" style={{ outline: 'none' }}>
+                                        <PieChart className="outline-none focus:outline-none" style={{ outline: 'none' }}>
                                             <Pie
                                                 data={donutData}
                                                 cx="50%" cy="50%"
                                                 innerRadius={46} outerRadius={68}
                                                 dataKey="value"
                                                 stroke="none"
+                                                strokeWidth={0}
                                                 paddingAngle={3}
+                                                className="outline-none focus:outline-none"
+                                                style={{ outline: 'none' }}
                                                 onMouseEnter={(entry, idx) => {
                                                     const item = entry?.key ? entry : (donutData[idx] || entry?.payload);
                                                     if (item?.key && item.key !== 'empty') {
@@ -746,7 +749,14 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                             key={entry.key || entry.name}
                                                             fill={entry.color}
                                                             opacity={!hasHighlight || isHighlighted ? 1 : 0.3}
-                                                            style={{ cursor: entry.key !== 'empty' ? 'pointer' : 'default', transition: 'opacity 0.2s' }}
+                                                            stroke="none"
+                                                            strokeWidth={0}
+                                                            className="outline-none focus:outline-none"
+                                                            style={{
+                                                                cursor: entry.key !== 'empty' ? 'pointer' : 'default',
+                                                                transition: 'opacity 0.2s',
+                                                                outline: 'none',
+                                                            }}
                                                         />
                                                     );
                                                 })}

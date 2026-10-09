@@ -803,7 +803,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         <div className="min-w-0 text-left">
                             <div className="flex items-center gap-2">
                                 <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">
-                                    SpendWise AI {t('advisor_title') || 'SpendWise AI Σύμβουλος'}
+                                    {t('advisor_title') || 'SpendWise AI Σύμβουλος'}
                                 </span>
                                 {!isPro && (
                                     <span className="w-4 h-4 rounded-full bg-amber-400 text-white flex items-center justify-center">

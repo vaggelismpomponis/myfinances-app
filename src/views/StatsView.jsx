@@ -580,15 +580,18 @@ const StatsView = ({ transactions }) => {
                 {categoryData.length > 0 ? (
                     <div className="flex flex-col items-center">
                         <div className="h-64 w-full relative">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
+                            <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none" style={{ outline: 'none' }}>
+                                <PieChart className="outline-none focus:outline-none" style={{ outline: 'none' }}>
                                     <Pie
                                         data={categoryData}
                                         cx="50%" cy="50%"
                                         innerRadius={70} outerRadius={95}
                                         paddingAngle={5}
                                         dataKey="value"
+                                        stroke="none"
                                         strokeWidth={0}
+                                        className="outline-none focus:outline-none"
+                                        style={{ outline: 'none' }}
                                         animationBegin={0}
                                         animationDuration={1200}
                                     >

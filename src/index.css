@@ -54,13 +54,34 @@ body {
 /* ── Prevent browser default black focus/tap outline on click ── */
 button,
 [role="button"],
-a {
+a,
+svg,
+.recharts-wrapper,
+.recharts-surface,
+.recharts-responsive-container {
   -webkit-tap-highlight-color: transparent;
 }
 
 button:focus,
-button:active {
-  outline: none;
+button:active,
+svg:focus,
+svg:active,
+svg *:focus,
+.recharts-wrapper:focus,
+.recharts-wrapper:active,
+.recharts-wrapper *:focus,
+.recharts-surface:focus,
+.recharts-surface:active,
+.recharts-surface *:focus,
+.recharts-responsive-container:focus,
+.recharts-responsive-container *:focus,
+.recharts-pie:focus,
+.recharts-pie *:focus,
+.recharts-sector:focus,
+.recharts-sector *:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* ── Form Contrast Fixes ── */
