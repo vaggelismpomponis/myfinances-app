@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Joyride, ACTIONS, EVENTS, STATUS } from 'react-joyride';
 import TourBubble from './TourBubble';
 import { Wallet, Plus, Home, ShieldCheck } from 'lucide-react';
@@ -20,9 +20,9 @@ if (typeof document !== 'undefined' && !document.getElementById('joyride-spotlig
 // ─────────────────────────────────────────────────────────────────
 // Tour Step Definitions
 // Targets must match real DOM IDs in the rendered app.
-// For desktop, these IDs are also added to DesktopSidebar.
+// For desktop, navbar items are in DesktopSidebar and the Add button is in DesktopTopBar.
 // ─────────────────────────────────────────────────────────────────
-export const TOUR_STEPS = [
+export const getTourSteps = (isDesktop = false) => [
     {
         target: 'body',
         placement: 'center',
@@ -41,7 +41,7 @@ export const TOUR_STEPS = [
     },
     {
         target: '#tour-add-button',
-        placement: 'top',
+        placement: isDesktop ? 'bottom-end' : 'top',
         disableBeacon: true,
         spotlightPadding: 8,
         data: {
@@ -57,7 +57,7 @@ export const TOUR_STEPS = [
     },
     {
         target: '#nav-home',
-        placement: 'top',
+        placement: isDesktop ? 'right' : 'top',
         disableBeacon: true,
         spotlightPadding: 6,
         data: {
@@ -73,7 +73,7 @@ export const TOUR_STEPS = [
     },
     {
         target: '#nav-history',
-        placement: 'top',
+        placement: isDesktop ? 'right' : 'top',
         disableBeacon: true,
         spotlightPadding: 6,
         data: {
@@ -89,7 +89,7 @@ export const TOUR_STEPS = [
     },
     {
         target: '#nav-profile',
-        placement: 'top',
+        placement: isDesktop ? 'right' : 'top',
         disableBeacon: true,
         spotlightPadding: 6,
         data: {
@@ -105,15 +105,24 @@ export const TOUR_STEPS = [
     },
 ];
 
+export const TOUR_STEPS = getTourSteps(false);
+
 // ─────────────────────────────────────────────────────────────────
 // OnboardingTour
 // Props:
 //   run       {boolean}  — whether tour is running
 //   onFinish  {function} — called when tour ends (finished OR skipped)
+//   isDesktop {boolean}  — adapts placements for desktop sidebar / header
 // ─────────────────────────────────────────────────────────────────
-const OnboardingTour = ({ run, onFinish }) => {
+const OnboardingTour = ({ run, onFinish, isDesktop = false }) => {
+    const steps = useMemo(() => getTourSteps(isDesktop), [isDesktop]);
+
     const handleCallback = useCallback((data) => {
         const { action, status, type } = data;
+
+        if (type === EVENTS.TARGET_NOT_FOUND) {
+            console.warn('[OnboardingTour] Target element not found:', data.step?.target);
+        }
 
         const isDone =
             status === STATUS.FINISHED ||
@@ -127,12 +136,12 @@ const OnboardingTour = ({ run, onFinish }) => {
 
     return (
         <Joyride
-            steps={TOUR_STEPS}
+            steps={steps}
             run={run}
             continuous
             showProgress={false}
             showSkipButton
-            disableScrolling={false}
+            disableScrolling={isDesktop}
             disableOverlayClose={false}
             spotlightClicks={false}
             callback={handleCallback}

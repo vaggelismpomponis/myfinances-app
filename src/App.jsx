@@ -228,6 +228,7 @@ function MainContent() {
     const handleStartTour = () => {
         // Navigate to home first so all tour targets are visible
         setActiveTab('home');
+        setRunTour(false);
         setTourKey(k => k + 1);
         setTimeout(() => setRunTour(true), 300);
     };
@@ -1966,12 +1967,11 @@ function MainContent() {
                                     <BroadcastModal isOpen={showBroadcast} onClose={() => { if (currentBroadcast) localStorage.setItem(`broadcast_seen_${user?.id}`, currentBroadcast.id); setShowBroadcast(false); }} data={currentBroadcast} />
                                     <UpgradeModal />
                                     <NotificationPanel isOpen={showNotificationPanel} onClose={() => setShowNotificationPanel(false)} />
-
-                                    {/* Onboarding Tour — renders on top of everything via portal */}
-                                    <OnboardingTour key={tourKey} run={runTour} onFinish={handleTourFinish} />
-
                                 </main>
                             )}
+
+                            {/* Onboarding Tour — renders globally on top of desktop and mobile via portal */}
+                            <OnboardingTour key={tourKey} run={runTour} onFinish={handleTourFinish} isDesktop={isDesktop} />
                         </SubscriptionProvider>
                     )}
                 </motion.div>
