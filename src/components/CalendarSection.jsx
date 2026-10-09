@@ -35,6 +35,16 @@ const CalendarSection = ({
     // Day detail sheet modal state
     const [selectedDay, setSelectedDay] = useState(null);
 
+    // Close daily details modal on ESC key (desktop)
+    useEffect(() => {
+        if (selectedDay === null) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setSelectedDay(null);
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedDay]);
+
     const months = useMemo(() => [
         { id: 0, name: t('january') }, { id: 1, name: t('february') }, { id: 2, name: t('march') },
         { id: 3, name: t('april') }, { id: 4, name: t('may') }, { id: 5, name: t('june') },
@@ -280,7 +290,7 @@ const CalendarSection = ({
                 </div>
             </div>
 
-            {/* Daily Expense Bottom Panel */}
+            {/* Daily Expense Panel: Bottom Sheet on Mobile, Centered Modal on Desktop */}
             {typeof document !== 'undefined' && createPortal(
                 <AnimatePresence>
                     {selectedDay !== null && (
@@ -289,7 +299,7 @@ const CalendarSection = ({
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none"
+                            className={`fixed inset-0 z-[100] flex ${isDesktop ? 'items-center p-4 sm:p-6' : 'items-end'} justify-center pointer-events-none`}
                         >
                             {/* Backdrop */}
                             <motion.div 
@@ -300,25 +310,25 @@ const CalendarSection = ({
                                 onClick={() => setSelectedDay(null)} 
                             />
                             
-                            {/* Bottom Panel */}
+                            {/* Panel / Centered Modal */}
                             <motion.div 
-                                initial={{ y: '100%' }}
-                                animate={{ y: 0 }}
-                                exit={{ y: '100%' }}
-                                transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-                                className="relative z-10 w-full max-w-xl lg:max-w-[1000px]
+                                initial={isDesktop ? { opacity: 0, scale: 0.95, y: 16 } : { y: '100%' }}
+                                animate={isDesktop ? { opacity: 1, scale: 1, y: 0 } : { y: 0 }}
+                                exit={isDesktop ? { opacity: 0, scale: 0.95, y: 16 } : { y: '100%' }}
+                                transition={isDesktop ? { duration: 0.22, ease: [0.16, 1, 0.3, 1] } : { type: 'spring', damping: 28, stiffness: 220 }}
+                                className={`relative z-10 w-full ${isDesktop ? 'max-w-2xl rounded-3xl border border-gray-200/80 dark:border-white/10 shadow-2xl' : 'max-w-xl rounded-t-[2.5rem] border-t border-gray-100 dark:border-white/5 shadow-2xl'}
                                             bg-white dark:bg-surface-dark2
-                                            rounded-t-[2.5rem] shadow-2xl
-                                            border-t border-gray-100 dark:border-white/5
-                                            max-h-[85vh] lg:max-h-[75vh] flex flex-col pointer-events-auto"
+                                            max-h-[85vh] ${isDesktop ? 'max-h-[80vh]' : ''} flex flex-col pointer-events-auto overflow-hidden`}
                             >
-                                {/* Drag handle */}
-                                <div className="flex justify-center pt-4 pb-2">
-                                    <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full" />
-                                </div>
+                                {/* Drag handle - mobile only */}
+                                {!isDesktop && (
+                                    <div className="flex justify-center pt-4 pb-2">
+                                        <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full" />
+                                    </div>
+                                )}
 
                                 {/* Modal Header */}
-                                <div className="px-6 py-4 flex items-center justify-between border-b border-gray-50 dark:border-white/5">
+                                <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-white/5">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center text-rose-500">
                                             <TrendingDown size={20} />
@@ -334,14 +344,14 @@ const CalendarSection = ({
                                     </div>
                                     <button 
                                         onClick={() => setSelectedDay(null)}
-                                        className="w-8 h-8 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
+                                        className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
                                     >
                                         <X size={16} />
                                     </button>
                                 </div>
 
                                 {/* Body */}
-                                <div className="overflow-y-auto flex-1 px-6 py-6 space-y-6 pb-[calc(2rem+env(safe-area-inset-bottom))] lg:pb-6 custom-scrollbar">
+                                <div className={`overflow-y-auto flex-1 px-6 py-6 space-y-6 ${isDesktop ? 'pb-6' : 'pb-[calc(2rem+env(safe-area-inset-bottom))]'} custom-scrollbar`}>
                                     {/* Stats Cards */}
                                     <div className="grid grid-cols-2 gap-4">
                                         {/* Total spent today */}

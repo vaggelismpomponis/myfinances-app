@@ -103,6 +103,16 @@ const StatsView = ({ transactions }) => {
         }
     }, [timeRange, selectedYear, selectedMonth]);
 
+    // Close category drill-down on ESC key (desktop)
+    useEffect(() => {
+        if (!selectedCategory) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setSelectedCategory(null);
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedCategory]);
+
     // Calendar Insights calculations
     const calendarInsights = useMemo(() => {
         const numDays = new Date(calendarYear, calendarMonth + 1, 0).getDate();
@@ -758,7 +768,7 @@ const StatsView = ({ transactions }) => {
                 </div>
             )}
 
-            {/* ── Category Drill-Down Bottom Panel ── */}
+            {/* ── Category Drill-Down: Bottom Sheet on Mobile, Centered Modal on Desktop ── */}
             {typeof document !== 'undefined' && createPortal(
                 <AnimatePresence>
                     {selectedCategory && (
@@ -767,7 +777,7 @@ const StatsView = ({ transactions }) => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none"
+                            className={`fixed inset-0 z-[100] flex ${isDesktop ? 'items-center p-4 sm:p-6' : 'items-end'} justify-center pointer-events-none`}
                         >
                             {/* Backdrop */}
                             <motion.div 
@@ -778,56 +788,57 @@ const StatsView = ({ transactions }) => {
                                 onClick={() => setSelectedCategory(null)} 
                             />
                             
-                            {/* Bottom Panel */}
+                            {/* Panel / Centered Modal */}
                             <motion.div 
-                                initial={{ y: '100%' }}
-                                animate={{ y: 0 }}
-                                exit={{ y: '100%' }}
-                                transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-                                className="relative z-10 w-full max-w-md lg:max-w-[1000px]
+                                initial={isDesktop ? { opacity: 0, scale: 0.95, y: 16 } : { y: '100%' }}
+                                animate={isDesktop ? { opacity: 1, scale: 1, y: 0 } : { y: 0 }}
+                                exit={isDesktop ? { opacity: 0, scale: 0.95, y: 16 } : { y: '100%' }}
+                                transition={isDesktop ? { duration: 0.22, ease: [0.16, 1, 0.3, 1] } : { type: 'spring', damping: 28, stiffness: 220 }}
+                                className={`relative z-10 w-full ${isDesktop ? 'max-w-xl rounded-3xl border border-gray-200/80 dark:border-white/10 shadow-2xl' : 'max-w-md rounded-t-[3rem] border-t border-gray-100 dark:border-white/5 shadow-2xl'}
                                             bg-white dark:bg-surface-dark2
-                                            rounded-t-[3rem] lg:rounded-t-[2.5rem] shadow-2xl
-                                            border-t border-gray-100 dark:border-white/5
-                                            max-h-[85vh] lg:max-h-[75vh] flex flex-col pointer-events-auto">
-
-                                {/* Handle */}
-                                <div className="flex justify-center pt-4 pb-2">
-                                    <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full" />
-                                </div>
+                                            max-h-[85vh] ${isDesktop ? 'max-h-[80vh]' : ''} flex flex-col pointer-events-auto overflow-hidden`}
+                            >
+                                {/* Drag handle - mobile only */}
+                                {!isDesktop && (
+                                    <div className="flex justify-center pt-4 pb-2">
+                                        <div className="w-12 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full" />
+                                    </div>
+                                )}
 
                                 {/* Header */}
-                                {/* Close Button */}
-                                <button 
-                                    onClick={() => setSelectedCategory(null)}
-                                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors z-10"
-                                >
-                                    <X size={16} />
-                                </button>
-
-                                <div className="px-6 py-4 flex items-center justify-between border-b border-gray-50 dark:border-white/5 mt-2">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center shadow-sm"
+                                <div className={`px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-white/5 ${!isDesktop ? 'mt-2' : ''}`}>
+                                    <div className="flex items-center gap-3.5 min-w-0">
+                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm shrink-0"
                                             style={{ backgroundColor: (COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length] || '#7c3aed') + '15' }}>
-                                            <CategoryIcon category={selectedCategory} type="expense" size={28} />
+                                            <CategoryIcon category={selectedCategory} type="expense" size={24} />
                                         </div>
-                                        <div>
-                                            <h3 className="font-black text-xl text-gray-900 dark:text-white capitalize">
+                                        <div className="min-w-0">
+                                            <h3 className="font-black text-lg sm:text-xl text-gray-900 dark:text-white capitalize truncate">
                                                 {getCategoryTranslation(selectedCategory, t)}
                                             </h3>
-                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-0.5">
                                                 {drillDownTransactions.length} {t('stats_transactions')}
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-2xl font-black" style={{ color: COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length] || '#7c3aed' }}>
-                                            <Amount value={drillDownTotal} />
+
+                                    <div className="flex items-center gap-3 shrink-0">
+                                        <div className="text-right">
+                                            <div className="text-xl sm:text-2xl font-black" style={{ color: COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length] || '#7c3aed' }}>
+                                                <Amount value={drillDownTotal} />
+                                            </div>
                                         </div>
+                                        <button 
+                                            onClick={() => setSelectedCategory(null)}
+                                            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
+                                        >
+                                            <X size={16} />
+                                        </button>
                                     </div>
                                 </div>
 
                                 {/* List */}
-                                <div className="overflow-y-auto flex-1 px-4 py-6 space-y-3 pb-[calc(2rem+env(safe-area-inset-bottom))] lg:pb-6 custom-scrollbar">
+                                <div className={`overflow-y-auto flex-1 px-4 sm:px-6 py-5 space-y-3 ${isDesktop ? 'pb-6' : 'pb-[calc(2rem+env(safe-area-inset-bottom))]'} custom-scrollbar`}>
                                     {drillDownTransactions.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-20 text-gray-400 opacity-50">
                                             <Activity size={48} className="mb-4" />
@@ -836,16 +847,16 @@ const StatsView = ({ transactions }) => {
                                     ) : drillDownTransactions.map(tx => (
                                         <div key={tx.id}
                                             className="flex justify-between items-center
-                                                        bg-gray-50 dark:bg-white/[0.03]
-                                                        p-4 rounded-3xl border border-gray-100 dark:border-white/5
+                                                        bg-gray-50/80 dark:bg-white/[0.03]
+                                                        p-3.5 sm:p-4 rounded-2xl border border-gray-100 dark:border-white/5
                                                         hover:bg-gray-100 dark:hover:bg-white/10
                                                         hover:border-violet-200 dark:hover:border-violet-500/30 transition-colors group">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-white/5 shadow-sm group-hover:scale-110 transition-transform">
-                                                    <ArrowDownLeft size={18} className="text-rose-500" />
+                                            <div className="flex items-center gap-3.5 min-w-0">
+                                                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-white/5 shadow-sm group-hover:scale-105 transition-transform shrink-0">
+                                                    <ArrowDownLeft size={16} className="text-rose-500" />
                                                 </div>
-                                                <div>
-                                                    <p className="font-bold text-gray-800 dark:text-white">
+                                                <div className="min-w-0">
+                                                    <p className="font-bold text-sm text-gray-800 dark:text-white capitalize truncate">
                                                         {getCategoryTranslation(tx.category, t)}
                                                     </p>
                                                     <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 truncate">
@@ -854,7 +865,7 @@ const StatsView = ({ transactions }) => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <span className="font-black text-rose-500 text-lg">
+                                            <span className="font-black text-rose-500 text-sm sm:text-base shrink-0 ml-3">
                                                 <Amount value={tx.amount} prefix="−" />
                                             </span>
                                         </div>
