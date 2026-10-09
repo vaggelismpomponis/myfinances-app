@@ -236,9 +236,6 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                         {/* Ambient decorative glowing backdrop lights */}
                         <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-violet-400/20 blur-3xl pointer-events-none" />
                         <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-indigo-400/20 blur-3xl pointer-events-none" />
-                        <div className="absolute top-1/2 right-10 -translate-y-1/2 opacity-10 pointer-events-none hidden md:block">
-                            <BookOpen size={180} strokeWidth={1} />
-                        </div>
 
                         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                             <div className="max-w-2xl space-y-3">
