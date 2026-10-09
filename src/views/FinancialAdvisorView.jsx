@@ -625,24 +625,24 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                 </div>
 
                                 {/* Core Gauge & Diagnostic Matrix */}
-                                <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-5 sm:gap-6">
-                                    {/* Gauge ring */}
-                                    <div className="relative shrink-0 w-[130px] h-[130px] sm:w-[140px] sm:h-[140px] flex items-center justify-center">
-                                        <GaugeRing score={wellnessScore} size={isDesktop ? 140 : 130} />
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                            <span className="text-4xl font-black font-display leading-none text-white tracking-tight">
-                                                {wellnessScore}
-                                            </span>
-                                            <span className="text-[10px] text-violet-200 font-bold uppercase tracking-wider mt-0.5">
-                                                / 100
-                                            </span>
+                                <div className="space-y-4 sm:space-y-5">
+                                    {/* Top Row: Gauge Ring + AI Recommendation Box */}
+                                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
+                                        {/* Gauge ring */}
+                                        <div className="relative shrink-0 w-[125px] h-[125px] sm:w-[135px] sm:h-[135px] flex items-center justify-center">
+                                            <GaugeRing score={wellnessScore} size={isDesktop ? 135 : 125} />
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                <span className="text-3xl sm:text-4xl font-black font-display leading-none text-white tracking-tight">
+                                                    {wellnessScore}
+                                                </span>
+                                                <span className="text-[10px] text-violet-200 font-bold uppercase tracking-wider mt-0.5">
+                                                    / 100
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    {/* Health Diagnostic Details */}
-                                    <div className="flex-1 flex flex-col justify-between gap-3 w-full">
                                         {/* AI Recommendation Message */}
-                                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 text-xs text-white/95 leading-relaxed font-medium flex items-start gap-2.5 shadow-xs">
+                                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 border border-white/15 text-xs text-white/95 leading-relaxed font-medium flex items-start gap-2.5 shadow-xs flex-1 w-full">
                                             <div className="w-6 h-6 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
                                                 <Lightbulb size={13} />
                                             </div>
@@ -658,95 +658,95 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                 )}
                                             </p>
                                         </div>
+                                    </div>
 
-                                        {/* Diagnostic Factor Cards (3 Pillars: Needs, Wants, Savings) */}
-                                        <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-                                            {/* Needs */}
-                                            <div className={`rounded-2xl p-2.5 sm:p-3 backdrop-blur-md border transition-all ${
-                                                stats.needsPct <= 50
-                                                    ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
-                                                    : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
-                                            }`}>
-                                                <div className="flex items-center justify-between gap-1 mb-1">
-                                                    <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider truncate">
-                                                        {t('needs_label')}
-                                                    </span>
-                                                    {stats.needsPct <= 50
-                                                        ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
-                                                        : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
-                                                </div>
-                                                <div className="flex items-baseline justify-between gap-1">
-                                                    <span className="text-sm sm:text-base font-black text-white leading-tight">
-                                                        {Math.round(stats.needsPct)}%
-                                                    </span>
-                                                    <span className="text-[10px] text-white/50 font-medium">
-                                                        ≤50%
-                                                    </span>
-                                                </div>
-                                                <p className={`text-[9px] font-bold truncate mt-1 ${
-                                                    stats.needsPct <= 50 ? 'text-emerald-300' : 'text-rose-300'
-                                                }`}>
-                                                    {stats.needsPct <= 50 ? t('breakdown_on_track') : t('breakdown_over_target')}
-                                                </p>
+                                    {/* Bottom Row (Full Width): 3 Diagnostic Factor Cards (Needs, Wants, Savings) */}
+                                    <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full">
+                                        {/* Needs */}
+                                        <div className={`rounded-2xl p-2.5 sm:p-3.5 backdrop-blur-md border transition-all ${
+                                            stats.needsPct <= 50
+                                                ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
+                                                : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
+                                        }`}>
+                                            <div className="flex items-center justify-between gap-1 mb-1">
+                                                <span className="text-[10px] sm:text-xs font-bold text-white/90 uppercase tracking-wider truncate">
+                                                    {t('needs_label')}
+                                                </span>
+                                                {stats.needsPct <= 50
+                                                    ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
+                                                    : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
                                             </div>
+                                            <div className="flex items-baseline justify-between gap-1">
+                                                <span className="text-sm sm:text-base font-black text-white leading-tight">
+                                                    {Math.round(stats.needsPct)}%
+                                                </span>
+                                                <span className="text-[10px] sm:text-xs text-white/60 font-medium shrink-0">
+                                                    ≤50%
+                                                </span>
+                                            </div>
+                                            <p className={`text-[9px] sm:text-[10px] font-bold truncate mt-1 ${
+                                                stats.needsPct <= 50 ? 'text-emerald-300' : 'text-rose-300'
+                                            }`}>
+                                                {stats.needsPct <= 50 ? t('breakdown_on_track') : t('breakdown_over_target')}
+                                            </p>
+                                        </div>
 
-                                            {/* Wants */}
-                                            <div className={`rounded-2xl p-2.5 sm:p-3 backdrop-blur-md border transition-all ${
-                                                stats.wantsPct <= 30
-                                                    ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
-                                                    : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
-                                            }`}>
-                                                <div className="flex items-center justify-between gap-1 mb-1">
-                                                    <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider truncate">
-                                                        {t('wants_label')}
-                                                    </span>
-                                                    {stats.wantsPct <= 30
-                                                        ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
-                                                        : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
-                                                </div>
-                                                <div className="flex items-baseline justify-between gap-1">
-                                                    <span className="text-sm sm:text-base font-black text-white leading-tight">
-                                                        {Math.round(stats.wantsPct)}%
-                                                    </span>
-                                                    <span className="text-[10px] text-white/50 font-medium">
-                                                        ≤30%
-                                                    </span>
-                                                </div>
-                                                <p className={`text-[9px] font-bold truncate mt-1 ${
-                                                    stats.wantsPct <= 30 ? 'text-emerald-300' : 'text-rose-300'
-                                                }`}>
-                                                    {stats.wantsPct <= 30 ? t('breakdown_on_track') : t('breakdown_over_target')}
-                                                </p>
+                                        {/* Wants */}
+                                        <div className={`rounded-2xl p-2.5 sm:p-3.5 backdrop-blur-md border transition-all ${
+                                            stats.wantsPct <= 30
+                                                ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
+                                                : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
+                                        }`}>
+                                            <div className="flex items-center justify-between gap-1 mb-1">
+                                                <span className="text-[10px] sm:text-xs font-bold text-white/90 uppercase tracking-wider truncate">
+                                                    {t('wants_label')}
+                                                </span>
+                                                {stats.wantsPct <= 30
+                                                    ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
+                                                    : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
                                             </div>
+                                            <div className="flex items-baseline justify-between gap-1">
+                                                <span className="text-sm sm:text-base font-black text-white leading-tight">
+                                                    {Math.round(stats.wantsPct)}%
+                                                </span>
+                                                <span className="text-[10px] sm:text-xs text-white/60 font-medium shrink-0">
+                                                    ≤30%
+                                                </span>
+                                            </div>
+                                            <p className={`text-[9px] sm:text-[10px] font-bold truncate mt-1 ${
+                                                stats.wantsPct <= 30 ? 'text-emerald-300' : 'text-rose-300'
+                                            }`}>
+                                                {stats.wantsPct <= 30 ? t('breakdown_on_track') : t('breakdown_over_target')}
+                                            </p>
+                                        </div>
 
-                                            {/* Savings */}
-                                            <div className={`rounded-2xl p-2.5 sm:p-3 backdrop-blur-md border transition-all ${
-                                                stats.savingsPct >= 20
-                                                    ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
-                                                    : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
-                                            }`}>
-                                                <div className="flex items-center justify-between gap-1 mb-1">
-                                                    <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider truncate">
-                                                        {t('savings_label')}
-                                                    </span>
-                                                    {stats.savingsPct >= 20
-                                                        ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
-                                                        : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
-                                                </div>
-                                                <div className="flex items-baseline justify-between gap-1">
-                                                    <span className="text-sm sm:text-base font-black text-white leading-tight">
-                                                        {Math.round(stats.savingsPct)}%
-                                                    </span>
-                                                    <span className="text-[10px] text-white/50 font-medium">
-                                                        ≥20%
-                                                    </span>
-                                                </div>
-                                                <p className={`text-[9px] font-bold truncate mt-1 ${
-                                                    stats.savingsPct >= 20 ? 'text-emerald-300' : 'text-rose-300'
-                                                }`}>
-                                                    {stats.savingsPct >= 20 ? t('breakdown_on_track') : t('breakdown_under_target')}
-                                                </p>
+                                        {/* Savings */}
+                                        <div className={`rounded-2xl p-2.5 sm:p-3.5 backdrop-blur-md border transition-all ${
+                                            stats.savingsPct >= 20
+                                                ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
+                                                : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
+                                        }`}>
+                                            <div className="flex items-center justify-between gap-1 mb-1">
+                                                <span className="text-[10px] sm:text-xs font-bold text-white/90 uppercase tracking-wider truncate">
+                                                    {t('savings_label')}
+                                                </span>
+                                                {stats.savingsPct >= 20
+                                                    ? <CheckCircle2 size={13} className="text-emerald-300 shrink-0" />
+                                                    : <AlertTriangle size={13} className="text-rose-300 shrink-0" />}
                                             </div>
+                                            <div className="flex items-baseline justify-between gap-1">
+                                                <span className="text-sm sm:text-base font-black text-white leading-tight">
+                                                    {Math.round(stats.savingsPct)}%
+                                                </span>
+                                                <span className="text-[10px] sm:text-xs text-white/60 font-medium shrink-0">
+                                                    ≥20%
+                                                </span>
+                                            </div>
+                                            <p className={`text-[9px] sm:text-[10px] font-bold truncate mt-1 ${
+                                                stats.savingsPct >= 20 ? 'text-emerald-300' : 'text-rose-300'
+                                            }`}>
+                                                {stats.savingsPct >= 20 ? t('breakdown_on_track') : t('breakdown_under_target')}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -777,7 +777,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                             </div>
 
                             {/* Donut Chart + Breakdown Rows */}
-                            <div className="flex flex-col sm:flex-row items-center gap-6">
+                            <div className="flex flex-col md:flex-row items-center gap-6">
                                 {/* Donut graphic */}
                                 <div className="relative w-[150px] h-[150px] shrink-0 outline-none focus:outline-none">
                                     <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none" style={{ outline: 'none' }}>
@@ -871,20 +871,23 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                 }`}
                                             >
                                                 <div className="flex items-center justify-between gap-2 mb-1.5">
-                                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                    <div className="flex items-center gap-2 min-w-0">
                                                         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{item.label}</span>
-                                                        <span className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold shrink-0">
-                                                            (<Amount value={item.amt} />)
-                                                        </span>
+                                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">{item.label}</span>
                                                     </div>
-                                                    <div className="flex items-baseline gap-1 text-right shrink-0">
-                                                        <span className={`text-xs font-black ${isGood ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                            {Math.round(item.pct)}%
+                                                    <div className="flex items-baseline gap-2 text-right shrink-0">
+                                                        <span className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold">
+                                                            <Amount value={item.amt} />
                                                         </span>
-                                                        <span className="text-[10px] text-gray-400 font-medium">
-                                                            / {item.target}%
-                                                        </span>
+                                                        <span className="text-gray-300 dark:text-gray-600 text-[10px]">•</span>
+                                                        <div className="flex items-baseline gap-0.5">
+                                                            <span className={`text-xs font-black ${isGood ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                                {Math.round(item.pct)}%
+                                                            </span>
+                                                            <span className="text-[10px] text-gray-400 font-medium">
+                                                                /{item.target}%
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 {/* Progress track */}

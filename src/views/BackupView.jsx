@@ -291,7 +291,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
 
                     {/* ─────── Main Actions: Export & Import Bento Grid ─────── */}
                     {importStep === 'idle' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
                             {/* Export Card */}
                             <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm flex flex-col justify-between space-y-6">
@@ -317,11 +317,11 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     {/* Checklist */}
                                     <div className="space-y-2 pt-1">
                                         {[
-                                            'All historical income & expense transactions',
-                                            'Active and completed savings goals',
-                                            'Monthly category budgets and threshold rules',
-                                            'Recurring bills and subscriptions',
-                                            'Custom categories & regional settings'
+                                            translate('backup_check_tx') || 'All historical income & expense transactions',
+                                            translate('backup_check_goals') || 'Active and completed savings goals',
+                                            translate('backup_check_budgets') || 'Monthly category budgets and threshold rules',
+                                            translate('backup_check_recurring') || 'Recurring bills and subscriptions',
+                                            translate('backup_check_settings') || 'Custom categories & regional settings'
                                         ].map((item, idx) => (
                                             <div key={idx} className="flex items-center gap-2">
                                                 <div className="w-4 h-4 rounded-md bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0">
@@ -393,11 +393,11 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     {/* Key Capabilities */}
                                     <div className="space-y-2 pt-1">
                                         {[
-                                            'Dual restore modes: Merge or Clean Replace',
-                                            'Pre-import data validation & schema checking',
-                                            'Re-associates records to current authenticated user',
-                                            'Safe batch insertion preventing network timeouts',
-                                            'Automatic duplicate avoidance when merging'
+                                            translate('backup_check_modes') || 'Dual restore modes: Merge or Clean Replace',
+                                            translate('backup_check_validation') || 'Pre-import data validation & schema checking',
+                                            translate('backup_check_reassign') || 'Re-associates records to current authenticated user',
+                                            translate('backup_check_batch') || 'Safe batch insertion preventing network timeouts',
+                                            translate('backup_check_dedup') || 'Automatic duplicate avoidance when merging'
                                         ].map((item, idx) => (
                                             <div key={idx} className="flex items-center gap-2">
                                                 <div className="w-4 h-4 rounded-md bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">

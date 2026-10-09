@@ -218,7 +218,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                     </div>
 
                     {/* ─────── Bento Grid: Preferences & Export ─────── */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
 
                         {/* ── Card 1: App Preferences & Automations ── */}
                         <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col justify-between">
@@ -281,20 +281,20 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                                     {/* SMS / Bank App Reading */}
                                     <div
                                         onClick={openNotificationSettings}
-                                        className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-gray-100/60 dark:hover:bg-white/[0.05] transition-all cursor-pointer"
+                                        className="flex items-center justify-between gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-gray-100/60 dark:hover:bg-white/[0.05] transition-all cursor-pointer"
                                     >
-                                        <div className="w-10 h-10 rounded-xl bg-amber-100/70 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                                            <Bell size={18} strokeWidth={2.2} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-bold text-sm text-gray-900 dark:text-white truncate">
+                                        <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-100/70 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                                                <Bell size={18} strokeWidth={2.2} />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <span className="block font-bold text-sm text-gray-900 dark:text-white leading-tight">
                                                     {translate('enable_sms_reading') || 'Enable SMS/App Reading'}
                                                 </span>
+                                                <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight block mt-0.5">
+                                                    {translate('sms_reading_desc') || 'Automatic transaction tracking from notifications'}
+                                                </span>
                                             </div>
-                                            <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight block">
-                                                {translate('sms_reading_desc') || 'Automatic transaction tracking from notifications'}
-                                            </span>
                                         </div>
                                         <Toggle enabled={isSmsEnabled} onClick={openNotificationSettings} />
                                     </div>
