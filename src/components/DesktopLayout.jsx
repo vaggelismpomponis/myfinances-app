@@ -341,7 +341,7 @@ const DesktopLayout = ({
     const { t } = useSettings();
 
     // Tabs that should NOT show the right panel (full-width sub-pages and redesigned desktop homepage)
-    const hideRightPanel = ['home', 'profile', 'account', 'profile-details', 'general', 'security', 'backup',
+    const hideRightPanel = ['home', 'advisor', 'profile', 'account', 'profile-details', 'general', 'security', 'backup',
         'feedback', 'guide', 'admin', 'privacy'].includes(activeTab);
 
     return (
@@ -377,7 +377,7 @@ const DesktopLayout = ({
                 <div className="flex-1 flex overflow-hidden">
                     {/* Main scrollable area */}
                     <main className="flex-1 overflow-y-auto custom-scrollbar">
-                        <div className={`h-full ${activeTab === 'home' ? 'px-6 lg:px-10 py-6 max-w-[1680px] mx-auto' : 'px-4 lg:px-6 xl:px-8 py-6'}`}>
+                        <div className={`h-full ${['home', 'advisor'].includes(activeTab) ? 'px-6 lg:px-10 py-6 max-w-[1680px] mx-auto' : 'px-4 lg:px-6 xl:px-8 py-6'}`}>
                             {children}
                         </div>
                     </main>

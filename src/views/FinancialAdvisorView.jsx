@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback, useRef } from 'react';
 import {
     TrendingUp, TrendingDown, ShieldCheck, Info, Target, ChevronRight,
-    ChevronLeft, ArrowLeft, Lightbulb, CheckCircle2, Trophy, Flame, Coffee,
+    ChevronLeft, ArrowLeft, Lightbulb, CheckCircle2, Trophy, Coffee,
     Wallet, AlertTriangle, Star, Award, RefreshCw, Clock, PieChart as PieIcon,
     Calendar, ArrowUpRight
 } from 'lucide-react';
@@ -521,11 +521,11 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
     }
 
     return (
-        <div className="flex flex-col h-full bg-gray-50 dark:bg-surface-dark overflow-y-auto custom-scrollbar">
+        <div className={`flex flex-col ${isDesktop ? 'min-h-full' : 'h-full overflow-y-auto custom-scrollbar'} bg-gray-50 dark:bg-surface-dark`}>
             {/* Mobile Header */}
             {!isDesktop && <MobileHeader onBack={onBack} hideHeader={hideHeader} t={t} />}
 
-            <div className={`flex-1 ${isDesktop ? 'max-w-[1400px] w-full mx-auto px-6 lg:px-8 py-6 space-y-6 pb-16' : 'px-4 py-4 space-y-5 pb-28'}`}>
+            <div className={`flex-1 ${isDesktop ? 'max-w-[1520px] w-full mx-auto px-2 sm:px-4 lg:px-6 py-4 space-y-6 pb-16' : 'px-4 py-4 space-y-5 pb-28'}`}>
 
                 {/* ── Desktop Executive Header ── */}
                 {isDesktop && (
@@ -573,10 +573,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                 )}
 
                 {/* ── Main Bento Grid ── */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
 
                     {/* ════════════ LEFT COLUMN (7 cols) ════════════ */}
-                    <div className="lg:col-span-7 space-y-6">
+                    <div className="xl:col-span-7 space-y-6">
 
                         {/* ─── SECTION B: Wellness Score Hero Card ─── */}
                         <motion.div
@@ -870,8 +870,8 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                         : 'bg-gray-50/70 dark:bg-white/[0.03] border-transparent hover:bg-gray-100/80 dark:hover:bg-white/[0.06]'
                                                 }`}
                                             >
-                                                <div className="flex items-center justify-between mb-1.5">
-                                                    <div className="flex items-center gap-2 min-w-0">
+                                                <div className="flex items-center justify-between gap-2 mb-1.5">
+                                                    <div className="flex items-center gap-2 min-w-0 flex-1">
                                                         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
                                                         <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{item.label}</span>
                                                         <span className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold shrink-0">
@@ -909,7 +909,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                         exit={{ opacity: 0, height: 0 }}
                                         className="overflow-hidden"
                                     >
-                                        <div className="mt-5 p-4 rounded-2xl bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/10 grid grid-cols-3 gap-3 text-center sm:text-left">
+                                        <div className="mt-5 p-4 rounded-2xl bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-3 text-center sm:text-left">
                                             <div>
                                                 <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">
                                                     {selectedCategory.isSavings ? (t('allocation_amount_saved') || 'Saved') : t('allocation_amount_spent')}
@@ -1044,7 +1044,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                     </div>
 
                     {/* ════════════ RIGHT COLUMN (5 cols) ════════════ */}
-                    <div className="lg:col-span-5 space-y-6">
+                    <div className="xl:col-span-5 space-y-6">
 
                         {/* ─── SECTION A: Daily Insights Feed ─── */}
                         <div className="bg-white dark:bg-surface-dark3 rounded-[2.25rem] p-6 lg:p-7 shadow-card border border-gray-100/80 dark:border-white/5">
@@ -1100,7 +1100,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                             <div className="flex items-center justify-between gap-2 mb-5">
                                 <div className="flex items-center gap-3">
                                     <span className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-900/30">
-                                        <Flame size={18} />
+                                        <Trophy size={18} />
                                     </span>
                                     <div>
                                         <h3 className="font-bold text-gray-900 dark:text-white text-base">
