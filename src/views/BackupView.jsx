@@ -250,8 +250,6 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                     <DesktopBreadcrumb
                         onBack={onBack}
                         backLabel={translate('guide_back_to_settings') || 'Back to Settings'}
-                        badgeIcon={Database}
-                        badgeText="SpendWise Vault & Backups"
                         hideHeader={hideHeader}
                     />
 

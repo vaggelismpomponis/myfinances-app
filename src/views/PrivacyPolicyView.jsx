@@ -42,8 +42,6 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                     <DesktopBreadcrumb
                         onBack={onBack}
                         backLabel={isEL ? 'Επιστροφή στις Ρυθμίσεις' : 'Back to Settings'}
-                        badgeIcon={ShieldCheck}
-                        badgeText="SpendWise Trust & Privacy"
                         hideHeader={hideHeader}
                     />
 

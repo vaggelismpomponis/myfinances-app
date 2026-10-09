@@ -8,8 +8,6 @@ import { ArrowLeft } from 'lucide-react';
 const DesktopBreadcrumb = ({
     onBack,
     backLabel = 'Back to Settings',
-    badgeIcon: BadgeIcon,
-    badgeText,
     rightAction,
     hideHeader = true,
     className = '',
@@ -17,7 +15,7 @@ const DesktopBreadcrumb = ({
     if (!hideHeader) return null;
 
     return (
-        <div className={`flex flex-wrap items-center justify-between gap-3 sm:gap-4 pb-2.5 sm:pb-3 ${className}`}>
+        <div className={`flex items-center justify-between gap-3 sm:gap-4 pb-2.5 sm:pb-3 ${className}`}>
             <button
                 type="button"
                 onClick={onBack}
@@ -26,13 +24,6 @@ const DesktopBreadcrumb = ({
                 <ArrowLeft size={14} strokeWidth={2.5} className="shrink-0" />
                 <span>{backLabel}</span>
             </button>
-
-            {badgeText && (
-                <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl sm:rounded-full bg-violet-50 dark:bg-violet-500/10 border border-violet-200/60 dark:border-violet-500/20 text-xs font-semibold text-violet-700 dark:text-violet-300 whitespace-nowrap shrink-0 max-w-full">
-                    {BadgeIcon && <BadgeIcon size={14} strokeWidth={2} className="shrink-0 text-violet-600 dark:text-violet-400" />}
-                    <span className="truncate">{badgeText}</span>
-                </div>
-            )}
 
             {rightAction}
         </div>

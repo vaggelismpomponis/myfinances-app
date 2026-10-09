@@ -255,8 +255,6 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                     <DesktopBreadcrumb
                         onBack={onBack}
                         backLabel={translate('guide_back_to_settings') || 'Back to Settings'}
-                        badgeIcon={ShieldCheck}
-                        badgeText="SpendWise Vault & Security"
                         hideHeader={hideHeader}
                     />
 

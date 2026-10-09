@@ -134,8 +134,6 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                     <DesktopBreadcrumb
                         onBack={onBack}
                         backLabel={translate('guide_back_to_settings') || 'Back to Settings'}
-                        badgeIcon={MessageSquare}
-                        badgeText="SpendWise Community Voice"
                         hideHeader={hideHeader}
                     />
 

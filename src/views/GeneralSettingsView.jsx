@@ -169,8 +169,6 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                     <DesktopBreadcrumb
                         onBack={onBack}
                         backLabel={translate('guide_back_to_settings') || 'Back to Settings'}
-                        badgeIcon={SlidersHorizontal}
-                        badgeText="SpendWise Preferences & Control"
                         hideHeader={hideHeader}
                     />
 

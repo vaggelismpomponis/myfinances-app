@@ -228,8 +228,6 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                     <DesktopBreadcrumb
                         onBack={onBack}
                         backLabel={translate('guide_back_to_settings') || 'Back to Settings'}
-                        badgeIcon={BookOpen}
-                        badgeText="SpendWise Knowledge Base"
                         hideHeader={hideHeader}
                     />
 
