@@ -216,10 +216,10 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
     return (
         <div className="flex flex-col h-full bg-gray-50 dark:bg-surface-dark animate-fade-in transition-colors duration-300">
 
-            <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
+            <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-40
                             ${hideHeader 
                                 ? 'bg-transparent border-none px-4 pt-4 pb-2' 
-                                : 'bg-gray-50 dark:bg-surface-dark border-b border-gray-100 dark:border-transparent px-4 pb-4 backdrop-blur-xl min-h-[70px]'}`}
+                                : 'bg-gray-50/95 dark:bg-surface-dark/95 border-b border-gray-100 dark:border-white/5 px-4 pb-4 backdrop-blur-xl min-h-[70px]'}`}
                 style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
             >
                 <div className="flex items-center gap-4 relative">

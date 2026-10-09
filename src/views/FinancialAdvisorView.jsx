@@ -69,10 +69,10 @@ const GaugeRing = ({ score, size = 140, stroke = 10 }) => {
    MOBILE HEADER
 ────────────────────────────────────────────────────────── */
 const MobileHeader = ({ onBack, hideHeader, t }) => (
-    <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
+    <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-40
         ${hideHeader
             ? 'bg-transparent border-none px-4 pt-4 pb-2'
-            : 'px-4 pt-4 pb-4 bg-white dark:bg-surface-dark2 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
+            : 'px-4 pt-4 pb-4 bg-white/95 dark:bg-surface-dark2/95 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-white/5'}`}
         style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
     >
         <div className="flex items-center justify-center min-h-[40px] relative">
@@ -588,7 +588,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                             <div className="absolute -top-16 -right-16 w-52 h-52 bg-white/10 blur-[50px] rounded-full pointer-events-none" />
                             <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-indigo-400/20 blur-[50px] rounded-full pointer-events-none" />
 
-                            <div className="relative z-10 space-y-4 sm:space-y-5">
+                            <div className="relative z-1 space-y-4 sm:space-y-5">
                                 {/* Top Header within Hero */}
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">

@@ -404,10 +404,10 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
         <div className="flex flex-col h-full bg-gray-50 dark:bg-surface-dark animate-fade-in transition-colors duration-300">
 
             {/* ── Sticky Header ── */}
-            <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-10
+            <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-40
                             ${hideHeader
                                 ? 'bg-transparent border-none px-5 pt-4 pb-2'
-                                : 'bg-white dark:bg-surface-dark px-5 pt-4 pb-4 shadow-sm border-b border-gray-100 dark:border-transparent'}`}
+                                : 'bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md px-5 pt-4 pb-4 shadow-sm border-b border-gray-100 dark:border-white/5'}`}
                 style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
             >
                 <div className="flex items-center justify-between min-h-[40px] gap-4 relative">
