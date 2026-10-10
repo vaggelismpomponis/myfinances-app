@@ -1009,7 +1009,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                     }
                                     setShowBulkScanner(true);
                                 }}
-                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:violet-500/20"
+                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/20"
                             >
                                 <Layers size={15} />
                                 {t('bulk')}
