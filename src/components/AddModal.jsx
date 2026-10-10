@@ -488,7 +488,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.18, ease: 'easeOut' }}
-                className="bg-white dark:bg-surface-dark2 w-full max-w-md lg:max-w-[740px] xl:max-w-[800px] h-[100dvh] lg:h-[880px] xl:h-[940px] lg:min-h-[700px] lg:max-h-[96vh] rounded-none lg:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
+                className="bg-white dark:bg-surface-dark2 text-gray-900 dark:text-white w-full max-w-md lg:max-w-[740px] xl:max-w-[800px] h-[100dvh] lg:h-[880px] xl:h-[940px] lg:min-h-[700px] lg:max-h-[96vh] rounded-none lg:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col relative transition-colors"
             >
 
                 {/* Voice Input Overlay */}
@@ -694,7 +694,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 animate={{ y: 0 }}
                                 exit={{ y: '100%' }}
                                 transition={{ type: 'spring', damping: 32, stiffness: 340, mass: 0.9 }}
-                                className="absolute bottom-0 left-0 right-0 z-40 bg-white dark:bg-surface-dark2 rounded-t-[2rem] shadow-2xl flex flex-col"
+                                className="absolute bottom-0 left-0 right-0 z-40 bg-white dark:bg-surface-dark2 text-gray-900 dark:text-white rounded-t-[2rem] shadow-2xl flex flex-col"
                                 style={{ maxHeight: '82%' }}
                             >
                                 {/* Sheet handle */}
@@ -754,7 +754,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                                         }}
                                                         className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all duration-200 ${isSelected
                                                                 ? 'shadow-premium'
-                                                                : 'border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-surface-dark3 hover:bg-gray-100 dark:hover:bg-white/5'
+                                                                : 'border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-surface-dark3 hover:bg-gray-100 dark:hover:bg-white/5 text-gray-800 dark:text-gray-200'
                                                             }`}
                                                         style={isSelected ? {
                                                             backgroundColor: `${accentHex}12`,
@@ -779,7 +779,9 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                                             )}
                                                         </div>
                                                         <span
-                                                            className="text-[11px] font-semibold text-center leading-tight line-clamp-2"
+                                                            className={`text-[11px] font-semibold text-center leading-tight line-clamp-2 ${
+                                                                isSelected ? '' : 'text-gray-800 dark:text-gray-200'
+                                                            }`}
                                                             style={isSelected ? { color: accentHex } : {}}
                                                         >
                                                             {getCategoryTranslation(cat, t)}
@@ -802,12 +804,12 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                                     }
                                                     setIsAddingCategory(true);
                                                 }}
-                                                className="flex flex-col items-center gap-1.5 p-3 rounded-2xl border border-dashed border-gray-300 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:text-indigo-500 transition-all bg-transparent"
+                                                className="flex flex-col items-center gap-1.5 p-3 rounded-2xl border border-dashed border-gray-300 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:border-indigo-400 dark:hover:border-indigo-500/50 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all bg-transparent"
                                             >
-                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-white/5">
+                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400">
                                                     <Plus size={18} />
                                                 </div>
-                                                <span className="text-[11px] font-semibold text-center leading-tight">
+                                                <span className="text-[11px] font-semibold text-center leading-tight text-gray-700 dark:text-gray-300">
                                                     {t('new_category') || 'Νέα'}
                                                     {!isPro && <ShieldCheck size={11} className="text-amber-500 ml-0.5 inline-block" />}
                                                 </span>

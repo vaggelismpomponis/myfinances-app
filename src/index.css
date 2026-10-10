@@ -45,6 +45,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html:not(.dark) body {
+  color: #111827;
+}
+
+.dark body {
+  color: #F9FAFB;
+}
+
 /* ── Accessible Text Selection Default ── */
 ::selection {
   background-color: #7c3aed;
