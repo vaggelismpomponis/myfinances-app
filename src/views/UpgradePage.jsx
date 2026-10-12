@@ -266,7 +266,9 @@ const UpgradePage = ({ onBack }) => {
                             <div
                                 className="absolute -right-16 -top-16 w-56 h-56 rounded-full pointer-events-none"
                                 style={{
-                                    background: 'radial-gradient(circle, rgba(245,158,11,0.22) 0%, rgba(245,158,11,0.05) 50%, transparent 70%)',
+                                    background: isDark
+                                        ? 'radial-gradient(circle, rgba(139,92,246,0.18) 0%, transparent 70%)'
+                                        : 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
                                 }}
                             />
                             <div
@@ -283,24 +285,15 @@ const UpgradePage = ({ onBack }) => {
                             />
 
                             <div className="relative z-10 p-5 sm:p-7 flex flex-col justify-between min-h-[200px] gap-5">
-                                {/* Top row: Pill badge + Luxury frosted emblem */}
+                                {/* Top row: Brand pills */}
                                 <div className="flex items-center justify-between gap-3">
-                                    <div className="flex items-center gap-2">
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wider uppercase backdrop-blur-md bg-white/10 dark:bg-white/[0.08] border border-white/15 text-white shadow-xs">
-                                            <ShieldCheck size={13} className="text-amber-400 shrink-0" strokeWidth={2.5} />
-                                            {t('hero_card_badge') || 'SPENDWISE PRO'}
-                                        </span>
-                                        <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 backdrop-blur-md">
-                                            {t('hero_card_status') || 'PREMIUM ACCESS'}
-                                        </span>
-                                    </div>
-
-                                    {/* Polished fintech crest / seal */}
-                                    <div
-                                        className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center backdrop-blur-md bg-gradient-to-br from-amber-400/30 to-amber-600/20 border border-amber-300/40 shadow-md shadow-amber-500/20 shrink-0"
-                                    >
-                                        <ShieldCheck size={24} className="text-amber-300 drop-shadow-sm" strokeWidth={2.3} />
-                                    </div>
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wider uppercase backdrop-blur-md bg-white/10 dark:bg-white/[0.08] border border-white/15 text-white shadow-xs">
+                                        <ShieldCheck size={13} className="text-amber-400 shrink-0" strokeWidth={2.5} />
+                                        {t('hero_card_badge') || 'SPENDWISE PRO'}
+                                    </span>
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 backdrop-blur-md">
+                                        {t('hero_card_status') || 'PREMIUM ACCESS'}
+                                    </span>
                                 </div>
 
                                 {/* Middle row: Headline & Feature Highlights */}
