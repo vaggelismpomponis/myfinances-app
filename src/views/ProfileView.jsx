@@ -195,7 +195,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                        hover:shadow-[0_4px_20px_rgba(124,58,237,0.45)] transition-shadow"
                         >
                             <ShieldCheck size={12} strokeWidth={2.5} className="shrink-0" />
-                            {translate('go_pro') || 'Upgrade to Pro'}
+                            {translate('become_pro') || translate('go_pro') || 'Become Pro'}
                         </motion.button>
                     ) : null
                 }
@@ -293,7 +293,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                 ? (
                                     <div className="flex items-center justify-center gap-1">
                                         <ShieldCheck size={14} strokeWidth={2.2} className="text-white shrink-0" />
-                                        <p className="text-[11px] sm:text-[12px] font-extrabold text-white leading-tight">{translate('go_pro') || 'Upgrade to Pro'}</p>
+                                        <p className="text-[11px] sm:text-[12px] font-extrabold text-white leading-tight">{translate('become_pro') || translate('go_pro') || 'Become Pro'}</p>
                                     </div>
                                 )
                                 : <p className={`text-[12px] sm:text-[13px] font-extrabold text-violet-600 dark:text-violet-400 leading-tight`}>{translate('manage') || 'Manage Pro'}</p>
