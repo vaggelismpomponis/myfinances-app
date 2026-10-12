@@ -36,7 +36,8 @@ const BIOMETRIC_SERVER = 'app.myfinances.lock';
 
 const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
     const { isBiometricsEnabled, toggleBiometrics, isPinEnabled, setPin, removePin, appPin,
-        isPrivacyScreenEnabled, togglePrivacyScreen, t: translate } = useSettings();
+        isPrivacyScreenEnabled, togglePrivacyScreen, t: translate, language } = useSettings();
+    const isEL = language === 'el';
     const { isPro, openUpgradeModal } = useSubscription();
     const [sessions, setSessions] = useState([]);
     const [currentSessionId, setCurrentSessionId] = useState(null);
@@ -267,13 +268,13 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                         <div className="relative z-10 max-w-2xl space-y-3">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
                                 <Shield size={13} />
-                                <span>Security Vault</span>
+                                <span>{isEL ? 'Θυρίδα Ασφαλείας' : 'Security Vault'}</span>
                             </div>
                             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-                                {translate('security_title') || 'Account Security'}
+                                {translate('security_title') || (isEL ? 'Ασφάλεια' : 'Account Security')}
                             </h2>
                             <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
-                                {translate('security_desc') || 'Protect your financial records with hardware biometrics, encrypted PIN locks, and real-time monitoring of all active devices.'}
+                                {translate('security_desc') || (isEL ? 'Προστατέψτε τα οικονομικά σας αρχεία με βιομετρικά υλικού, κρυπτογραφημένο κλείδωμα PIN και παρακολούθηση ενεργών συσκευών σε πραγματικό χρόνο.' : 'Protect your financial records with hardware biometrics, encrypted PIN locks, and real-time monitoring of all active devices.')}
                             </p>
 
                             {/* Live Security Status Badges */}
@@ -284,7 +285,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                         : 'bg-white/10 border-white/15 text-violet-100/80'
                                 }`}>
                                     <Lock size={12} strokeWidth={2.5} />
-                                    <span>PIN: {isPinEnabled ? 'Active' : 'Not Set'}</span>
+                                    <span>PIN: {isPinEnabled ? (isEL ? 'Ενεργό' : 'Active') : (isEL ? 'Μη ορισμένο' : 'Not Set')}</span>
                                 </span>
 
                                 <span className={`px-2.5 py-1 rounded-lg backdrop-blur-sm border flex items-center gap-1.5 ${
@@ -293,12 +294,12 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                         : 'bg-white/10 border-white/15 text-violet-100/80'
                                 }`}>
                                     <Smartphone size={12} strokeWidth={2.5} />
-                                    <span>Biometrics: {isBiometricsEnabled ? 'Enabled' : 'Off'}</span>
+                                    <span>{isEL ? 'Βιομετρικά' : 'Biometrics'}: {isBiometricsEnabled ? (isEL ? 'Ενεργά' : 'Enabled') : (isEL ? 'Ανενεργά' : 'Off')}</span>
                                 </span>
 
                                 <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-violet-100/90 flex items-center gap-1.5">
                                     <Laptop size={12} strokeWidth={2.5} />
-                                    <span>{sessions.length || 1} Active {sessions.length === 1 ? 'Device' : 'Devices'}</span>
+                                    <span>{sessions.length || 1} {isEL ? (sessions.length === 1 ? 'Ενεργή Συσκευή' : 'Ενεργές Συσκευές') : (sessions.length === 1 ? 'Active Device' : 'Active Devices')}</span>
                                 </span>
                             </div>
                         </div>
@@ -315,7 +316,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                 </div>
                                 <div>
                                     <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
-                                        Protection
+                                        {isEL ? 'Προστασία' : 'Protection'}
                                     </span>
                                     <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
                                         {translate('login_auth') || 'Login & Authentication'}
@@ -362,7 +363,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                             </span>
                                             {isPinEnabled && (
                                                 <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 uppercase">
-                                                    On
+                                                    {isEL ? 'Ενεργό' : 'On'}
                                                 </span>
                                             )}
                                         </div>
@@ -422,7 +423,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                         </div>
                                         <div>
                                             <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-500/20">
-                                                Sessions
+                                                {isEL ? 'Συνεδρίες' : 'Sessions'}
                                             </span>
                                             <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
                                                 {translate('active_sessions') || 'Active Sessions'}
@@ -431,12 +432,12 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     </div>
 
                                     <span className="text-xs font-bold px-2.5 py-1 rounded-xl bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-300">
-                                        {sessions.length} {sessions.length === 1 ? 'device' : 'devices'}
+                                        {sessions.length} {isEL ? (sessions.length === 1 ? 'συσκευή' : 'συσκευές') : (sessions.length === 1 ? 'device' : 'devices')}
                                     </span>
                                 </div>
 
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                                    All browsers and native devices currently signed in to your account.
+                                    {isEL ? 'Όλα τα προγράμματα περιήγησης και οι συσκευές που είναι συνδεδεμένες στο λογαριασμό σας.' : 'All browsers and native devices currently signed in to your account.'}
                                 </p>
 
                                 {/* Sessions List */}
@@ -508,7 +509,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                             {sessions.length > SESSIONS_PER_PAGE && (
                                 <div className="pt-3 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between">
                                     <p className="text-[11px] text-gray-400 dark:text-white/40 font-medium">
-                                        {translate('showing') || 'Showing'} <span className="font-bold text-gray-700 dark:text-gray-300">{(currentPage - 1) * SESSIONS_PER_PAGE + 1}</span> - <span className="font-bold text-gray-700 dark:text-gray-300">{Math.min(currentPage * SESSIONS_PER_PAGE, sessions.length)}</span> of <span className="font-bold text-gray-700 dark:text-gray-300">{sessions.length}</span>
+                                        {isEL ? 'Εμφάνιση' : (translate('showing') || 'Showing')} <span className="font-bold text-gray-700 dark:text-gray-300">{(currentPage - 1) * SESSIONS_PER_PAGE + 1}</span> - <span className="font-bold text-gray-700 dark:text-gray-300">{Math.min(currentPage * SESSIONS_PER_PAGE, sessions.length)}</span> {isEL ? 'από' : 'of'} <span className="font-bold text-gray-700 dark:text-gray-300">{sessions.length}</span>
                                     </p>
                                     <div className="flex items-center gap-2">
                                         <button
@@ -553,10 +554,10 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                             </div>
                             <div>
                                 <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
-                                    Hardware Security & Encryption Architecture
+                                    {isEL ? 'Αρχιτεκτονική Ασφάλειας & Κρυπτογράφησης Υλικού' : 'Hardware Security & Encryption Architecture'}
                                 </h4>
                                 <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                                    Multi-layer protection designed for privacy and resilience
+                                    {isEL ? 'Πολυεπίπεδη προστασία σχεδιασμένη για ιδιωτικότητα και αξιοπιστία' : 'Multi-layer protection designed for privacy and resilience'}
                                 </p>
                             </div>
                         </div>
@@ -567,7 +568,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     <CheckCircle2 size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    Biometric templates stay isolated inside Apple Secure Enclave & Android Keystore.
+                                    {isEL ? 'Τα βιομετρικά πρότυπα παραμένουν απομονωμένα εντός των Apple Secure Enclave & Android Keystore.' : 'Biometric templates stay isolated inside Apple Secure Enclave & Android Keystore.'}
                                 </p>
                             </div>
 
@@ -576,7 +577,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     <CheckCircle2 size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    Authenticated tokens rotate continuously with encrypted HTTPS session handshakes.
+                                    {isEL ? 'Τα αναγνωριστικά ταυτοποίησης εναλλάσσονται συνεχώς με κρυπτογραφημένες χειραψίες HTTPS.' : 'Authenticated tokens rotate continuously with encrypted HTTPS session handshakes.'}
                                 </p>
                             </div>
 
@@ -585,7 +586,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     <Lock size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    Zero-knowledge data privacy — your passwords and raw PINs are never stored plain-text.
+                                    {isEL ? 'Μηδενική γνώση δεδομένων — οι κωδικοί και τα PIN δεν αποθηκεύονται ποτέ σε απλό κείμενο.' : 'Zero-knowledge data privacy — your passwords and raw PINs are never stored plain-text.'}
                                 </p>
                             </div>
                         </div>
@@ -594,7 +595,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            SpendWise &bull; Enterprise Grade Cryptographic Protection &bull; Version 2.0
+                            SpendWise &bull; {isEL ? 'Κρυπτογραφική Προστασία Enterprise Επιπέδου' : 'Enterprise Grade Cryptographic Protection'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
                         </p>
                     </div>
 
@@ -805,10 +806,10 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                         </div>
 
                         <h3 className="text-[17px] font-bold text-gray-900 dark:text-white text-center mb-2">
-                            {translate('cannot_disable_pin_title') || 'Not Allowed'}
+                            {translate('cannot_disable_pin_title') || (isEL ? 'Δεν επιτρέπεται' : 'Not Allowed')}
                         </h3>
                         <p className="text-[13px] text-gray-500 dark:text-white/45 text-center leading-relaxed mb-6">
-                            {translate('cannot_disable_pin_desc') || 'FaceID / TouchID uses the PIN as a fallback security method. Disable FaceID / TouchID first before removing the PIN.'}
+                            {translate('cannot_disable_pin_desc') || (isEL ? 'Το FaceID / TouchID χρησιμοποιεί το PIN ως εφεδρική μέθοδο ασφαλείας. Απενεργοποιήστε πρώτα το FaceID / TouchID για να αφαιρέσετε το PIN.' : 'FaceID / TouchID uses the PIN as a fallback security method. Disable FaceID / TouchID first before removing the PIN.')}
                         </p>
 
                         <button
@@ -819,7 +820,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                        shadow-[0_4px_16px_rgba(245,158,11,0.35)]
                                        active:scale-95 transition-all duration-200"
                         >
-                            {translate('got_it') || 'Got it'}
+                            {translate('got_it') || (isEL ? 'Κατάλαβα' : 'Got it')}
                         </button>
                     </div>
                 </div>
@@ -844,10 +845,10 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                         </div>
 
                         <h3 className="text-[17px] font-bold text-gray-900 dark:text-white text-center mb-2">
-                            {translate('pin_required_title') || 'PIN Required'}
+                            {translate('pin_required_title') || (isEL ? 'Απαιτείται PIN' : 'PIN Required')}
                         </h3>
                         <p className="text-[13px] text-gray-500 dark:text-white/45 text-center leading-relaxed mb-6">
-                            {translate('pin_required_desc') || 'Please set a 4-digit PIN first before enabling biometric authentication.'}
+                            {translate('pin_required_desc') || (isEL ? 'Παρακαλώ ορίστε ένα 4-ψήφιο PIN πριν ενεργοποιήσετε τη βιομετρική ταυτοποίηση.' : 'Please set a 4-digit PIN first before enabling biometric authentication.')}
                         </p>
 
                         <div className="flex gap-3">
@@ -858,7 +859,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                            text-gray-700 dark:text-white font-bold rounded-xl
                                            active:scale-95 transition-all text-[14px]"
                             >
-                                {translate('cancel') || 'Cancel'}
+                                {translate('cancel') || (isEL ? 'Ακύρωση' : 'Cancel')}
                             </button>
                             <button
                                 type="button"
@@ -868,7 +869,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                            shadow-[0_4px_16px_rgba(245,158,11,0.35)]
                                            active:scale-95 transition-all duration-200"
                             >
-                                {translate('set_pin') || 'Set PIN'}
+                                {translate('set_pin') || (isEL ? 'Ορισμός PIN' : 'Set PIN')}
                             </button>
                         </div>
                     </div>
@@ -894,10 +895,10 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                         </div>
 
                         <h3 className="text-[17px] font-bold text-gray-900 dark:text-white text-center mb-2">
-                            {translate('biometric_unavailable_title') || 'Biometrics Unavailable'}
+                            {translate('biometric_unavailable_title') || (isEL ? 'Μη Διαθέσιμα Βιομετρικά' : 'Biometrics Unavailable')}
                         </h3>
                         <p className="text-[13px] text-gray-500 dark:text-white/45 text-center leading-relaxed mb-6">
-                            {translate('biometric_unavailable_desc') || 'Biometric hardware is not available or not configured on this device.'}
+                            {translate('biometric_unavailable_desc') || (isEL ? 'Το βιομετρικό υλικό δεν είναι διαθέσιμο ή δεν έχει ρυθμιστεί σε αυτή τη συσκευή.' : 'Biometric hardware is not available or not configured on this device.')}
                         </p>
 
                         <button
@@ -908,7 +909,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                        shadow-[0_4px_16px_rgba(244,63,94,0.35)]
                                        active:scale-95 transition-all duration-200"
                         >
-                            {translate('got_it') || 'Got it'}
+                            {translate('got_it') || (isEL ? 'Κατάλαβα' : 'Got it')}
                         </button>
                     </div>
                 </div>

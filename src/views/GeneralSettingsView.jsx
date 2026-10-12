@@ -29,6 +29,7 @@ import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
 const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
     const { language, updateLanguage, t: translate } = useSettings();
+    const isEL = language === 'el';
     const { showToast } = useToast();
     const { isPro, openUpgradeModal } = useSubscription();
     const [showClearDataModal, setShowClearDataModal] = useState(false);
@@ -165,13 +166,13 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                         <div className="relative z-10 max-w-2xl space-y-3">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
                                 <SlidersHorizontal size={13} />
-                                <span>Configuration Hub</span>
+                                <span>{isEL ? 'Κέντρο Ρυθμίσεων' : 'Configuration Hub'}</span>
                             </div>
                             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-                                {translate('general_settings') || translate('general') || 'General Settings'}
+                                {translate('general_settings') || translate('general') || (isEL ? 'Γενικές Ρυθμίσεις' : 'General Settings')}
                             </h2>
                             <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
-                                {translate('general_desc') || 'Customize display language, configure automatic transaction detection, and manage account data sovereignty.'}
+                                {translate('general_desc') || (isEL ? 'Προσαρμόστε τη γλώσσα εμφάνισης, ρυθμίστε τον αυτόματο εντοπισμό συναλλαγών και διαχειριστείτε την κυριαρχία των δεδομένων σας.' : 'Customize display language, configure automatic transaction detection, and manage account data sovereignty.')}
                             </p>
 
                             {/* Live Preference Chips */}
@@ -187,12 +188,12 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                                         : 'bg-white/10 border-white/15 text-violet-100/80'
                                 }`}>
                                     <Bell size={12} strokeWidth={2.5} />
-                                    <span>Automations: {isSmsEnabled ? 'Active' : 'Off'}</span>
+                                    <span>{isEL ? 'Αυτοματισμοί' : 'Automations'}: {isSmsEnabled ? (isEL ? 'Ενεργοί' : 'Active') : (isEL ? 'Ανενεργοί' : 'Off')}</span>
                                 </span>
 
                                 <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-violet-100/90 flex items-center gap-1.5">
                                     <Database size={12} strokeWidth={2.5} />
-                                    <span>Direct Cloud Storage</span>
+                                    <span>{isEL ? 'Άμεση Αποθήκευση Cloud' : 'Direct Cloud Storage'}</span>
                                 </span>
                             </div>
                         </div>
@@ -210,16 +211,16 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                                     </div>
                                     <div>
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
-                                            Preferences
+                                            {isEL ? 'Προτιμήσεις' : 'Preferences'}
                                         </span>
                                         <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                            Localization & Reading
+                                            {isEL ? 'Τοπικοποίηση & Αυτοματισμοί' : 'Localization & Reading'}
                                         </h3>
                                     </div>
                                 </div>
 
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                                    Control app language, legal disclosures, and automated transaction imports.
+                                    {isEL ? 'Διαχείριση γλώσσας εμφάνισης, νομικών όρων και αυτόματης καταγραφής συναλλαγών.' : 'Control app language, legal disclosures, and automated transaction imports.'}
                                 </p>
 
                                 <div className="space-y-3 pt-1">
@@ -315,10 +316,10 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                                     </div>
                                     <div>
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200/60 dark:border-rose-500/20">
-                                            Danger Zone
+                                            {isEL ? 'Ζώνη Κινδύνου' : 'Danger Zone'}
                                         </span>
                                         <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                            Irreversible Actions
+                                            {isEL ? 'Μη Αναστρέψιμες Ενέργειες' : 'Irreversible Actions'}
                                         </h3>
                                     </div>
                                 </div>
@@ -384,10 +385,10 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                             </div>
                             <div>
                                 <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
-                                    Data Autonomy & Transparency
+                                    {isEL ? 'Αυτονομία Δεδομένων & Διαφάνεια' : 'Data Autonomy & Transparency'}
                                 </h4>
                                 <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                                    Your personal finance records remain private and under your control
+                                    {isEL ? 'Τα οικονομικά σας δεδομένα παραμένουν ιδιωτικά και υπό τον απόλυτο έλεγχό σας' : 'Your personal finance records remain private and under your control'}
                                 </p>
                             </div>
                         </div>
@@ -398,7 +399,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                                     <CheckCircle2 size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    All backups and JSON exports download directly onto your device.
+                                    {isEL ? 'Όλα τα αντίγραφα και οι εξαγωγές JSON αποθηκεύονται απευθείας στη συσκευή σας.' : 'All backups and JSON exports download directly onto your device.'}
                                 </p>
                             </div>
 
@@ -407,7 +408,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                                     <CheckCircle2 size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    Notification readers only scan incoming financial receipts locally.
+                                    {isEL ? 'Η ανάγνωση ειδοποιήσεων πραγματοποιείται αποκλειστικά τοπικά στη συσκευή σας.' : 'Notification readers only scan incoming financial receipts locally.'}
                                 </p>
                             </div>
 
@@ -416,7 +417,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                                     <CheckCircle2 size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    Account deletion purges database rows and auth identity completely.
+                                    {isEL ? 'Η διαγραφή λογαριασμού εξαλείφει οριστικά όλες τις εγγραφές και το ιστορικό χρήστη.' : 'Account deletion purges database rows and auth identity completely.'}
                                 </p>
                             </div>
                         </div>
@@ -425,7 +426,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            SpendWise &bull; System Configuration &bull; Version 2.0
+                            SpendWise &bull; {isEL ? 'Διαμόρφωση Συστήματος' : 'System Configuration'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
                         </p>
                     </div>
 

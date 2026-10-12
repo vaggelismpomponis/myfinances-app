@@ -74,6 +74,7 @@ const RestoreModeButton = ({ active, onClick, icon: Icon, label, sublabel, color
 
 const BackupView = ({ user, onBack, hideHeader }) => {
     const { t: translate, customCategories, language, currency, theme } = useSettings();
+    const isEL = language === 'el';
     const { showToast } = useToast();
     const { isPro, openUpgradeModal } = useSubscription();
 
@@ -269,25 +270,25 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                         <div className="relative z-10 max-w-2xl space-y-3">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
                                 <ShieldCheck size={13} />
-                                <span>Secure Data Vault</span>
+                                <span>{isEL ? 'Ασφαλής Θυρίδα Δεδομένων' : 'Secure Data Vault'}</span>
                             </div>
                             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-                                {translate('backup_restore') || 'Backup & Restore'}
+                                {translate('backup_restore') || (isEL ? 'Αντίγραφο & Επαναφορά' : 'Backup & Restore')}
                             </h2>
                             <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
-                                {translate('backup_info') || 'A backup includes all your transactions, goals, budgets, recurring rules, and app settings. You can restore it to any SpendWise account.'}
+                                {translate('backup_info') || (isEL ? 'Το αντίγραφο ασφαλείας περιέχει όλες τις συναλλαγές, στόχους, προϋπολογισμούς, επαναλαμβανόμενες εγγραφές και ρυθμίσεις. Μπορείς να το επαναφέρεις σε οποιοδήποτε λογαριασμό SpendWise.' : 'A backup includes all your transactions, goals, budgets, recurring rules, and app settings. You can restore it to any SpendWise account.')}
                             </p>
 
                             {/* Attribute Chips */}
                             <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-violet-100/90">
                                 <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
-                                    Full Data Portability
+                                    {isEL ? 'Πλήρης Φορητότητα Δεδομένων' : 'Full Data Portability'}
                                 </span>
                                 <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
-                                    Client-Side JSON
+                                    {isEL ? 'Τοπικό Αρχείο JSON' : 'Client-Side JSON'}
                                 </span>
                                 <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
-                                    Zero Lock-In
+                                    {isEL ? 'Χωρίς Περιορισμούς' : 'Zero Lock-In'}
                                 </span>
                             </div>
                         </div>
@@ -306,10 +307,10 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                         </div>
                                         <div>
                                             <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
-                                                Export
+                                                {isEL ? 'Εξαγωγή' : 'Export'}
                                             </span>
                                             <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                                {translate('backup_export_title') || 'Create Full Backup'}
+                                                {translate('backup_export_title') || (isEL ? 'Δημιουργία Αντιγράφου' : 'Create Full Backup')}
                                             </h3>
                                         </div>
                                     </div>
@@ -383,10 +384,10 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                         </div>
                                         <div>
                                             <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700 dark:bg-cyan-500/10 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-500/20">
-                                                Restore
+                                                {isEL ? 'Επαναφορά' : 'Restore'}
                                             </span>
                                             <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                                {translate('backup_restore_title') || 'Restore from Backup'}
+                                                {translate('backup_restore_title') || (isEL ? 'Επαναφορά από Αντίγραφο' : 'Restore from Backup')}
                                             </h3>
                                         </div>
                                     </div>
@@ -457,17 +458,17 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     </div>
                                 </div>
                                 <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-500/20">
-                                    Valid Format
+                                    {isEL ? 'Έγκυρη Μορφή' : 'Valid Format'}
                                 </span>
                             </div>
 
                             {/* Metadata Table */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {[
-                                    { icon: Clock, label: translate('backup_date') || 'Exported At', value: new Date(meta.exportedAt).toLocaleString() },
-                                    { icon: UserCheck, label: translate('backup_owner') || 'Original Owner', value: meta.exportedBy || '—' },
-                                    { icon: Database, label: translate('backup_transactions_count') || 'Transactions', value: `${meta.transactionCount} records` },
-                                    { icon: Layers, label: translate('backup_other_data') || 'Goals / Budgets / Recurring', value: `${meta.goalsCount} / ${meta.budgetsCount} / ${meta.recurringCount}` },
+                                    { icon: Clock, label: translate('backup_date') || (isEL ? 'Δημιουργήθηκε' : 'Exported At'), value: new Date(meta.exportedAt).toLocaleString() },
+                                    { icon: UserCheck, label: translate('backup_owner') || (isEL ? 'Ιδιοκτήτης' : 'Original Owner'), value: meta.exportedBy || '—' },
+                                    { icon: Database, label: translate('backup_transactions_count') || (isEL ? 'Συναλλαγές' : 'Transactions'), value: `${meta.transactionCount} ${isEL ? 'εγγραφές' : 'records'}` },
+                                    { icon: Layers, label: translate('backup_other_data') || (isEL ? 'Στόχοι / Προϋπολ. / Επαναλ.' : 'Goals / Budgets / Recurring'), value: `${meta.goalsCount} / ${meta.budgetsCount} / ${meta.recurringCount}` },
                                 ].map(({ icon: Ico, label, value }) => (
                                     <div
                                         key={label}
@@ -597,10 +598,10 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                             </div>
                             <div>
                                 <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
-                                    Data Sovereignty & Security Notice
+                                    {isEL ? 'Κυριαρχία Δεδομένων & Ειδοποίηση Ασφαλείας' : 'Data Sovereignty & Security Notice'}
                                 </h4>
                                 <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                                    You own your financial data completely
+                                    {isEL ? 'Έχετε την απόλυτη και πλήρη κυριότητα των δεδομένων σας' : 'You own your financial data completely'}
                                 </p>
                             </div>
                         </div>
@@ -611,7 +612,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     <CheckCircle2 size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    Backups are standard JSON files that you can inspect or import anytime.
+                                    {isEL ? 'Τα αντίγραφα είναι τυποποιημένα αρχεία JSON που μπορείτε να επιθεωρήσετε ή να εισαγάγετε ανά πάσα στιγμή.' : 'Backups are standard JSON files that you can inspect or import anytime.'}
                                 </p>
                             </div>
 
@@ -620,7 +621,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     <ShieldCheck size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    Keep your exported backups in a safe location (e.g. password manager or encrypted drive).
+                                    {isEL ? 'Φυλάξτε τα εξαγόμενα αντίγραφα σε ασφαλές σημείο (π.χ. διαχειριστή κωδικών ή κρυπτογραφημένο δίσκο).' : 'Keep your exported backups in a safe location (e.g. password manager or encrypted drive).'}
                                 </p>
                             </div>
 
@@ -629,7 +630,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     <CheckCircle2 size={13} strokeWidth={2.5} />
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    Seamlessly migrate your data between different phones, devices, or accounts.
+                                    {isEL ? 'Μεταφέρετε απρόσκοπτα τα δεδομένα σας μεταξύ διαφορετικών συσκευών ή λογαριασμών.' : 'Seamlessly migrate your data between different phones, devices, or accounts.'}
                                 </p>
                             </div>
                         </div>
@@ -638,7 +639,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            SpendWise &bull; Financial Data Vault &bull; Version 2.0
+                            SpendWise &bull; {isEL ? 'Θυρίδα Οικονομικών Δεδομένων' : 'Financial Data Vault'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
                         </p>
                     </div>
 
