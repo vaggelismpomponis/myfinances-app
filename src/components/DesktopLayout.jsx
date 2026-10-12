@@ -337,9 +337,11 @@ const DesktopLayout = ({
     transactions, budgets,
     onSignOut, onAdd,
     unreadCount, onToggleNotifications,
+    setShowNotificationPanel,
     children,
 }) => {
     const { t } = useSettings();
+    const handleToggleNotifications = onToggleNotifications || (() => setShowNotificationPanel?.(prev => !prev));
 
     // Tabs that should NOT show the right panel (full-width sub-pages and redesigned desktop homepage)
     const hideRightPanel = ['home', 'advisor', 'profile', 'account', 'profile-details', 'general', 'security', 'backup',
@@ -372,7 +374,7 @@ const DesktopLayout = ({
                     photoURL={photoURL}
                     setActiveTab={setActiveTab}
                     unreadCount={unreadCount}
-                    onToggleNotifications={onToggleNotifications}
+                    onToggleNotifications={handleToggleNotifications}
                 />
 
                 <div className="flex-1 flex overflow-hidden">

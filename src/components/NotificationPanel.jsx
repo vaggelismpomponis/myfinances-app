@@ -266,7 +266,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.18 }}
-                    className="fixed inset-0 z-[50] bg-black/30 backdrop-blur-[2px]"
+                    className="fixed inset-0 z-[100] bg-black/30 backdrop-blur-[2px]"
                     onClick={onClose}
                 />,
 
@@ -277,7 +277,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -12, scale: 0.97 }}
                         transition={{ type: "spring", damping: 22, stiffness: 260 }}
-                        className="fixed top-[72px] right-3 left-3 z-[55] max-w-sm ml-auto
+                        className="fixed top-[68px] sm:top-[72px] right-3 sm:right-6 left-3 sm:left-auto z-[105] w-full max-w-sm ml-auto
                                    bg-white dark:bg-surface-dark3
                                    rounded-[1.75rem] shadow-2xl shadow-black/15
                                    border border-gray-100 dark:border-white/[0.07]

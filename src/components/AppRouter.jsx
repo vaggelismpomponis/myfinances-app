@@ -53,6 +53,8 @@ export default function AppRouter(props) {
                     user={user} transactions={transactions} budgets={budgets} 
                     balance={balance} totalIncome={totalIncome} totalExpense={totalExpense}
                     onSignOut={handleSignOut} onAdd={openAddModal}
+                    onToggleNotifications={() => props.setShowNotificationPanel?.(prev => !prev)}
+                    setShowNotificationPanel={props.setShowNotificationPanel}
                     {...rest}
                 >
                     <React.Suspense fallback={<div className="h-full w-full" />}>
