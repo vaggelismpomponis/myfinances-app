@@ -19,6 +19,8 @@ import {
 import { supabase } from '../supabase';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
+import ProBadge from '../components/ProBadge';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
@@ -73,6 +75,7 @@ const RestoreModeButton = ({ active, onClick, icon: Icon, label, sublabel, color
 const BackupView = ({ user, onBack, hideHeader }) => {
     const { t: translate, customCategories, language, currency, theme } = useSettings();
     const { showToast } = useToast();
+    const { isPro, openUpgradeModal } = useSubscription();
 
     // Export state
     const [isExporting, setIsExporting] = useState(false);
@@ -87,6 +90,10 @@ const BackupView = ({ user, onBack, hideHeader }) => {
 
     /* ────────── EXPORT ────────── */
     const handleExportBackup = async () => {
+        if (!isPro) {
+            openUpgradeModal('export');
+            return;
+        }
         setIsExporting(true);
         try {
             const [
@@ -337,7 +344,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     <button
                                         onClick={handleExportBackup}
                                         disabled={isExporting}
-                                        className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold text-xs shadow-lg shadow-violet-500/25 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                        className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold text-xs shadow-lg shadow-violet-500/25 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                                     >
                                         {isExporting ? (
                                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -345,6 +352,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                             <>
                                                 <Download size={15} strokeWidth={2.3} />
                                                 <span>{translate('backup_export_label') || 'Export Full Backup'}</span>
+                                                {!isPro && <ProBadge />}
                                             </>
                                         )}
                                     </button>
