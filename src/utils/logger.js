@@ -77,7 +77,13 @@ const logger = {
         }
 
         if (shouldLog('error')) {
-            console.error(formatMessage('error', context, message), error ?? '');
+            const errStr = error
+                ? (error instanceof Error
+                    ? (error.stack || error.message)
+                    : (error.message || error.details || error.error_description || (typeof error === 'object' ? JSON.stringify(error) : String(error))))
+                : '';
+            const fullMsg = errStr ? `${message} -> ${errStr}` : message;
+            console.error(formatMessage('error', context, fullMsg), error ?? '');
         }
 
         // Report to Sentry

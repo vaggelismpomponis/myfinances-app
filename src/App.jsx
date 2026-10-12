@@ -1091,7 +1091,7 @@ function MainContent() {
         if (transaction.type !== 'expense' || !transaction.category) return;
 
         const budget = budgets.find(b =>
-            b.category.toLowerCase() === transaction.category.toLowerCase()
+            b.category?.toLowerCase() === transaction.category?.toLowerCase()
         );
 
         if (!budget || !budget.notification_threshold) return;
@@ -1111,7 +1111,7 @@ function MainContent() {
                 t.id !== transaction.id &&
                 tDate.getMonth() === now.getMonth() &&
                 tDate.getFullYear() === now.getFullYear() &&
-                t.category?.toLowerCase() === budget.category.toLowerCase()) {
+                t.category?.toLowerCase() === budget.category?.toLowerCase()) {
                 totalSpent += t.amount;
             }
         });
@@ -1171,9 +1171,21 @@ function MainContent() {
                 setShowAddModal(false);
                 setEditingTransaction(null);
 
-                const { error } = await supabase.from('transactions')
+                let { error } = await supabase.from('transactions')
                     .update(transaction)
                     .eq('id', editingTransaction.id);
+
+                if (error && (error.code === '42501' || error.message?.includes('JWT') || error.message?.includes('security policy'))) {
+                    const { data: refreshData, error: refreshErr } = await supabase.auth.refreshSession();
+                    if (!refreshErr && refreshData?.session?.user) {
+                        setUser(refreshData.session.user);
+                        const retryRes = await supabase.from('transactions')
+                            .update(transaction)
+                            .eq('id', editingTransaction.id);
+                        error = retryRes.error;
+                    }
+                }
+
                 if (error) {
                     // Rollback on failure
                     setTransactions(prev =>
@@ -1195,12 +1207,27 @@ function MainContent() {
                     }
                 );
             } else {
-                const { data, error } = await supabase.from('transactions')
+                let { data, error } = await supabase.from('transactions')
                     .insert({ ...newTx, user_id: user.id })
-                    .select()
-                    .single();
+                    .select();
+
+                if (error && (error.code === '42501' || error.message?.includes('JWT') || error.message?.includes('security policy'))) {
+                    // Token expired or invalid session — auto refresh session and retry
+                    const { data: refreshData, error: refreshErr } = await supabase.auth.refreshSession();
+                    if (!refreshErr && refreshData?.session?.user) {
+                        const refreshedUserId = refreshData.session.user.id;
+                        setUser(refreshData.session.user);
+                        const retryRes = await supabase.from('transactions')
+                            .insert({ ...newTx, user_id: refreshedUserId })
+                            .select();
+                        data = retryRes.data;
+                        error = retryRes.error;
+                    }
+                }
+
                 if (error) throw error;
-                txId = data.id;
+                const insertedRow = Array.isArray(data) ? data[0] : data;
+                txId = insertedRow?.id || `tx_${Date.now()}`;
                 // Optimistic add: insert at the top immediately
                 setTransactions(prev => [{ ...newTx, id: txId, user_id: user.id }, ...prev]);
                 setShowAddModal(false);
@@ -1221,11 +1248,20 @@ function MainContent() {
                     }
                 );
 
-                await checkBudgetThresholds({ ...newTx, id: txId });
+                try {
+                    await checkBudgetThresholds({ ...newTx, id: txId });
+                } catch (budgetErr) {
+                    logger.warn('Error checking budget thresholds after add', 'App');
+                }
             }
         } catch (e) {
-            logger.error('Error saving transaction', e, 'App');
-            showToast("Σφάλμα αποθήκευσης. Προσπάθησε ξανά.", 'error');
+            const errDetail = e?.message || e?.details || e?.error_description || (typeof e === 'object' ? JSON.stringify(e) : String(e));
+            logger.error(`Error saving transaction: ${errDetail}`, e, 'App');
+            if (e?.code === '42501' || e?.message?.includes('JWT') || e?.message?.includes('security policy')) {
+                showToast("Η συνεδρία σας έχει λήξει. Παρακαλώ αποσυνδεθείτε και συνδεθείτε ξανά.", 'error');
+            } else {
+                showToast(e?.message ? `Σφάλμα: ${e.message}` : "Σφάλμα αποθήκευσης. Προσπάθησε ξανά.", 'error');
+            }
         }
     };
 
