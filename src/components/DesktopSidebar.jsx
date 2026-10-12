@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Home, BarChart2, History, Settings, Target,
     RefreshCw, Lightbulb, LogOut, Moon, Sun, Eye, EyeOff,
-    PiggyBank, User, ShieldCheck
+    PiggyBank, User, ShieldCheck, ArrowRight
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -154,6 +154,55 @@ const DesktopSidebar = ({
 
             {/* ── User Profile & Quick Controls Footer ── */}
             <div className="p-3.5 border-t border-gray-200/90 dark:border-white/[0.08] space-y-2.5 mt-auto bg-gray-50/70 dark:bg-white/[0.02]">
+                {/* ── Become Pro Card (Non-Pro Users) ── */}
+                {!isPro && (
+                    <button
+                        type="button"
+                        id="sidebar-become-pro-btn"
+                        onClick={() => {
+                            if (setPreviousTab && activeTab !== 'upgrade') {
+                                setPreviousTab(activeTab);
+                            }
+                            openUpgradeModal('sidebar');
+                        }}
+                        style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
+                        className={`w-full text-left relative overflow-hidden p-3 rounded-2xl cursor-pointer group transition-all duration-300
+                                   bg-gradient-to-br from-violet-600 via-indigo-600 to-violet-800
+                                   text-white shadow-md shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/35
+                                   border border-violet-400/30 hover:scale-[1.01] active:scale-[0.99] block select-none ${
+                                       activeTab === 'upgrade'
+                                           ? 'ring-2 ring-violet-300 dark:ring-violet-400 shadow-xl'
+                                           : ''
+                                   }`}
+                    >
+                        {/* Soft ambient background glow */}
+                        <div className="absolute -right-5 -top-5 w-20 h-20 rounded-full bg-white/10 blur-xl pointer-events-none" />
+
+                        <div className="relative z-10 flex items-center justify-between gap-2 mb-1.5">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                                <div className="w-6 h-6 rounded-lg bg-white/15 backdrop-blur-xs flex items-center justify-center text-amber-300 shadow-2xs border border-white/20 shrink-0">
+                                    <ShieldCheck size={14} strokeWidth={2.2} />
+                                </div>
+                                <span className="text-xs font-black tracking-tight text-white truncate">
+                                    {t('become_pro') || t('go_pro') || 'Become Pro'}
+                                </span>
+                            </div>
+                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 shadow-2xs shrink-0 font-display">
+                                PRO
+                            </span>
+                        </div>
+
+                        <p className="relative z-10 text-[11px] text-white/80 font-medium leading-snug line-clamp-2">
+                            {t('go_pro_subtitle') || 'Unlock all features'}
+                        </p>
+
+                        <div className="relative z-10 mt-2.5 pt-2 border-t border-white/15 flex items-center justify-between text-[11px] font-bold text-white group-hover:text-amber-200 transition-colors">
+                            <span>{t('upgrade_to_pro') || t('upgrade') || 'Upgrade'}</span>
+                            <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform shrink-0" />
+                        </div>
+                    </button>
+                )}
+
                 {/* User Profile Mini Capsule */}
                 <div
                     onClick={() => navTo('profile')}

@@ -223,6 +223,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         'profile-details': t('nav_profile'),
         admin: 'Admin Panel',
         privacy: 'Privacy Policy',
+        upgrade: t('upgrade_to_pro') || 'SpendWise Pro',
     };
 
     return (
@@ -342,7 +343,7 @@ const DesktopLayout = ({
 
     // Tabs that should NOT show the right panel (full-width sub-pages and redesigned desktop homepage)
     const hideRightPanel = ['home', 'advisor', 'profile', 'account', 'profile-details', 'general', 'security', 'backup',
-        'feedback', 'guide', 'admin', 'privacy'].includes(activeTab);
+        'feedback', 'guide', 'admin', 'privacy', 'upgrade'].includes(activeTab);
 
     return (
         <div className="h-full w-full flex bg-gray-50 dark:bg-surface-dark overflow-hidden">
