@@ -6,6 +6,7 @@ import {
     Check, ShieldCheck,
 } from 'lucide-react';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import { useSettings } from '../contexts/SettingsContext';
 import { supabase } from '../supabase';
 import { isNative } from '../utils/platform';
 import { Browser } from '@capacitor/browser';
@@ -20,82 +21,67 @@ const YEARLY_PER_MO = (YEARLY_PRICE / 12).toFixed(2);
 /* ─────────────────────────────────────────────────────────────
    FEATURES DATA
 ───────────────────────────────────────────────────────────── */
-const FEATURES = [
+const getFeatures = (t) => [
     {
         icon: Infinity,
-        title: 'Απεριόριστα budgets & στόχοι',
-        desc: 'Χωρίς όρια στις κατηγορίες και τους στόχους σου',
+        title: t('pro_feature_1') || 'Απεριόριστα budgets & στόχοι',
+        desc: t('pro_feature_1_desc') || 'Χωρίς όρια στις κατηγορίες και τους στόχους σου',
     },
     {
         icon: Bell,
-        title: 'Αυτόματη καταγραφή SMS & Τραπεζών',
-        desc: 'Google Pay, Revolut, Winbank, Alpha κ.α. Μόνο πραγματικές συναλλαγές',
+        title: t('auto_bank_sms') || 'Αυτόματη καταγραφή SMS & Τραπεζών',
+        desc: t('auto_bank_sms_desc') || 'Google Pay, Revolut, Winbank, Alpha κ.α. Μόνο πραγματικές συναλλαγές',
     },
     {
         icon: TrendingUp,
-        title: 'Πλήρης ανάλυση & ετήσιες τάσεις',
-        desc: 'Λεπτομερή γραφήματα και τάσεις ανά έτος',
+        title: t('pro_feature_2') || 'Πλήρης ανάλυση & ετήσιες τάσεις',
+        desc: t('pro_feature_2_desc') || 'Λεπτομερή γραφήματα και τάσεις ανά έτος',
     },
     {
         icon: ScanLine,
-        title: 'Μαζική σάρωση αποδείξεων (AI)',
-        desc: 'Σκάναρε πολλές αποδείξεις με AI αυτόματα',
+        title: t('pro_feature_3') || 'Μαζική σάρωση αποδείξεων (AI)',
+        desc: t('pro_feature_3_desc') || 'Σκάναρε πολλές αποδείξεις με AI αυτόματα',
     },
     {
         icon: Tags,
-        title: 'Προσαρμοσμένες κατηγορίες',
-        desc: 'Δημιούργησε τις δικές σου κατηγορίες',
+        title: t('pro_feature_4') || 'Προσαρμοσμένες κατηγορίες',
+        desc: t('pro_feature_4_desc') || 'Δημιούργησε τις δικές σου κατηγορίες',
     },
     {
         icon: Fingerprint,
-        title: 'Βιομετρικό κλείδωμα',
-        desc: 'Face ID & Touch ID για πλήρη ασφάλεια',
+        title: t('pro_feature_5') || 'Βιομετρικό κλείδωμα',
+        desc: t('pro_feature_5_desc') || 'Face ID & Touch ID για πλήρη ασφάλεια',
     },
     {
         icon: Download,
-        title: 'Εξαγωγή δεδομένων',
-        desc: 'Κατέβασε CSV / JSON για Excel ή λογιστή',
+        title: t('pro_feature_6') || 'Εξαγωγή δεδομένων (CSV/JSON)',
+        desc: t('pro_feature_6_desc') || 'Κατέβασε CSV / JSON για Excel ή λογιστή',
     },
     {
         icon: Headphones,
-        title: 'Priority υποστήριξη',
-        desc: 'Άμεση βοήθεια μέσω email',
+        title: t('pro_feature_7') || 'Priority υποστήριξη',
+        desc: t('pro_feature_7_desc') || 'Άμεση βοήθεια μέσω email',
     },
     {
         icon: Repeat,
-        title: 'Επαναλαμβανόμενες Συναλλαγές',
-        desc: 'Αυτόματη καταχώρηση πάγιων εξόδων',
+        title: t('pro_feature_8') || 'Επαναλαμβανόμενες Συναλλαγές',
+        desc: t('pro_feature_8_desc') || 'Αυτόματη καταχώρηση πάγιων εξόδων',
     },
 ];
-
-/* ─────────────────────────────────────────────────────────────
-   DESIGN TOKENS (always dark — like Revolut)
-───────────────────────────────────────────────────────────── */
-const C = {
-    bg: '#0d0d14',
-    card: '#1e1e30',
-    border: 'rgba(255,255,255,0.07)',
-    selectedBorder: '#7c3aed',
-    textPrimary: '#ffffff',
-    textSec: 'rgba(255,255,255,0.5)',
-    textMute: 'rgba(255,255,255,0.25)',
-    amber: '#f59e0b',
-    purple: '#7c3aed',
-    purpleGlow: 'rgba(124,58,237,0.28)',
-};
 
 /* ─────────────────────────────────────────────────────────────
    SUB-COMPONENTS
 ───────────────────────────────────────────────────────────── */
 
-const IconBadge = ({ Icon, color }) => (
-    <div style={{
-        width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
-        background: `${color}18`,
-        border: `1px solid ${color}28`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
-        <Icon size={19} color={color} strokeWidth={1.75} />
+const IconBadge = ({ Icon, isAmber }) => (
+    <div
+        className={`w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center transition-colors ${
+            isAmber
+                ? 'bg-amber-50 text-amber-600 border border-amber-200/80 dark:bg-amber-400/10 dark:text-amber-400 dark:border-amber-400/20'
+                : 'bg-violet-50 text-violet-600 border border-violet-200/80 dark:bg-violet-400/10 dark:text-violet-400 dark:border-violet-400/20'
+        }`}
+    >
+        <Icon size={19} strokeWidth={1.9} />
     </div>
 );
 
@@ -103,16 +89,15 @@ const FeatureRow = ({ feature, index }) => (
     <motion.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.25 + index * 0.05, type: 'spring', stiffness: 260, damping: 28 }}
-        className="flex items-center gap-4 py-4"
-        style={{ borderBottom: `1px solid ${C.border}` }}
+        transition={{ delay: 0.12 + index * 0.035, type: 'spring', stiffness: 260, damping: 28 }}
+        className="flex items-center gap-3.5 sm:gap-4 py-3.5 border-b border-gray-200/70 dark:border-white/[0.07] last:border-b-0"
     >
-        <IconBadge Icon={feature.icon} color={index % 2 === 0 ? C.amber : C.purple} />
+        <IconBadge Icon={feature.icon} isAmber={index % 2 === 0} />
         <div className="flex-1 min-w-0">
-            <p style={{ fontSize: 14, fontWeight: 700, color: C.textPrimary, marginBottom: 3 }}>
+            <p className="text-[14px] font-bold text-gray-900 dark:text-white leading-snug">
                 {feature.title}
             </p>
-            <p style={{ fontSize: 12, color: C.textSec, lineHeight: 1.55 }}>
+            <p className="text-[12px] text-gray-500 dark:text-gray-400 leading-relaxed font-normal mt-0.5">
                 {feature.desc}
             </p>
         </div>
@@ -121,48 +106,47 @@ const FeatureRow = ({ feature, index }) => (
 
 const PricingCard = ({ label, price, sub, badge, selected, onSelect }) => (
     <motion.button
+        type="button"
         onClick={onSelect}
         whileTap={{ scale: 0.985 }}
-        className="w-full text-left rounded-2xl p-4 transition-all"
-        style={{
-            background: C.card,
-            border: `1.5px solid ${selected ? C.selectedBorder : C.border}`,
-            boxShadow: selected ? `0 0 0 1px ${C.selectedBorder}, 0 8px 24px ${C.purpleGlow}` : 'none',
-            cursor: 'pointer',
-        }}
+        className={`w-full text-left rounded-2xl p-4 transition-all duration-200 cursor-pointer border ${
+            selected
+                ? 'bg-violet-50/80 dark:bg-[#1e1e32] border-violet-600 dark:border-violet-500 shadow-md shadow-violet-500/10 dark:shadow-violet-500/20 ring-1 ring-violet-500'
+                : 'bg-white hover:bg-gray-50/80 dark:bg-[#151522] dark:hover:bg-[#1a1a2b] border-gray-200/90 dark:border-white/[0.08] shadow-xs'
+        }`}
     >
         <div className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                    <span style={{ fontSize: 15, fontWeight: 700, color: C.textPrimary }}>{label}</span>
+                    <span className="text-[15px] font-black text-gray-900 dark:text-white tracking-tight">
+                        {label}
+                    </span>
                     {badge && (
-                        <span style={{
-                            background: 'rgba(16,185,129,0.15)',
-                            border: '1px solid rgba(16,185,129,0.3)',
-                            color: '#10b981',
-                            fontSize: 10, fontWeight: 800, borderRadius: 99,
-                            padding: '2px 8px', whiteSpace: 'nowrap',
-                        }}>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full whitespace-nowrap
+                                       bg-emerald-50 text-emerald-700 border border-emerald-200
+                                       dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30">
                             {badge}
                         </span>
                     )}
                 </div>
-                <p style={{ fontSize: 13, color: C.textSec, marginBottom: sub ? 4 : 0 }}>{price}</p>
+                <p className="text-[13px] font-semibold text-gray-600 dark:text-gray-300">
+                    {price}
+                </p>
                 {sub && (
-                    <div className="flex items-center gap-1.5">
-                        <ShieldCheck size={11} color={C.amber} strokeWidth={2.2} />
-                        <span style={{ fontSize: 11, color: C.textMute }}>{sub}</span>
+                    <div className="flex items-center gap-1.5 mt-1">
+                        <ShieldCheck size={12} className="text-amber-500 shrink-0" strokeWidth={2.4} />
+                        <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500">
+                            {sub}
+                        </span>
                     </div>
                 )}
             </div>
-            <div style={{
-                width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-                border: `2px solid ${selected ? C.purple : C.border}`,
-                background: selected ? C.purple : 'transparent',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'all 0.2s',
-            }}>
-                {selected && <Check size={13} color="#fff" strokeWidth={3} />}
+            <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center transition-all border ${
+                selected
+                    ? 'bg-violet-600 border-violet-600 text-white shadow-xs'
+                    : 'border-gray-300 dark:border-white/25 bg-transparent'
+            }`}>
+                {selected && <Check size={13} strokeWidth={3} className="text-white" />}
             </div>
         </div>
     </motion.button>
@@ -173,8 +157,11 @@ const PricingCard = ({ label, price, sub, badge, selected, onSelect }) => (
 ───────────────────────────────────────────────────────────── */
 const UpgradePage = ({ onBack }) => {
     const { closeUpgradeModal } = useSubscription();
+    const { theme, t } = useSettings();
+    const isDark = theme === 'dark';
     const [billing, setBilling] = useState('yearly');
     const [loading, setLoading] = useState(false);
+    const features = getFeatures(t);
 
     const handleBack = () => {
         closeUpgradeModal();
@@ -207,206 +194,188 @@ const UpgradePage = ({ onBack }) => {
 
     return (
         <motion.div
-            className="h-full flex flex-col overflow-hidden"
-            style={{ background: C.bg, color: C.textPrimary, position: 'relative' }}
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
+            className="h-full flex flex-col overflow-hidden relative bg-gray-50 dark:bg-[#0d0d14] text-gray-900 dark:text-white transition-colors duration-200"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
             transition={{ type: 'spring', stiffness: 340, damping: 36 }}
         >
             {/* ══ STICKY HEADER ══ */}
             <div
-                className="shrink-0 flex items-center gap-3 px-4"
+                className="shrink-0 flex items-center gap-3 px-4 sm:px-6 py-3.5 z-40
+                           bg-white/90 dark:bg-[#0d0d14]/90 backdrop-blur-xl
+                           border-b border-gray-200/80 dark:border-white/[0.08] transition-colors"
                 style={{
-                    paddingTop: 'calc(env(safe-area-inset-top, 0px) + 14px)',
-                    paddingBottom: 14,
-                    background: `${C.bg}f0`,
-                    backdropFilter: 'blur(24px)',
-                    WebkitBackdropFilter: 'blur(24px)',
-                    borderBottom: `1px solid ${C.border}`,
-                    zIndex: 50,
+                    paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
                 }}
             >
                 <button
+                    type="button"
                     onClick={handleBack}
-                    className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-                    style={{ background: 'rgba(255,255,255,0.09)', border: 'none', cursor: 'pointer' }}
+                    className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all cursor-pointer
+                               bg-gray-100 hover:bg-gray-200 text-gray-700
+                               dark:bg-white/10 dark:hover:bg-white/15 dark:text-white/90 shadow-2xs"
+                    aria-label="Back"
                 >
-                    <ArrowLeft size={17} strokeWidth={2.5} color="rgba(255,255,255,0.75)" />
+                    <ArrowLeft size={17} strokeWidth={2.4} />
                 </button>
-                <span style={{ fontSize: 17, fontWeight: 700, color: C.textPrimary }}>
-                    Αναβάθμιση πλάνου
-                </span>
+                <h1 className="text-[17px] font-black text-gray-900 dark:text-white tracking-tight font-display">
+                    {t('upgrade_to_pro') || 'Αναβάθμιση πλάνου'}
+                </h1>
             </div>
 
             {/* ══ SCROLLABLE BODY ══ */}
-            <div className="flex-1 overflow-y-auto" style={{ paddingBottom: 140 }}>
+            <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ paddingBottom: 140 }}>
+                <div className="max-w-2xl lg:max-w-3xl mx-auto w-full px-4 sm:px-6">
 
-                {/* Plan tabs */}
-                <div className="flex items-center gap-1 px-4 pt-5 pb-3">
-                    {[
-                        { key: 'free', label: 'Δωρεάν' },
-                        { key: 'pro', label: 'Pro' },
-                    ].map(({ key, label }) => {
-                        const active = key === 'pro'; // Pro always active in this app
-                        return (
+                    {/* Plan tabs */}
+                    <div className="flex items-center gap-1.5 pt-4 pb-4">
+                        <div className="inline-flex p-1 rounded-full bg-gray-200/80 dark:bg-white/[0.07] border border-gray-300/50 dark:border-white/[0.06]">
                             <button
-                                key={key}
-                                className="rounded-full transition-all active:scale-95"
+                                type="button"
+                                className="rounded-full px-4 py-1.5 text-xs font-semibold text-gray-500 dark:text-white/50 cursor-default"
+                            >
+                                {t('subscription_free') || 'Δωρεάν'}
+                            </button>
+                            <button
+                                type="button"
+                                className={`rounded-full px-5 py-1.5 text-xs font-black shadow-xs ${
+                                    isDark
+                                        ? 'bg-violet-600 text-white'
+                                        : 'bg-white text-violet-700 shadow-sm'
+                                }`}
+                            >
+                                Pro
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Hero card */}
+                    <div className="pb-5">
+                        <motion.div
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+                            className={`rounded-3xl overflow-hidden relative min-h-[170px] border transition-colors ${
+                                isDark
+                                    ? 'bg-gradient-to-br from-[#1e1040] via-[#2a1060] to-[#16152a] border-violet-500/25 shadow-2xl shadow-violet-950/40 text-white'
+                                    : 'bg-gradient-to-br from-violet-600 via-indigo-600 to-violet-800 border-violet-400/30 shadow-xl shadow-violet-500/20 text-white'
+                            }`}
+                        >
+                            {/* Soft ambient glow blob top-right */}
+                            <div
+                                className="absolute -right-5 -top-5 w-40 h-40 rounded-full pointer-events-none"
                                 style={{
-                                    padding: '7px 20px', border: 'none',
-                                    background: active ? 'rgba(255,255,255,0.14)' : 'transparent',
-                                    color: active ? C.textPrimary : C.textSec,
-                                    fontSize: 14, fontWeight: active ? 700 : 500,
-                                    cursor: 'pointer',
+                                    background: 'radial-gradient(circle, rgba(245,158,11,0.25) 0%, transparent 70%)',
+                                }}
+                            />
+
+                            {/* Pro badge icon card */}
+                            <div
+                                className="absolute right-5 sm:right-6 top-5 sm:top-6 w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-2xl flex items-center justify-center shadow-lg"
+                                style={{
+                                    background: 'linear-gradient(135deg, #f59e0b, #ea580c)',
+                                    boxShadow: '0 12px 32px rgba(245,158,11,0.45)',
                                 }}
                             >
-                                {label}
-                            </button>
-                        );
-                    })}
-                </div>
+                                <ShieldCheck size={36} color="#fff" strokeWidth={2.2} />
+                            </div>
 
-                {/* Hero card */}
-                <div className="px-4 pb-5">
-                    <motion.div
-                        initial={{ opacity: 0, y: 14 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ type: 'spring', stiffness: 260, damping: 28 }}
-                        className="rounded-3xl overflow-hidden relative"
-                        style={{
-                            background: 'linear-gradient(135deg, #1e1040 0%, #2a1060 45%, #1a1a2e 100%)',
-                            border: '1px solid rgba(124,58,237,0.25)',
-                            minHeight: 170,
-                            boxShadow: '0 24px 64px rgba(124,58,237,0.18)',
-                        }}
-                    >
-                        {/* Amber glow blob top-right */}
-                        <div style={{
-                            position: 'absolute', right: -20, top: -20,
-                            width: 160, height: 160, borderRadius: '50%',
-                            background: 'radial-gradient(circle, rgba(245,158,11,0.22) 0%, transparent 70%)',
-                            pointerEvents: 'none',
-                        }} />
+                            <div className="p-6 pt-7 sm:pt-8">
+                                <p className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none mb-2 font-display">
+                                    Pro
+                                </p>
+                                <p className="text-base font-semibold text-white/85">
+                                    €{MONTHLY_PRICE}{t('per_month') || '/μήνα'}
+                                </p>
+                            </div>
+                        </motion.div>
+                    </div>
 
-                        {/* Pro badge icon card */}
-                        <div style={{
-                            position: 'absolute', right: 24, top: 24,
-                            width: 72, height: 72, borderRadius: 20,
-                            background: 'linear-gradient(135deg, #f59e0b, #ea580c)',
-                            boxShadow: '0 12px 32px rgba(245,158,11,0.55)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
-                            <ShieldCheck size={36} color="#fff" strokeWidth={2.2} />
+                    {/* Features header */}
+                    <div className="flex items-center gap-2 mt-4 mb-2">
+                        <div className="w-5 h-5 rounded-full bg-amber-500/15 dark:bg-amber-400/10 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                            <ShieldCheck size={13} strokeWidth={2.4} />
                         </div>
+                        <span className="text-[11px] font-black tracking-wider uppercase text-gray-500 dark:text-gray-400 font-display">
+                            {t('what_pro_includes') || 'Τι περιλαμβάνει το Pro'}
+                        </span>
+                    </div>
 
-                        <div className="p-6 pt-8">
-                            <p style={{
-                                fontSize: 34, fontWeight: 800, color: '#fff',
-                                letterSpacing: '-0.5px', marginBottom: 6,
-                            }}>
-                                Pro
-                            </p>
-                            <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>
-                                €{MONTHLY_PRICE}/μήνα
-                            </p>
+                    {/* Feature rows */}
+                    <div className="divide-y divide-gray-200/70 dark:divide-white/[0.07]">
+                        {features.map((f, i) => (
+                            <FeatureRow key={i} feature={f} index={i} />
+                        ))}
+                    </div>
+
+                    {/* Pricing section */}
+                    <div className="pt-6 pb-2">
+                        <p className="text-[15px] font-extrabold text-gray-900 dark:text-white mb-3 tracking-tight">
+                            {t('choose_plan') || 'Επίλεξε πλάνο'}
+                        </p>
+                        <div className="flex flex-col gap-3">
+                            <PricingCard
+                                label={t('plan_yearly') || 'Ετήσιο'}
+                                price={`€${YEARLY_PRICE}${t('per_year') || '/χρόνο'}`}
+                                sub={(t('equivalent_per_mo', { price: YEARLY_PER_MO }) || `Ισοδυναμεί με €${YEARLY_PER_MO}/μήνα`)}
+                                badge={t('save_16') || 'Εξοικονόμησε 16%'}
+                                selected={billing === 'yearly'}
+                                onSelect={() => setBilling('yearly')}
+                            />
+                            <PricingCard
+                                label={t('plan_monthly') || 'Μηνιαίο'}
+                                price={`€${MONTHLY_PRICE}${t('per_month') || '/μήνα'}`}
+                                sub={null}
+                                badge={null}
+                                selected={billing === 'monthly'}
+                                onSelect={() => setBilling('monthly')}
+                            />
                         </div>
-                    </motion.div>
-                </div>
-
-                {/* Features header */}
-                <div className="flex items-center gap-2.5 px-4 mb-1">
-                    <ShieldCheck size={14} color={C.amber} strokeWidth={2.2} />
-                    <span style={{
-                        fontSize: 12, fontWeight: 700, letterSpacing: '0.8px',
-                        textTransform: 'uppercase', color: C.textSec,
-                    }}>
-                        Τι περιλαμβάνει το Pro
-                    </span>
-                </div>
-
-                {/* Feature rows */}
-                <div className="px-4">
-                    {FEATURES.map((f, i) => (
-                        <FeatureRow key={i} feature={f} index={i} />
-                    ))}
-                </div>
-
-                {/* Pricing section */}
-                <div className="px-4 pt-7">
-                    <p style={{ fontSize: 15, fontWeight: 700, color: C.textPrimary, marginBottom: 12 }}>
-                        Επίλεξε πλάνο
-                    </p>
-                    <div className="flex flex-col gap-3">
-                        <PricingCard
-                            label="Ετήσιο"
-                            price={`€${YEARLY_PRICE}/χρόνο`}
-                            sub={`Ισοδυναμεί με €${YEARLY_PER_MO}/μήνα`}
-                            badge="Εξοικονόμησε 16%"
-                            selected={billing === 'yearly'}
-                            onSelect={() => setBilling('yearly')}
-                        />
-                        <PricingCard
-                            label="Μηνιαίο"
-                            price={`€${MONTHLY_PRICE}/μήνα`}
-                            sub={null}
-                            badge={null}
-                            selected={billing === 'monthly'}
-                            onSelect={() => setBilling('monthly')}
-                        />
                     </div>
                 </div>
             </div>
 
             {/* ══ STICKY BOTTOM CTA ══ */}
             <div
-                className="shrink-0 px-4 absolute bottom-0 left-0 right-0 z-50"
+                className="shrink-0 px-4 sm:px-6 absolute bottom-0 left-0 right-0 z-40 transition-colors pointer-events-none"
                 style={{
-                    paddingTop: 20,
-                    paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 28px)',
-                    background: `linear-gradient(to top, ${C.bg} 65%, transparent)`,
+                    paddingTop: 24,
+                    paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
+                    background: isDark
+                        ? 'linear-gradient(to top, #0d0d14 78%, rgba(13,13,20,0) 100%)'
+                        : 'linear-gradient(to top, #f9fafb 78%, rgba(249,250,251,0) 100%)',
                 }}
             >
-                <motion.button
-                    onClick={handleSubscribe}
-                    disabled={loading}
-                    whileHover={!loading ? { scale: 1.015 } : {}}
-                    whileTap={!loading ? { scale: 0.97 } : {}}
-                    className="w-full rounded-2xl flex items-center justify-center gap-2"
-                    style={{
-                        padding: '18px 0',
-                        border: 'none',
-                        background: loading ? 'rgba(255,255,255,0.35)' : '#ffffff',
-                        color: '#0d0d14',
-                        fontSize: 16, fontWeight: 800,
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-                        letterSpacing: '-0.1px',
-                    }}
-                >
-                    {loading ? (
-                        <span style={{
-                            width: 20, height: 20,
-                            border: '3px solid rgba(0,0,0,0.15)',
-                            borderTopColor: '#0d0d14',
-                            borderRadius: '50%',
-                            display: 'inline-block',
-                            animation: 'spin 0.7s linear infinite',
-                        }} />
-                    ) : (
-                        <>
-                            <ShieldCheck size={18} color="#0d0d14" strokeWidth={2.2} />
-                            Δωρεάν δοκιμή 7 ημερών
-                        </>
-                    )}
-                </motion.button>
+                <div className="max-w-2xl lg:max-w-3xl mx-auto w-full pointer-events-auto">
+                    <motion.button
+                        type="button"
+                        onClick={handleSubscribe}
+                        disabled={loading}
+                        whileHover={!loading ? { scale: 1.01 } : {}}
+                        whileTap={!loading ? { scale: 0.98 } : {}}
+                        className={`w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-base cursor-pointer transition-all duration-200 select-none shadow-xl ${
+                            loading
+                                ? 'opacity-70 cursor-not-allowed'
+                                : isDark
+                                    ? 'bg-white hover:bg-gray-100 text-slate-950 shadow-black/50'
+                                    : 'bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-700 hover:from-violet-700 hover:to-indigo-700 text-white shadow-violet-500/30'
+                        }`}
+                    >
+                        {loading ? (
+                            <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            <>
+                                <ShieldCheck size={18} strokeWidth={2.4} className={isDark ? 'text-slate-950' : 'text-white'} />
+                                <span>{t('free_trial_7_days') || 'Δωρεάν δοκιμή 7 ημερών'}</span>
+                            </>
+                        )}
+                    </motion.button>
 
-                <p style={{
-                    textAlign: 'center', fontSize: 12,
-                    color: C.textMute, marginTop: 10, lineHeight: 1.5,
-                }}>
-                    Ακυρώνεις όποτε θες · Τιμή με ΦΠΑ
-                </p>
+                    <p className="text-center text-[12px] text-gray-400 dark:text-gray-500 mt-2 font-medium leading-relaxed">
+                        {t('cancel_anytime') || 'Ακυρώνεις όποτε θες · Τιμή με ΦΠΑ'}
+                    </p>
+                </div>
             </div>
         </motion.div>
     );
