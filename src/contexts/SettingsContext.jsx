@@ -16,8 +16,12 @@ export const SettingsProvider = ({ children }) => {
 
     // Custom Categories
     const [customCategories, setCustomCategories] = useState(() => {
-        const saved = localStorage.getItem('customCategories');
-        return saved ? JSON.parse(saved) : { expense: [], income: [] };
+        try {
+            const saved = localStorage.getItem('customCategories');
+            return saved ? JSON.parse(saved) : { expense: [], income: [] };
+        } catch {
+            return { expense: [], income: [] };
+        }
     });
 
     // 3. Security (PIN)

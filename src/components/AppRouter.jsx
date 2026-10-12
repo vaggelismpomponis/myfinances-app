@@ -47,59 +47,61 @@ export default function AppRouter(props) {
     // Desktop: Renders everything in the main view pane
     if (isDesktop) {
         return (
-            <DesktopLayout 
-                activeTab={activeTab} setActiveTab={setActiveTab} setPreviousTab={setPreviousTab}
-                user={user} transactions={transactions} budgets={budgets} 
-                balance={balance} totalIncome={totalIncome} totalExpense={totalExpense}
-                onSignOut={handleSignOut} onAdd={openAddModal}
-                {...rest}
-            >
-                <React.Suspense fallback={<div className="h-full w-full" />}>
-                    {activeTab === 'home' && (
-                        <HomeView
-                            balance={balance} totalIncome={totalIncome} totalExpense={totalExpense}
-                            transactions={transactions} budgets={budgets}
-                            onDelete={deleteTransaction} onEdit={handleEdit}
-                            setActiveTab={setActiveTab}
-                            onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
-                            isDesktop={isDesktop}
-                            user={user}
-                        />
-                    )}
-                    {activeTab === 'stats' && <ProtectedStatsView transactions={transactions} />}
-                    {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
-                    {activeTab === 'profile' && (
-                        <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut} hideHeader={true}
-                            onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
-                            onAccount={() => setActiveTab('account')}
-                            onGeneral={() => setActiveTab('general')}
-                            onSecurity={() => setActiveTab('security')}
-                            onBackup={() => setActiveTab('backup')}
-                            onAdmin={() => setActiveTab('admin')}
-                            onFeedback={() => setActiveTab('feedback')}
-                            onGuide={() => setActiveTab('guide')}
-                        />
-                    )}
-                    {activeTab === 'guide' && (
-                        <GuideView 
-                            onBack={() => setActiveTab('profile')} hideHeader={true} onStartTour={handleStartTour}
-                            onNavigate={(tab) => { if (tab === 'add') openAddModal(); else setActiveTab(tab); }}
-                        />
-                    )}
-                    {activeTab === 'recurring' && <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} hideHeader={true} />}
-                    {activeTab === 'account' && <AccountSettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
-                    {activeTab === 'general' && <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} hideHeader={true} />}
-                    {activeTab === 'privacy' && <PrivacyPolicyView onBack={() => setActiveTab('general')} hideHeader={true} />}
-                    {activeTab === 'feedback' && <FeedbackView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
-                    {activeTab === 'security' && <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
-                    {activeTab === 'backup' && <BackupView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
-                    {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && <AdminView onBack={() => setActiveTab('profile')} hideHeader={true} />}
-                    {activeTab === 'upgrade' && <UpgradePage onBack={() => setActiveTab(previousTab || 'home')} />}
-                    {activeTab === 'goals' && <GoalsView user={user} onBack={() => setActiveTab('home')} />}
-                    {activeTab === 'budgets' && <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />}
-                    {activeTab === 'advisor' && <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />}
-                </React.Suspense>
-            </DesktopLayout>
+            <React.Suspense fallback={<div className="h-full w-full bg-gray-50 dark:bg-surface-dark" />}>
+                <DesktopLayout 
+                    activeTab={activeTab} setActiveTab={setActiveTab} setPreviousTab={setPreviousTab}
+                    user={user} transactions={transactions} budgets={budgets} 
+                    balance={balance} totalIncome={totalIncome} totalExpense={totalExpense}
+                    onSignOut={handleSignOut} onAdd={openAddModal}
+                    {...rest}
+                >
+                    <React.Suspense fallback={<div className="h-full w-full" />}>
+                        {activeTab === 'home' && (
+                            <HomeView
+                                balance={balance} totalIncome={totalIncome} totalExpense={totalExpense}
+                                transactions={transactions} budgets={budgets}
+                                onDelete={deleteTransaction} onEdit={handleEdit}
+                                setActiveTab={setActiveTab}
+                                onRecurring={() => { setPreviousTab('home'); setActiveTab('recurring'); }}
+                                isDesktop={isDesktop}
+                                user={user}
+                            />
+                        )}
+                        {activeTab === 'stats' && <ProtectedStatsView transactions={transactions} />}
+                        {activeTab === 'history' && <HistoryView transactions={transactions} onDelete={deleteTransaction} onEdit={handleEdit} />}
+                        {activeTab === 'profile' && (
+                            <ProfileView user={user} onBack={() => setActiveTab('home')} onSignOut={handleSignOut} hideHeader={true}
+                                onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
+                                onAccount={() => setActiveTab('account')}
+                                onGeneral={() => setActiveTab('general')}
+                                onSecurity={() => setActiveTab('security')}
+                                onBackup={() => setActiveTab('backup')}
+                                onAdmin={() => setActiveTab('admin')}
+                                onFeedback={() => setActiveTab('feedback')}
+                                onGuide={() => setActiveTab('guide')}
+                            />
+                        )}
+                        {activeTab === 'guide' && (
+                            <GuideView 
+                                onBack={() => setActiveTab('profile')} hideHeader={true} onStartTour={handleStartTour}
+                                onNavigate={(tab) => { if (tab === 'add') openAddModal(); else setActiveTab(tab); }}
+                            />
+                        )}
+                        {activeTab === 'recurring' && <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} hideHeader={true} />}
+                        {activeTab === 'account' && <AccountSettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
+                        {activeTab === 'general' && <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} hideHeader={true} />}
+                        {activeTab === 'privacy' && <PrivacyPolicyView onBack={() => setActiveTab('general')} hideHeader={true} />}
+                        {activeTab === 'feedback' && <FeedbackView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
+                        {activeTab === 'security' && <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
+                        {activeTab === 'backup' && <BackupView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
+                        {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && <AdminView onBack={() => setActiveTab('profile')} hideHeader={true} />}
+                        {activeTab === 'upgrade' && <UpgradePage onBack={() => setActiveTab(previousTab || 'home')} />}
+                        {activeTab === 'goals' && <GoalsView user={user} onBack={() => setActiveTab('home')} />}
+                        {activeTab === 'budgets' && <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />}
+                        {activeTab === 'advisor' && <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />}
+                    </React.Suspense>
+                </DesktopLayout>
+            </React.Suspense>
         );
     }
 

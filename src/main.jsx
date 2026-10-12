@@ -7,11 +7,34 @@ import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 
 // Suppress unhandled errors and rejections from third-party browser extensions (e.g. Urban VPN 200.js harvester scripts)
+// And handle Vite preload errors (chunk mismatches on new deployments)
 if (typeof window !== 'undefined') {
+    const handleChunkMismatch = (detail) => {
+        const text = String(detail || '');
+        if (
+            text.includes('dynamically imported module') ||
+            text.includes('Failed to fetch dynamically imported module') ||
+            text.includes('Loading chunk') ||
+            text.includes('ChunkLoadError')
+        ) {
+            const lastReload = sessionStorage.getItem('sw_chunk_reload');
+            const now = Date.now();
+            if (!lastReload || now - parseInt(lastReload, 10) > 8000) {
+                sessionStorage.setItem('sw_chunk_reload', String(now));
+                window.location.reload();
+            }
+        }
+    };
+
+    window.addEventListener('vite:preloadError', (event) => {
+        handleChunkMismatch('vite:preloadError');
+    });
+
     window.addEventListener('unhandledrejection', (event) => {
         const reason = event.reason;
         const stack = reason?.stack || '';
         const message = reason?.message || String(reason || '');
+        handleChunkMismatch(message + ' ' + stack);
         if (
             stack.includes('200.js') ||
             stack.includes('chrome-extension://') ||
@@ -25,6 +48,7 @@ if (typeof window !== 'undefined') {
     window.addEventListener('error', (event) => {
         const filename = event.filename || '';
         const message = event.message || '';
+        handleChunkMismatch(message + ' ' + filename);
         if (
             filename.includes('200.js') ||
             filename.includes('chrome-extension://') ||

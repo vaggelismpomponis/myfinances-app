@@ -185,7 +185,26 @@
         animation: sw-slide 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
       }
     </style>
-  </div>
+  <script>
+    (function () {
+      // Safety auto-dismiss: ensure inline-loader never remains stuck over the screen
+      var dismissLoader = function () {
+        var loader = document.getElementById('inline-loader');
+        if (loader) {
+          loader.style.transition = 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+          loader.style.opacity = '0';
+          loader.style.transform = 'scale(1.02)';
+          loader.style.pointerEvents = 'none';
+          setTimeout(function () {
+            if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+          }, 420);
+        }
+      };
+      // Auto-dismiss safety timer (6 seconds fallback)
+      setTimeout(dismissLoader, 6000);
+      window.__dismissInlineLoader = dismissLoader;
+    })();
+  </script>
   <!-- React mounts here — inline-loader stays visible on top until App.jsx fades it out -->
   <div id="root"></div>
   </main>

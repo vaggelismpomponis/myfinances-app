@@ -17,6 +17,8 @@ export const useSubscription = () => {
       syncSubscription: async () => {},
       upgradeFeatureKey: null,
       registerUpgradeNavigator: () => {},
+      openBillingPortal: async () => {},
+      refreshSubscription: async () => {},
     };
   }
   return context;

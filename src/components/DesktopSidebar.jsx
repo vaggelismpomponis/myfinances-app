@@ -180,14 +180,14 @@ const DesktopSidebar = ({
 
                         <div className="relative z-10 flex items-center justify-between gap-2 mb-1.5">
                             <div className="flex items-center gap-1.5 min-w-0">
-                                <div className="w-6 h-6 rounded-lg bg-white/15 backdrop-blur-xs flex items-center justify-center text-amber-300 shadow-2xs border border-white/20 shrink-0">
+                                <div className="w-6 h-6 rounded-lg bg-white/15 backdrop-blur-sm flex items-center justify-center text-amber-300 shadow-xs border border-white/20 shrink-0">
                                     <ShieldCheck size={14} strokeWidth={2.2} />
                                 </div>
                                 <span className="text-xs font-black tracking-tight text-white truncate">
                                     {t('become_pro') || t('go_pro') || 'Become Pro'}
                                 </span>
                             </div>
-                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 shadow-2xs shrink-0 font-display">
+                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 shadow-xs shrink-0 font-display">
                                 PRO
                             </span>
                         </div>
