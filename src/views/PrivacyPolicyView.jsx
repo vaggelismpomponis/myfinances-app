@@ -1,19 +1,16 @@
 import React from 'react';
 import {
-    ArrowLeft,
     ShieldCheck,
     Lock,
     Eye,
     Database,
-    Globe,
     Mail,
     Server,
     UserCheck,
     FileText,
     CheckCircle2,
     Shield,
-    Check,
-    MessageSquare
+    Check
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import ViewHeader from '../components/ViewHeader';
@@ -279,56 +276,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                         </div>
                     </div>
 
-                    {/* ─────── Bento Card 4: Third-Party Infrastructure ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
-                        <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 border border-cyan-500/20 flex items-center justify-center shrink-0">
-                                <Globe size={20} strokeWidth={2.3} />
-                            </div>
-                            <div>
-                                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700 dark:bg-cyan-500/10 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-500/20">
-                                    {isEL ? 'Υποδομές' : 'Partners'}
-                                </span>
-                                <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                    {isEL ? 'Υπηρεσίες & Υποδομές Τρίτων' : 'Third-Party Services'}
-                                </h3>
-                            </div>
-                        </div>
-
-                        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                            {isEL
-                                ? 'Η εφαρμογή SpendWise βασίζεται στις εξής αξιόπιστες υπηρεσίες παγκόσμιας κλάσης:'
-                                : 'SpendWise partners only with world-class, SOC 2 compliant platforms:'}
-                        </p>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                            <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
-                                <span className="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 uppercase">Database & Auth</span>
-                                <h4 className="font-bold text-sm text-gray-900 dark:text-white mt-0.5">Supabase</h4>
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
-                                    {isEL ? 'Βάση δεδομένων PostgreSQL και διαχείριση ταυτότητας.' : 'Encrypted PostgreSQL cloud database & JWT tokens.'}
-                                </p>
-                            </div>
-
-                            <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
-                                <span className="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 uppercase">Authentication</span>
-                                <h4 className="font-bold text-sm text-gray-900 dark:text-white mt-0.5">Google OAuth</h4>
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
-                                    {isEL ? 'Ασφαλής είσοδος χωρίς κοινοποίηση του κωδικού σας.' : 'Zero-password Google SSO identity authentication.'}
-                                </p>
-                            </div>
-
-                            <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
-                                <span className="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 uppercase">Native Runtime</span>
-                                <h4 className="font-bold text-sm text-gray-900 dark:text-white mt-0.5">Capacitor</h4>
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
-                                    {isEL ? 'Επίσημο Android/iOS native runtime περιβάλλον.' : 'Secure sandboxed native bridge for Android devices.'}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* ─────── Bento Card 5: Your Rights & Sovereignty ─────── */}
+                    {/* ─────── Bento Card 4: Your Rights & Sovereignty ─────── */}
                     <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
                         <div className="flex items-center gap-3">
                             <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-500/20 flex items-center justify-center shrink-0">
