@@ -83,4 +83,19 @@ describe('DesktopLayout', () => {
 
     expect(screen.getByText('5')).toBeInTheDocument();
   });
+
+  it('triggers onAdd without event arguments when add button is clicked', () => {
+    const mockOnAdd = vi.fn();
+    render(
+      <DesktopLayout {...defaultProps} onAdd={mockOnAdd}>
+        <div>Content</div>
+      </DesktopLayout>
+    );
+
+    const addBtn = screen.getByRole('button', { name: /add_transaction/i });
+    fireEvent.click(addBtn);
+
+    expect(mockOnAdd).toHaveBeenCalledTimes(1);
+    expect(mockOnAdd).toHaveBeenCalledWith();
+  });
 });

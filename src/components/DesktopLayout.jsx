@@ -310,7 +310,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                 {/* Add Button */}
                 <button
                     id="tour-add-button"
-                    onClick={onAdd}
+                    onClick={() => onAdd?.()}
                     className="flex items-center gap-2 px-5 py-2.5
                                bg-violet-600 hover:bg-violet-700
                                text-white text-sm font-bold

@@ -1157,14 +1157,36 @@ function MainContent() {
 
         try {
             let txId = editingTransaction?.id;
+            const sanitizedType = (transaction?.type === 'income' || transaction?.type === 'expense')
+                ? transaction.type
+                : (editingTransaction?.type === 'income' ? 'income' : 'expense');
+            const sanitizedAmount = typeof transaction?.amount === 'number' && !isNaN(transaction.amount)
+                ? transaction.amount
+                : (parseFloat(transaction?.amount) || 0);
+            const sanitizedCategory = typeof transaction?.category === 'string' && transaction.category.trim()
+                ? transaction.category.trim()
+                : 'Άλλο';
+            const sanitizedNote = typeof transaction?.note === 'string'
+                ? transaction.note.trim().substring(0, 500)
+                : '';
+
+            const cleanPayload = {
+                type: sanitizedType,
+                amount: sanitizedAmount,
+                category: sanitizedCategory,
+                note: sanitizedNote
+            };
+
             const newTx = {
-                ...transaction,
-                date: editingTransaction && editingTransaction.id ? transaction.date : new Date().toISOString()
+                ...cleanPayload,
+                date: (editingTransaction && editingTransaction.id && typeof transaction?.date === 'string')
+                    ? transaction.date
+                    : new Date().toISOString()
             };
 
             if (editingTransaction && editingTransaction.id) {
                 // Optimistic update: update in local state immediately
-                const updatedTx = { ...editingTransaction, ...transaction };
+                const updatedTx = { ...editingTransaction, ...newTx };
                 setTransactions(prev =>
                     prev.map(t => t.id === editingTransaction.id ? updatedTx : t)
                 );
@@ -1172,7 +1194,7 @@ function MainContent() {
                 setEditingTransaction(null);
 
                 let { error } = await supabase.from('transactions')
-                    .update(transaction)
+                    .update(cleanPayload)
                     .eq('id', editingTransaction.id);
 
                 if (error && (error.code === '42501' || error.message?.includes('JWT') || error.message?.includes('security policy'))) {
@@ -1180,7 +1202,7 @@ function MainContent() {
                     if (!refreshErr && refreshData?.session?.user) {
                         setUser(refreshData.session.user);
                         const retryRes = await supabase.from('transactions')
-                            .update(transaction)
+                            .update(cleanPayload)
                             .eq('id', editingTransaction.id);
                         error = retryRes.error;
                     }
@@ -1199,11 +1221,11 @@ function MainContent() {
                     'edit',
                     translate('notification_edited') || 'Transaction edited',
                     {
-                        amount:   transaction.amount,
-                        category: transaction.category,
-                        note:     transaction.note,
-                        date:     transaction.date || editingTransaction.date,
-                        txType:   transaction.type || editingTransaction.type,
+                        amount:   cleanPayload.amount,
+                        category: cleanPayload.category,
+                        note:     cleanPayload.note,
+                        date:     newTx.date,
+                        txType:   cleanPayload.type,
                     }
                 );
             } else {
@@ -1237,7 +1259,7 @@ function MainContent() {
                     ? translate('notification_added_expense') || 'New expense recorded'
                     : translate('notification_added_income') || 'New income recorded';
                 addNotification(
-                    newTx.type === 'expense' ? 'add' : 'add',
+                    'add',
                     typeLabel,
                     {
                         amount:   newTx.amount,
@@ -1255,7 +1277,14 @@ function MainContent() {
                 }
             }
         } catch (e) {
-            const errDetail = e?.message || e?.details || e?.error_description || (typeof e === 'object' ? JSON.stringify(e) : String(e));
+            let errDetail = e?.message || e?.details || e?.error_description || String(e);
+            try {
+                if (typeof e === 'object' && !errDetail) {
+                    errDetail = JSON.stringify(e);
+                }
+            } catch {
+                errDetail = String(e);
+            }
             logger.error(`Error saving transaction: ${errDetail}`, e, 'App');
             if (e?.code === '42501' || e?.message?.includes('JWT') || e?.message?.includes('security policy')) {
                 showToast("Η συνεδρία σας έχει λήξει. Παρακαλώ αποσυνδεθείτε και συνδεθείτε ξανά.", 'error');
@@ -1351,7 +1380,10 @@ function MainContent() {
         setEditingTransaction(null);
         setShowAddModal(true);
         setShowFabMenu(false);
-        setFabInitialType(initialType || null);
+        const validType = (typeof initialType === 'string' && (initialType === 'income' || initialType === 'expense'))
+            ? initialType
+            : null;
+        setFabInitialType(validType);
     };
 
     // Trigger deferred app shortcut action once user is authenticated and app is unlocked

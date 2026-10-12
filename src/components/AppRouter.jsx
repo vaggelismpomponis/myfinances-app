@@ -52,7 +52,7 @@ export default function AppRouter(props) {
                     activeTab={activeTab} setActiveTab={setActiveTab} setPreviousTab={setPreviousTab}
                     user={user} transactions={transactions} budgets={budgets} 
                     balance={balance} totalIncome={totalIncome} totalExpense={totalExpense}
-                    onSignOut={handleSignOut} onAdd={openAddModal}
+                    onSignOut={handleSignOut} onAdd={() => openAddModal()}
                     onToggleNotifications={() => props.setShowNotificationPanel?.(prev => !prev)}
                     setShowNotificationPanel={props.setShowNotificationPanel}
                     {...rest}

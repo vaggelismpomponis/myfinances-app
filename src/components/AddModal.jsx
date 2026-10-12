@@ -37,10 +37,13 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
     const [showVoiceOverlay, setShowVoiceOverlay] = useState(false);
 
 
-    const [type, setType] = useState(initialType || 'expense');
+    const sanitizedInitialType = (typeof initialType === 'string' && (initialType === 'income' || initialType === 'expense'))
+        ? initialType
+        : 'expense';
+    const [type, setType] = useState(sanitizedInitialType);
 
     useEffect(() => {
-        if (initialType) {
+        if (typeof initialType === 'string' && (initialType === 'income' || initialType === 'expense')) {
             setType(initialType);
         }
     }, [initialType]);
@@ -408,11 +411,12 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
         setAmountError('');
 
         setIsSubmitting(true);
+        const sanitizedType = (type === 'income' || type === 'expense') ? type : 'expense';
         await onAdd({
-            type,
+            type: sanitizedType,
             amount: parsedAmount,
-            category,
-            note: note.substring(0, NOTE_MAX_LENGTH)
+            category: typeof category === 'string' ? category : '',
+            note: typeof note === 'string' ? note.substring(0, NOTE_MAX_LENGTH) : ''
         });
 
         // If in batch mode, load next item
