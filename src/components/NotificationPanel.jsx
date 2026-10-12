@@ -265,7 +265,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.18 }}
-                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-0 lg:block pointer-events-none"
+                    className="fixed inset-0 z-[100] flex items-start justify-center pt-[68px] sm:pt-[72px] px-4 lg:p-0 lg:block pointer-events-none"
                 >
                     {/* Backdrop */}
                     <div
