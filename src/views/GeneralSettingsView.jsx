@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
     ArrowLeft,
-    Download,
     Bell,
     Languages,
     AlertTriangle,
@@ -11,11 +10,9 @@ import {
     Shield,
     CheckCircle2,
     SlidersHorizontal,
-    X,
-    Check
+    X
 } from 'lucide-react';
 import { supabase } from '../supabase';
-import { exportJSON } from '../services/export';
 import ConfirmationModal from '../components/ConfirmationModal';
 import PasswordInput from '../components/PasswordInput';
 import { useSettings } from '../contexts/SettingsContext';
@@ -35,7 +32,6 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
     const { showToast } = useToast();
     const { isPro, openUpgradeModal } = useSubscription();
     const [showClearDataModal, setShowClearDataModal] = useState(false);
-    const [isExporting, setIsExporting] = useState(false);
     
     // Notification Permission State
     const [isSmsEnabled, setIsSmsEnabled] = useState(false);
@@ -72,27 +68,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
     const [deletePassword, setDeletePassword] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleExportData = async () => {
-        if (!isPro) {
-            openUpgradeModal('export');
-            return;
-        }
-        setIsExporting(true);
-        try {
-            const { data: transactions, error } = await supabase
-                .from('transactions')
-                .select('*')
-                .eq('user_id', user.id);
-            if (error) throw error;
-            exportJSON(transactions);
-            showToast(translate('data_exported_successfully') || 'Data exported successfully.', 'success');
-        } catch (error) {
-            console.error("Export error:", error);
-            showToast(translate('export_failed') || 'Export failed.', 'error');
-        } finally {
-            setIsExporting(false);
-        }
-    };
+
 
     const handleClearData = async () => {
         try {
@@ -330,130 +306,72 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                             </div>
                         </div>
 
-                        {/* ── Card 2: Data Portability & Export ── */}
-                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col justify-between">
+                        {/* ── Card 2: Danger Zone ── */}
+                        <div className="bg-white dark:bg-surface-dark2 border border-rose-200/80 dark:border-rose-900/30 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col justify-between">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                                        <Download size={20} strokeWidth={2.3} />
+                                    <div className="w-11 h-11 rounded-2xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+                                        <AlertTriangle size={20} strokeWidth={2.3} />
                                     </div>
                                     <div>
-                                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-500/20">
-                                            Portability
+                                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200/60 dark:border-rose-500/20">
+                                            Danger Zone
                                         </span>
                                         <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                            {translate('export_data') || 'Export Data'}
+                                            Irreversible Actions
                                         </h3>
                                     </div>
                                 </div>
 
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                                    Download your entire personal ledger in standard JSON for offline storage or third-party analysis.
+                                    {translate('data_deletion_warning') || 'Actions performed here are permanent and cannot be reversed without an existing offline backup.'}
                                 </p>
 
-                                <div className="space-y-2.5 pt-1">
-                                    {[
-                                        'Full JSON structure with timestamps',
-                                        'All categories, income & expense tags',
-                                        'Compatible with Excel and database tools'
-                                    ].map((feat, idx) => (
-                                        <div key={idx} className="flex items-center gap-2">
-                                            <div className="w-4 h-4 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-                                                <Check size={11} strokeWidth={3} />
+                                <div className="space-y-3 pt-1">
+                                    {/* Clear All Data */}
+                                    <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-50/40 dark:bg-rose-500/[0.04] border border-rose-100 dark:border-rose-500/20 flex flex-col justify-between space-y-3">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Database size={15} className="text-rose-500" strokeWidth={2.2} />
+                                                <h4 className="font-bold text-sm text-gray-900 dark:text-white">
+                                                    {translate('clear_all_data') || 'Delete All Data'}
+                                                </h4>
                                             </div>
-                                            <span className="text-xs text-gray-700 dark:text-gray-300">
-                                                {feat}
-                                            </span>
+                                            <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                                                {translate('clear_all_data_desc') || 'Remove all transaction rows while keeping goals, rules, and your account active.'}
+                                            </p>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={handleExportData}
-                                disabled={isExporting}
-                                className="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold text-xs shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
-                            >
-                                {isExporting ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                                        <span>Exporting...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Download size={15} strokeWidth={2.5} />
-                                        <span>Download JSON Archive</span>
-                                        {!isPro && <ProBadge />}
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* ─────── Danger Zone Card ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-rose-200/80 dark:border-rose-900/30 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
-                        <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-2xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
-                                <AlertTriangle size={20} strokeWidth={2.3} />
-                            </div>
-                            <div>
-                                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200/60 dark:border-rose-500/20">
-                                    Danger Zone
-                                </span>
-                                <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                    Irreversible Actions
-                                </h3>
-                            </div>
-                        </div>
-
-                        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                            {translate('data_deletion_warning') || 'Actions performed here are permanent and cannot be reversed without an existing offline backup.'}
-                        </p>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                            {/* Clear All Data */}
-                            <div className="p-4 rounded-2xl bg-rose-50/40 dark:bg-rose-500/[0.04] border border-rose-100 dark:border-rose-500/20 flex flex-col justify-between space-y-3">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Database size={15} className="text-rose-500" strokeWidth={2.2} />
-                                        <h4 className="font-bold text-sm text-gray-900 dark:text-white">
-                                            {translate('clear_all_data') || 'Delete All Data'}
-                                        </h4>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowClearDataModal(true)}
+                                            className="w-full py-2.5 px-3 rounded-xl border border-rose-300 dark:border-rose-500/40 text-rose-600 dark:text-rose-400 font-extrabold text-xs hover:bg-rose-100/60 dark:hover:bg-rose-500/15 active:scale-95 transition-all text-center cursor-pointer"
+                                        >
+                                            {translate('clear_all_data') || 'Clear Transactions'}
+                                        </button>
                                     </div>
-                                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                                        {translate('clear_all_data_desc') || 'Remove all transaction rows while keeping goals, rules, and your account active.'}
-                                    </p>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowClearDataModal(true)}
-                                    className="w-full py-2.5 px-3 rounded-xl border border-rose-300 dark:border-rose-500/40 text-rose-600 dark:text-rose-400 font-extrabold text-xs hover:bg-rose-100/60 dark:hover:bg-rose-500/15 active:scale-95 transition-all text-center cursor-pointer"
-                                >
-                                    {translate('clear_all_data') || 'Clear Transactions'}
-                                </button>
-                            </div>
 
-                            {/* Delete Account */}
-                            <div className="p-4 rounded-2xl bg-rose-50/40 dark:bg-rose-500/[0.04] border border-rose-100 dark:border-rose-500/20 flex flex-col justify-between space-y-3">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <UserX size={15} className="text-rose-500" strokeWidth={2.2} />
-                                        <h4 className="font-bold text-sm text-gray-900 dark:text-white">
+                                    {/* Delete Account */}
+                                    <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-50/40 dark:bg-rose-500/[0.04] border border-rose-100 dark:border-rose-500/20 flex flex-col justify-between space-y-3">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <UserX size={15} className="text-rose-500" strokeWidth={2.2} />
+                                                <h4 className="font-bold text-sm text-gray-900 dark:text-white">
+                                                    {translate('delete_account') || 'Delete Account'}
+                                                </h4>
+                                            </div>
+                                            <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                                                {translate('delete_account_desc') || 'Permanently destroy your SpendWise registration, active sessions, and all cloud tables.'}
+                                            </p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowDeleteModal(true)}
+                                            className="w-full py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-sm shadow-rose-600/30 active:scale-95 transition-all text-center cursor-pointer"
+                                        >
                                             {translate('delete_account') || 'Delete Account'}
-                                        </h4>
+                                        </button>
                                     </div>
-                                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                                        {translate('delete_account_desc') || 'Permanently destroy your SpendWise registration, active sessions, and all cloud tables.'}
-                                    </p>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowDeleteModal(true)}
-                                    className="w-full py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-sm shadow-rose-600/30 active:scale-95 transition-all text-center cursor-pointer"
-                                >
-                                    {translate('delete_account') || 'Delete Account'}
-                                </button>
                             </div>
                         </div>
                     </div>

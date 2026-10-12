@@ -230,7 +230,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
 
                         <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                             {isEL
-                                ? 'Χρησιμοποιούμε enterprise υποδομές Supabase (σε servers Google Cloud) με ισχυρή κρυπτογράφηση σε ηρεμία και μεταφορά:'
+                                ? 'Χρησιμοποιούμε enterprise υποδομές Supabase (σε servers Google Cloud) με ισχυρή Κρυπτογράφηση και μεταφορά:'
                                 : 'We leverage enterprise Supabase infrastructure (hosted on Google Cloud Platform) with multi-tiered encryption:'}
                         </p>
 
@@ -254,7 +254,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                                     AES-256
                                 </div>
                                 <h4 className="font-bold text-sm text-gray-900 dark:text-white">
-                                    {isEL ? 'Κρυπτογράφηση σε Ηρεμία' : 'At-Rest Encryption'}
+                                    {isEL ? 'Κρυπτογράφηση' : 'At-Rest Encryption'}
                                 </h4>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                     {isEL
