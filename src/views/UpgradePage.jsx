@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     ArrowLeft, Infinity, TrendingUp, ScanLine, Bell,
     Tags, Fingerprint, Download, Headphones, Repeat,
-    Check, ShieldCheck,
+    Check, ShieldCheck, CheckCircle2,
 } from 'lucide-react';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useSettings } from '../contexts/SettingsContext';
@@ -256,38 +256,97 @@ const UpgradePage = ({ onBack }) => {
                             initial={{ opacity: 0, y: 14 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ type: 'spring', stiffness: 260, damping: 28 }}
-                            className={`rounded-3xl overflow-hidden relative min-h-[170px] border transition-colors ${
+                            className={`rounded-3xl overflow-hidden relative border transition-all duration-300 ${
                                 isDark
-                                    ? 'bg-gradient-to-br from-[#1e1040] via-[#2a1060] to-[#16152a] border-violet-500/25 shadow-2xl shadow-violet-950/40 text-white'
-                                    : 'bg-gradient-to-br from-violet-600 via-indigo-600 to-violet-800 border-violet-400/30 shadow-xl shadow-violet-500/20 text-white'
+                                    ? 'bg-gradient-to-br from-[#16122c] via-[#201540] to-[#0f0d1e] border-violet-500/25 shadow-2xl shadow-violet-950/50 text-white'
+                                    : 'bg-gradient-to-br from-[#4f46e5] via-[#5b50e6] to-[#7c3aed] border-white/20 shadow-xl shadow-indigo-500/25 text-white'
                             }`}
                         >
-                            {/* Soft ambient glow blob top-right */}
+                            {/* Ambient lighting glows */}
                             <div
-                                className="absolute -right-5 -top-5 w-40 h-40 rounded-full pointer-events-none"
+                                className="absolute -right-16 -top-16 w-56 h-56 rounded-full pointer-events-none"
                                 style={{
-                                    background: 'radial-gradient(circle, rgba(245,158,11,0.25) 0%, transparent 70%)',
+                                    background: 'radial-gradient(circle, rgba(245,158,11,0.22) 0%, rgba(245,158,11,0.05) 50%, transparent 70%)',
                                 }}
                             />
-
-                            {/* Pro badge icon card */}
                             <div
-                                className="absolute right-5 sm:right-6 top-5 sm:top-6 w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-2xl flex items-center justify-center shadow-lg"
+                                className="absolute -left-12 -bottom-12 w-48 h-48 rounded-full pointer-events-none"
                                 style={{
-                                    background: 'linear-gradient(135deg, #f59e0b, #ea580c)',
-                                    boxShadow: '0 12px 32px rgba(245,158,11,0.45)',
+                                    background: isDark
+                                        ? 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)'
+                                        : 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
                                 }}
-                            >
-                                <ShieldCheck size={36} color="#fff" strokeWidth={2.2} />
-                            </div>
+                            />
+                            {/* Subtle geometric grid / card pattern */}
+                            <div
+                                className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"
+                            />
 
-                            <div className="p-6 pt-7 sm:pt-8">
-                                <p className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none mb-2 font-display">
-                                    Pro
-                                </p>
-                                <p className="text-base font-semibold text-white/85">
-                                    €{MONTHLY_PRICE}{t('per_month') || '/μήνα'}
-                                </p>
+                            <div className="relative z-10 p-5 sm:p-7 flex flex-col justify-between min-h-[200px] gap-5">
+                                {/* Top row: Pill badge + Luxury frosted emblem */}
+                                <div className="flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wider uppercase backdrop-blur-md bg-white/10 dark:bg-white/[0.08] border border-white/15 text-white shadow-xs">
+                                            <ShieldCheck size={13} className="text-amber-400 shrink-0" strokeWidth={2.5} />
+                                            {t('hero_card_badge') || 'SPENDWISE PRO'}
+                                        </span>
+                                        <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 backdrop-blur-md">
+                                            {t('hero_card_status') || 'PREMIUM ACCESS'}
+                                        </span>
+                                    </div>
+
+                                    {/* Polished fintech crest / seal */}
+                                    <div
+                                        className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center backdrop-blur-md bg-gradient-to-br from-amber-400/30 to-amber-600/20 border border-amber-300/40 shadow-md shadow-amber-500/20 shrink-0"
+                                    >
+                                        <ShieldCheck size={24} className="text-amber-300 drop-shadow-sm" strokeWidth={2.3} />
+                                    </div>
+                                </div>
+
+                                {/* Middle row: Headline & Feature Highlights */}
+                                <div className="space-y-3">
+                                    <div>
+                                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight font-display">
+                                            {t('hero_card_title') || 'SpendWise Pro'}
+                                        </h2>
+                                        <p className="text-[13px] sm:text-[14px] text-white/80 font-normal leading-relaxed max-w-xl mt-1">
+                                            {t('hero_card_tagline') || 'Πλήρης οικονομικός έλεγχος με απεριόριστα εργαλεία & αυτόματη καταγραφή'}
+                                        </p>
+                                    </div>
+
+                                    {/* 3 Frosted Quick-Pills */}
+                                    <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-white/10 dark:bg-white/[0.06] border border-white/10 backdrop-blur-md text-white/95">
+                                            <Infinity size={13} className="text-amber-300 shrink-0" strokeWidth={2.5} />
+                                            <span>{t('hero_chip_unlimited') || 'Απεριόριστα Budgets'}</span>
+                                        </div>
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-white/10 dark:bg-white/[0.06] border border-white/10 backdrop-blur-md text-white/95">
+                                            <Bell size={13} className="text-emerald-300 shrink-0" strokeWidth={2.4} />
+                                            <span>{t('hero_chip_automation') || 'Αυτόματα SMS & Τράπεζες'}</span>
+                                        </div>
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-white/10 dark:bg-white/[0.06] border border-white/10 backdrop-blur-md text-white/95">
+                                            <ScanLine size={13} className="text-indigo-200 shrink-0" strokeWidth={2.4} />
+                                            <span>{t('hero_chip_ai') || 'AI Σάρωση & Insights'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Bottom row: Price display + Trial reassurance */}
+                                <div className="pt-3 border-t border-white/15 flex items-center justify-between gap-3">
+                                    <div className="flex items-baseline gap-1.5">
+                                        <span className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none font-display">
+                                            €{MONTHLY_PRICE}
+                                        </span>
+                                        <span className="text-[13px] font-semibold text-white/75">
+                                            {t('per_month') || '/μήνα'}
+                                        </span>
+                                    </div>
+
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-400/15 border border-emerald-400/30 text-emerald-300 backdrop-blur-md">
+                                        <CheckCircle2 size={13} className="text-emerald-300 shrink-0" strokeWidth={2.5} />
+                                        <span>{t('free_trial_7_days') || 'Δωρεάν δοκιμή 7 ημερών'}</span>
+                                    </div>
+                                </div>
                             </div>
                         </motion.div>
                     </div>
