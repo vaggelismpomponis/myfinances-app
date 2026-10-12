@@ -258,30 +258,34 @@ const NotificationPanel = ({ isOpen, onClose }) => {
 
     return (
         <AnimatePresence>
-            {isOpen && [
-                /* Backdrop */
+            {isOpen && (
                 <motion.div
-                    key="notif-backdrop"
+                    key="notif-modal-wrapper"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.18 }}
-                    className="fixed inset-0 z-[100] bg-black/30 backdrop-blur-[2px]"
-                    onClick={onClose}
-                />,
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-0 lg:block pointer-events-none"
+                >
+                    {/* Backdrop */}
+                    <div
+                        className="fixed inset-0 bg-black/40 backdrop-blur-[2px] pointer-events-auto"
+                        onClick={onClose}
+                    />
 
-                /* Panel */
-                <motion.div
+                    {/* Panel */}
+                    <motion.div
                         key="notif-panel"
-                        initial={{ opacity: 0, y: -12, scale: 0.97 }}
+                        initial={{ opacity: 0, y: -12, scale: 0.96 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -12, scale: 0.97 }}
-                        transition={{ type: "spring", damping: 22, stiffness: 260 }}
-                        className="fixed top-[68px] sm:top-[72px] right-3 sm:right-6 left-3 sm:left-auto z-[105] w-full max-w-sm ml-auto
+                        exit={{ opacity: 0, y: -12, scale: 0.96 }}
+                        transition={{ type: "spring", damping: 24, stiffness: 280 }}
+                        className="pointer-events-auto relative z-10 w-full max-w-sm
+                                   lg:fixed lg:top-[72px] lg:right-6 lg:left-auto lg:z-[105]
                                    bg-white dark:bg-surface-dark3
-                                   rounded-[1.75rem] shadow-2xl shadow-black/15
+                                   rounded-[1.75rem] shadow-2xl shadow-black/20
                                    border border-gray-100 dark:border-white/[0.07]
-                                   overflow-hidden"
+                                   overflow-hidden flex flex-col"
                         style={{ maxHeight: "70vh" }}
                     >
                         {/* Header */}
@@ -445,7 +449,8 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                             )}
                         </div>
                     </motion.div>
-                ]}
+                </motion.div>
+            )}
         </AnimatePresence>
     );
 };
