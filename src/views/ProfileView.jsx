@@ -189,10 +189,10 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             onClick={() => openUpgradeModal('profile_header')}
                             whileTap={{ scale: 0.93 }}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                                       bg-gradient-to-r from-amber-400 to-orange-500
+                                       bg-gradient-to-r from-violet-600 to-indigo-600
                                        text-white text-[11px] font-extrabold tracking-wide
-                                       shadow-[0_2px_12px_rgba(251,146,60,0.45)]
-                                       hover:shadow-[0_4px_20px_rgba(251,146,60,0.55)] transition-shadow"
+                                       shadow-[0_2px_12px_rgba(124,58,237,0.35)]
+                                       hover:shadow-[0_4px_20px_rgba(124,58,237,0.45)] transition-shadow"
                         >
                             <ShieldCheck size={12} strokeWidth={2.5} className="shrink-0" />
                             {translate('go_pro') || 'Upgrade to Pro'}
@@ -282,11 +282,11 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         <div
                             onClick={() => isPro ? openBillingPortal() : openUpgradeModal('profile')}
                             className={`min-w-0 h-[75px] rounded-[20px] p-2 sm:p-3 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center gap-1 ${
-                                isPro ? 'bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5' : ''
+                                isPro ? 'bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5' : 'border border-violet-400/30'
                             }`}
                             style={!isPro ? {
-                                background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-                                boxShadow: '0 4px 16px rgba(245,158,11,0.35)',
+                                background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
+                                boxShadow: '0 4px 16px rgba(124, 58, 237, 0.35)',
                             } : undefined}
                         >
                             {!isPro
