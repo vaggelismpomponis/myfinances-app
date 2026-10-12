@@ -29,8 +29,8 @@ const getFeatures = (t) => [
     },
     {
         icon: Bell,
-        title: t('auto_bank_sms') || 'Αυτόματη καταγραφή SMS & Τραπεζών',
-        desc: t('auto_bank_sms_desc') || 'Google Pay, Revolut, Winbank, Alpha κ.α. Μόνο πραγματικές συναλλαγές',
+        title: t('pro_feature_bank_sms') || t('auto_bank_sms') || 'Αυτόματη καταγραφή SMS & Τραπεζών',
+        desc: t('pro_feature_bank_sms_desc') || t('auto_bank_sms_desc') || 'Google Pay, Revolut, Winbank, Alpha κ.α. Μόνο πραγματικές συναλλαγές',
     },
     {
         icon: TrendingUp,
@@ -220,7 +220,7 @@ const UpgradePage = ({ onBack }) => {
                     <ArrowLeft size={17} strokeWidth={2.4} />
                 </button>
                 <h1 className="text-[17px] font-black text-gray-900 dark:text-white tracking-tight font-display">
-                    {t('upgrade_to_pro') || 'Αναβάθμιση πλάνου'}
+                    {t('plan_upgrade') || t('upgrade_to_pro') || 'Αναβάθμιση πλάνου'}
                 </h1>
             </div>
 
@@ -235,7 +235,7 @@ const UpgradePage = ({ onBack }) => {
                                 type="button"
                                 className="rounded-full px-4 py-1.5 text-xs font-semibold text-gray-500 dark:text-white/50 cursor-default"
                             >
-                                {t('subscription_free') || 'Δωρεάν'}
+                                {t('plan_free') || 'Δωρεάν'}
                             </button>
                             <button
                                 type="button"
@@ -245,7 +245,7 @@ const UpgradePage = ({ onBack }) => {
                                         : 'bg-white text-violet-700 shadow-sm'
                                 }`}
                             >
-                                Pro
+                                {t('plan_pro') || 'Pro'}
                             </button>
                         </div>
                     </div>

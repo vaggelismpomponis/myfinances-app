@@ -272,7 +272,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                        shadow-sm hover:bg-gray-50 dark:hover:bg-white/10
                                        active:scale-95 transition-all"
                         >
-                            {translate('edit_profile') === 'edit_profile' ? 'Επεξεργασία προφίλ' : translate('edit_profile')}
+                            {translate('edit_profile') || 'Επεξεργασία προφίλ'}
                         </motion.button>
                     </div>
 
