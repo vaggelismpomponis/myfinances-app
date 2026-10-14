@@ -20,6 +20,8 @@ Object.defineProperty(window, 'matchMedia', {
 const supabaseMock = {
   auth: {
     getSession: vi.fn(() => Promise.resolve({ data: { session: null }, error: null })),
+    getUser: vi.fn(() => Promise.resolve({ data: { user: null }, error: null })),
+    updateUser: vi.fn(() => Promise.resolve({ data: { user: null }, error: null })),
     onAuthStateChange: vi.fn(() => ({
       data: { subscription: { unsubscribe: vi.fn() } },
     })),
@@ -27,6 +29,12 @@ const supabaseMock = {
     signUp: vi.fn(),
     signOut: vi.fn(),
   },
+  channel: vi.fn(() => ({
+    on: vi.fn().mockReturnThis(),
+    subscribe: vi.fn().mockReturnThis(),
+    send: vi.fn(() => Promise.resolve()),
+  })),
+  removeChannel: vi.fn(),
   from: vi.fn().mockReturnThis(),
   select: vi.fn().mockReturnThis(),
   insert: vi.fn().mockReturnThis(),

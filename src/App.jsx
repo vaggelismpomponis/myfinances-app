@@ -67,7 +67,7 @@ const UpgradeNavigatorRegistrar = ({ activeTab, setActiveTab, setPreviousTab }) 
 
 function MainContent() {
     const { isPro: isContextPro } = useSubscription();
-    const { isLocked, theme, toggleTheme, t: translate, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode } = useSettings();
+    const { isLocked, theme, toggleTheme, t: translate, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode, syncCategoriesFromTransactions } = useSettings();
     const { showToast } = useToast();
     const { addNotification, unreadCount } = useNotifications();
     const windowWidth = useWindowWidth();
@@ -860,6 +860,9 @@ function MainContent() {
                     logger.error('Failed to fetch transactions', error, 'App');
                 } else {
                     setTransactions(data || []);
+                    if (syncCategoriesFromTransactions) {
+                        syncCategoriesFromTransactions(data || []);
+                    }
                 }
             } catch (err) {
                 // Catches network-level failures (e.g. TypeError: Failed to fetch)
@@ -1060,6 +1063,17 @@ function MainContent() {
                             .eq('id', rule.id);
 
                         logger.info('Auto-added recurring transaction', 'App');
+                        addNotification(
+                            rule.type === 'income' ? 'add' : 'delete',
+                            `${translate('auto_recurring') || 'Αυτόματη συναλλαγή'}: ${rule.title}`,
+                            {
+                                amount: rule.amount,
+                                category: 'bills',
+                                note: rule.title,
+                                date: new Date().toISOString(),
+                                txType: rule.type
+                            }
+                        );
                     } catch (e) {
                         logger.error('Auto-add recurring transaction failed', e, 'App');
                     }
@@ -1120,6 +1134,15 @@ function MainContent() {
 
         if (percentage >= budget.notification_threshold) {
             showToast(`⚠️ ${budget.category}: ${percentage.toFixed(0)}% του budget!`, 'warning');
+            addNotification(
+                'info',
+                `${budget.category}: ${percentage.toFixed(0)}% του budget`,
+                {
+                    category: budget.category,
+                    amount: budget.amount,
+                    percentage: Math.floor(percentage)
+                }
+            );
 
             if (Capacitor.isNativePlatform()) {
                 try {

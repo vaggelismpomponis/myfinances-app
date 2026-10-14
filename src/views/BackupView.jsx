@@ -73,7 +73,7 @@ const RestoreModeButton = ({ active, onClick, icon: Icon, label, sublabel, color
 };
 
 const BackupView = ({ user, onBack, hideHeader }) => {
-    const { t: translate, customCategories, language, currency, theme } = useSettings();
+    const { t: translate, customCategories, addCustomCategory, language, currency, theme } = useSettings();
     const isEL = language === 'el';
     const { showToast } = useToast();
     const { isPro, openUpgradeModal } = useSubscription();
@@ -221,6 +221,17 @@ const BackupView = ({ user, onBack, hideHeader }) => {
             await batchInsert('goals', strip(goals));
             await batchInsert('budgets', strip(budgets));
             await batchInsert('recurring_transactions', strip(recurringTransactions));
+
+            // Restore custom categories if present in backup settings
+            const importedCats = parsedBackup.settings?.customCategories;
+            if (importedCats && addCustomCategory) {
+                if (Array.isArray(importedCats.expense)) {
+                    importedCats.expense.forEach(c => addCustomCategory('expense', c));
+                }
+                if (Array.isArray(importedCats.income)) {
+                    importedCats.income.forEach(c => addCustomCategory('income', c));
+                }
+            }
 
             setImportStep('done');
             showToast(translate('restore_success') || 'Backup restored successfully!', 'success');
