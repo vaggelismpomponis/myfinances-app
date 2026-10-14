@@ -82,6 +82,7 @@ function MainContent() {
     const fabLongPressRef = useRef(null);
     const fabPressStartRef = useRef(false);
     const gsiInitialized = useRef(false);
+    const txSyncChannelRef = useRef(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);
@@ -851,7 +852,8 @@ function MainContent() {
                     .from('transactions')
                     .select('*')
                     .eq('user_id', user.id)
-                    .order('date', { ascending: false });
+                    .order('date', { ascending: false })
+                    .limit(2000);
                 if (error) {
                     if (retries > 0 && (error.name === 'AbortError' || error.message?.includes('Lock broken'))) {
                         setTimeout(() => fetchTransactions(retries - 1), 300);
@@ -878,7 +880,17 @@ function MainContent() {
 
         fetchTransactions();
 
-        // Realtime subscription
+        // 1. Dedicated cross-device broadcast channel (instant client-to-client notification)
+        const txSyncChannel = supabase.channel(`transactions-sync-${user.id}`);
+        txSyncChannelRef.current = txSyncChannel;
+
+        txSyncChannel
+            .on('broadcast', { event: 'transactions-updated' }, () => {
+                fetchTransactions();
+            })
+            .subscribe();
+
+        // 2. Realtime Postgres Changes subscription (database level)
         const channel = supabase
             .channel('transactions-changes')
             .on('postgres_changes', {
@@ -891,7 +903,39 @@ function MainContent() {
             })
             .subscribe();
 
-        return () => supabase.removeChannel(channel);
+        // 3. Foreground / Visibility change re-sync (when switching between apps or tabs)
+        const handleReSync = () => {
+            fetchTransactions();
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                handleReSync();
+            }
+        };
+
+        window.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleReSync);
+
+        let appStateListener = null;
+        if (Capacitor.isNativePlatform()) {
+            appStateListener = CapApp.addListener('appStateChange', (state) => {
+                if (state.isActive) {
+                    handleReSync();
+                }
+            });
+        }
+
+        return () => {
+            supabase.removeChannel(txSyncChannel);
+            txSyncChannelRef.current = null;
+            supabase.removeChannel(channel);
+            window.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleReSync);
+            if (appStateListener) {
+                appStateListener.then(l => l.remove());
+            }
+        };
     }, [user]);
 
     // 2.5 Fetch Budgets from Supabase
@@ -1239,7 +1283,12 @@ function MainContent() {
                     throw error;
                 }
 
-                // Notify edit
+                // Broadcast transaction edit to all active devices
+                txSyncChannelRef.current?.send({
+                    type: 'broadcast',
+                    event: 'transactions-updated',
+                    payload: { action: 'edit', id: editingTransaction.id }
+                }).catch(() => {});
                 addNotification(
                     'edit',
                     translate('notification_edited') || 'Transaction edited',
@@ -1276,6 +1325,13 @@ function MainContent() {
                 // Optimistic add: insert at the top immediately
                 setTransactions(prev => [{ ...newTx, id: txId, user_id: user.id }, ...prev]);
                 setShowAddModal(false);
+
+                // Broadcast new transaction to all active devices
+                txSyncChannelRef.current?.send({
+                    type: 'broadcast',
+                    event: 'transactions-updated',
+                    payload: { action: 'add', id: txId }
+                }).catch(() => {});
 
                 // Notify
                 const typeLabel = newTx.type === 'expense'
@@ -1341,6 +1397,13 @@ function MainContent() {
                 showToast('Σφάλμα διαγραφής. Προσπάθησε ξανά.', 'error');
                 throw error;
             }
+
+            // Broadcast deletion to all active devices
+            txSyncChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'transactions-updated',
+                payload: { action: 'delete', id: transactionToDelete }
+            }).catch(() => {});
 
             // Notify delete
             addNotification(
