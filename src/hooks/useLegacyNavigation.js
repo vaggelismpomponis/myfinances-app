@@ -10,6 +10,7 @@ export function useLegacyNavigation() {
         if (path === '/' || path === '/home') return 'home';
         if (path.startsWith('/settings/account')) return 'account';
         if (path.startsWith('/settings/general')) return 'general';
+        if (path.startsWith('/settings/categories')) return 'categories';
         if (path.startsWith('/settings/security')) return 'security';
         if (path.startsWith('/settings/privacy')) return 'privacy';
         if (path.startsWith('/settings/backup')) return 'backup';
@@ -35,6 +36,7 @@ export function useLegacyNavigation() {
             'profile': '/settings',
             'account': '/settings/account',
             'general': '/settings/general',
+            'categories': '/settings/categories',
             'security': '/settings/security',
             'privacy': '/settings/privacy',
             'backup': '/settings/backup',
