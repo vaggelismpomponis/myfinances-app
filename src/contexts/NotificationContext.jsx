@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
+import { App as CapApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { supabase } from '../supabase';
 
 const NotificationContext = createContext();
@@ -7,12 +9,21 @@ export const useNotifications = () => useContext(NotificationContext);
 
 const MAX_NOTIFICATIONS = 50;
 const STORAGE_KEY = (userId) => `spendwise_notifications_${userId}`;
+const LEGACY_STORAGE_KEY = 'spendwise_notifications';
 
 const loadFromStorage = (userId) => {
     if (!userId) return [];
     try {
         const raw = localStorage.getItem(STORAGE_KEY(userId));
-        return raw ? JSON.parse(raw) : [];
+        if (raw) return JSON.parse(raw);
+        // Fallback to legacy un-scoped key
+        const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacy) {
+            const parsed = JSON.parse(legacy);
+            localStorage.setItem(STORAGE_KEY(userId), legacy);
+            return parsed;
+        }
+        return [];
     } catch {
         return [];
     }
@@ -66,25 +77,51 @@ export const mergeNotifications = (listA = [], listB = []) => {
 
 export const NotificationProvider = ({ children }) => {
     const [userId, setUserId] = useState(null);
+    const userIdRef = useRef(userId);
     const [notifications, setNotifications] = useState([]);
+    const notificationsRef = useRef(notifications);
 
     const notificationsChannelRef = useRef(null);
     const cloudSyncTimeoutRef = useRef(null);
 
+    useEffect(() => {
+        userIdRef.current = userId;
+    }, [userId]);
+
+    useEffect(() => {
+        notificationsRef.current = notifications;
+    }, [notifications]);
+
+    // Resilient cloud sync with session refresh retry
     const syncToCloud = useCallback((updatedNotifs) => {
-        if (!userId) return;
+        const uid = userId || userIdRef.current;
+        if (!uid) return;
         if (cloudSyncTimeoutRef.current) {
             clearTimeout(cloudSyncTimeoutRef.current);
         }
         cloudSyncTimeoutRef.current = setTimeout(async () => {
             try {
-                await supabase.auth.updateUser({
+                let { error } = await supabase.auth.updateUser({
                     data: { notifications: updatedNotifs }
                 });
+
+                if (error && (error.status === 401 || error.message?.includes('JWT') || error.message?.includes('token') || error.message?.includes('session'))) {
+                    const { data: refreshData, error: refreshErr } = await supabase.auth.refreshSession();
+                    if (!refreshErr && refreshData?.session) {
+                        const retry = await supabase.auth.updateUser({
+                            data: { notifications: updatedNotifs }
+                        });
+                        error = retry.error;
+                    }
+                }
+
+                if (error) {
+                    console.error('Failed to sync notifications to Supabase user account:', error);
+                }
             } catch (err) {
-                console.warn('Failed to sync notifications to Supabase user account:', err);
+                console.warn('Exception syncing notifications to Supabase:', err);
             }
-        }, 500);
+        }, 400);
     }, [userId]);
 
     const broadcastNotifications = useCallback((updatedNotifs) => {
@@ -97,18 +134,51 @@ export const NotificationProvider = ({ children }) => {
         }
     }, []);
 
+    // Re-fetch from Supabase and merge
+    const refetchNotifications = useCallback(async () => {
+        const uid = userId || userIdRef.current;
+        if (!uid) return;
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+            const cloudNotifs = Array.isArray(user.user_metadata?.notifications)
+                ? user.user_metadata.notifications
+                : [];
+
+            setNotifications(prev => {
+                const merged = mergeNotifications(prev, cloudNotifs);
+                saveToStorage(uid, merged);
+
+                // If local had unsynced changes, push up
+                if (JSON.stringify(merged) !== JSON.stringify(cloudNotifs)) {
+                    syncToCloud(merged);
+                }
+                return merged;
+            });
+        } catch (err) {
+            console.warn('Could not re-fetch notifications from Supabase:', err);
+        }
+    }, [userId, syncToCloud]);
+
+    // Auth state listener
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
-            setUserId(session?.user?.id || null);
+            const id = session?.user?.id || null;
+            setUserId(id);
+            userIdRef.current = id;
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUserId(session?.user?.id || null);
+            const id = session?.user?.id || null;
+            setUserId(id);
+            userIdRef.current = id;
         });
 
         return () => subscription?.unsubscribe();
     }, []);
 
+    // Setup channel, initial load, and foreground listeners
     useEffect(() => {
         if (!userId) {
             setNotifications([]);
@@ -119,29 +189,10 @@ export const NotificationProvider = ({ children }) => {
         const localNotifs = loadFromStorage(userId);
         setNotifications(localNotifs);
 
-        // 2. Fetch remote notifications from user account
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            if (!user) return;
-            const cloudNotifs = Array.isArray(user.user_metadata?.notifications)
-                ? user.user_metadata.notifications
-                : [];
+        // 2. Fetch remote notifications
+        refetchNotifications();
 
-            setNotifications(prev => {
-                const merged = mergeNotifications(prev, cloudNotifs);
-                saveToStorage(userId, merged);
-
-                // If local had new items or read updates not in cloud, sync merged up to cloud
-                const hasChanges = JSON.stringify(merged) !== JSON.stringify(cloudNotifs);
-                if (hasChanges) {
-                    syncToCloud(merged);
-                }
-                return merged;
-            });
-        }).catch(err => {
-            console.warn('Could not fetch user metadata for notifications sync:', err);
-        });
-
-        // 3. Setup Realtime Broadcast channel across devices for this account
+        // 3. Realtime Broadcast channel across devices
         const channel = supabase.channel(`notifications-sync-${userId}`);
         notificationsChannelRef.current = channel;
 
@@ -157,70 +208,116 @@ export const NotificationProvider = ({ children }) => {
             })
             .subscribe();
 
+        // 4. Foreground resume re-sync (app state, visibility change, window focus)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                refetchNotifications();
+            }
+        };
+
+        const handleFocus = () => {
+            refetchNotifications();
+        };
+
+        window.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        let appStateListener = null;
+        if (Capacitor.isNativePlatform()) {
+            try {
+                const p = CapApp.addListener('appStateChange', ({ isActive }) => {
+                    if (isActive) {
+                        refetchNotifications();
+                    }
+                });
+                Promise.resolve(p).then(handle => { appStateListener = handle; });
+            } catch (e) {
+                // ignore
+            }
+        }
+
         return () => {
             supabase.removeChannel(channel);
             notificationsChannelRef.current = null;
+            window.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+            if (appStateListener?.remove) {
+                appStateListener.remove();
+            }
         };
-    }, [userId, syncToCloud]);
+    }, [userId, refetchNotifications]);
 
+    // Mutation handlers (deterministic, state + storage + broadcast + cloud)
     const addNotification = useCallback((type, message, metadata = {}) => {
         const newNotif = {
             id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
             type,
             message,
-            metadata, // { amount, category, note, date, txType }
+            metadata,
             timestamp: new Date().toISOString(),
             read: false,
         };
 
-        setNotifications(prev => {
-            const updated = [newNotif, ...prev].slice(0, MAX_NOTIFICATIONS);
-            if (userId) {
-                saveToStorage(userId, updated);
-                broadcastNotifications(updated);
-                syncToCloud(updated);
-            }
-            return updated;
-        });
+        const current = notificationsRef.current || [];
+        const updated = [newNotif, ...current].slice(0, MAX_NOTIFICATIONS);
+        setNotifications(updated);
+
+        const uid = userId || userIdRef.current;
+        if (uid) {
+            saveToStorage(uid, updated);
+            broadcastNotifications(updated);
+            syncToCloud(updated);
+        }
     }, [userId, broadcastNotifications, syncToCloud]);
 
     const markAllRead = useCallback(() => {
-        setNotifications(prev => {
-            const updated = prev.map(n => ({ ...n, read: true }));
-            if (userId) {
-                saveToStorage(userId, updated);
-                broadcastNotifications(updated);
-                syncToCloud(updated);
-            }
-            return updated;
-        });
+        const current = notificationsRef.current || [];
+        const updated = current.map(n => ({ ...n, read: true }));
+        setNotifications(updated);
+
+        const uid = userId || userIdRef.current;
+        if (uid) {
+            saveToStorage(uid, updated);
+            broadcastNotifications(updated);
+            syncToCloud(updated);
+        }
     }, [userId, broadcastNotifications, syncToCloud]);
 
     const clearAll = useCallback(() => {
         setNotifications([]);
-        if (userId) {
-            saveToStorage(userId, []);
+        const uid = userId || userIdRef.current;
+        if (uid) {
+            saveToStorage(uid, []);
             broadcastNotifications([]);
             syncToCloud([]);
         }
     }, [userId, broadcastNotifications, syncToCloud]);
 
     const deleteNotification = useCallback((id) => {
-        setNotifications(prev => {
-            const updated = prev.filter(n => n.id !== id);
-            if (userId) {
-                saveToStorage(userId, updated);
-                broadcastNotifications(updated);
-                syncToCloud(updated);
-            }
-            return updated;
-        });
+        const current = notificationsRef.current || [];
+        const updated = current.filter(n => n.id !== id);
+        setNotifications(updated);
+
+        const uid = userId || userIdRef.current;
+        if (uid) {
+            saveToStorage(uid, updated);
+            broadcastNotifications(updated);
+            syncToCloud(updated);
+        }
     }, [userId, broadcastNotifications, syncToCloud]);
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
     return (
-        <NotificationContext.Provider value={{ notifications, addNotification, markAllRead, clearAll, deleteNotification, unreadCount }}>
+        <NotificationContext.Provider value={{
+            notifications,
+            addNotification,
+            markAllRead,
+            clearAll,
+            deleteNotification,
+            unreadCount,
+            refetchNotifications
+        }}>
             {children}
         </NotificationContext.Provider>
     );

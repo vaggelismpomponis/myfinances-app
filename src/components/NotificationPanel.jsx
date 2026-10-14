@@ -235,11 +235,14 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
 };
 
 const NotificationPanel = ({ isOpen, onClose }) => {
-    const { notifications, markAllRead, clearAll, deleteNotification, unreadCount } = useNotifications();
+    const { notifications, markAllRead, clearAll, deleteNotification, unreadCount, refetchNotifications } = useNotifications();
     const { t } = useSettings();
     const [swipedId, setSwipedId] = React.useState(null);
 
     const handleOpen = () => {
+        if (refetchNotifications) {
+            refetchNotifications();
+        }
         markAllRead();
     };
 

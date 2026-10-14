@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { App as CapApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { translations } from '../utils/translations';
 import { supabase } from '../supabase';
 
@@ -71,7 +73,7 @@ export const SettingsProvider = ({ children }) => {
         return 'light';
     });
 
-    // Cloud sync helper (debounced)
+    // Cloud sync helper (debounced) with session refresh retry
     const syncCategoriesToCloud = useCallback((updatedCategories) => {
         if (!userId) return;
         if (cloudSyncTimeoutRef.current) {
@@ -79,9 +81,23 @@ export const SettingsProvider = ({ children }) => {
         }
         cloudSyncTimeoutRef.current = setTimeout(async () => {
             try {
-                await supabase.auth.updateUser({
+                let { error } = await supabase.auth.updateUser({
                     data: { custom_categories: updatedCategories }
                 });
+
+                if (error && (error.status === 401 || error.message?.includes('JWT') || error.message?.includes('token') || error.message?.includes('session'))) {
+                    const { data: refreshData, error: refreshErr } = await supabase.auth.refreshSession();
+                    if (!refreshErr && refreshData?.session) {
+                        const retry = await supabase.auth.updateUser({
+                            data: { custom_categories: updatedCategories }
+                        });
+                        error = retry.error;
+                    }
+                }
+
+                if (error) {
+                    console.error('Failed to sync custom categories to Supabase user account:', error);
+                }
             } catch (err) {
                 console.warn('Failed to sync custom categories to Supabase user account:', err);
             }
@@ -98,6 +114,36 @@ export const SettingsProvider = ({ children }) => {
             }).catch(() => {});
         }
     }, []);
+
+    // Remote metadata fetch and merge helper
+    const fetchAndSyncCategories = useCallback(async () => {
+        if (!userId) return;
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+            const cloudCats = user.user_metadata?.custom_categories;
+            const localCached = getStoredCategories(userId);
+            if (cloudCats && (Array.isArray(cloudCats.expense) || Array.isArray(cloudCats.income))) {
+                const mergedExpense = Array.from(new Set([...(localCached.expense || []), ...(cloudCats.expense || [])]));
+                const mergedIncome = Array.from(new Set([...(localCached.income || []), ...(cloudCats.income || [])]));
+                const merged = { expense: mergedExpense, income: mergedIncome };
+
+                setCustomCategories(merged);
+                localStorage.setItem(`spendwise_categories_${userId}`, JSON.stringify(merged));
+                localStorage.setItem('customCategories', JSON.stringify(merged));
+
+                const hasLocalNew = mergedExpense.length > (cloudCats.expense?.length || 0) ||
+                                    mergedIncome.length > (cloudCats.income?.length || 0);
+                if (hasLocalNew) {
+                    syncCategoriesToCloud(merged);
+                }
+            } else if ((localCached.expense && localCached.expense.length > 0) || (localCached.income && localCached.income.length > 0)) {
+                syncCategoriesToCloud(localCached);
+            }
+        } catch (err) {
+            console.warn('Could not fetch user metadata for categories sync:', err);
+        }
+    }, [userId, syncCategoriesToCloud]);
 
     // Listen to Supabase auth to scope settings by user
     useEffect(() => {
@@ -121,31 +167,7 @@ export const SettingsProvider = ({ children }) => {
         setCustomCategories(localCached);
 
         // 2. Fetch remote user metadata to sync categories across devices
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            if (!user) return;
-            const cloudCats = user.user_metadata?.custom_categories;
-            if (cloudCats && (Array.isArray(cloudCats.expense) || Array.isArray(cloudCats.income))) {
-                const mergedExpense = Array.from(new Set([...(localCached.expense || []), ...(cloudCats.expense || [])]));
-                const mergedIncome = Array.from(new Set([...(localCached.income || []), ...(cloudCats.income || [])]));
-                const merged = { expense: mergedExpense, income: mergedIncome };
-
-                setCustomCategories(merged);
-                localStorage.setItem(`spendwise_categories_${userId}`, JSON.stringify(merged));
-                localStorage.setItem('customCategories', JSON.stringify(merged));
-
-                // If local had categories that weren't in cloud yet, push merged back to cloud
-                const hasLocalNew = mergedExpense.length > (cloudCats.expense?.length || 0) ||
-                                    mergedIncome.length > (cloudCats.income?.length || 0);
-                if (hasLocalNew) {
-                    syncCategoriesToCloud(merged);
-                }
-            } else if ((localCached.expense && localCached.expense.length > 0) || (localCached.income && localCached.income.length > 0)) {
-                // Cloud had nothing yet, push local categories to user account
-                syncCategoriesToCloud(localCached);
-            }
-        }).catch(err => {
-            console.warn('Could not fetch user metadata for categories sync:', err);
-        });
+        fetchAndSyncCategories();
 
         // 3. Realtime Broadcast Channel across devices for the same user
         const channel = supabase.channel(`categories-sync-${userId}`);
@@ -167,11 +189,44 @@ export const SettingsProvider = ({ children }) => {
             })
             .subscribe();
 
+        // 4. Foreground resume re-sync
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchAndSyncCategories();
+            }
+        };
+
+        const handleFocus = () => {
+            fetchAndSyncCategories();
+        };
+
+        window.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        let appStateListener = null;
+        if (Capacitor.isNativePlatform()) {
+            try {
+                const p = CapApp.addListener('appStateChange', ({ isActive }) => {
+                    if (isActive) {
+                        fetchAndSyncCategories();
+                    }
+                });
+                Promise.resolve(p).then(handle => { appStateListener = handle; });
+            } catch (e) {
+                // ignore
+            }
+        }
+
         return () => {
             supabase.removeChannel(channel);
             categoriesChannelRef.current = null;
+            window.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+            if (appStateListener?.remove) {
+                appStateListener.remove();
+            }
         };
-    }, [userId, syncCategoriesToCloud]);
+    }, [userId, fetchAndSyncCategories]);
 
     // Persistence Effects
     useEffect(() => {

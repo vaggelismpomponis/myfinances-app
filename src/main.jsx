@@ -93,8 +93,26 @@ if (import.meta.env.DEV && 'serviceWorker' in navigator) {
     });
 } else if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     // Manually register to catch unhandled promise rejections on unsupported browsers/crawlers
-    registerSW({
+    const updateSW = registerSW({
         immediate: true,
+        onNeedRefresh() {
+            updateSW(true);
+        },
+        onRegisteredSW(swUrl, r) {
+            if (r) {
+                window.addEventListener('focus', () => {
+                    r.update().catch(() => {});
+                });
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') {
+                        r.update().catch(() => {});
+                    }
+                });
+                setInterval(() => {
+                    r.update().catch(() => {});
+                }, 30 * 60 * 1000);
+            }
+        },
         onRegisterError(error) {
             console.error('Service worker registration failed:', error);
         }
