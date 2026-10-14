@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { App as CapApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { translations } from '../utils/translations';
+import { isBaseCategory } from '../utils/categoryTranslations';
 import { supabase } from '../supabase';
 
 const SettingsContext = createContext();
@@ -115,61 +116,82 @@ export const SettingsProvider = ({ children }) => {
         }
     }, []);
 
+    // Category reconciliation helper
+    const applyUserCategories = useCallback((uid, cloudCats) => {
+        if (!uid) return;
+        const localCached = getStoredCategories(uid);
+        if (cloudCats && (Array.isArray(cloudCats.expense) || Array.isArray(cloudCats.income))) {
+            const mergedExpense = Array.from(new Set([
+                ...(localCached.expense || []),
+                ...(cloudCats.expense || [])
+            ])).filter(c => !isBaseCategory(c));
+
+            const mergedIncome = Array.from(new Set([
+                ...(localCached.income || []),
+                ...(cloudCats.income || [])
+            ])).filter(c => !isBaseCategory(c));
+
+            const merged = { expense: mergedExpense, income: mergedIncome };
+            setCustomCategories(merged);
+            localStorage.setItem(`spendwise_categories_${uid}`, JSON.stringify(merged));
+            localStorage.setItem('customCategories', JSON.stringify(merged));
+
+            const hasLocalNew = mergedExpense.length > (cloudCats.expense?.length || 0) ||
+                                mergedIncome.length > (cloudCats.income?.length || 0);
+            if (hasLocalNew) {
+                syncCategoriesToCloud(merged);
+            }
+        } else if ((localCached.expense && localCached.expense.length > 0) || (localCached.income && localCached.income.length > 0)) {
+            const cleaned = {
+                expense: (localCached.expense || []).filter(c => !isBaseCategory(c)),
+                income: (localCached.income || []).filter(c => !isBaseCategory(c))
+            };
+            setCustomCategories(cleaned);
+            syncCategoriesToCloud(cleaned);
+        }
+    }, [syncCategoriesToCloud]);
+
     // Remote metadata fetch and merge helper
     const fetchAndSyncCategories = useCallback(async () => {
         if (!userId) return;
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
-            const cloudCats = user.user_metadata?.custom_categories;
-            const localCached = getStoredCategories(userId);
-            if (cloudCats && (Array.isArray(cloudCats.expense) || Array.isArray(cloudCats.income))) {
-                const mergedExpense = Array.from(new Set([...(localCached.expense || []), ...(cloudCats.expense || [])]));
-                const mergedIncome = Array.from(new Set([...(localCached.income || []), ...(cloudCats.income || [])]));
-                const merged = { expense: mergedExpense, income: mergedIncome };
-
-                setCustomCategories(merged);
-                localStorage.setItem(`spendwise_categories_${userId}`, JSON.stringify(merged));
-                localStorage.setItem('customCategories', JSON.stringify(merged));
-
-                const hasLocalNew = mergedExpense.length > (cloudCats.expense?.length || 0) ||
-                                    mergedIncome.length > (cloudCats.income?.length || 0);
-                if (hasLocalNew) {
-                    syncCategoriesToCloud(merged);
-                }
-            } else if ((localCached.expense && localCached.expense.length > 0) || (localCached.income && localCached.income.length > 0)) {
-                syncCategoriesToCloud(localCached);
-            }
+            applyUserCategories(userId, user.user_metadata?.custom_categories);
         } catch (err) {
             console.warn('Could not fetch user metadata for categories sync:', err);
         }
-    }, [userId, syncCategoriesToCloud]);
+    }, [userId, applyUserCategories]);
 
-    // Listen to Supabase auth to scope settings by user
+    // Listen to Supabase auth to scope settings by user and hydrate immediately
     useEffect(() => {
+        const handleSession = (session) => {
+            const uid = session?.user?.id || null;
+            setUserId(uid);
+            if (uid) {
+                applyUserCategories(uid, session?.user?.user_metadata?.custom_categories);
+            }
+        };
+
         supabase.auth.getSession().then(({ data: { session } }) => {
-            setUserId(session?.user?.id || null);
+            handleSession(session);
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUserId(session?.user?.id || null);
+            handleSession(session);
         });
 
         return () => subscription?.unsubscribe();
-    }, []);
+    }, [applyUserCategories]);
 
     // When userId changes or is confirmed: load categories from account & setup Realtime Broadcast
     useEffect(() => {
         if (!userId) return;
 
         // 1. Rehydrate local cached categories for this user
-        const localCached = getStoredCategories(userId);
-        setCustomCategories(localCached);
-
-        // 2. Fetch remote user metadata to sync categories across devices
         fetchAndSyncCategories();
 
-        // 3. Realtime Broadcast Channel across devices for the same user
+        // 2. Realtime Broadcast Channel across devices for the same user
         const channel = supabase.channel(`categories-sync-${userId}`);
         categoriesChannelRef.current = channel;
 
@@ -178,8 +200,8 @@ export const SettingsProvider = ({ children }) => {
                 if (payload && (Array.isArray(payload.expense) || Array.isArray(payload.income))) {
                     setCustomCategories(prev => {
                         const updated = {
-                            expense: Array.from(new Set([...(prev.expense || []), ...(payload.expense || [])])),
-                            income: Array.from(new Set([...(prev.income || []), ...(payload.income || [])]))
+                            expense: Array.from(new Set([...(prev.expense || []), ...(payload.expense || [])])).filter(c => !isBaseCategory(c)),
+                            income: Array.from(new Set([...(prev.income || []), ...(payload.income || [])])).filter(c => !isBaseCategory(c))
                         };
                         localStorage.setItem(`spendwise_categories_${userId}`, JSON.stringify(updated));
                         localStorage.setItem('customCategories', JSON.stringify(updated));
@@ -189,7 +211,7 @@ export const SettingsProvider = ({ children }) => {
             })
             .subscribe();
 
-        // 4. Foreground resume re-sync
+        // 3. Foreground resume re-sync
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 fetchAndSyncCategories();
@@ -237,13 +259,6 @@ export const SettingsProvider = ({ children }) => {
         localStorage.setItem('language', language);
         document.documentElement.lang = language;
     }, [language]);
-
-    useEffect(() => {
-        if (userId) {
-            localStorage.setItem(`spendwise_categories_${userId}`, JSON.stringify(customCategories));
-        }
-        localStorage.setItem('customCategories', JSON.stringify(customCategories));
-    }, [customCategories, userId]);
 
     useEffect(() => {
         localStorage.setItem('isPinEnabled', isPinEnabled);
@@ -294,7 +309,7 @@ export const SettingsProvider = ({ children }) => {
     const addCustomCategory = (type, categoryName) => {
         if (!categoryName || typeof categoryName !== 'string') return;
         const trimmed = categoryName.trim();
-        if (!trimmed) return;
+        if (!trimmed || isBaseCategory(trimmed)) return;
 
         setCustomCategories(prev => {
             const currentList = prev[type] || [];
@@ -344,14 +359,14 @@ export const SettingsProvider = ({ children }) => {
 
             txs.forEach(t => {
                 const cat = t.category?.trim();
-                if (!cat) return;
+                if (!cat || isBaseCategory(cat)) return;
                 if (t.type === 'income') {
-                    if (!BASE_INCOME_CATEGORIES.includes(cat) && !newInc.includes(cat)) {
+                    if (!newInc.includes(cat)) {
                         newInc.push(cat);
                         changed = true;
                     }
                 } else {
-                    if (!BASE_EXPENSE_CATEGORIES.includes(cat) && !newExp.includes(cat)) {
+                    if (!newExp.includes(cat)) {
                         newExp.push(cat);
                         changed = true;
                     }

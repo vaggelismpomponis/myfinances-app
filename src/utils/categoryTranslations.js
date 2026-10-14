@@ -56,3 +56,24 @@ export const getUppercaseCategoryTranslation = (catName, t) => {
     const translated = getCategoryTranslation(catName, t);
     return removeGreekAccents(translated).toUpperCase();
 };
+
+export const isBaseCategory = (catName) => {
+    if (!catName || typeof catName !== 'string') return false;
+    const clean = catName.trim().toLowerCase();
+    const baseNames = new Set([
+        'σούπερ μάρκετ', 'supermarket',
+        'φαγητό', 'food',
+        'καφές', 'coffee',
+        'σπίτι', 'home',
+        'λογαριασμοί', 'bills',
+        'διασκέδαση', 'entertainment',
+        'βενζίνη', 'fuel',
+        'υγεία', 'health',
+        'άλλο', 'other',
+        'μισθός', 'salary',
+        'δώρο', 'gift',
+        'επενδύσεις', 'investments', 'investment',
+        'άλλα έσοδα', 'other income', 'other_income'
+    ]);
+    return baseNames.has(clean);
+};

@@ -18,7 +18,7 @@ import { CATEGORY_ACCENT } from '../components/CategoryIcon';
 import logger from '../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
 import useIsDesktop from '../hooks/useIsDesktop';
-import { getCategoryTranslation } from '../utils/categoryTranslations';
+import { getCategoryTranslation, isBaseCategory } from '../utils/categoryTranslations';
 
 const NOTE_MAX_LENGTH = 200;
 const CATEGORY_NAME_MAX_LENGTH = 30;
@@ -122,9 +122,15 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
     const baseExpenseCategories = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Βενζίνη', 'Υγεία', 'Άλλο'];
     const baseIncomeCategories = ['Μισθός', 'Δώρο', 'Επενδύσεις', 'Άλλα Έσοδα'];
 
-    const categories = type === 'income'
-        ? [...baseIncomeCategories, ...(customCategories?.income || [])]
-        : [...baseExpenseCategories, ...(customCategories?.expense || [])];
+    const rawCustom = (type === 'income' ? customCategories?.income : customCategories?.expense) || [];
+    const baseList = type === 'income' ? baseIncomeCategories : baseExpenseCategories;
+    const cleanCustom = rawCustom.filter(cat => {
+        if (!cat || typeof cat !== 'string') return false;
+        const lower = cat.trim().toLowerCase();
+        return !baseList.some(b => b.toLowerCase() === lower) && !isBaseCategory(cat);
+    });
+
+    const categories = [...baseList, ...cleanCustom];
 
     // Keyword mapping for auto-categorization
     const CATEGORY_KEYWORDS = {
