@@ -94,4 +94,70 @@ describe('SettingsContext - Custom Categories Sync', () => {
         expect(result.current.customCategories.income).toContain('Freelance');
         expect(result.current.customCategories.income).not.toContain('Μισθός');
     });
+
+    it('edits an existing custom category and rejects invalid edits', async () => {
+        const { result } = renderHook(() => useSettings(), {
+            wrapper: SettingsProvider
+        });
+
+        await act(async () => {
+            await Promise.resolve();
+        });
+
+        await act(async () => {
+            result.current.addCustomCategory('expense', 'Pills');
+            result.current.addCustomCategory('expense', 'Καύσιμα');
+        });
+
+        // Reject duplicate name
+        let editRes;
+        await act(async () => {
+            editRes = result.current.editCustomCategory('expense', 'Pills', 'Καύσιμα');
+        });
+        expect(editRes.success).toBe(false);
+        expect(editRes.error).toBe('already_exists');
+
+        // Reject base category name
+        await act(async () => {
+            editRes = result.current.editCustomCategory('expense', 'Pills', 'Σούπερ Μάρκετ');
+        });
+        expect(editRes.success).toBe(false);
+        expect(editRes.error).toBe('base_category');
+
+        // Successful rename
+        await act(async () => {
+            editRes = result.current.editCustomCategory('expense', 'Pills', 'Βιταμίνες');
+        });
+        expect(editRes.success).toBe(true);
+        expect(result.current.customCategories.expense).toContain('Βιταμίνες');
+        expect(result.current.customCategories.expense).not.toContain('Pills');
+    });
+
+    it('deletes custom category and prevents syncCategoriesFromTransactions from resurrecting it', async () => {
+        const { result } = renderHook(() => useSettings(), {
+            wrapper: SettingsProvider
+        });
+
+        await act(async () => {
+            await Promise.resolve();
+        });
+
+        await act(async () => {
+            result.current.addCustomCategory('expense', 'OldCategory');
+        });
+        expect(result.current.customCategories.expense).toContain('OldCategory');
+
+        await act(async () => {
+            result.current.deleteCustomCategory('expense', 'OldCategory', 'Άλλο');
+        });
+        expect(result.current.customCategories.expense).not.toContain('OldCategory');
+
+        // Verify syncCategoriesFromTransactions does not resurrect OldCategory
+        await act(async () => {
+            result.current.syncCategoriesFromTransactions([
+                { category: 'OldCategory', type: 'expense' }
+            ]);
+        });
+        expect(result.current.customCategories.expense).not.toContain('OldCategory');
+    });
 });

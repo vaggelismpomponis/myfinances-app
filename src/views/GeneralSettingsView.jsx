@@ -10,7 +10,8 @@ import {
     Shield,
     CheckCircle2,
     SlidersHorizontal,
-    X
+    X,
+    Tag
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -27,8 +28,8 @@ import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
 
-const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
-    const { language, updateLanguage, t: translate } = useSettings();
+const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader }) => {
+    const { language, updateLanguage, t: translate, customCategories } = useSettings();
     const isEL = language === 'el';
     const { showToast } = useToast();
     const { isPro, openUpgradeModal } = useSubscription();
@@ -283,6 +284,33 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, hideHeader }) => {
                                         </div>
                                         <Toggle enabled={isSmsEnabled} onClick={handleToggleSms} />
                                     </div>
+
+                                    {/* Custom Categories Management */}
+                                    <button
+                                        type="button"
+                                        onClick={onCategories}
+                                        className="w-full flex items-center justify-between gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-violet-50/60 dark:hover:bg-violet-500/[0.08] hover:border-violet-300 dark:hover:border-violet-500/30 active:scale-[0.99] transition-all text-left group"
+                                    >
+                                        <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                                            <div className="w-10 h-10 rounded-xl bg-violet-100/70 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                                <Tag size={18} strokeWidth={2.2} />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <span className="block font-bold text-sm text-gray-900 dark:text-white">
+                                                    {translate('custom_categories') || (isEL ? 'Προσαρμοσμένες Κατηγορίες' : 'Custom Categories')}
+                                                </span>
+                                                <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                                                    {isEL ? 'Επεξεργασία, μετονομασία ή διαγραφή κατηγοριών' : 'Edit, rename, or delete custom categories'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-200/60 dark:border-violet-500/20">
+                                                {(customCategories?.expense?.length || 0) + (customCategories?.income?.length || 0)}
+                                            </span>
+                                            <ChevronRight size={16} className="text-gray-400 dark:text-white/40 group-hover:text-violet-600 dark:group-hover:text-violet-400 group-hover:translate-x-0.5 transition-all" />
+                                        </div>
+                                    </button>
 
                                     {/* Privacy Policy */}
                                     <button

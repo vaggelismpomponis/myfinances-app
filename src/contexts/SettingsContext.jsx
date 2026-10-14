@@ -27,6 +27,19 @@ const getStoredCategories = (uid) => {
     }
 };
 
+const getStoredDeletedCategories = (uid) => {
+    try {
+        if (uid) {
+            const userKey = localStorage.getItem(`spendwise_deleted_categories_${uid}`);
+            if (userKey) return JSON.parse(userKey);
+        }
+        const legacy = localStorage.getItem('spendwise_deleted_categories');
+        return legacy ? JSON.parse(legacy) : [];
+    } catch {
+        return [];
+    }
+};
+
 export const SettingsProvider = ({ children }) => {
     const [userId, setUserId] = useState(null);
 
@@ -36,8 +49,9 @@ export const SettingsProvider = ({ children }) => {
     // 2. Language
     const [language, setLanguage] = useState(() => localStorage.getItem('language') || 'en');
 
-    // Custom Categories
+    // Custom Categories & Deleted Categories
     const [customCategories, setCustomCategories] = useState(() => getStoredCategories(null));
+    const [deletedCategories, setDeletedCategories] = useState(() => getStoredDeletedCategories(null));
 
     const categoriesChannelRef = useRef(null);
     const cloudSyncTimeoutRef = useRef(null);
@@ -75,22 +89,26 @@ export const SettingsProvider = ({ children }) => {
     });
 
     // Cloud sync helper (debounced) with session refresh retry
-    const syncCategoriesToCloud = useCallback((updatedCategories) => {
+    const syncCategoriesToCloud = useCallback((updatedCategories, updatedDeleted) => {
         if (!userId) return;
         if (cloudSyncTimeoutRef.current) {
             clearTimeout(cloudSyncTimeoutRef.current);
         }
         cloudSyncTimeoutRef.current = setTimeout(async () => {
             try {
+                const updatePayload = { custom_categories: updatedCategories };
+                if (updatedDeleted !== undefined) {
+                    updatePayload.deleted_categories = updatedDeleted;
+                }
                 let { error } = await supabase.auth.updateUser({
-                    data: { custom_categories: updatedCategories }
+                    data: updatePayload
                 });
 
                 if (error && (error.status === 401 || error.message?.includes('JWT') || error.message?.includes('token') || error.message?.includes('session'))) {
                     const { data: refreshData, error: refreshErr } = await supabase.auth.refreshSession();
                     if (!refreshErr && refreshData?.session) {
                         const retry = await supabase.auth.updateUser({
-                            data: { custom_categories: updatedCategories }
+                            data: updatePayload
                         });
                         error = retry.error;
                     }
@@ -117,19 +135,30 @@ export const SettingsProvider = ({ children }) => {
     }, []);
 
     // Category reconciliation helper
-    const applyUserCategories = useCallback((uid, cloudCats) => {
+    const applyUserCategories = useCallback((uid, cloudCats, cloudDeleted) => {
         if (!uid) return;
         const localCached = getStoredCategories(uid);
+        const localDeleted = getStoredDeletedCategories(uid);
+
+        let mergedDeleted = localDeleted;
+        if (Array.isArray(cloudDeleted)) {
+            mergedDeleted = Array.from(new Set([...(localDeleted || []), ...cloudDeleted]));
+            setDeletedCategories(mergedDeleted);
+            localStorage.setItem(`spendwise_deleted_categories_${uid}`, JSON.stringify(mergedDeleted));
+        }
+
+        const isDeleted = (c) => mergedDeleted.some(d => d.toLowerCase() === c.toLowerCase());
+
         if (cloudCats && (Array.isArray(cloudCats.expense) || Array.isArray(cloudCats.income))) {
             const mergedExpense = Array.from(new Set([
                 ...(localCached.expense || []),
                 ...(cloudCats.expense || [])
-            ])).filter(c => !isBaseCategory(c));
+            ])).filter(c => !isBaseCategory(c) && !isDeleted(c));
 
             const mergedIncome = Array.from(new Set([
                 ...(localCached.income || []),
                 ...(cloudCats.income || [])
-            ])).filter(c => !isBaseCategory(c));
+            ])).filter(c => !isBaseCategory(c) && !isDeleted(c));
 
             const merged = { expense: mergedExpense, income: mergedIncome };
             setCustomCategories(merged);
@@ -139,15 +168,15 @@ export const SettingsProvider = ({ children }) => {
             const hasLocalNew = mergedExpense.length > (cloudCats.expense?.length || 0) ||
                                 mergedIncome.length > (cloudCats.income?.length || 0);
             if (hasLocalNew) {
-                syncCategoriesToCloud(merged);
+                syncCategoriesToCloud(merged, mergedDeleted);
             }
         } else if ((localCached.expense && localCached.expense.length > 0) || (localCached.income && localCached.income.length > 0)) {
             const cleaned = {
-                expense: (localCached.expense || []).filter(c => !isBaseCategory(c)),
-                income: (localCached.income || []).filter(c => !isBaseCategory(c))
+                expense: (localCached.expense || []).filter(c => !isBaseCategory(c) && !isDeleted(c)),
+                income: (localCached.income || []).filter(c => !isBaseCategory(c) && !isDeleted(c))
             };
             setCustomCategories(cleaned);
-            syncCategoriesToCloud(cleaned);
+            syncCategoriesToCloud(cleaned, mergedDeleted);
         }
     }, [syncCategoriesToCloud]);
 
@@ -157,7 +186,7 @@ export const SettingsProvider = ({ children }) => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
-            applyUserCategories(userId, user.user_metadata?.custom_categories);
+            applyUserCategories(userId, user.user_metadata?.custom_categories, user.user_metadata?.deleted_categories);
         } catch (err) {
             console.warn('Could not fetch user metadata for categories sync:', err);
         }
@@ -169,7 +198,7 @@ export const SettingsProvider = ({ children }) => {
             const uid = session?.user?.id || null;
             setUserId(uid);
             if (uid) {
-                applyUserCategories(uid, session?.user?.user_metadata?.custom_categories);
+                applyUserCategories(uid, session?.user?.user_metadata?.custom_categories, session?.user?.user_metadata?.deleted_categories);
             }
         };
 
@@ -198,15 +227,13 @@ export const SettingsProvider = ({ children }) => {
         channel
             .on('broadcast', { event: 'categories-update' }, ({ payload }) => {
                 if (payload && (Array.isArray(payload.expense) || Array.isArray(payload.income))) {
-                    setCustomCategories(prev => {
-                        const updated = {
-                            expense: Array.from(new Set([...(prev.expense || []), ...(payload.expense || [])])).filter(c => !isBaseCategory(c)),
-                            income: Array.from(new Set([...(prev.income || []), ...(payload.income || [])])).filter(c => !isBaseCategory(c))
-                        };
-                        localStorage.setItem(`spendwise_categories_${userId}`, JSON.stringify(updated));
-                        localStorage.setItem('customCategories', JSON.stringify(updated));
-                        return updated;
-                    });
+                    const updated = {
+                        expense: (payload.expense || []).filter(c => !isBaseCategory(c)),
+                        income: (payload.income || []).filter(c => !isBaseCategory(c))
+                    };
+                    setCustomCategories(updated);
+                    localStorage.setItem(`spendwise_categories_${userId}`, JSON.stringify(updated));
+                    localStorage.setItem('customCategories', JSON.stringify(updated));
                 }
             })
             .subscribe();
@@ -327,16 +354,39 @@ export const SettingsProvider = ({ children }) => {
             localStorage.setItem('customCategories', JSON.stringify(updated));
             return updated;
         });
+
+        // Un-delete if previously marked as deleted
+        setDeletedCategories(prev => {
+            const next = prev.filter(c => c.toLowerCase() !== trimmed.toLowerCase());
+            if (userId) {
+                localStorage.setItem(`spendwise_deleted_categories_${userId}`, JSON.stringify(next));
+            }
+            return next;
+        });
     };
 
-    const removeCustomCategory = (type, categoryName) => {
+    const editCustomCategory = (type, oldName, newName) => {
+        if (!oldName || !newName || typeof newName !== 'string') return { success: false, error: 'invalid_name' };
+        const trimmedNew = newName.trim();
+        const trimmedOld = oldName.trim();
+        if (!trimmedNew) return { success: false, error: 'empty_name' };
+        if (trimmedNew === trimmedOld) return { success: true };
+        if (isBaseCategory(trimmedNew)) return { success: false, error: 'base_category' };
+
+        const currentList = customCategories[type] || [];
+        if (currentList.some(c => c.toLowerCase() === trimmedNew.toLowerCase() && c.toLowerCase() !== trimmedOld.toLowerCase())) {
+            return { success: false, error: 'already_exists' };
+        }
+
         setCustomCategories(prev => {
-            const currentList = prev[type] || [];
-            if (!currentList.includes(categoryName)) return prev;
+            const list = prev[type] || [];
+            if (list.some(c => c.toLowerCase() === trimmedNew.toLowerCase() && c.toLowerCase() !== trimmedOld.toLowerCase())) {
+                return prev;
+            }
 
             const updated = {
                 ...prev,
-                [type]: currentList.filter(c => c !== categoryName)
+                [type]: list.map(c => c === trimmedOld ? trimmedNew : c)
             };
             if (userId) {
                 localStorage.setItem(`spendwise_categories_${userId}`, JSON.stringify(updated));
@@ -346,6 +396,108 @@ export const SettingsProvider = ({ children }) => {
             localStorage.setItem('customCategories', JSON.stringify(updated));
             return updated;
         });
+
+        // Un-delete trimmedNew if previously marked deleted
+        setDeletedCategories(prev => {
+            const next = prev.filter(c => c.toLowerCase() !== trimmedNew.toLowerCase());
+            if (userId) {
+                localStorage.setItem(`spendwise_deleted_categories_${userId}`, JSON.stringify(next));
+            }
+            return next;
+        });
+
+        if (userId) {
+            (async () => {
+                try {
+                    await supabase
+                        .from('transactions')
+                        .update({ category: trimmedNew })
+                        .eq('user_id', userId)
+                        .eq('type', type)
+                        .eq('category', trimmedOld);
+
+                    await supabase
+                        .from('budgets')
+                        .update({ category: trimmedNew })
+                        .eq('user_id', userId)
+                        .eq('category', trimmedOld);
+
+                    const txChannel = supabase.channel(`transactions-sync-${userId}`);
+                    txChannel.send({
+                        type: 'broadcast',
+                        event: 'transactions-updated',
+                        payload: {}
+                    }).catch(() => {});
+                } catch (err) {
+                    console.warn('Error updating transactions for edited category:', err);
+                }
+            })();
+        }
+
+        return { success: true };
+    };
+
+    const deleteCustomCategory = (type, categoryName, reassignTo) => {
+        if (!categoryName) return { success: false };
+        const trimmed = categoryName.trim();
+
+        const currentList = customCategories[type] || [];
+        if (!currentList.includes(trimmed)) return { success: false };
+
+        setCustomCategories(prev => {
+            const list = prev[type] || [];
+            const updated = {
+                ...prev,
+                [type]: list.filter(c => c !== trimmed)
+            };
+            if (userId) {
+                localStorage.setItem(`spendwise_categories_${userId}`, JSON.stringify(updated));
+            }
+            localStorage.setItem('customCategories', JSON.stringify(updated));
+            return updated;
+        });
+
+        const nextDeleted = Array.from(new Set([...(deletedCategories || []), trimmed.toLowerCase()]));
+        setDeletedCategories(nextDeleted);
+
+        if (userId) {
+            localStorage.setItem(`spendwise_deleted_categories_${userId}`, JSON.stringify(nextDeleted));
+            syncCategoriesToCloud(customCategories, nextDeleted);
+            broadcastCategories(customCategories);
+
+            const fallback = reassignTo || (type === 'income' ? 'Άλλα Έσοδα' : 'Άλλο');
+            (async () => {
+                try {
+                    await supabase
+                        .from('transactions')
+                        .update({ category: fallback })
+                        .eq('user_id', userId)
+                        .eq('type', type)
+                        .eq('category', trimmed);
+
+                    await supabase
+                        .from('budgets')
+                        .delete()
+                        .eq('user_id', userId)
+                        .eq('category', trimmed);
+
+                    const txChannel = supabase.channel(`transactions-sync-${userId}`);
+                    txChannel.send({
+                        type: 'broadcast',
+                        event: 'transactions-updated',
+                        payload: {}
+                    }).catch(() => {});
+                } catch (err) {
+                    console.warn('Error updating transactions for deleted category:', err);
+                }
+            })();
+        }
+
+        return { success: true };
+    };
+
+    const removeCustomCategory = (type, categoryName) => {
+        return deleteCustomCategory(type, categoryName);
     };
 
     // Auto-discover and reconcile custom categories from transactions across devices
@@ -356,10 +508,11 @@ export const SettingsProvider = ({ children }) => {
             let changed = false;
             const newExp = [...(prev.expense || [])];
             const newInc = [...(prev.income || [])];
+            const deletedSet = new Set((deletedCategories || []).map(d => d.toLowerCase()));
 
             txs.forEach(t => {
                 const cat = t.category?.trim();
-                if (!cat || isBaseCategory(cat)) return;
+                if (!cat || isBaseCategory(cat) || deletedSet.has(cat.toLowerCase())) return;
                 if (t.type === 'income') {
                     if (!newInc.includes(cat)) {
                         newInc.push(cat);
@@ -384,7 +537,7 @@ export const SettingsProvider = ({ children }) => {
             localStorage.setItem('customCategories', JSON.stringify(updated));
             return updated;
         });
-    }, [userId, syncCategoriesToCloud, broadcastCategories]);
+    }, [userId, deletedCategories, syncCategoriesToCloud, broadcastCategories]);
 
     const t = (key, params = {}) => {
         let text = translations[language]?.[key] || key;
@@ -437,6 +590,8 @@ export const SettingsProvider = ({ children }) => {
         togglePrivacyScreen: (val) => setIsPrivacyScreenEnabled(val),
         customCategories,
         addCustomCategory,
+        editCustomCategory,
+        deleteCustomCategory,
         removeCustomCategory,
         syncCategoriesFromTransactions,
         privacyMode,

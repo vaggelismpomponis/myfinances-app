@@ -5,7 +5,7 @@ import {
     ShieldAlert as Shield, ArrowLeft, Moon,
     Smartphone, HardDriveDownload,
     Languages, LayoutDashboard, MessageSquare, BookOpen,
-    Settings, Info, Trash2, UserX,
+    Settings, Info, Trash2, UserX, Tag,
     Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff,
     ShieldCheck
 } from 'lucide-react';
@@ -89,8 +89,8 @@ const SectionLabel = ({ children, className = '' }) => (
 /* ═══════════════════════════════════════════════════════════
    MAIN COMPONENT
  ═══════════════════════════════════════════════════════════ */
-const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGeneral, onSecurity, onBackup, onAdmin, onFeedback, onGuide, hideHeader }) => {
-    const { theme, toggleTheme, language, updateLanguage, t: translate } = useSettings();
+const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGeneral, onSecurity, onBackup, onAdmin, onFeedback, onGuide, onCategories, hideHeader }) => {
+    const { theme, toggleTheme, language, updateLanguage, t: translate, customCategories } = useSettings();
     const { isPro, openUpgradeModal, openBillingPortal } = useSubscription();
     const isDark = theme === 'dark';
     const { showToast } = useToast();
@@ -337,6 +337,19 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         <Card>
                             <SettingRow icon={Shield} label={translate('security') || 'Security'} onClick={onSecurity} />
                             <SettingRow icon={Settings} label={translate('general') || 'General'} onClick={onGeneral} />
+                            <SettingRow
+                                icon={Tag}
+                                label={translate('custom_categories') || 'Προσαρμοσμένες Κατηγορίες'}
+                                onClick={onCategories}
+                                right={
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[11px] font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10 px-2.5 py-0.5 rounded-full border border-violet-200/60 dark:border-violet-500/20">
+                                            {(customCategories?.expense?.length || 0) + (customCategories?.income?.length || 0)}
+                                        </span>
+                                        <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
+                                    </div>
+                                }
+                            />
                             <SettingRow
                                 icon={Languages}
                                 label={translate('language') || 'Language'}

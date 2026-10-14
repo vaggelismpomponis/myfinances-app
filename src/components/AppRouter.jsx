@@ -17,6 +17,7 @@ const GuideView = React.lazy(() => import('../views/GuideView'));
 const AccountSettingsView = React.lazy(() => import('../views/AccountSettingsView'));
 const GeneralSettingsView = React.lazy(() => import('../views/GeneralSettingsView'));
 const SecuritySettingsView = React.lazy(() => import('../views/SecuritySettingsView'));
+const CategoriesSettingsView = React.lazy(() => import('../views/CategoriesSettingsView'));
 const ProfileView = React.lazy(() => import('../views/ProfileView'));
 const RecurringView = React.lazy(() => import('../views/RecurringView'));
 import HomeView from '../views/HomeView';
@@ -76,6 +77,7 @@ export default function AppRouter(props) {
                                 onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
                                 onAccount={() => setActiveTab('account')}
                                 onGeneral={() => setActiveTab('general')}
+                                onCategories={() => { setPreviousTab('profile'); setActiveTab('categories'); }}
                                 onSecurity={() => setActiveTab('security')}
                                 onBackup={() => setActiveTab('backup')}
                                 onAdmin={() => setActiveTab('admin')}
@@ -91,7 +93,8 @@ export default function AppRouter(props) {
                         )}
                         {activeTab === 'recurring' && <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} hideHeader={true} />}
                         {activeTab === 'account' && <AccountSettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
-                        {activeTab === 'general' && <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} hideHeader={true} />}
+                        {activeTab === 'general' && <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} onCategories={() => { setPreviousTab('general'); setActiveTab('categories'); }} hideHeader={true} />}
+                        {activeTab === 'categories' && <CategoriesSettingsView user={user} transactions={transactions} onBack={() => setActiveTab(previousTab || 'profile')} hideHeader={true} />}
                         {activeTab === 'privacy' && <PrivacyPolicyView onBack={() => setActiveTab('general')} hideHeader={true} />}
                         {activeTab === 'feedback' && <FeedbackView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
                         {activeTab === 'security' && <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
@@ -121,6 +124,7 @@ export default function AppRouter(props) {
                                     onRecurring={() => { setPreviousTab('profile'); setActiveTab('recurring'); }}
                                     onAccount={() => setActiveTab('account')}
                                     onGeneral={() => setActiveTab('general')}
+                                    onCategories={() => { setPreviousTab('profile'); setActiveTab('categories'); }}
                                     onSecurity={() => setActiveTab('security')}
                                     onBackup={() => setActiveTab('backup')}
                                     onAdmin={() => setActiveTab('admin')}
@@ -149,7 +153,12 @@ export default function AppRouter(props) {
                         )}
                         {activeTab === 'general' && (
                             <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
-                                <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} />
+                                <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} onCategories={() => { setPreviousTab('general'); setActiveTab('categories'); }} />
+                            </div>
+                        )}
+                        {activeTab === 'categories' && (
+                            <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
+                                <CategoriesSettingsView user={user} transactions={transactions} onBack={() => setActiveTab(previousTab || 'profile')} />
                             </div>
                         )}
                         {activeTab === 'privacy' && (
