@@ -22,5 +22,25 @@
     "editor.defaultFormatter": "denoland.vscode-deno"
   },
   "css.lint.unknownAtRules": "ignore",
-  "java.configuration.updateBuildConfiguration": "automatic"
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "java.import.gradle.enabled": false,
+  "java.import.exclusions": [
+    "**/node_modules/**",
+    "**/.metadata/**",
+    "**/archetype-resources/**",
+    "**/META-INF/maven/**",
+    "**/dist/**"
+  ],
+  "java.project.resourceFilters": [
+    "node_modules",
+    ".git",
+    "dist"
+  ],
+  "gradle.nestedProjects": [
+    "android"
+  ],
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true
+  }
 }
