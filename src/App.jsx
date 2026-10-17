@@ -443,31 +443,36 @@ function MainContent() {
     useEffect(() => {
         const authTimeout = setTimeout(() => {
             setLoading(false);
-        }, 5000); // Safety fallback — keep long enough to allow data to load
+        }, 2500); // 2.5s safety fallback
 
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            const currentUser = session?.user ?? null;
-            setUser(currentUser);
+        supabase.auth.getSession()
+            .then(({ data: { session } }) => {
+                const currentUser = session?.user ?? null;
+                setUser(currentUser);
 
-            // If no user, stop loading immediately to show LoginView
-            if (!currentUser) {
+                // Stop loading once session check resolves so app/login renders immediately
                 setLoading(false);
                 clearTimeout(authTimeout);
-            }
 
-            // Always track on app open so device/location is refreshed every session
-            if (currentUser && !sessionTracked.current) {
-                sessionTracked.current = true;
-                trackSession(currentUser);
-            }
-        });
+                // Always track on app open so device/location is refreshed every session
+                if (currentUser && !sessionTracked.current) {
+                    sessionTracked.current = true;
+                    trackSession(currentUser);
+                }
+            })
+            .catch(err => {
+                logger.error('Session retrieval failed', err, 'App');
+                setLoading(false);
+                clearTimeout(authTimeout);
+            });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             const currentUser = session?.user ?? null;
             setUser(currentUser);
 
             if (event === 'SIGNED_IN' && currentUser) {
-                // When signing in, wait for fetchTransactions to handle setLoading(false)
+                setLoading(false);
+                clearTimeout(authTimeout);
                 sessionTracked.current = true;
                 trackSession(currentUser);
             } else if (event === 'SIGNED_OUT') {
@@ -510,9 +515,15 @@ function MainContent() {
         });
     }, []);
 
-    // 1.5. Google Sign-In Init (Web)
+    const isIOSDevice = typeof window !== 'undefined' && (
+        /iPad|iPhone|iPod/.test(navigator.userAgent || '') ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
+        Boolean(window.navigator.standalone)
+    );
+
+    // 1.5. Google Sign-In Init (Web - Desktop non-iOS only)
     useEffect(() => {
-        if (!user && !loading && !Capacitor.isNativePlatform() && gsiNonce) {
+        if (!user && !loading && !Capacitor.isNativePlatform() && !isIOSDevice && gsiNonce) {
             // Reset the guard so a fresh mount always re-initializes the button
             gsiInitialized.current = false;
             let initialized = false;
@@ -609,43 +620,6 @@ function MainContent() {
         }
     }, [user, loading, gsiNonce]);
 
-    // OAuth popup fallback — bypasses FedCM entirely
-    const handleGoogleOAuthPopup = async () => {
-        try {
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    skipBrowserRedirect: true,
-                    redirectTo: window.location.origin
-                }
-            });
-            if (error) throw error;
-            if (!data?.url) throw new Error('No OAuth URL returned');
-
-            const popup = window.open(
-                data.url,
-                'google-oauth',
-                'width=500,height=620,left=' + (window.screen.width / 2 - 250) +
-                ',top=' + (window.screen.height / 2 - 310) +
-                ',scrollbars=yes,resizable=yes'
-            );
-
-            if (!popup) {
-                // Popup was blocked — redirect instead
-                window.location.href = data.url;
-            }
-        } catch (err) {
-            logger.error('OAuth popup error', err, 'App');
-            showToast('Η σύνδεση με Google απέτυχε.', 'error');
-        }
-    };
-
-    // Expose OAuth popup handler for LoginView (avoids prop drilling through native button)
-    useEffect(() => {
-        window.__googleOAuthPopup = handleGoogleOAuthPopup;
-        return () => { delete window.__googleOAuthPopup; };
-    }, [gsiNonce]);
-
     const handleGoogleLogin = async () => {
         try {
             if (Capacitor.isNativePlatform()) {
@@ -680,49 +654,32 @@ function MainContent() {
                 }));
                 if (error) throw error;
             } else {
-                // Web: Re-initialize and show Google One Tap as a popup
-                return new Promise((resolve, reject) => {
-                    if (!window.google || !gsiNonce) {
-                        reject(new Error('Google Sign-In not ready. Please try again.'));
-                        return;
+                // Web (iOS Safari, Mobile PWA, Android Web, Desktop Web):
+                // Direct OAuth redirect avoids popup blocking, ITP cookie partitions, and PWA isolation on iOS
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin
                     }
-
-                    // Re-initialize with the same hashed nonce to get a fresh prompt
-                    window.google.accounts.id.initialize({
-                        client_id: GOOGLE_CLIENT_ID,
-                        callback: async (response) => {
-                            try {
-                                const { error } = await supabase.auth.signInWithIdToken({
-                                    provider: 'google',
-                                    token: response.credential,
-                                    nonce: gsiNonce.raw
-                                });
-                                if (error) { reject(error); return; }
-                                resolve();
-                            } catch (err) {
-                                reject(err);
-                            }
-                        },
-                        itp_support: true,
-                        ux_mode: 'popup',
-                        context: 'signin',
-                        nonce: gsiNonce.hashed
-                    });
-
-                    window.google.accounts.id.prompt((notification) => {
-                        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                            reject(new Error('Το Google Sign-In δεν εμφανίστηκε. Δοκιμάστε ξανά.'));
-                        }
-                    });
                 });
+                if (error) throw error;
             }
         } catch (error) {
             logger.error('Google auth failed', error, 'App');
             const errMsg = error?.message || error?.code || JSON.stringify(error) || 'Unknown error';
-            showToast(`Google auth error: ${errMsg}`, 'error');
+            showToast(`Σφάλμα σύνδεσης Google: ${errMsg}`, 'error');
             throw error;
         }
     };
+
+    // OAuth handler fallback — calls direct OAuth redirect
+    const handleGoogleOAuthPopup = handleGoogleLogin;
+
+    // Expose OAuth handler for LoginView
+    useEffect(() => {
+        window.__googleOAuthPopup = handleGoogleOAuthPopup;
+        return () => { delete window.__googleOAuthPopup; };
+    }, [handleGoogleLogin]);
 
     const handleEmailLogin = async (email, password) => {
         try {

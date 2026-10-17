@@ -11,22 +11,9 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    // Remove modulepreload hints for non-critical vendor chunks.
-    // These chunks are still loaded when needed, but won't compete
-    // for bandwidth with the LCP-critical CSS and main JS bundle.
-    {
-      name: 'remove-non-critical-modulepreload',
-      enforce: 'post',
-      transformIndexHtml(html) {
-        return html.replace(
-          /\s*<link rel="modulepreload"[^>]*(vendor-sentry|vendor-supabase|vendor-motion)[^>]*>\n?/g,
-          ''
-        );
-      }
-    },
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['favicon.png', 'favicon.svg', 'spendwise-logo.png', 'spendwise-logo.webp', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'SpendWise',
         short_name: 'SpendWise',
@@ -91,8 +78,8 @@ export default defineConfig({
   build: {
     // Disable source maps in production (security — avoids exposing source code)
     sourcemap: false,
-    // Target modern browsers for smaller, faster output
-    target: 'esnext',
+    // Target ES2020 and Safari 14+ for flawless iOS WebKit compatibility
+    target: ['es2020', 'safari14', 'ios14'],
     // Raise warning threshold (Capacitor apps naturally bundle more)
     chunkSizeWarningLimit: 2000,
     rollupOptions: {

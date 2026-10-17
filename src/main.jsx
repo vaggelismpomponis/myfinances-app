@@ -17,10 +17,17 @@ if (typeof window !== 'undefined') {
             text.includes('Loading chunk') ||
             text.includes('ChunkLoadError')
         ) {
-            const lastReload = sessionStorage.getItem('sw_chunk_reload');
+            let lastReload = null;
+            try {
+                lastReload = sessionStorage.getItem('sw_chunk_reload');
+            } catch (e) {
+                // Ignore storage access errors in private/restricted iOS Safari mode
+            }
             const now = Date.now();
             if (!lastReload || now - parseInt(lastReload, 10) > 8000) {
-                sessionStorage.setItem('sw_chunk_reload', String(now));
+                try {
+                    sessionStorage.setItem('sw_chunk_reload', String(now));
+                } catch (e) {}
                 window.location.reload();
             }
         }
