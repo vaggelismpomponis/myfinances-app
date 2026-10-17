@@ -779,8 +779,8 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                             {/* Donut Chart + Breakdown Rows */}
                             <div className="flex flex-col lg:flex-row items-center gap-6">
                                 {/* Donut graphic */}
-                                <div className="relative w-[150px] h-[150px] shrink-0 outline-none focus:outline-none">
-                                    <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none" style={{ outline: 'none' }}>
+                                <div className="relative w-[150px] h-[150px] shrink-0 outline-none focus:outline-none min-w-0">
+                                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} className="outline-none focus:outline-none" style={{ outline: 'none' }}>
                                         <PieChart className="outline-none focus:outline-none" style={{ outline: 'none' }}>
                                             <Pie
                                                 data={donutData}

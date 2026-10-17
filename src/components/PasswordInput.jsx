@@ -12,10 +12,14 @@ const PasswordInput = ({
     className = '',
     inputClassName = '',
     labelClassName = '',
-    alignLabel = 'left'
+    alignLabel = 'left',
+    autoComplete = 'current-password',
+    id,
+    name,
+    ...rest
 }) => {
     const [show, setShow] = useState(false);
-    const inputId = label ? `password-input-${label.toLowerCase().replace(/\s+/g, '-')}` : 'password-input';
+    const inputId = id || (label ? `password-input-${label.toLowerCase().replace(/\s+/g, '-')}` : 'password-input');
     
     return (
         <div className={`space-y-1.5 ${className}`}>
@@ -33,10 +37,12 @@ const PasswordInput = ({
                 )}
                 <input
                     id={inputId}
+                    name={name || inputId}
                     type={show ? 'text' : 'password'}
                     value={value}
                     onChange={onChange}
                     placeholder={placeholder}
+                    autoComplete={autoComplete}
                     className={`w-full ${Icon ? 'pl-10' : 'px-4'} py-3 pr-11 
                                bg-gray-50 dark:bg-white/[0.05]
                                border border-gray-200 dark:border-white/10
@@ -46,6 +52,7 @@ const PasswordInput = ({
                                ${error ? 'focus:ring-rose-500/40 border-rose-300 dark:border-rose-500/30' : 'focus:ring-violet-500/40 focus:border-violet-500'}
                                transition-all duration-200 ${inputClassName}`}
                     required={required}
+                    {...rest}
                 />
                 <button
                     type="button"

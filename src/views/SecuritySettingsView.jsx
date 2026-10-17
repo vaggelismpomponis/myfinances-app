@@ -647,6 +647,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     value={currentPassword}
                                     onChange={(e) => setCurrentPassword(e.target.value)}
                                     placeholder={translate('current_password_placeholder') || '••••••••'}
+                                    autoComplete="current-password"
                                     required
                                 />
                                 <div className="border-t border-gray-100 dark:border-white/10 my-1" />
@@ -655,6 +656,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     placeholder={translate('new_password_placeholder') || '••••••••'}
+                                    autoComplete="new-password"
                                     required
                                 />
                                 {/* Password Strength Meter */}
@@ -691,6 +693,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     placeholder={translate('confirm_new_password_placeholder') || '••••••••'}
+                                    autoComplete="new-password"
                                     required
                                 />
                                 <button

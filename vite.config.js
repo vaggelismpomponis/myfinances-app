@@ -4,12 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  server: {
-    headers: {
-      // Allow Google Sign-In popup to postMessage back to the opener
-      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-    }
-  },
+
   // Force Vite to pre-bundle CJS packages that lack an ESM default export
   optimizeDeps: {
     include: ['react-joyride'],

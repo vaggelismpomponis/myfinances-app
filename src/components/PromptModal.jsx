@@ -73,6 +73,7 @@ const PromptModal = ({
                         <input
                             id="prompt-modal-input"
                             type={inputType === 'password' ? (showPassword ? 'text' : 'password') : inputType}
+                            autoComplete={inputType === 'password' ? 'current-password' : 'off'}
                             value={inputValue}
                             onChange={e => setInputValue(e.target.value)}
                             placeholder={placeholder}

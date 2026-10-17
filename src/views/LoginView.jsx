@@ -600,6 +600,7 @@ const LoginView = ({
                                                 placeholder={t('password_placeholder') || '••••••••'}
                                                 icon={Lock}
                                                 required
+                                                autoComplete={isLogin ? 'current-password' : 'new-password'}
                                                 inputClassName="bg-white/[0.05] hover:bg-white/[0.07] focus:bg-white/[0.08] border-white/10 focus:border-violet-500 text-white placeholder:text-gray-500 rounded-2xl py-3.5"
                                             />
                                         </div>

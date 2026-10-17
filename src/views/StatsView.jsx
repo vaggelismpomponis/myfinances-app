@@ -591,8 +591,8 @@ const StatsView = ({ transactions }) => {
                 
                 {categoryData.length > 0 ? (
                     <div className="flex flex-col items-center">
-                        <div className="h-64 w-full relative">
-                            <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none" style={{ outline: 'none' }}>
+                        <div className="h-64 w-full relative min-w-0">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} className="outline-none focus:outline-none" style={{ outline: 'none' }}>
                                 <PieChart className="outline-none focus:outline-none" style={{ outline: 'none' }}>
                                     <Pie
                                         data={categoryData}
@@ -666,9 +666,9 @@ const StatsView = ({ transactions }) => {
                     </h3>
                 </div>
                 
-                <div className="h-64 w-full">
+                <div className="h-64 w-full min-w-0">
                     {trendData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                             <AreaChart data={trendData}>
                                 <defs>
                                     <linearGradient id="colorInc" x1="0" y1="0" x2="0" y2="1">
