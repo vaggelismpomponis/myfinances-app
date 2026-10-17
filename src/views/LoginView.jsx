@@ -238,6 +238,8 @@ const LoginView = ({
             let msg = t('email_send_error') || 'Σφάλμα αποστολής email.';
             if (error.message?.includes('not found') || error.message?.includes('User not found')) {
                 msg = t('user_not_found') || 'Δεν υπάρχει χρήστης με αυτό το email.';
+            } else if (error.status === 500 || error.message?.includes('recovery email') || error.code === 'unexpected_failure') {
+                msg = t('recovery_email_service_error') || 'Αδυναμία αποστολής email. Εάν συνδεθήκατε αρχικά μέσω Google, χρησιμοποιήστε το κουμπί «Συνέχεια με Google».';
             }
             setResetStatus({ loading: false, success: false, error: msg });
         }
