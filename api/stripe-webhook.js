@@ -38,6 +38,11 @@ export default async function handler(req, res) {
   }
 
   try {
+    const getPeriodEnd = (sub) => {
+      const ts = sub.current_period_end || sub.items?.data?.[0]?.current_period_end;
+      return ts ? new Date(ts * 1000).toISOString() : null;
+    };
+
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
@@ -45,11 +50,44 @@ export default async function handler(req, res) {
         const customerId = session.customer;
         
         if (userId) {
-          // They just subscribed. We don't get expiry here, but we get it on subscription.updated
+          let expiry = null;
+          if (session.subscription) {
+            try {
+              const sub = await stripe.subscriptions.retrieve(session.subscription);
+              expiry = getPeriodEnd(sub);
+            } catch (e) {
+              console.error('Error fetching subscription in checkout:', e);
+            }
+          }
+
           await supabase.from('profiles').update({
             subscription_status: 'pro',
-            stripe_customer_id: customerId
+            subscription_expiry: expiry,
+            stripe_customer_id: customerId,
+            has_used_trial: true
           }).eq('id', userId);
+        }
+        break;
+      }
+      case 'invoice.payment_succeeded':
+      case 'invoice.paid': {
+        const invoice = event.data.object;
+        const customerId = invoice.customer;
+        const subscriptionId = invoice.subscription;
+
+        if (subscriptionId) {
+          try {
+            const sub = await stripe.subscriptions.retrieve(subscriptionId);
+            const expiry = getPeriodEnd(sub);
+
+            await supabase.from('profiles').update({
+              subscription_status: 'pro',
+              subscription_expiry: expiry,
+              has_used_trial: true
+            }).eq('stripe_customer_id', customerId);
+          } catch (e) {
+            console.error('Error handling invoice payment success:', e);
+          }
         }
         break;
       }
@@ -58,7 +96,7 @@ export default async function handler(req, res) {
         const subscription = event.data.object;
         const customerId = subscription.customer;
         const status = subscription.status; // e.g. active, canceled
-        const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
+        const currentPeriodEnd = getPeriodEnd(subscription);
 
         let subStatus = 'free';
         if (status === 'active' || status === 'trialing') subStatus = 'pro';

@@ -85,6 +85,10 @@ export const SubscriptionProvider = ({ user, children }) => {
     
     if (data) {
       updateSubscriptionState(data.subscription_status, data.subscription_expiry);
+      // If status is 'pro' but expiry date has passed, auto-sync with Stripe to catch auto-renewals
+      if (data.subscription_status === 'pro' && data.subscription_expiry && new Date(data.subscription_expiry) <= new Date()) {
+        syncSubscription().catch(() => {});
+      }
     }
   };
 

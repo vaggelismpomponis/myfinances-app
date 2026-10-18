@@ -35,6 +35,11 @@ Deno.serve(async (req) => {
 
     console.log(`Received event type: ${event.type}`)
 
+    const getPeriodEnd = (sub: any): string | null => {
+      const ts = sub?.current_period_end || sub?.items?.data?.[0]?.current_period_end
+      return ts ? new Date(ts * 1000).toISOString() : null
+    }
+
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object
@@ -47,7 +52,7 @@ Deno.serve(async (req) => {
           if (session.subscription) {
             try {
               const sub = await stripe.subscriptions.retrieve(session.subscription as string);
-              expiry = new Date(sub.current_period_end * 1000).toISOString();
+              expiry = getPeriodEnd(sub);
             } catch (e) {
               console.error("Error fetching subscription for expiry:", e);
             }
@@ -65,6 +70,34 @@ Deno.serve(async (req) => {
             .eq("id", userId)
 
           if (error) throw error
+        }
+        break
+      }
+
+      case "invoice.payment_succeeded":
+      case "invoice.paid": {
+        const invoice = event.data.object
+        const customerId = invoice.customer
+        const subscriptionId = invoice.subscription
+
+        if (subscriptionId) {
+          try {
+            const sub = await stripe.subscriptions.retrieve(subscriptionId as string)
+            const expiry = getPeriodEnd(sub)
+
+            const { error } = await supabase
+              .from("profiles")
+              .update({
+                subscription_status: "pro",
+                subscription_expiry: expiry,
+                has_used_trial: true,
+              })
+              .eq("stripe_customer_id", customerId)
+
+            if (error) throw error
+          } catch (e) {
+            console.error("Error handling invoice payment succeeded:", e)
+          }
         }
         break
       }
@@ -92,7 +125,7 @@ Deno.serve(async (req) => {
         const status = subscription.status // 'active', 'past_due', 'canceled', etc.
 
         if (status === 'active' || status === 'trialing') {
-          const expiry = new Date(subscription.current_period_end * 1000).toISOString()
+          const expiry = getPeriodEnd(subscription)
           const { error } = await supabase
             .from("profiles")
             .update({ 

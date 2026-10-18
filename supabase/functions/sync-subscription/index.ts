@@ -31,46 +31,67 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Search Stripe for completed checkout sessions belonging to this user
-    // client_reference_id is set to userId when the session is created
-    const sessions = await stripe.checkout.sessions.list({
-      limit: 5,
-    })
+    const getPeriodEnd = (sub: any): string | null => {
+      const ts = sub?.current_period_end || sub?.items?.data?.[0]?.current_period_end
+      return ts ? new Date(ts * 1000).toISOString() : null
+    }
 
-    // Find a completed session with this user's ID as client_reference_id
-    const completedSession = sessions.data.find(
-      (s) => s.client_reference_id === userId && s.payment_status !== 'unpaid'
-    )
+    // 1. Check if user profile already has a stripe_customer_id
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("stripe_customer_id")
+      .eq("id", userId)
+      .single()
 
-    if (!completedSession) {
-      // No completed session found — subscription not active
-      return new Response(JSON.stringify({ isPro: false, message: "No completed session found" }), {
+    let activeSub: any = null
+    let customerId: string | null = profile?.stripe_customer_id || null
+
+    if (customerId) {
+      try {
+        const subs = await stripe.subscriptions.list({
+          customer: customerId,
+          status: 'all',
+          limit: 5,
+        })
+        activeSub = subs.data.find((s: any) => s.status === 'active' || s.status === 'trialing')
+      } catch (e) {
+        console.error("Error querying subscriptions by customerId:", e)
+      }
+    }
+
+    // 2. If not found by customer ID, search recent checkout sessions
+    if (!activeSub) {
+      const sessions = await stripe.checkout.sessions.list({
+        limit: 20,
+      })
+
+      const completedSession = sessions.data.find(
+        (s: any) => s.client_reference_id === userId && s.payment_status !== 'unpaid'
+      )
+
+      if (completedSession) {
+        customerId = (completedSession.customer as string) || customerId
+        if (completedSession.subscription) {
+          try {
+            const sub = await stripe.subscriptions.retrieve(completedSession.subscription as string)
+            if (sub.status === 'active' || sub.status === 'trialing') {
+              activeSub = sub
+            }
+          } catch (e) {
+            console.error("Error fetching subscription from session:", e)
+          }
+        }
+      }
+    }
+
+    if (!activeSub) {
+      return new Response(JSON.stringify({ isPro: false, message: "No active subscription found" }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       })
     }
 
-    // Get subscription details for expiry
-    let expiry: string | null = null
-    let stripeCustomerId = completedSession.customer as string | null
-
-    if (completedSession.subscription) {
-      try {
-        const sub = await stripe.subscriptions.retrieve(completedSession.subscription as string)
-        // Accept active or trialing subscriptions
-        if (sub.status === 'active' || sub.status === 'trialing') {
-          expiry = new Date(sub.current_period_end * 1000).toISOString()
-        } else {
-          // Subscription exists but is not active
-          return new Response(JSON.stringify({ isPro: false, message: `Subscription status: ${sub.status}` }), {
-            status: 200,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          })
-        }
-      } catch (e) {
-        console.error("Error fetching subscription:", e)
-      }
-    }
+    const expiry = getPeriodEnd(activeSub)
 
     // Grant Pro status in Supabase
     const { error } = await supabase
@@ -78,7 +99,7 @@ serve(async (req) => {
       .update({
         subscription_status: "pro",
         subscription_expiry: expiry,
-        stripe_customer_id: stripeCustomerId,
+        stripe_customer_id: customerId,
         has_used_trial: true,
       })
       .eq("id", userId)
