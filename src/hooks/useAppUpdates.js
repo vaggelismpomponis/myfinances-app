@@ -24,7 +24,9 @@ export function useAppUpdates({ user, loading, isLocked, setLatestUpdate, setSho
                         }
                     }
                 } catch (e) {
-                    logger.error('Error fetching latest update', e, 'App');
+                    if (e?.name !== 'AbortError') {
+                        logger.warn('Non-critical: error checking app updates', 'App');
+                    }
                 }
             }
         };

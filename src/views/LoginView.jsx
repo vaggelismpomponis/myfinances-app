@@ -131,7 +131,8 @@ const LoginView = ({
         Capacitor.isNativePlatform() ||
         /iPad|iPhone|iPod|Android/i.test(navigator.userAgent || '') ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
-        Boolean(window.navigator.standalone)
+        Boolean(window.navigator.standalone) ||
+        (/^((?!chrome|android).)*safari/i.test(navigator.userAgent || ''))
     );
 
     const handleGoogleClick = async () => {

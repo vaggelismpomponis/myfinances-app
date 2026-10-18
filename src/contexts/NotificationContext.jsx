@@ -92,49 +92,7 @@ export const NotificationProvider = ({ children }) => {
         notificationsRef.current = notifications;
     }, [notifications]);
 
-    // Resilient cloud sync with session refresh retry
-    const syncToCloud = useCallback((updatedNotifs) => {
-        const uid = userId || userIdRef.current;
-        if (!uid) return;
-        if (cloudSyncTimeoutRef.current) {
-            clearTimeout(cloudSyncTimeoutRef.current);
-        }
-        cloudSyncTimeoutRef.current = setTimeout(async () => {
-            try {
-                let { error } = await supabase.auth.updateUser({
-                    data: { notifications: updatedNotifs }
-                });
-
-                if (error && (error.status === 401 || error.message?.includes('JWT') || error.message?.includes('token') || error.message?.includes('session'))) {
-                    const { data: refreshData, error: refreshErr } = await supabase.auth.refreshSession();
-                    if (!refreshErr && refreshData?.session) {
-                        const retry = await supabase.auth.updateUser({
-                            data: { notifications: updatedNotifs }
-                        });
-                        error = retry.error;
-                    }
-                }
-
-                if (error) {
-                    console.error('Failed to sync notifications to Supabase user account:', error);
-                }
-            } catch (err) {
-                console.warn('Exception syncing notifications to Supabase:', err);
-            }
-        }, 400);
-    }, [userId]);
-
-    const broadcastNotifications = useCallback((updatedNotifs) => {
-        if (notificationsChannelRef.current) {
-            notificationsChannelRef.current.send({
-                type: 'broadcast',
-                event: 'notifications-update',
-                payload: { notifications: updatedNotifs }
-            }).catch(() => {});
-        }
-    }, []);
-
-    // Re-fetch from Supabase and merge
+    // Re-fetch legacy notifications from Supabase, merge into local storage, and clean up user_metadata
     const refetchNotifications = useCallback(async () => {
         const uid = userId || userIdRef.current;
         if (!uid) return;
@@ -142,24 +100,25 @@ export const NotificationProvider = ({ children }) => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
-            const cloudNotifs = Array.isArray(user.user_metadata?.notifications)
+            const legacyCloudNotifs = Array.isArray(user.user_metadata?.notifications)
                 ? user.user_metadata.notifications
-                : [];
+                : null;
 
-            setNotifications(prev => {
-                const merged = mergeNotifications(prev, cloudNotifs);
-                saveToStorage(uid, merged);
-
-                // If local had unsynced changes, push up
-                if (JSON.stringify(merged) !== JSON.stringify(cloudNotifs)) {
-                    syncToCloud(merged);
-                }
-                return merged;
-            });
+            if (legacyCloudNotifs && legacyCloudNotifs.length > 0) {
+                setNotifications(prev => {
+                    const merged = mergeNotifications(prev, legacyCloudNotifs);
+                    saveToStorage(uid, merged);
+                    return merged;
+                });
+                // Clean up user_metadata so notifications don't bloat the Auth JWT token
+                await supabase.auth.updateUser({
+                    data: { notifications: null }
+                }).catch(() => {});
+            }
         } catch (err) {
             console.warn('Could not re-fetch notifications from Supabase:', err);
         }
-    }, [userId, syncToCloud]);
+    }, [userId]);
 
     // Auth state listener
     useEffect(() => {
@@ -247,7 +206,17 @@ export const NotificationProvider = ({ children }) => {
         };
     }, [userId, refetchNotifications]);
 
-    // Mutation handlers (deterministic, state + storage + broadcast + cloud)
+    const broadcastNotifications = useCallback((updatedNotifs) => {
+        if (notificationsChannelRef.current) {
+            notificationsChannelRef.current.send({
+                type: 'broadcast',
+                event: 'notifications-update',
+                payload: { notifications: updatedNotifs }
+            }).catch(() => {});
+        }
+    }, []);
+
+    // Mutation handlers (deterministic, state + storage + broadcast)
     const addNotification = useCallback((type, message, metadata = {}) => {
         const newNotif = {
             id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -266,9 +235,8 @@ export const NotificationProvider = ({ children }) => {
         if (uid) {
             saveToStorage(uid, updated);
             broadcastNotifications(updated);
-            syncToCloud(updated);
         }
-    }, [userId, broadcastNotifications, syncToCloud]);
+    }, [userId, broadcastNotifications]);
 
     const markAllRead = useCallback(() => {
         const current = notificationsRef.current || [];
@@ -279,9 +247,8 @@ export const NotificationProvider = ({ children }) => {
         if (uid) {
             saveToStorage(uid, updated);
             broadcastNotifications(updated);
-            syncToCloud(updated);
         }
-    }, [userId, broadcastNotifications, syncToCloud]);
+    }, [userId, broadcastNotifications]);
 
     const clearAll = useCallback(() => {
         setNotifications([]);
@@ -289,9 +256,8 @@ export const NotificationProvider = ({ children }) => {
         if (uid) {
             saveToStorage(uid, []);
             broadcastNotifications([]);
-            syncToCloud([]);
         }
-    }, [userId, broadcastNotifications, syncToCloud]);
+    }, [userId, broadcastNotifications]);
 
     const deleteNotification = useCallback((id) => {
         const current = notificationsRef.current || [];
@@ -302,9 +268,8 @@ export const NotificationProvider = ({ children }) => {
         if (uid) {
             saveToStorage(uid, updated);
             broadcastNotifications(updated);
-            syncToCloud(updated);
         }
-    }, [userId, broadcastNotifications, syncToCloud]);
+    }, [userId, broadcastNotifications]);
 
     const unreadCount = notifications.filter(n => !n.read).length;
 

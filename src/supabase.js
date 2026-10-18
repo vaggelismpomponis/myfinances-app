@@ -17,14 +17,10 @@ export const supabase = createClient(
       detectSessionInUrl: true,
       storageKey: 'sb-session',
       storage: window.localStorage,
-      cookieOptions: {
-        name: 'sb-cookie',
-        lifetime: 60 * 60 * 24 * 7,
-        domain: window.location.hostname,
-        path: '/',
-        sameSite: 'Lax',
-        secure: window.location.protocol === 'https:',
-      }
+      // Avoid Web Locks API deadlock and "Lock was stolen by another request" on Safari/WebKit
+      lock: async (_name, _acquireTimeout, fn) => {
+        return await fn();
+      },
     }
   }
 );

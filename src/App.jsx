@@ -397,7 +397,9 @@ function MainContent() {
                         }
                     }
                 } catch (e) {
-                    logger.error('Error fetching latest update', e, 'App');
+                    if (e?.name !== 'AbortError') {
+                        logger.warn('Non-critical: error checking app updates', 'App');
+                    }
                 }
             }
         };
@@ -515,15 +517,16 @@ function MainContent() {
         });
     }, []);
 
-    const isIOSDevice = typeof window !== 'undefined' && (
+    const isSafariOrMobile = typeof window !== 'undefined' && (
         /iPad|iPhone|iPod/.test(navigator.userAgent || '') ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
-        Boolean(window.navigator.standalone)
+        Boolean(window.navigator.standalone) ||
+        (/^((?!chrome|android).)*safari/i.test(navigator.userAgent || ''))
     );
 
-    // 1.5. Google Sign-In Init (Web - Desktop non-iOS only)
+    // 1.5. Google Sign-In Init (Web - Desktop non-Safari Chrome/Firefox only)
     useEffect(() => {
-        if (!user && !loading && !Capacitor.isNativePlatform() && !isIOSDevice && gsiNonce) {
+        if (!user && !loading && !Capacitor.isNativePlatform() && !isSafariOrMobile && gsiNonce) {
             // Reset the guard so a fresh mount always re-initializes the button
             gsiInitialized.current = false;
             let initialized = false;
