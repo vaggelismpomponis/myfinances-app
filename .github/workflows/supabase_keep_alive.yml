@@ -1,0 +1,24 @@
+name: "Supabase Keep Alive"
+
+on:
+  schedule:
+    # Εκτελείται κάθε 3 ημέρες στις 04:00 UTC για να μηδενίζει το όριο των 7 ημερών
+    - cron: "0 4 */3 * *"
+  workflow_dispatch: # Επιτρέπει χειροκίνητη εκτέλεση
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Table
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/app_updates?select=*&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+
+          echo "Response HTTP Status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "Keep-alive ping failed or returned non-200 status code ($HTTP_STATUS)!"
+            exit 1
+          fi
