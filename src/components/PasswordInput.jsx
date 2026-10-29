@@ -26,14 +26,14 @@ const PasswordInput = ({
             {label && (
                 <label 
                     htmlFor={inputId} 
-                    className={`block ${alignLabel === 'center' ? 'text-center' : 'text-left'} text-[11px] font-semibold text-gray-400 dark:text-white/60 uppercase tracking-wide w-full ${labelClassName}`}
+                    className={`block ${alignLabel === 'center' ? 'text-center' : 'text-left'} text-[11px] font-bold text-gray-500 dark:text-white/60 mb-1.5 uppercase tracking-widest w-full ${labelClassName}`}
                 >
                     {label}
                 </label>
             )}
             <div className="relative group">
                 {Icon && (
-                    <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors group-focus-within:text-violet-500 pointer-events-none" size={16} />
+                    <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 transition-colors group-focus-within:text-gray-950 dark:group-focus-within:text-white pointer-events-none" size={16} />
                 )}
                 <input
                     id={inputId}
@@ -43,13 +43,13 @@ const PasswordInput = ({
                     onChange={onChange}
                     placeholder={placeholder}
                     autoComplete={autoComplete}
-                    className={`w-full ${Icon ? 'pl-10' : 'px-4'} py-3 pr-11 
-                               bg-gray-50 dark:bg-white/[0.05]
+                    className={`w-full ${Icon ? 'pl-10' : 'px-3.5'} py-2.5 pr-11 
+                               bg-white dark:bg-surface-dark3
                                border border-gray-200 dark:border-white/10
-                               rounded-xl text-[14px] text-gray-900 dark:text-white
-                               placeholder:text-gray-400 dark:placeholder:text-white/20
-                               focus:outline-none focus:ring-2 
-                               ${error ? 'focus:ring-rose-500/40 border-rose-300 dark:border-rose-500/30' : 'focus:ring-violet-500/40 focus:border-violet-500'}
+                               rounded-xl text-sm font-medium text-gray-900 dark:text-white
+                               placeholder:text-gray-400 dark:placeholder:text-gray-500
+                               focus:outline-none 
+                               ${error ? 'focus:ring-2 focus:ring-rose-500/40 border-rose-300 dark:border-rose-500/30' : 'focus:ring-1 focus:ring-gray-950 dark:focus:ring-white focus:border-gray-950 dark:focus:border-white'}
                                transition-all duration-200 ${inputClassName}`}
                     required={required}
                     {...rest}
@@ -60,7 +60,7 @@ const PasswordInput = ({
                     aria-label={show ? 'Hide password' : 'Show password'}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 
                                text-gray-400 dark:text-white/40
-                               hover:text-gray-600 dark:hover:text-white/60 
+                               hover:text-gray-600 dark:hover:text-white 
                                active:scale-90 transition-all duration-200"
                 >
                     {show ? <EyeOff size={16} /> : <Eye size={16} />}

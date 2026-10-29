@@ -631,22 +631,20 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     animate-slide-up">
                         <div className="flex items-center justify-between mb-5">
                             <div>
-                                <h3 className="text-[17px] font-bold text-gray-900 dark:text-white">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                                     {hasPassword ? (translate('change_password') || 'Change Password') : (translate('set_password_title') || 'Create Account Password')}
                                 </h3>
-                                <p className="text-[12px] text-gray-400 dark:text-white/60">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                     {hasPassword ? (translate('change_password_desc') || 'Update your account password') : (translate('set_password_desc') || 'Set a password to enable email login')}
                                 </p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setShowPasswordModal(false)}
-                                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.07]
-                                           flex items-center justify-center
-                                           text-gray-400 hover:text-gray-600 dark:hover:text-white/60
-                                           active:scale-90 transition-all"
+                                aria-label="Close"
+                                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
                             >
-                                <X size={15} />
+                                <X size={18} />
                             </button>
                         </div>
 
@@ -723,22 +721,33 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     autoComplete="new-password"
                                     required
                                 />
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full py-3.5 mt-2 bg-violet-600 hover:bg-violet-700
-                                               text-white font-bold rounded-xl text-[14px]
-                                               shadow-sm
-                                               active:scale-95 transition-all disabled:opacity-50
-                                               flex items-center justify-center gap-2 cursor-pointer"
-                                >
-                                    {loading ? (
-                                        <>
-                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            {translate('updating') || 'Updating...'}
-                                        </>
-                                    ) : (hasPassword ? (translate('change_password') || 'Change Password') : (translate('set_password_btn') || 'Save Password'))}
-                                </button>
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPasswordModal(false)}
+                                        disabled={loading}
+                                        className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm"
+                                    >
+                                        {translate('cancel')}
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50 cursor-pointer"
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white dark:border-gray-900/30 dark:border-t-gray-900 rounded-full animate-spin" />
+                                                <span>{translate('updating') || 'Updating...'}</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Check size={16} />
+                                                <span>{hasPassword ? (translate('change_password') || 'Change Password') : (translate('set_password_btn') || 'Save Password')}</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                             </form>
                         )}
                     </div>
