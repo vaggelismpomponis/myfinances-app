@@ -582,7 +582,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 type="button"
                                 onClick={() => setType('expense')}
                                 className={`flex-1 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-[13px] lg:text-sm font-semibold transition-all ${type === 'expense'
-                                    ? 'bg-white dark:bg-gray-600 text-red-600 dark:text-red-400 shadow-sm'
+                                    ? 'bg-white dark:bg-gray-600 text-rose-600 dark:text-rose-400 shadow-sm'
                                     : 'text-gray-400 dark:text-gray-400'
                                     }`}
                             >
@@ -592,7 +592,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 type="button"
                                 onClick={() => setType('income')}
                                 className={`flex-1 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-[13px] lg:text-sm font-semibold transition-all ${type === 'income'
-                                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                                    ? 'bg-white dark:bg-gray-600 text-emerald-600 dark:text-emerald-400 shadow-sm'
                                     : 'text-gray-400 dark:text-gray-400'
                                     }`}
                             >
