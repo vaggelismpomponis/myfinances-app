@@ -104,12 +104,9 @@ export default function MobileLayout({
 
                             {/* CENTER — App Name */}
                             {activeTab === 'home' ? (
-                                <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 select-none pointer-events-none">
-                                    <span className="w-1.5 h-4 rounded-sm bg-gray-900 dark:bg-white shrink-0" />
-                                    <h1 className="text-[17px] font-black tracking-tight text-gray-900 dark:text-white font-sans">
-                                        SpendWise
-                                    </h1>
-                                </div>
+                                <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-black tracking-tight text-gray-900 dark:text-white font-sans select-none pointer-events-none">
+                                    SpendWise
+                                </h1>
                             ) : (
                                 <h2 className="absolute left-1/2 -translate-x-1/2
                                                 text-[16px] font-bold text-gray-900 dark:text-white
