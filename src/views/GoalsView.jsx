@@ -279,7 +279,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                     </div>
                     <button
                         onClick={openAdd}
-                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-gray-950 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-950 text-sm font-bold rounded-xl shadow-sm transition-all active:scale-95"
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-violet-500 hover:bg-violet-600 text-white text-sm font-bold rounded-xl shadow-sm shadow-violet-500/20 border border-violet-400/30 transition-all active:scale-95"
                     >
                         {(!isPro && goals.length >= 2) ? <ShieldCheck size={15} className="inline-block text-amber-300 mr-1" /> : <Plus size={16} />} {t('add_goal')}
                     </button>

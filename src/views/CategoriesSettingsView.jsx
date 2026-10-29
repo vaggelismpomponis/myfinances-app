@@ -291,7 +291,7 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                                         }
                                         setIsAdding(true);
                                     }}
-                                    className="px-4 py-2.5 rounded-xl bg-gray-950 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-950 text-xs font-extrabold flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all cursor-pointer"
+                                    className="px-4 py-2.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-sm shadow-violet-500/20 border border-violet-400/30 active:scale-95 transition-all cursor-pointer"
                                 >
                                     <Plus size={16} strokeWidth={2.5} />
                                     <span>{translate('add_category') || 'Προσθήκη Κατηγορίας'}</span>
