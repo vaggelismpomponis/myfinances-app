@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
     ArrowLeft, Target, Plus, Trash2, PiggyBank, Pencil,
-    Check, X, TrendingUp, Trophy, Star, ShieldCheck
+    Check, X, TrendingUp, Trophy, Star, ShieldCheck,
+    Plane, Home as HomeIcon, Car, Laptop, GraduationCap, Heart, HeartPulse, Gamepad2, Dog
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
@@ -14,16 +15,16 @@ import { useAppStore } from '../store/useAppStore';
    Goal icon / colour presets
 ───────────────────────────────────────────────────────────── */
 const GOAL_PRESETS = [
-    { emoji: '✈️',  label: 'Ταξίδι',       color: 'from-sky-500 to-blue-600',        bar: '#38bdf8' },
-    { emoji: '🏠',  label: 'Σπίτι',         color: 'from-emerald-500 to-teal-600',    bar: '#34d399' },
-    { emoji: '🚗',  label: 'Αυτοκίνητο',   color: 'from-orange-500 to-amber-600',    bar: '#fb923c' },
-    { emoji: '💻',  label: 'Τεχνολογία',   color: 'from-violet-500 to-purple-600',   bar: '#a78bfa' },
-    { emoji: '🎓',  label: 'Εκπαίδευση',   color: 'from-indigo-500 to-blue-600',     bar: '#818cf8' },
-    { emoji: '💍',  label: 'Γάμος',         color: 'from-rose-500 to-pink-600',       bar: '#fb7185' },
-    { emoji: '🏥',  label: 'Υγεία',         color: 'from-red-500 to-rose-600',        bar: '#f87171' },
-    { emoji: '🎮',  label: 'Ψυχαγωγία',    color: 'from-fuchsia-500 to-violet-600',  bar: '#e879f9' },
-    { emoji: '🐾',  label: 'Κατοικίδιο',   color: 'from-yellow-500 to-amber-500',    bar: '#fbbf24' },
-    { emoji: '🎯',  label: 'Άλλο',          color: 'from-gray-500 to-slate-600',      bar: '#94a3b8' },
+    { icon: Plane,         label: 'Ταξίδι',       color: 'from-sky-500 to-blue-600',        bar: '#38bdf8' },
+    { icon: HomeIcon,      label: 'Σπίτι',         color: 'from-emerald-500 to-teal-600',    bar: '#34d399' },
+    { icon: Car,           label: 'Αυτοκίνητο',   color: 'from-orange-500 to-amber-600',    bar: '#fb923c' },
+    { icon: Laptop,        label: 'Τεχνολογία',   color: 'from-violet-500 to-purple-600',   bar: '#a78bfa' },
+    { icon: GraduationCap, label: 'Εκπαίδευση',   color: 'from-indigo-500 to-blue-600',     bar: '#818cf8' },
+    { icon: Heart,         label: 'Γάμος',         color: 'from-rose-500 to-pink-600',       bar: '#fb7185' },
+    { icon: HeartPulse,    label: 'Υγεία',         color: 'from-red-500 to-rose-600',        bar: '#f87171' },
+    { icon: Gamepad2,      label: 'Ψυχαγωγία',    color: 'from-fuchsia-500 to-violet-600',  bar: '#e879f9' },
+    { icon: Dog,           label: 'Κατοικίδιο',   color: 'from-yellow-500 to-amber-500',    bar: '#fbbf24' },
+    { icon: Target,        label: 'Άλλο',          color: 'from-gray-500 to-slate-600',      bar: '#94a3b8' },
 ];
 
 const getPreset = (title = '') => {
@@ -283,11 +284,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                     </div>
                     <button
                         onClick={openAdd}
-                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5
-                                   bg-violet-600 hover:bg-violet-700 text-white
-                                   text-sm font-bold rounded-xl
-                                   shadow-lg shadow-violet-500/25
-                                   transition-all active:scale-95"
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-gray-950 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-950 text-sm font-bold rounded-xl shadow-sm transition-all active:scale-95"
                     >
                         {(!isPro && goals.length >= 2) ? <ShieldCheck size={15} className="inline-block text-amber-300 mr-1" /> : <Plus size={16} />} {t('add_goal')}
                     </button>
@@ -300,13 +297,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                 {/* ── Hero Summary Card (when goals exist) ── */}
                 {goals.length > 0 && (
                     <div className="px-5 pt-5">
-                        <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700
-                                        rounded-3xl p-5 text-white overflow-hidden
-                                        shadow-xl shadow-violet-500/20">
-                            {/* Decorative orbs */}
-                            <div className="absolute -top-8 -right-8 w-36 h-36 bg-white/10 rounded-full blur-2xl" />
-                            <div className="absolute -bottom-6 -left-6 w-28 h-28 bg-indigo-900/30 rounded-full blur-2xl" />
-
+                        <div className="relative bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-5 sm:p-6 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10">
                             <div className="relative">
                                 {/* Top row: gauge left + main savings right */}
                                 <div className="flex items-center gap-4 mb-4">
@@ -314,19 +305,19 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                     <Ring pct={totalPct} color="#c4b5fd" size={110} stroke={10}>
                                         <div className="text-center">
                                             <span className="block text-2xl font-black leading-none">{Math.round(totalPct)}%</span>
-                                            <span className="block text-[9px] text-violet-200 font-bold uppercase tracking-wide mt-0.5">{t('progress')}</span>
+                                            <span className="block text-[9px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wide mt-0.5">{t('progress')}</span>
                                         </div>
                                     </Ring>
 
                                     {/* Main savings info */}
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-violet-200 text-[10px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5 font-display">
-                                            <Target size={11} /> {t('total_savings')}
+                                        <p className="text-gray-500 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5 font-display">
+                                            <Target size={12} /> {t('total_savings')}
                                         </p>
-                                        <p className="text-4xl font-black leading-none truncate mb-1 font-display drop-shadow-md">
+                                        <p className="text-3xl sm:text-4xl font-extrabold leading-none truncate mb-1 font-display text-gray-900 dark:text-white">
                                             <Amount value={totalSaved} minimumFractionDigits={0} />
                                         </p>
-                                        <p className="text-violet-200 text-xs">
+                                        <p className="text-gray-500 dark:text-gray-400 text-xs">
                                             {t('of_goal')} <Amount value={totalTarget} minimumFractionDigits={0} />
                                         </p>
                                     </div>
@@ -400,10 +391,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                 return (
                                     <div
                                         key={goal.id}
-                                        className={`bg-white dark:bg-surface-dark3 rounded-[24px] overflow-hidden
-                                                    shadow-sm hover:shadow-card
-                                                    transition-all duration-300 ring-1 ring-inset
-                                                    ${done ? 'ring-emerald-500/40 shadow-emerald-500/10' : 'ring-gray-100 dark:ring-white/5 hover:ring-violet-200 dark:hover:ring-violet-800/50'}`}
+                                        className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden transition-all duration-200"
                                         style={{ animationDelay: `${idx * 60}ms` }}
                                     >
                                         {/* Card content */}
@@ -412,9 +400,12 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                             <div className="flex items-center gap-3 mb-3">
                                                 {/* Ring + emoji */}
                                                 <Ring pct={pct} color={preset.bar} size={56} stroke={5}>
-                                                    <span className="text-xl leading-none">
-                                                        {done ? '🏆' : preset.emoji}
-                                                    </span>
+                                                    {done ? (
+                                                        <Trophy size={20} className="text-emerald-500" />
+                                                    ) : (() => {
+                                                        const PresetIcon = preset.icon || Target;
+                                                        return <PresetIcon size={20} style={{ color: preset.bar }} />;
+                                                    })()}
                                                 </Ring>
 
                                                 <div className="flex-1 min-w-0">

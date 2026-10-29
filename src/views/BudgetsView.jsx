@@ -47,7 +47,7 @@ const CircularGauge = ({ pct }) => {
                 strokeLinecap="round"
                 style={{
                     transition: 'stroke-dasharray 1.2s cubic-bezier(0.34,1.56,0.64,1)',
-                    filter: `drop-shadow(0 0 7px ${color}99)`
+                    
                 }}
             />
         </svg>
@@ -82,7 +82,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
             : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400';
 
     return (
-        <div className="bg-white dark:bg-surface-dark3 rounded-[24px] shadow-sm border border-gray-100/80 dark:border-white/5 hover:shadow-card hover:border-gray-200 dark:hover:border-white/10 overflow-hidden transition-all duration-300">
+        <div className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden transition-all duration-200">
 
             {/* Main compact row */}
             <button
@@ -90,10 +90,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                 className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors active:scale-[0.99]"
             >
                 {/* Icon */}
-                <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${meta.color} flex items-center justify-center shadow-md flex-shrink-0 relative overflow-hidden`}>
-                    <div className="absolute inset-0 bg-white/20" />
-                    <Icon size={20} className="text-white relative z-10" />
-                </div>
+                <Icon size={24} style={{ color: meta.solid }} className="shrink-0" />
 
                 {/* Name + progress bar */}
                 <div className="flex-1 min-w-0">
@@ -111,7 +108,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                             style={{ 
                                 width: `${pct}%`, 
                                 backgroundColor: barColor,
-                                boxShadow: `0 0 10px ${barColor}60`
+                                
                             }}
                         />
                     </div>
@@ -433,7 +430,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                     </div>
                     <button
                         onClick={openAddModal}
-                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95"
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-gray-950 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-950 text-sm font-bold rounded-xl shadow-sm transition-all active:scale-95"
                     >
                         {(!isPro && budgets.length >= 3) ? <ShieldCheck size={15} className="inline-block text-amber-300 mr-1" /> : <Plus size={16} />} {t('add_budget')}
                     </button>
@@ -447,11 +444,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                     <>
                         {/* ═══ SECTION A: Hero — Circular Gauge ═══ */}
                         <div className="px-5 pt-5">
-                            <div className="relative bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-5 text-white overflow-hidden shadow-xl shadow-indigo-500/20">
-                                {/* Decorative orbs */}
-                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
-                                <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-violet-900/30 rounded-full blur-xl" />
-
+                            <div className="relative bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-5 sm:p-6 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10">
                                 <div className="relative">
                                     {/* Top row: gauge left + main spend right */}
                                     <div className="flex items-center gap-4 mb-4">
@@ -460,16 +453,16 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             <CircularGauge pct={totalPct} />
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
                                                 <span className="text-2xl font-black leading-none">{Math.round(totalPct)}%</span>
-                                                <span className="text-[9px] text-indigo-200 font-bold uppercase tracking-wide mt-0.5">{t('budget_used')}</span>
+                                                <span className="text-[9px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wide mt-0.5">{t('budget_used')}</span>
                                             </div>
                                         </div>
 
                                         {/* Main spend info */}
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-indigo-200 text-[10px] font-black uppercase tracking-widest mb-1 font-display">{t('monthly_expenses')}</p>
-                                            <p className="text-4xl font-black leading-none truncate font-display drop-shadow-md"><Amount value={totalSpent} /></p>
-                                            <p className="text-indigo-200 text-xs mt-1">{t('of_total_limit')} <Amount value={totalLimit} /></p>
-                                            <span className={`inline-block text-[11px] font-bold mt-2 px-2.5 py-0.5 rounded-full bg-white/10 ${statusColor}`}>
+                                            <p className="text-gray-500 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1 font-display">{t('monthly_expenses')}</p>
+                                            <p className="text-3xl sm:text-4xl font-extrabold leading-none truncate font-display text-gray-900 dark:text-white"><Amount value={totalSpent} /></p>
+                                            <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">{t('of_total_limit')} <Amount value={totalLimit} /></p>
+                                            <span className={`inline-block text-[11px] font-bold mt-2 px-2.5 py-0.5 rounded-lg bg-gray-200/70 dark:bg-white/10 ${totalPct >= 100 ? 'text-red-600 dark:text-red-400' : totalPct >= 80 ? 'text-orange-600 dark:text-orange-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                                 {statusLabel}
                                             </span>
                                         </div>
@@ -501,22 +494,12 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                         {/* ═══ SECTION B: Spending Velocity ═══ */}
                         {paceInfo && (
                             <div className="px-5 mt-4">
-                                <div className={`rounded-2xl p-4 border flex items-center gap-3 ${
-                                    paceInfo.isOver
-                                        ? 'bg-red-50 dark:bg-red-900/15 border-red-100 dark:border-red-900/30'
-                                        : paceInfo.isWarn
-                                            ? 'bg-orange-50 dark:bg-orange-900/15 border-orange-100 dark:border-orange-900/30'
-                                            : 'bg-emerald-50 dark:bg-emerald-900/15 border-emerald-100 dark:border-emerald-900/30'
-                                }`}>
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                                        paceInfo.isOver ? 'bg-red-500' : paceInfo.isWarn ? 'bg-orange-500' : 'bg-emerald-500'
-                                    }`}>
-                                        {paceInfo.isOver
-                                            ? <TrendingUp size={18} className="text-white" />
+                                <div className="rounded-2xl p-4 border border-gray-200 dark:border-white/10 bg-gray-100/90 dark:bg-surface-dark2 flex items-center gap-3">
+                                    {paceInfo.isOver
+                                            ? <TrendingUp size={22} className="text-red-500 shrink-0" strokeWidth={2.5} />
                                             : paceInfo.isWarn
-                                                ? <AlertCircle size={18} className="text-white" />
-                                                : <TrendingDown size={18} className="text-white" />}
-                                    </div>
+                                                ? <AlertCircle size={22} className="text-orange-500 shrink-0" strokeWidth={2.5} />
+                                                : <TrendingDown size={22} className="text-emerald-500 shrink-0" strokeWidth={2.5} />}
                                     <div className="flex-1 min-w-0">
                                         <p className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${
                                             paceInfo.isOver ? 'text-red-500' : paceInfo.isWarn ? 'text-orange-500' : 'text-emerald-600 dark:text-emerald-400'
@@ -555,7 +538,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                     return (
                                         <div
                                             key={b.id}
-                                            className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 ring-inset ${badgeCls}`}
+                                            className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold ring-1 ring-inset ${badgeCls}`}
                                         >
                                             <Icon size={11} />
                                             <span>{getCategoryTranslation(b.category, t)}</span>

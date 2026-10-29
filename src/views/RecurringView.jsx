@@ -251,11 +251,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                     {/* Add button — fixed size, never shrinks */}
                     <button
                         onClick={openAdd}
-                        className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5
-                                   bg-violet-600 hover:bg-violet-700 text-white
-                                   text-sm font-bold rounded-xl
-                                   shadow-lg shadow-violet-500/25
-                                   transition-all active:scale-95"
+                        className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5 bg-gray-950 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-950 text-sm font-bold rounded-xl shadow-sm transition-all active:scale-95"
                     >
                         <Plus size={16} /> {translate('add_recurring') || 'New'}
                     </button>
@@ -268,20 +264,14 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                 {/* ── Hero Summary Card (when rules exist) ── */}
                 {rules.length > 0 && (
                     <div className="px-5 pt-5">
-                        <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700
-                                        rounded-3xl p-5 text-white overflow-hidden
-                                        shadow-xl shadow-violet-500/20">
-                            {/* Decorative orbs */}
-                            <div className="absolute -top-8 -right-8 w-36 h-36 bg-white/10 rounded-full blur-2xl" />
-                            <div className="absolute -bottom-6 -left-6 w-28 h-28 bg-indigo-900/30 rounded-full blur-2xl" />
-
+                        <div className="relative bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-5 sm:p-6 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10">
                             <div className="relative">
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
-                                        <p className="text-violet-200 text-xs font-medium mb-1 flex items-center gap-1.5">
-                                            <RefreshCw size={11} /> {translate('monthly_recurring') || 'Monthly Recurring'}
+                                        <p className="text-gray-500 dark:text-gray-400 text-xs font-semibold mb-1 flex items-center gap-1.5">
+                                            <RefreshCw size={12} /> {translate('monthly_recurring') || 'Monthly Recurring'}
                                         </p>
-                                        <p className={`text-4xl font-extrabold tracking-tight ${net >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
+                                        <p className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${net >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                                             <Amount value={net} prefix={net >= 0 ? '+' : ''} />
                                         </p>
                                         <p className="text-violet-200 text-xs mt-1">
@@ -289,35 +279,35 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                         </p>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-xs font-bold px-3 py-1.5 rounded-2xl bg-white/20">
+                                        <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-gray-200/70 dark:bg-white/10 text-gray-700 dark:text-gray-300">
                                             {rules.length} {translate('rules') || 'rules'}
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Stats row */}
-                                <div className="flex gap-3 mt-4">
-                                    <div className="flex-1 bg-white/10 rounded-2xl py-2 px-3 text-center">
-                                        <p className="text-violet-200 text-[10px] font-medium flex items-center justify-center gap-1">
-                                            <ArrowDownCircle size={9} /> {translate('expenses') || 'Expenses'}
+                                <div className="flex gap-2.5 mt-4">
+                                    <div className="flex-1 bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl py-2 px-2.5 text-center">
+                                        <p className="text-gray-500 dark:text-gray-400 text-[10px] font-semibold flex items-center justify-center gap-1">
+                                            <ArrowDownCircle size={11} className="text-rose-500" /> {translate('expenses') || 'Expenses'}
                                         </p>
-                                        <p className="text-rose-300 font-bold text-sm mt-0.5">
+                                        <p className="text-rose-600 dark:text-rose-400 font-bold text-sm mt-0.5">
                                             <Amount value={totalExpense} prefix="-" />
                                         </p>
                                     </div>
-                                    <div className="flex-1 bg-white/10 rounded-2xl py-2 px-3 text-center">
-                                        <p className="text-violet-200 text-[10px] font-medium flex items-center justify-center gap-1">
-                                            <ArrowUpCircle size={9} /> {translate('income') || 'Income'}
+                                    <div className="flex-1 bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl py-2 px-2.5 text-center">
+                                        <p className="text-gray-500 dark:text-gray-400 text-[10px] font-semibold flex items-center justify-center gap-1">
+                                            <ArrowUpCircle size={11} className="text-emerald-500" /> {translate('income') || 'Income'}
                                         </p>
-                                        <p className="text-emerald-300 font-bold text-sm mt-0.5">
+                                        <p className="text-emerald-600 dark:text-emerald-400 font-bold text-sm mt-0.5">
                                             <Amount value={totalIncome} prefix="+" />
                                         </p>
                                     </div>
-                                    <div className="flex-1 bg-white/10 rounded-2xl py-2 px-3 text-center">
-                                        <p className="text-violet-200 text-[10px] font-medium flex items-center justify-center gap-1">
-                                            <CheckCircle2 size={9} /> {translate('active') || 'Active'}
+                                    <div className="flex-1 bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl py-2 px-2.5 text-center">
+                                        <p className="text-gray-500 dark:text-gray-400 text-[10px] font-semibold flex items-center justify-center gap-1">
+                                            <CheckCircle2 size={11} className="text-gray-500 dark:text-gray-400" /> {translate('active') || 'Active'}
                                         </p>
-                                        <p className="text-white font-bold text-sm mt-0.5">{rules.length}</p>
+                                        <p className="text-gray-900 dark:text-white font-bold text-sm mt-0.5">{rules.length}</p>
                                     </div>
                                 </div>
                             </div>
@@ -365,8 +355,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                             return (
                                 <div
                                     key={rule.id}
-                                    className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] overflow-hidden
-                                               transition-all duration-300 ring-1 ring-inset ring-transparent dark:ring-transparent"
+                                    className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden transition-all duration-200"
                                     style={{ animationDelay: `${idx * 60}ms` }}
                                 >
                                     {/* Card content */}
@@ -374,15 +363,10 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                         {/* Top row */}
                                         <div className="flex items-center gap-3 mb-3">
                                             {/* Icon */}
-                                            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm
-                                                             ${isIncome
-                                                    ? 'bg-gradient-to-br from-emerald-400 to-teal-600'
-                                                    : 'bg-gradient-to-br from-rose-400 to-red-600'}`}>
-                                                {isIncome
-                                                    ? <TrendingUp size={18} className="text-white" strokeWidth={2.2} />
-                                                    : <TrendingDown size={18} className="text-white" strokeWidth={2.2} />
+                                            {isIncome
+                                                    ? <TrendingUp size={22} className="text-emerald-500 shrink-0" strokeWidth={2.5} />
+                                                    : <TrendingDown size={22} className="text-rose-500 shrink-0" strokeWidth={2.5} />
                                                 }
-                                            </div>
 
                                             {/* Title + meta */}
                                             <div className="flex-1 min-w-0">
