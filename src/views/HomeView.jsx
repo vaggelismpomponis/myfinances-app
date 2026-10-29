@@ -429,42 +429,41 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
     // ── Recent Transactions (shared) ──
     const recentTransactions = (
         <div>
-            <div className="flex justify-between items-center mb-3">
-                <h2 className="text-base font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                    {t('recent')}
-                    <span className="bg-gray-100 dark:bg-surface-dark3 text-gray-700 dark:text-gray-300 text-[10px] px-2 py-0.5 rounded-full font-bold">
+            <div className="flex justify-between items-center mb-2.5 px-0.5">
+                <h2 className="text-sm font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span>{t('recent')}</span>
+                    <span className="bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 text-[10px] px-2 py-0.5 rounded-md font-bold tabular-nums">
                         {transactions.length}
                     </span>
                 </h2>
                 <button
                     onClick={() => setActiveTab('history')}
-                    className="flex items-center gap-1 text-xs font-bold text-violet-600 dark:text-violet-400
-                               hover:text-violet-500 transition-colors"
+                    className="flex items-center gap-1 text-xs font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                     {t('all')} <ChevronRight size={13} />
                 </button>
             </div>
 
             {transactions.length === 0 ? (
-                <div className="bg-white dark:bg-surface-dark2 border border-dashed border-gray-200 dark:border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center text-center mt-2">
-                    <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-3">
-                        <FileText size={22} strokeWidth={1.8} className="text-gray-400 dark:text-gray-500" />
+                <div className="bg-white dark:bg-surface-dark2 border border-dashed border-gray-200 dark:border-white/10 rounded-xl p-6 flex flex-col items-center justify-center text-center mt-2">
+                    <div className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center mb-2.5 text-gray-400 dark:text-gray-500">
+                        <FileText size={20} strokeWidth={1.8} />
                     </div>
-                    <h4 className="font-bold text-[14px] text-gray-800 dark:text-white mb-1">
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white mb-1">
                         {t('no_transactions') || 'No transactions yet'}
                     </h4>
-                    <p className="text-[12px] text-gray-500 dark:text-gray-400 font-medium max-w-[200px]">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium max-w-[220px]">
                         {t('no_transactions_desc') || 'Your recent income and expenses will appear here.'}
                     </p>
                 </div>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-2.5">
                     {transactions.slice(0, isDesktop ? 8 : 5).map((tx, idx) => (
                         <motion.div
                             key={tx.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 + (idx * 0.04) }}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 + (idx * 0.03) }}
                             layout
                         >
                             <TransactionItem transaction={tx} onDelete={onDelete} onEdit={onEdit} />
@@ -1204,52 +1203,49 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
 
     // ── MOBILE LAYOUT ──
     return (
-        <div className="space-y-5 pb-28">
+        <div className="space-y-4 sm:space-y-5 pb-28">
 
-            {/* ── Premium Hero Card ── */}
+            {/* ── Executive Midnight Hero Card ── */}
             <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.6, type: 'spring', bounce: 0.3 }}
-                className="relative overflow-hidden rounded-[2.5rem]
-                           bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800 dark:from-surface-dark3 dark:via-surface-dark4 dark:to-black
-                           selection-inverted
-                           p-7 pb-6 shadow-premium border border-white/20 dark:border-white/10"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="relative overflow-hidden rounded-2xl
+                           bg-gray-950 dark:bg-surface-dark2
+                           text-white p-5 sm:p-6
+                           border border-gray-800/90 dark:border-white/10
+                           shadow-lg shadow-gray-950/10"
             >
-                <div className="absolute inset-0 bg-white/5 backdrop-blur-3xl pointer-events-none" />
-                {/* Decorative background orbs */}
-                <div className="absolute -top-16 -right-16 w-44 h-44 bg-violet-400/[0.12] dark:bg-violet-500/[0.08] blur-[60px] rounded-full pointer-events-none" />
-                <div className="absolute -bottom-12 -left-8 w-36 h-36 bg-indigo-400/[0.08] dark:bg-indigo-500/[0.06] blur-[50px] rounded-full pointer-events-none" />
+                {/* Subtle top edge metallic highlight */}
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
                 <div className="relative z-10">
-                    {/* Privacy toggle — top right of hero card */}
-                    <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={togglePrivacyMode}
-                        aria-label={privacyMode ? 'Disable Privacy Mode' : 'Enable Privacy Mode'}
-                        className="absolute -top-1 right-0 w-8 h-8 rounded-full
-                                   bg-white/25 dark:bg-white/[0.12] backdrop-blur-sm
-                                   flex items-center justify-center
-                                   text-white/80 dark:text-white/60
-                                   hover:bg-white/40 dark:hover:bg-white/[0.20]
-                                   transition-all duration-150 z-20"
-                        title={privacyMode ? 'Show amounts' : 'Hide amounts'}
-                    >
-                        {privacyMode ? <EyeOff size={14} /> : <Eye size={14} />}
-                    </motion.button>
+                    {/* Header Row: Status & Privacy Toggle */}
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest font-sans">
+                                {t('this_month_spend')}
+                            </p>
+                        </div>
 
-                    {/* Section label */}
-                    <p className="text-white/80 dark:text-violet-300/50 text-[10px] font-black uppercase tracking-[0.2em] mb-2 font-display">
-                        {t('this_month_spend')}
-                    </p>
+                        <button
+                            type="button"
+                            onClick={togglePrivacyMode}
+                            aria-label={privacyMode ? 'Disable Privacy Mode' : 'Enable Privacy Mode'}
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+                            title={privacyMode ? 'Show amounts' : 'Hide amounts'}
+                        >
+                            {privacyMode ? <EyeOff size={15} /> : <Eye size={15} />}
+                        </button>
+                    </div>
 
-                    {/* Main amount */}
-                    <div className="flex items-start gap-1">
+                    {/* Main Balance Display */}
+                    <div className="flex items-baseline gap-1.5 my-2">
                         {!privacyMode && (
-                            <span className="text-2xl font-bold text-white/60 dark:text-gray-500 mt-2">€</span>
+                            <span className="text-2xl sm:text-3xl font-extrabold text-gray-400 font-sans">€</span>
                         )}
-                        <h1 className="text-[3.75rem] leading-[0.9] font-black text-white tracking-tighter tabular-nums drop-shadow-md font-display">
+                        <h1 className="text-4xl sm:text-[42px] font-black text-white tracking-tight leading-none tabular-nums font-sans">
                             <Amount
                                 value={stats.curSpent}
                                 showCurrency={false}
@@ -1259,42 +1255,45 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         </h1>
                     </div>
 
-                    {/* Trend indicator */}
-                    <div className={`inline-flex items-center gap-1.5 mt-2.5 px-3 py-1 rounded-full text-[11px] font-bold
-                        ${stats.trend === 'below'
-                            ? 'text-emerald-300 bg-emerald-400/20'
-                            : stats.trend === 'above'
-                                ? 'text-rose-300 bg-rose-400/20'
-                                : 'text-white/60 bg-white/[0.10]'}`}
-                    >
-                        {stats.trend === 'below' && <TrendingDown size={13} />}
-                        {stats.trend === 'above' && <TrendingUp size={13} />}
-                        {stats.trend === 'neutral' && <Minus size={13} />}
-                        <span>
-                            {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
+                    {/* Trend Indicator */}
+                    <div className="mt-2.5">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border ${
+                            stats.trend === 'below'
+                                ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                                : stats.trend === 'above'
+                                    ? 'text-rose-400 bg-rose-500/10 border-rose-500/20'
+                                    : 'text-gray-400 bg-white/5 border-white/10'
+                        }`}>
+                            {stats.trend === 'below' && <TrendingDown size={13} className="shrink-0" />}
+                            {stats.trend === 'above' && <TrendingUp size={13} className="shrink-0" />}
+                            {stats.trend === 'neutral' && <Minus size={13} className="shrink-0" />}
+                            <span>
+                                {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
+                            </span>
                         </span>
                     </div>
 
-                    {/* Inline Income / Expense */}
-                    <div className="flex gap-2.5 mt-5">
-                        <div className="flex-1 flex items-center gap-2.5 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-3 py-2.5">
-                            <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
-                                <ArrowUpRight size={15} className="text-emerald-600 dark:text-emerald-400" />
+                    {/* Cashflow Summary Cards */}
+                    <div className="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-white/[0.08]">
+                        <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-3 flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                                <ArrowUpRight size={15} strokeWidth={2.5} />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">{t('stats_income')}</p>
-                                <p className="text-[13px] font-black text-gray-900 dark:text-white truncate tabular-nums">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{t('stats_income')}</p>
+                                <p className="text-xs sm:text-sm font-bold text-white truncate tabular-nums">
                                     <Amount value={totalIncome} />
                                 </p>
                             </div>
                         </div>
-                        <div className="flex-1 flex items-center gap-2.5 bg-white/60 dark:bg-white/[0.05] backdrop-blur-sm rounded-2xl px-3 py-2.5">
-                            <div className="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-500/15 flex items-center justify-center flex-shrink-0">
-                                <ArrowDownRight size={15} className="text-rose-600 dark:text-rose-400" />
+
+                        <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-3 flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-rose-500/15 text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+                                <ArrowDownRight size={15} strokeWidth={2.5} />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">{t('stats_expense')}</p>
-                                <p className="text-[13px] font-black text-gray-900 dark:text-white truncate tabular-nums">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{t('stats_expense')}</p>
+                                <p className="text-xs sm:text-sm font-bold text-white truncate tabular-nums">
                                     <Amount value={totalExpense} />
                                 </p>
                             </div>
@@ -1303,81 +1302,80 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 </div>
             </motion.div>
 
-            {/* ── AI Advisor CTA ── */}
+            {/* ── AI Advisor Executive Card ── */}
             <motion.button
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.08 }}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
+                transition={{ delay: 0.05 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => {
                     if (!isPro) { openUpgradeModal('advisor'); }
                     else { setActiveTab('advisor'); }
                 }}
-                className="w-full relative overflow-hidden bg-gradient-to-br from-violet-50 to-indigo-50 dark:bg-surface-dark3 dark:from-transparent dark:to-transparent border border-violet-200/60 dark:border-violet-900/30
-                           p-4 rounded-[1.75rem]
-                           shadow-sm hover:shadow-md
-                           flex items-center gap-3.5 group transition-all duration-300"
+                className="w-full relative overflow-hidden bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10
+                           p-3.5 sm:p-4 rounded-xl
+                           shadow-sm hover:border-gray-300 dark:hover:border-white/20
+                           flex items-center gap-3.5 group transition-all text-left"
             >
-                {!isPro && (
-                    <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-amber-400/20 flex items-center justify-center z-10 shadow-sm">
-                        <ShieldCheck size={13} className="text-amber-500" />
-                    </div>
-                )}
-                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
-                                shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
-                    <Bot size={20} />
+                <div className="w-10 h-10 rounded-xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 flex items-center justify-center shrink-0 border border-gray-800 dark:border-gray-200 shadow-sm">
+                    <Bot size={18} strokeWidth={2} />
                 </div>
-                <div className="flex-1 text-left min-w-0 pr-1 sm:pr-4">
-                    <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
-                    <p className="text-[11px] text-violet-600 dark:text-violet-300 font-semibold line-clamp-1 sm:line-clamp-2 mt-0.5">
+                <div className="flex-1 min-w-0 pr-1">
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                            SpendWise AI
+                        </span>
+                        {!isPro && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                <ShieldCheck size={9} /> PRO
+                            </span>
+                        )}
+                    </div>
+                    <h4 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white leading-tight mt-0.5">{t('advisor_title')}</h4>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium line-clamp-1 mt-0.5">
                         {advisorLiveInsight}
                     </p>
                 </div>
-                {/* Gentle pulse animation for the whole card */}
-                <motion.div
-                    className="absolute inset-0 rounded-[1.75rem] pointer-events-none"
-                    animate={{ opacity: [0, 1, 0] }}
-                    transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                    style={{ boxShadow: 'inset 0 0 15px rgba(139,92,246,0.15)' }}
-                />
-                <div className="w-7 h-7 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 group-hover:translate-x-0.5 transition-transform flex-shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0">
                     <ArrowRight size={14} />
                 </div>
             </motion.button>
 
-            {/* ── Quick Actions (pill buttons) ── */}
+            {/* ── Quick Actions ── */}
             <div id="tour-quick-access">
-                <div className="flex items-center justify-between mb-2.5 ml-1 mr-2">
-                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.15em]">
+                <div className="flex items-center justify-between mb-2 px-0.5">
+                    <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         {t('quick_access')}
                     </p>
-                    <ArrowRight size={12} className="text-gray-300 dark:text-gray-600 animate-pulse" />
                 </div>
-                <div className="grid grid-cols-4 gap-2 sm:gap-2.5 md:gap-3 pb-1">
+                <div className="grid grid-cols-4 gap-2 sm:gap-2.5">
                     {quickActions.map((action) => {
                         const ActionIcon = action.icon;
                         return (
                             <motion.button
                                 key={action.label}
-                                whileHover={{ scale: 1.03, y: -1 }}
-                                whileTap={{ scale: 0.96 }}
+                                whileTap={{ scale: 0.95 }}
                                 initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: parseFloat(action.delay) / 1000 }}
                                 onClick={action.onClick}
-                                className="w-full min-w-0 flex flex-col items-center justify-center gap-1.5 py-2 sm:py-2.5 px-1 sm:px-2 rounded-[1.25rem]
-                                           bg-white dark:bg-surface-dark3
-                                           border border-gray-100/80 dark:border-white/5
-                                           shadow-card hover:shadow-premium
-                                           hover:border-violet-200 dark:hover:border-violet-800/50
-                                           transition-all duration-300 relative"
+                                className="w-full min-w-0 flex flex-col items-center justify-center gap-2 py-3 px-1.5 rounded-xl
+                                           bg-white dark:bg-surface-dark2
+                                           border border-gray-200/80 dark:border-white/10
+                                           shadow-sm hover:border-gray-300 dark:hover:border-white/20
+                                           transition-all relative group"
                             >
-                                <ActionIcon size={20} className="text-violet-600 dark:text-violet-400 mb-0.5 shrink-0" />
-                                <span className="text-[9px] min-[375px]:text-[10px] font-extrabold text-gray-700 dark:text-gray-200 uppercase tracking-tight text-center leading-tight whitespace-nowrap truncate w-full px-0.5">{action.label}</span>
-                                {action.isPro && !action.userIsPro && (
-                                    <ShieldCheck size={11} className="text-amber-500 flex-shrink-0" />
-                                )}
+                                <div className="w-9 h-9 rounded-lg bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/5 flex items-center justify-center text-gray-700 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors relative">
+                                    <ActionIcon size={18} strokeWidth={2} className="shrink-0" />
+                                    {action.isPro && !action.userIsPro && (
+                                        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/30 flex items-center justify-center">
+                                            <ShieldCheck size={8} />
+                                        </span>
+                                    )}
+                                </div>
+                                <span className="text-[11px] font-semibold text-gray-800 dark:text-gray-200 tracking-tight text-center leading-tight truncate w-full px-0.5">
+                                    {action.label}
+                                </span>
                             </motion.button>
                         );
                     })}

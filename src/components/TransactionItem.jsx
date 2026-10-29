@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CategoryIcon, { CATEGORY_ACCENT } from './CategoryIcon';
 import Amount from './Amount';
 import { useSettings } from '../contexts/SettingsContext';
-import { useAppStore } from '../store/useAppStore';
 import { getCategoryTranslation } from '../utils/categoryTranslations';
 
 const TransactionItem = ({ transaction, onDelete, onEdit }) => {
@@ -23,41 +22,37 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
 
     return (
         <motion.div 
-            whileHover={{ scale: 1.01, y: -2 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.99 }}
             onClick={() => setShowActions(!showActions)}
-            className="group relative flex items-center gap-3.5
-                        bg-white dark:bg-surface-dark3
-                        rounded-[24px] p-3 md:p-3.5
+            className="group relative flex items-center gap-3
+                        bg-white dark:bg-surface-dark2
+                        rounded-xl p-3 sm:p-3.5
                         cursor-pointer shadow-sm
-                        border border-gray-100/80 dark:border-white/5
-                        hover:shadow-card hover:border-gray-200 dark:hover:border-white/10
-                        transition-all duration-300"
-            style={{
-                boxShadow: showActions ? `0 4px 20px -2px ${accent}25` : undefined
-            }}
+                        border border-gray-200/80 dark:border-white/[0.08]
+                        hover:border-gray-300 dark:hover:border-white/20
+                        transition-all duration-200"
         >
-            {/* Soft glowing accent line */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1/2 w-[3px] rounded-r-full transition-all duration-300 group-hover:h-[70%] group-hover:w-[4px]"
-                 style={{ 
-                     backgroundColor: accent,
-                     boxShadow: `0 0 10px ${accent}60`
-                 }} />
+            {/* Minimal Category Color Pillar */}
+            <div
+                className="w-1 h-8 rounded-full shrink-0 transition-opacity duration-200"
+                style={{ backgroundColor: accent }}
+            />
 
             {/* Category icon */}
-            <div className="shrink-0 ml-1.5">
-                <CategoryIcon category={transaction.category} type={transaction.type} />
+            <div className="shrink-0">
+                <CategoryIcon category={transaction?.category} type={transaction?.type} size={18} className="p-2 rounded-xl" />
             </div>
 
-            {/* Text */}
+            {/* Title & Metadata */}
             <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-gray-800 dark:text-white truncate capitalize flex items-center">
+                <p className="font-semibold text-sm text-gray-900 dark:text-white truncate capitalize flex items-center">
                     {categoryTitle}
                 </p>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 truncate flex items-center gap-1.5">
-                    {transaction.note ? (
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate flex items-center gap-1.5 font-medium">
+                    {transaction?.note ? (
                         <>
-                            <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{transaction.note}</span>
+                            <span className="text-gray-700 dark:text-gray-300 truncate">{transaction.note}</span>
                             {formattedDate && (
                                 <>
                                     <span className="text-gray-300 dark:text-gray-600 shrink-0">•</span>
@@ -71,7 +66,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                 </div>
             </div>
 
-            {/* Amount and Arrow */}
+            {/* Amount and Chevron */}
             <motion.div 
                 animate={{ 
                     opacity: showActions ? 0 : 1,
@@ -81,52 +76,52 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                 }}
                 className="shrink-0 flex items-center gap-1.5"
             >
-                <span className={`text-[15px] font-bold tabular-nums tracking-tight ${isIncome ? 'text-emerald-500' : 'text-gray-800 dark:text-gray-200'}`}>
-                    <Amount value={transaction.amount} prefix={isIncome ? '+' : '-'} />
+                <span className={`text-[15px] font-bold tabular-nums tracking-tight ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-900 dark:text-white'}`}>
+                    <Amount value={transaction?.amount} prefix={isIncome ? '+' : '-'} />
                 </span>
-                <ChevronRight size={18} className="text-gray-600 dark:text-gray-400" />
+                <ChevronRight size={15} className="text-gray-400 dark:text-gray-500 group-hover:translate-x-0.5 transition-transform" />
             </motion.div>
 
-            {/* Click actions */}
+            {/* Slide-in Actions */}
             <AnimatePresence>
                 {showActions && (
                     <motion.div 
                         key="tx-actions"
-                        initial={{ opacity: 0, scale: 0.9, x: 20, y: '-50%' }}
+                        initial={{ opacity: 0, scale: 0.92, x: 15, y: '-50%' }}
                         animate={{ opacity: 1, scale: 1, x: 0, y: '-50%' }}
-                        exit={{ opacity: 0, scale: 0.9, x: 20, y: '-50%' }}
-                        className="absolute right-4 top-1/2
+                        exit={{ opacity: 0, scale: 0.92, x: 15, y: '-50%' }}
+                        className="absolute right-3 top-1/2
                                     flex items-center gap-1
                                     bg-white dark:bg-surface-dark3
-                                    rounded-xl px-2 py-1
-                                    shadow-lg border border-gray-100 dark:border-transparent
+                                    rounded-lg px-2 py-1
+                                    shadow-lg border border-gray-200 dark:border-white/10
                                     z-10"
                     >
-                        <motion.button
-                            whileTap={{ scale: 0.8 }}
+                        <button
+                            type="button"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onEdit && onEdit(transaction);
                                 setShowActions(false);
                             }}
                             title={t('edit_tooltip')}
-                            className="p-1 text-violet-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/30 rounded-lg transition-colors"
+                            className="p-1.5 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-white/5 rounded-md transition-colors"
                         >
-                            <Pencil size={18} />
-                        </motion.button>
-                        <div className="w-[1px] h-4 bg-gray-200 dark:bg-surface-dark3 mx-1" />
-                        <motion.button
-                            whileTap={{ scale: 0.8 }}
+                            <Pencil size={15} />
+                        </button>
+                        <div className="w-[1px] h-3.5 bg-gray-200 dark:bg-white/10 mx-0.5" />
+                        <button
+                            type="button"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onDelete && onDelete(transaction?.id);
                                 setShowActions(false);
                             }}
                             title={t('delete_tooltip')}
-                            className="p-1 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-colors"
+                            className="p-1.5 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-md transition-colors"
                         >
-                            <Trash2 size={18} />
-                        </motion.button>
+                            <Trash2 size={15} />
+                        </button>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -135,12 +130,3 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
 };
 
 export default TransactionItem;
-
-
-
-
-
-
-
-
-

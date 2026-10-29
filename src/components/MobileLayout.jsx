@@ -78,8 +78,9 @@ export default function MobileLayout({
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => setActiveTab('profile')}
-                                    className="w-10 h-10 rounded-full flex-shrink-0
+                                    className="w-9 h-9 rounded-full flex-shrink-0
                                                 bg-gray-100 dark:bg-white/[0.08]
+                                                ring-2 ring-gray-200/80 dark:ring-white/10 shadow-sm
                                                 flex items-center justify-center
                                                 text-gray-400 dark:text-gray-500
                                                 transition-all duration-200 overflow-hidden outline-none focus:outline-none focus-visible:outline-none select-none border-none"
@@ -103,14 +104,12 @@ export default function MobileLayout({
 
                             {/* CENTER — App Name */}
                             {activeTab === 'home' ? (
-                                <h1 className="absolute left-1/2 -translate-x-1/2
-                                                text-[17px] font-black tracking-tight
-                                                bg-gradient-to-r from-violet-600 to-indigo-500
-                                                dark:from-violet-400 dark:to-indigo-400
-                                                bg-clip-text text-transparent
-                                                select-none pointer-events-none">
-                                    SpendWise
-                                </h1>
+                                <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 select-none pointer-events-none">
+                                    <span className="w-2 h-2 rounded-full bg-violet-600 dark:bg-violet-400 shrink-0" />
+                                    <h1 className="text-[17px] font-black tracking-tight text-gray-900 dark:text-white">
+                                        SpendWise
+                                    </h1>
+                                </div>
                             ) : (
                                 <h2 className="absolute left-1/2 -translate-x-1/2
                                                 text-[16px] font-bold text-gray-900 dark:text-white
@@ -129,13 +128,13 @@ export default function MobileLayout({
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={() => setShowNotificationPanel(prev => !prev)}
-                                className="relative w-10 h-10 rounded-full flex-shrink-0
-                                        bg-gray-100 dark:bg-white/[0.08]
+                                className="relative w-9 h-9 rounded-full flex-shrink-0
+                                        bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10
+                                        shadow-sm
                                         flex items-center justify-center
-                                        text-gray-500 dark:text-white/50
-                                        hover:bg-violet-100 dark:hover:bg-violet-900/30
-                                        hover:text-violet-600 dark:hover:text-violet-400
-                                        transition-all duration-200 outline-none focus:outline-none focus-visible:outline-none select-none border-none"
+                                        text-gray-600 dark:text-gray-300
+                                        hover:text-gray-900 dark:hover:text-white
+                                        transition-all duration-200 outline-none focus:outline-none focus-visible:outline-none select-none"
                                 style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                                 aria-label="Notifications"
                             >
@@ -234,14 +233,14 @@ export default function MobileLayout({
                                         clearTimeout(fabLongPressRef.current);
                                     }}
                                     aria-label="Add transaction"
-                                    className="relative w-14 h-14 rounded-full bg-violet-600 text-white flex items-center justify-center border border-violet-500/30 outline-none focus:outline-none focus-visible:outline-none select-none"
+                                    className="relative w-12 h-12 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-md shadow-violet-600/30 border border-violet-500/30 outline-none focus:outline-none focus-visible:outline-none select-none active:scale-95 transition-all"
                                     style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                                 >
                                     <motion.div
                                         animate={{ rotate: showFabMenu ? 45 : 0 }}
                                         transition={{ type: 'spring', damping: 15, stiffness: 300 }}
                                     >
-                                        <Plus size={28} strokeWidth={2.5} />
+                                        <Plus size={22} strokeWidth={2.5} />
                                     </motion.div>
                                 </motion.button>
                             </div>

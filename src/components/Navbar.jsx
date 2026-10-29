@@ -120,7 +120,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
               background: 'rgba(255, 255, 255, 0.85)',
               backdropFilter: 'blur(20px) saturate(180%)',
               WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              borderTop: '1px solid rgba(255,255,255,0.4)',
+              borderTop: '1px solid rgba(0,0,0,0.07)',
               boxShadow: '0 -4px 32px rgba(0,0,0,0.05)',
           };
 
