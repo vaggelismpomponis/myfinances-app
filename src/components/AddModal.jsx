@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     X, Camera, Layers, Mic, Delete, Check, Plus, Search,
-    Coffee, ShoppingCart, Home as HomeIcon, Receipt,
-    Gift, Utensils, Banknote, LineChart, Shapes,
-    MessageSquare, Martini, MoreHorizontal, AlertCircle, ShieldCheck,
-    Fuel, HeartPulse
+    MessageSquare, MoreHorizontal, AlertCircle, ShieldCheck
 } from 'lucide-react';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 import { Capacitor } from '@capacitor/core';
@@ -14,7 +11,7 @@ import BulkScannerModal from './BulkScannerModal';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import ProBadge from '../components/ProBadge';
-import { CATEGORY_ACCENT } from '../components/CategoryIcon';
+import { CATEGORY_ACCENT, CATEGORY_ICONS } from '../components/CategoryIcon';
 import logger from '../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
 import useIsDesktop from '../hooks/useIsDesktop';
@@ -360,22 +357,14 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
         setCategory('');
     };
 
-    // Category icon mapping
-    const categoryIcons = {
-        'Σούπερ Μάρκετ': ShoppingCart,
-        'Φαγητό': Utensils,
-        'Καφές': Coffee,
-        'Σπίτι': HomeIcon,
-        'Λογαριασμοί': Receipt,
-        'Διασκέδαση': Martini,
-        'Βενζίνη': Fuel,
-        'Υγεία': HeartPulse,
-        'Μισθός': Banknote,
-        'Δώρο': Gift,
-        'Επενδύσεις': LineChart,
-        'Άλλο': Shapes,
-        'Άλλα Έσοδα': Shapes
-    };
+    // Category icon mapping — use centralized map from CategoryIcon.jsx
+    const categoryIcons = new Proxy({}, {
+        get: (_, cat) => {
+            if (typeof cat !== 'string') return MoreHorizontal;
+            const key = cat.trim().toLowerCase();
+            return CATEGORY_ICONS[key] || MoreHorizontal;
+        }
+    });
 
     // Numpad handler
     const handleNumpadPress = (key) => {
