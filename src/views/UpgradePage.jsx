@@ -132,9 +132,9 @@ const PricingCard = ({ label, price, sub, badge, selected, onSelect }) => (
                 )}
             </div>
             <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center transition-all border ${
-                selected ? 'bg-violet-600 border-violet-600 text-white shadow-xs' : 'border-gray-300 dark:border-white/25 bg-transparent'
+                selected ? 'bg-gray-900 dark:bg-white border-gray-900 dark:border-white text-white dark:text-gray-900 shadow-xs' : 'border-gray-300 dark:border-white/25 bg-transparent'
             }`}>
-                {selected && <Check size={13} strokeWidth={3} className="text-white" />}
+                {selected && <Check size={13} strokeWidth={3} className="text-white dark:text-gray-900" />}
             </div>
         </div>
     </motion.button>
@@ -229,8 +229,8 @@ const UpgradePage = ({ onBack }) => {
                                 type="button"
                                 className={`rounded-full px-5 py-1.5 text-xs font-black shadow-xs ${
                                     isDark
-                                        ? 'bg-violet-600 text-white'
-                                        : 'bg-white text-violet-700 shadow-sm'
+                                        ? 'bg-white text-gray-900'
+                                        : 'bg-gray-900 text-white shadow-sm'
                                 }`}
                             >
                                 {t('plan_pro') || 'Pro'}
@@ -248,23 +248,6 @@ const UpgradePage = ({ onBack }) => {
                                 'bg-gray-100/90 dark:bg-surface-dark2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white shadow-sm'
                             }`}
                         >
-                            {/* Ambient lighting glows */}
-                            <div
-                                className="absolute -right-16 -top-16 w-56 h-56 rounded-full pointer-events-none"
-                                style={{
-                                    background: isDark
-                                        ? 'radial-gradient(circle, rgba(139,92,246,0.18) 0%, transparent 70%)'
-                                        : 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
-                                }}
-                            />
-                            <div
-                                className="absolute -left-12 -bottom-12 w-48 h-48 rounded-full pointer-events-none"
-                                style={{
-                                    background: isDark
-                                        ? 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)'
-                                        : 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
-                                }}
-                            />
                             {/* Subtle geometric grid / card pattern */}
                             <div
                                 className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"
@@ -274,10 +257,10 @@ const UpgradePage = ({ onBack }) => {
                                 {/* Top row: Brand pills */}
                                 <div className="flex items-center justify-between gap-3">
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wider uppercase backdrop-blur-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
-                                        <ShieldCheck size={13} className="text-amber-400 shrink-0" strokeWidth={2.5} />
+                                        <ShieldCheck size={13} className="text-amber-500 dark:text-amber-400 shrink-0" strokeWidth={2.5} />
                                         {t('hero_card_badge') || 'SPENDWISE PRO'}
                                     </span>
-                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 backdrop-blur-md">
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30 backdrop-blur-md">
                                         {t('hero_card_status') || 'PREMIUM ACCESS'}
                                     </span>
                                 </div>
@@ -296,22 +279,22 @@ const UpgradePage = ({ onBack }) => {
                                     {/* 3 Frosted Quick-Pills */}
                                     <div className="flex flex-wrap items-center gap-2 pt-0.5">
                                         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
-                                            <Infinity size={13} className="text-amber-300 shrink-0" strokeWidth={2.5} />
+                                            <Infinity size={13} className="text-amber-600 dark:text-amber-400 shrink-0" strokeWidth={2.5} />
                                             <span>{t('hero_chip_unlimited') || 'Απεριόριστα Budgets'}</span>
                                         </div>
                                         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
-                                            <Bell size={13} className="text-emerald-300 shrink-0" strokeWidth={2.4} />
+                                            <Bell size={13} className="text-emerald-700 dark:text-emerald-400 shrink-0" strokeWidth={2.4} />
                                             <span>{t('hero_chip_automation') || 'Αυτόματα SMS & Τράπεζες'}</span>
                                         </div>
                                         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
-                                            <ScanLine size={13} className="text-indigo-200 shrink-0" strokeWidth={2.4} />
+                                            <ScanLine size={13} className="text-gray-700 dark:text-gray-300 shrink-0" strokeWidth={2.4} />
                                             <span>{t('hero_chip_ai') || 'AI Σάρωση & Insights'}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Bottom row: Price display + Trial reassurance */}
-                                <div className="pt-3 border-t border-white/15 flex items-center justify-between gap-3">
+                                <div className="pt-3 border-t border-gray-200 dark:border-white/10 flex items-center justify-between gap-3">
                                     <div className="flex items-baseline gap-1.5">
                                         <span className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none font-display">
                                             €{MONTHLY_PRICE}
@@ -321,8 +304,8 @@ const UpgradePage = ({ onBack }) => {
                                         </span>
                                     </div>
 
-                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-400/15 border border-emerald-400/30 text-emerald-300 backdrop-blur-md">
-                                        <CheckCircle2 size={13} className="text-emerald-300 shrink-0" strokeWidth={2.5} />
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30 backdrop-blur-md">
+                                        <CheckCircle2 size={13} className="text-emerald-700 dark:text-emerald-400 shrink-0" strokeWidth={2.5} />
                                         <span>{t('free_trial_7_days') || 'Δωρεάν δοκιμή 7 ημερών'}</span>
                                     </div>
                                 </div>
