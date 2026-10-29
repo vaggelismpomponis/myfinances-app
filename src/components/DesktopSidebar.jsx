@@ -16,7 +16,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
                     outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0
                     transition-all duration-200 group relative select-none border
                     ${active
-                        ? 'bg-violet-50/90 dark:bg-violet-500/15 text-violet-700 dark:text-violet-300 font-bold border-violet-200/90 dark:border-violet-500/30 shadow-xs shadow-violet-500/5 hover:bg-violet-100/70 dark:hover:bg-violet-500/20'
+                        ? 'bg-gray-950 text-white dark:bg-white dark:text-gray-950 font-bold border-transparent shadow-sm'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/90 dark:hover:bg-white/[0.06] hover:text-gray-950 dark:hover:text-white font-medium border-transparent'
                     }`}
     >

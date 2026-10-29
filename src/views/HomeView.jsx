@@ -183,12 +183,10 @@ const DesktopGoalMiniCard = ({ goal }) => {
     const GoalIcon = getGoalIcon(goal);
 
     return (
-        <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-100/80 dark:border-white/[0.04] space-y-2.5 hover:border-violet-200 dark:hover:border-violet-800/40 transition-colors">
+        <div className="p-3.5 rounded-xl bg-gray-200/60 dark:bg-white/[0.04] border border-gray-300/60 dark:border-white/[0.08] space-y-2.5 transition-colors">
             <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center flex-shrink-0 border border-violet-200/50 dark:border-violet-800/30">
-                        <GoalIcon size={14} className="shrink-0" />
-                    </div>
+                    <GoalIcon size={18} className="text-gray-900 dark:text-white shrink-0" />
                     <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{goal.title}</span>
                 </div>
                 <span className="text-[10px] font-black text-violet-600 dark:text-violet-400 tabular-nums bg-violet-50 dark:bg-violet-950/40 px-2 py-0.5 rounded-full border border-violet-100 dark:border-violet-900/30">
@@ -197,7 +195,7 @@ const DesktopGoalMiniCard = ({ goal }) => {
             </div>
             <div className="h-1.5 bg-gray-200/70 dark:bg-white/[0.06] rounded-full overflow-hidden">
                 <div
-                    className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-700"
+                    className="h-full bg-gray-950 dark:bg-white rounded-full transition-all duration-700"
                     style={{ width: `${pct}%` }}
                 />
             </div>
@@ -228,15 +226,10 @@ const DesktopBudgetMiniCard = ({ budget, transactions, t }) => {
     const catName = getCategoryTranslation(budget.category, t);
 
     return (
-        <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-100/80 dark:border-white/[0.04] space-y-2.5 hover:border-violet-200 dark:hover:border-violet-800/40 transition-colors">
+        <div className="p-3.5 rounded-xl bg-gray-200/60 dark:bg-white/[0.04] border border-gray-300/60 dark:border-white/[0.08] space-y-2.5 transition-colors">
             <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                    <CategoryIcon
-                        category={budget.category}
-                        type="expense"
-                        size={14}
-                        className="w-7 h-7 rounded-lg flex-shrink-0 p-0"
-                    />
+                    <CategoryIcon category={budget.category} type="expense" size={18} className="shrink-0" />
                     <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate capitalize">{catName}</span>
                 </div>
                 <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isDanger ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400' :
@@ -604,20 +597,15 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         initial={{ opacity: 0, y: 12, scale: 0.99 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         transition={{ duration: 0.4 }}
-                        className="lg:col-span-7 relative overflow-hidden rounded-[2.25rem]
-                                   bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-800
-                                   selection-inverted
-                                   p-6 sm:p-7 text-white shadow-premium border border-white/20
+                        className="lg:col-span-7 relative overflow-hidden rounded-2xl
+                                   bg-gray-100/90 dark:bg-surface-dark2
+                                   p-6 sm:p-7 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10
                                    flex flex-col justify-between"
                     >
-                        {/* Ambient glowing background orbs */}
-                        <div className="absolute -top-16 -right-16 w-48 h-48 bg-white/10 blur-[50px] rounded-full pointer-events-none" />
-                        <div className="absolute -bottom-16 -left-12 w-44 h-44 bg-indigo-400/20 blur-[50px] rounded-full pointer-events-none" />
-
                         <div className="relative z-10">
                             {/* Top row inside Hero */}
                             <div className="flex items-center justify-between gap-2 mb-3">
-                                <span className="text-white/80 text-[11px] font-black uppercase tracking-[0.18em] font-display">
+                                <span className="text-gray-500 dark:text-gray-400 text-[11px] font-bold uppercase tracking-wider font-display">
                                     {t('this_month_spend') || 'Έξοδα Μήνα'}
                                 </span>
                                 {stats.diffPct > 0 && (
@@ -640,9 +628,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             {/* Main Amount */}
                             <div className="flex items-baseline gap-1 my-1">
                                 {!privacyMode && (
-                                    <span className="text-2xl sm:text-3xl font-extrabold text-white/70">{currency || '€'}</span>
+                                    <span className="text-2xl sm:text-3xl font-extrabold text-gray-400 dark:text-gray-500">{currency || '€'}</span>
                                 )}
-                                <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight tabular-nums font-display leading-none">
+                                <h2 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight tabular-nums font-display leading-none">
                                     <Amount value={stats.curSpent} showCurrency={false} />
                                 </h2>
                             </div>
@@ -655,28 +643,27 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         </div>
 
                         {/* Bottom Row Inside Hero: Current Month Cashflow Capsules */}
-                        <div className="relative z-10 grid grid-cols-2 gap-3 mt-6 pt-4 border-t border-white/15">
+                        <div className="relative z-10 grid grid-cols-2 gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-white/10">
                             {/* This Month Income */}
-                            <div className="bg-white/10 backdrop-blur-md rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 border border-white/10">
-                                <div className="w-8 h-8 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center flex-shrink-0">
-                                    <ArrowUpRight size={16} />
-                                </div>
+                            <div className="bg-gray-200/60 dark:bg-white/[0.06] rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 border border-gray-300/60 dark:border-white/[0.1]">
+                                <ArrowUpRight size={18} className="text-emerald-500 shrink-0" strokeWidth={2.5} />
                                 <div className="min-w-0">
-                                    <p className="text-[10px] font-black uppercase tracking-wider text-white/70 truncate">
+                                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
                                         {t('month_income') || 'Έσοδα Μήνα'}
                                     </p>
-                                    <p className="text-sm font-black text-white truncate tabular-nums">
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white truncate tabular-nums">
                                         <Amount value={curMonthIncome} />
                                     </p>
                                 </div>
                             </div>
 
                             {/* This Month Net */}
-                            <div className="bg-white/10 backdrop-blur-md rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 border border-white/10">
-                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${isCurMonthNetPositive ? 'bg-emerald-400/20 text-emerald-300' : 'bg-rose-400/25 text-rose-200'
-                                    }`}>
-                                    {isCurMonthNetPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                                </div>
+                            <div className="bg-gray-200/60 dark:bg-white/[0.06] rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 border border-gray-300/60 dark:border-white/[0.1]">
+                                {isCurMonthNetPositive ? (
+                                    <TrendingUp size={18} className="text-emerald-500 shrink-0" strokeWidth={2.5} />
+                                ) : (
+                                    <TrendingDown size={18} className="text-rose-500 shrink-0" strokeWidth={2.5} />
+                                )}
                                 <div className="min-w-0">
                                     <p className="text-[10px] font-black uppercase tracking-wider text-white/70 truncate">
                                         {t('month_net') || 'Ισοζύγιο Μήνα'}
@@ -693,12 +680,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     {/* ──── All-Time Financial Bento (5 cols): 2x2 Grid of Stat Cards ──── */}
                     <div className="lg:col-span-5 grid grid-cols-2 gap-3.5">
                         {/* 1. Total Balance */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-2xl p-4 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-4 transition-all flex flex-col justify-between">
                             <div className="flex items-center justify-between gap-1.5">
                                 <div className="flex items-center gap-2 min-w-0">
-                                    <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center flex-shrink-0">
-                                        <Wallet size={16} />
-                                    </div>
+                                    <Wallet size={20} className="text-gray-900 dark:text-white shrink-0" />
                                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
                                         {t('all_time_balance') || 'Συνολικό Υπόλοιπο'}
                                     </span>
@@ -725,12 +710,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         </div>
 
                         {/* 2. Total Inflows */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-2xl p-4 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-4 transition-all flex flex-col justify-between">
                             <div className="flex items-center justify-between gap-1.5">
                                 <div className="flex items-center gap-2 min-w-0">
-                                    <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
-                                        <ArrowUpRight size={16} />
-                                    </div>
+                                    <ArrowUpRight size={20} className="text-emerald-500 shrink-0" strokeWidth={2.5} />
                                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
                                         {t('all_time_income') || 'Συνολικά Έσοδα'}
                                     </span>
@@ -753,12 +736,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         </div>
 
                         {/* 3. Total Expenses (Full width of remaining row) */}
-                        <div className="col-span-2 bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-2xl p-4 shadow-card hover:shadow-md transition-all flex flex-col justify-between">
+                        <div className="col-span-2 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-4 transition-all flex flex-col justify-between">
                             <div className="flex items-center justify-between gap-1.5">
                                 <div className="flex items-center gap-2 min-w-0">
-                                    <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0">
-                                        <ArrowDownRight size={16} />
-                                    </div>
+                                    <ArrowDownRight size={20} className="text-rose-500 shrink-0" strokeWidth={2.5} />
                                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
                                         {t('all_time_expenses') || 'Συνολικά Έξοδα'}
                                     </span>
@@ -790,16 +771,13 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         if (!isPro) { openUpgradeModal('advisor'); }
                         else { setActiveTab('advisor'); }
                     }}
-                    className="w-full relative overflow-hidden rounded-[1.75rem] p-4
-                               bg-gradient-to-r from-violet-50 via-indigo-50/70 to-purple-50 dark:bg-surface-dark3 dark:from-transparent dark:to-transparent
-                               border border-violet-200/70 dark:border-violet-900/40
-                               shadow-sm hover:shadow-md
-                               flex items-center justify-between gap-4 group transition-all duration-300"
+                    className="w-full relative overflow-hidden rounded-2xl p-4
+                               bg-gray-100/90 dark:bg-surface-dark2
+                               border border-gray-200 dark:border-white/10
+                               flex items-center justify-between gap-4 group transition-all duration-200"
                 >
                     <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-violet-500/25 flex-shrink-0 group-hover:scale-105 transition-transform">
-                            <Bot size={20} />
-                        </div>
+                        <Bot size={22} className="text-gray-900 dark:text-white shrink-0" />
                         <div className="min-w-0 text-left">
                             <div className="flex items-center gap-2">
                                 <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">
@@ -811,7 +789,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     </span>
                                 )}
                             </div>
-                            <p className="text-xs text-violet-700 dark:text-violet-300 font-semibold truncate mt-0.5">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 font-medium truncate mt-0.5">
                                 "{advisorLiveInsight}"
                             </p>
                         </div>
@@ -820,9 +798,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         <span className="text-xs font-bold text-violet-600 dark:text-violet-400 group-hover:text-violet-700 hidden sm:inline">
                             {t('open_advisor') || 'Συνομιλία με τον AI Σύμβουλο'}
                         </span>
-                        <div className="w-7 h-7 rounded-xl bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
-                            <ArrowRight size={14} />
-                        </div>
+                        <ArrowRight size={18} className="text-gray-500 dark:text-gray-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                     </div>
                 </motion.button>
 
@@ -839,12 +815,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 : 0;
 
                             return (
-                                <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5 sm:p-6 shadow-card hover:shadow-card-hover transition-all space-y-5">
+                                <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 sm:p-6 transition-all space-y-5">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center border border-violet-500/20 shadow-2xs">
-                                                <PieChart size={19} />
-                                            </div>
+                                            <PieChart size={22} className="text-gray-900 dark:text-white shrink-0" />
                                             <div>
                                                 <div className="flex items-center gap-2">
                                                     <h3 className="text-sm font-bold text-gray-900 dark:text-white">
@@ -910,15 +884,11 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                                     >
                                                         {/* Top: Icon + Percentage Badge */}
                                                         <div className="flex items-center justify-between gap-2">
-                                                            <div
-                                                                className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105"
-                                                                style={{ backgroundColor: `${cat.accent}18`, color: cat.accent }}
-                                                            >
+                                                            <div className="flex items-center justify-center shrink-0">
                                                                 <CategoryIcon
                                                                     category={cat.category}
                                                                     type="expense"
-                                                                    size={15}
-                                                                    className="p-0"
+                                                                    size={20}
                                                                 />
                                                             </div>
                                                             <span
@@ -967,7 +937,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         })()}
 
                         {/* Recent Transactions Feed */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5 sm:p-6 shadow-card space-y-4">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 sm:p-6 space-y-4">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-gray-100 dark:border-white/[0.06]">
                                 <div className="flex items-center gap-2">
                                     <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -1066,18 +1036,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     <div className="lg:col-span-5 xl:col-span-4 space-y-5">
                         {/* ── Safe-to-Burn Pace Card (Refined & Intelligent) ── */}
                         {stbData && (
-                            <div className={`rounded-[1.75rem] p-5 shadow-card space-y-2.5 transition-all ${stbData.stb <= 0
-                                ? 'bg-gradient-to-br from-rose-50/70 via-white to-white dark:from-rose-950/20 dark:via-surface-dark3 dark:to-surface-dark3 border border-rose-200/80 dark:border-rose-900/30'
-                                : 'bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10'
-                                }`}>
+                            <div className="rounded-2xl p-5 space-y-2.5 transition-all bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${stbData.stb <= 0
-                                            ? 'bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400'
-                                            : 'bg-amber-50 dark:bg-amber-950/40 text-amber-500'
-                                            }`}>
-                                            <Flame size={17} />
-                                        </div>
+                                        <Flame size={20} className="text-amber-500 shrink-0" />
                                         <div>
                                             <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
                                                 Safe-to-Burn
@@ -1119,7 +1081,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         )}
 
                         {/* ── Budgets Progress Widget ── */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5 shadow-card space-y-3.5">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 space-y-3.5">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
                                     <span>{t('budgets') || 'Προϋπολογισμοί'}</span>
@@ -1158,7 +1120,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         </div>
 
                         {/* ── Savings Goals Widget ── */}
-                        <div className="bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/10 rounded-[1.75rem] p-5 shadow-card space-y-3.5">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 space-y-3.5">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
                                     <span>{t('goals') || 'Στόχοι'}</span>

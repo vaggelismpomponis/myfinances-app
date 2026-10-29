@@ -12,9 +12,7 @@ import { getCategoryTranslation } from '../utils/categoryTranslations';
 ───────────────────────────────────────────── */
 const RightStatCard = ({ label, value, icon: Icon, color, bgColor }) => (
     <div className={`flex items-center gap-3 p-3.5 rounded-2xl ${bgColor} border border-transparent`}>
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color} bg-white/60 dark:bg-white/10 flex-shrink-0`}>
-            <Icon size={16} />
-        </div>
+        <Icon size={20} className={`${color} shrink-0`} strokeWidth={2.5} />
         <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</p>
             <p className="text-sm font-black text-gray-900 dark:text-white truncate">
@@ -50,7 +48,7 @@ const BudgetMiniBar = ({ budget, transactions }) => {
         <div className="space-y-1.5">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <CategoryIcon category={budget.category} type="expense" size={14} className="w-7 h-7 rounded-lg flex-shrink-0 p-0" />
+                    <CategoryIcon category={budget.category} type="expense" size={18} className="shrink-0" />
                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 capitalize">
                         {t('cat_' + budget.category?.toLowerCase()) === 'cat_' + budget.category?.toLowerCase()
                             ? budget.category
@@ -93,9 +91,7 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
             w-[330px] xl:w-[350px] flex-shrink-0 py-6 pr-5 pl-2
         ">
             {/* ── Cash Flow ── */}
-            <div className="bg-white dark:bg-surface-dark3
-                            border border-gray-100 dark:border-white/[0.05]
-                            rounded-[1.75rem] p-4 space-y-3">
+            <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
                 <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">
                     {t('this_month_spend') || 'This Month'}
                 </h3>
@@ -129,9 +125,7 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
 
             {/* ── Budgets ── */}
             {activeBudgets.length > 0 && (
-                <div className="bg-white dark:bg-surface-dark3
-                                border border-gray-100 dark:border-white/[0.05]
-                                rounded-[1.75rem] p-4 space-y-4">
+                <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-4 space-y-4">
                     <div className="flex items-center justify-between">
                         <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">
                             {t('budgets')}
@@ -153,9 +147,7 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
 
             {/* ── Recent Transactions ── */}
             {recentTxs.length > 0 && (
-                <div className="bg-white dark:bg-surface-dark3
-                                border border-gray-100 dark:border-white/[0.05]
-                                rounded-[1.75rem] p-4 space-y-3">
+                <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
                     <div className="flex items-center justify-between">
                         <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">
                             {t('recent')}
@@ -173,7 +165,7 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
                                 key={tx.id}
                                 className="flex items-center gap-2.5 py-2 px-1 border-b border-gray-50 dark:border-white/[0.03] last:border-0"
                             >
-                                <CategoryIcon category={tx.category} type={tx.type} size={15} className="w-8 h-8 rounded-xl flex-shrink-0 p-0" />
+                                <CategoryIcon category={tx.category} type={tx.type} size={18} className="shrink-0" />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-semibold text-gray-800 dark:text-white truncate">
                                         {getCategoryTranslation(tx.category, t)}
@@ -264,9 +256,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
             {isHome ? (
                 <h1 className="absolute left-1/2 -translate-x-1/2
                                text-[17px] font-black tracking-tight
-                               bg-gradient-to-r from-violet-600 to-indigo-500
-                               dark:from-violet-400 dark:to-indigo-400
-                               bg-clip-text text-transparent
+                               text-gray-950 dark:text-white
                                select-none pointer-events-none">
                     SpendWise
                 </h1>
@@ -284,13 +274,12 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                 {/* Notification Bell */}
                 <button
                     onClick={onToggleNotifications}
-                    className="relative w-10 h-10 rounded-full flex-shrink-0
+                    className="relative w-10 h-10 rounded-xl flex-shrink-0
                                bg-gray-100 dark:bg-white/[0.08]
                                flex items-center justify-center
-                               text-gray-500 dark:text-white/50
-                               hover:bg-violet-100 dark:hover:bg-violet-900/30
-                               hover:text-violet-600 dark:hover:text-violet-400
-                               hover:scale-110 active:scale-90
+                               text-gray-700 dark:text-gray-300
+                               hover:bg-gray-200/70 dark:hover:bg-white/10
+                               hover:scale-105 active:scale-95
                                transition-all duration-200"
                     aria-label="Notifications"
                 >
@@ -298,10 +287,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                     {unreadCount > 0 && (
                         <span className="absolute -top-0.5 -right-0.5
                                          w-4 h-4 rounded-full
-                                         bg-violet-600 text-white
-                                         text-[9px] font-black
-                                         flex items-center justify-center
-                                         shadow-sm">
+                                         bg-gray-950 dark:bg-white text-white dark:text-gray-950 text-[9px] font-bold flex items-center justify-center shadow-sm">
                             {unreadCount > 9 ? '9+' : unreadCount}
                         </span>
                     )}
@@ -311,11 +297,10 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                 <button
                     id="tour-add-button"
                     onClick={() => onAdd?.()}
-                    className="flex items-center gap-2 px-5 py-2.5
-                               bg-violet-600 hover:bg-violet-700
-                               text-white text-sm font-bold
-                               rounded-2xl shadow-lg shadow-violet-500/30
-                               hover:shadow-violet-500/40
+                    className="flex items-center gap-2 px-4 py-2.5
+                               bg-gray-950 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100
+                               text-white dark:text-gray-950 text-sm font-bold
+                               rounded-xl shadow-sm
                                active:scale-95 transition-all duration-200"
                 >
                     <Plus size={16} strokeWidth={2.5} />
