@@ -337,12 +337,12 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                             {notifications.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-8 px-6 text-center">
                                     <div className="relative mb-3">
-                                        {/* Inline SVG — always transparent, crisp at any size */}
+                                        {/* Inline SVG — SpendWise Executive Palette (Violet + Emerald + Euro) */}
                                         <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             {/* Soft glow behind bell */}
-                                            <ellipse cx="70" cy="72" rx="42" ry="38" fill="url(#glowGrad)" opacity="0.35"/>
+                                            <ellipse cx="70" cy="72" rx="42" ry="38" fill="url(#glowGrad)" opacity="0.25"/>
 
-                                            {/* Bell body */}
+                                            {/* Bell body in SpendWise brand violet */}
                                             <path d="M70 22C52 22 38 37 38 56V82H102V56C102 37 88 22 70 22Z" fill="url(#bellGrad)"/>
                                             {/* Bell bottom flare */}
                                             <path d="M32 82H108C108 82 108 88 70 88C32 88 32 82 32 82Z" fill="url(#bellGrad2)" rx="4"/>
@@ -351,68 +351,68 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                             {/* Bell handle */}
                                             <path d="M64 22C64 18.686 66.686 16 70 16C73.314 16 76 18.686 76 22" stroke="url(#bellGrad2)" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
                                             {/* Highlight sheen */}
-                                            <ellipse cx="57" cy="44" rx="7" ry="12" fill="white" opacity="0.18" transform="rotate(-15 57 44)"/>
+                                            <ellipse cx="57" cy="44" rx="7" ry="12" fill="white" opacity="0.22" transform="rotate(-15 57 44)"/>
 
                                             {/* Sleeping eyes */}
-                                            <path d="M60 64 Q63 61 66 64" stroke="#5B3FA0" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
-                                            <path d="M74 64 Q77 61 80 64" stroke="#5B3FA0" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+                                            <path d="M60 64 Q63 61 66 64" stroke="#2E1065" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+                                            <path d="M74 64 Q77 61 80 64" stroke="#2E1065" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
                                             {/* Smile */}
-                                            <path d="M63 72 Q70 77 77 72" stroke="#5B3FA0" strokeWidth="2" strokeLinecap="round" fill="none"/>
+                                            <path d="M63 72 Q70 77 77 72" stroke="#2E1065" strokeWidth="2" strokeLinecap="round" fill="none"/>
                                             {/* Cheek blush */}
-                                            <ellipse cx="58" cy="70" rx="4.5" ry="2.5" fill="#C084FC" opacity="0.35"/>
-                                            <ellipse cx="82" cy="70" rx="4.5" ry="2.5" fill="#C084FC" opacity="0.35"/>
+                                            <ellipse cx="58" cy="70" rx="4.5" ry="2.5" fill="#DDD6FE" opacity="0.45"/>
+                                            <ellipse cx="82" cy="70" rx="4.5" ry="2.5" fill="#DDD6FE" opacity="0.45"/>
 
                                             {/* ZZZ */}
-                                            <text x="96" y="40" fontSize="9" fontWeight="700" fill="#A78BFA" opacity="0.9" fontFamily="sans-serif">z</text>
-                                            <text x="103" y="30" fontSize="11" fontWeight="700" fill="#A78BFA" opacity="0.75" fontFamily="sans-serif">z</text>
-                                            <text x="111" y="19" fontSize="13" fontWeight="700" fill="#A78BFA" opacity="0.6" fontFamily="sans-serif">z</text>
+                                            <text x="96" y="40" fontSize="9" fontWeight="800" fill="#7C3AED" opacity="0.9" fontFamily="sans-serif">z</text>
+                                            <text x="103" y="30" fontSize="11" fontWeight="800" fill="#7C3AED" opacity="0.75" fontFamily="sans-serif">z</text>
+                                            <text x="111" y="19" fontSize="13" fontWeight="800" fill="#7C3AED" opacity="0.6" fontFamily="sans-serif">z</text>
 
+                                            {/* Coins in SpendWise Semantic Emerald with Euro (€) symbol */}
+                                            <circle cx="38" cy="112" r="9" fill="url(#coinGrad)" opacity="0.95"/>
+                                            <circle cx="38" cy="112" r="9" stroke="#059669" strokeWidth="1" opacity="0.8"/>
+                                            <text x="35" y="115.5" fontSize="9" fill="#FFFFFF" fontFamily="sans-serif" fontWeight="800">€</text>
+                                            <circle cx="52" cy="118" r="7" fill="url(#coinGrad)" opacity="0.9"/>
+                                            <circle cx="52" cy="118" r="7" stroke="#059669" strokeWidth="0.8" opacity="0.8"/>
+                                            <text x="49.5" y="121" fontSize="7.5" fill="#FFFFFF" fontFamily="sans-serif" fontWeight="800">€</text>
 
+                                            {/* Executive Payment Card (Dark Slate-Indigo with Chip) */}
+                                            <rect x="58" y="108" width="30" height="20" rx="3.5" fill="url(#cardGrad)" opacity="0.95"/>
+                                            <rect x="58" y="113" width="30" height="4" fill="#0F172A" opacity="0.4"/>
+                                            <rect x="61" y="119.5" width="6" height="4.5" rx="1" fill="#FBBF24" opacity="0.9"/>
+                                            <rect x="69" y="121" width="15" height="1.5" rx="0.5" fill="white" opacity="0.5"/>
 
-                                            {/* Coins */}
-                                            <circle cx="38" cy="112" r="9" fill="#F9A8D4" opacity="0.9"/>
-                                            <circle cx="38" cy="112" r="9" fill="url(#coinGrad)" opacity="0.9"/>
-                                            <text x="35" y="116" fontSize="9" fill="#7C3AED" fontFamily="sans-serif" fontWeight="700">$</text>
-                                            <circle cx="52" cy="118" r="7" fill="url(#coinGrad)" opacity="0.75"/>
-                                            <text x="49.5" y="122" fontSize="7.5" fill="#7C3AED" fontFamily="sans-serif" fontWeight="700">$</text>
-
-                                            {/* Credit card */}
-                                            <rect x="58" y="108" width="30" height="20" rx="3.5" fill="url(#cardGrad)" opacity="0.9"/>
-                                            <rect x="58" y="113" width="30" height="4" fill="#7C3AED" opacity="0.25"/>
-                                            <rect x="61" y="120" width="8" height="2.5" rx="1" fill="white" opacity="0.55"/>
-
-                                            {/* Piggy bank */}
-                                            <ellipse cx="108" cy="116" rx="11" ry="9" fill="url(#piggyGrad)" opacity="0.9"/>
-                                            <circle cx="116" cy="112" r="3.5" fill="url(#piggyGrad)" opacity="0.9"/>
-                                            <ellipse cx="101" cy="117" rx="2" ry="2.5" fill="#A78BFA" opacity="0.5"/>
-                                            <circle cx="105" cy="112" r="2.5" fill="#7C3AED" opacity="0.3"/>
-                                            <rect x="106" y="105" width="4" height="2.5" rx="1" fill="#7C3AED" opacity="0.4"/>
+                                            {/* Savings Piggy Bank (SpendWise Brand Violet) */}
+                                            <ellipse cx="108" cy="116" rx="11" ry="9" fill="url(#piggyGrad)" opacity="0.95"/>
+                                            <circle cx="116" cy="112" r="3.5" fill="url(#piggyGrad)" opacity="0.95"/>
+                                            <ellipse cx="101" cy="117" rx="2" ry="2.5" fill="#8B5CF6" opacity="0.6"/>
+                                            <circle cx="105" cy="112" r="2.5" fill="#4C1D95" opacity="0.4"/>
+                                            <rect x="106" y="105" width="4" height="2" rx="0.8" fill="#4C1D95" opacity="0.5"/>
 
                                             {/* Gradient defs */}
                                             <defs>
                                                 <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
-                                                    <stop offset="0%" stopColor="#A78BFA" stopOpacity="0.5"/>
-                                                    <stop offset="100%" stopColor="#A78BFA" stopOpacity="0"/>
+                                                    <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.35"/>
+                                                    <stop offset="100%" stopColor="#7C3AED" stopOpacity="0"/>
                                                 </radialGradient>
                                                 <linearGradient id="bellGrad" x1="50%" y1="0%" x2="50%" y2="100%">
-                                                    <stop offset="0%" stopColor="#C4B5FD"/>
-                                                    <stop offset="100%" stopColor="#7C3AED"/>
-                                                </linearGradient>
-                                                <linearGradient id="bellGrad2" x1="50%" y1="0%" x2="50%" y2="100%">
                                                     <stop offset="0%" stopColor="#8B5CF6"/>
                                                     <stop offset="100%" stopColor="#6D28D9"/>
                                                 </linearGradient>
+                                                <linearGradient id="bellGrad2" x1="50%" y1="0%" x2="50%" y2="100%">
+                                                    <stop offset="0%" stopColor="#7C3AED"/>
+                                                    <stop offset="100%" stopColor="#5B21B6"/>
+                                                </linearGradient>
                                                 <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                    <stop offset="0%" stopColor="#E9D5FF"/>
-                                                    <stop offset="100%" stopColor="#C4B5FD"/>
+                                                    <stop offset="0%" stopColor="#34D399"/>
+                                                    <stop offset="100%" stopColor="#059669"/>
                                                 </linearGradient>
                                                 <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                    <stop offset="0%" stopColor="#A78BFA"/>
-                                                    <stop offset="100%" stopColor="#7C3AED"/>
+                                                    <stop offset="0%" stopColor="#312E81"/>
+                                                    <stop offset="100%" stopColor="#1E1B4B"/>
                                                 </linearGradient>
                                                 <linearGradient id="piggyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                    <stop offset="0%" stopColor="#DDD6FE"/>
-                                                    <stop offset="100%" stopColor="#A78BFA"/>
+                                                    <stop offset="0%" stopColor="#C4B5FD"/>
+                                                    <stop offset="100%" stopColor="#7C3AED"/>
                                                 </linearGradient>
                                             </defs>
                                         </svg>
