@@ -67,8 +67,8 @@ const TimeBtn = ({ value, label, active, onClick }) => (
         onClick={() => onClick(value)}
         className={`flex-1 py-2 px-3 rounded-xl text-xs font-black whitespace-nowrap transition-all duration-300
                     ${active
-                ? 'bg-violet-600 text-white shadow-glow-sm scale-[1.02]'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-white/5'
+                ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 font-semibold hover:text-gray-900 dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-white/5'
             }`}
     >
         {label}
@@ -319,41 +319,36 @@ const StatsView = ({ transactions }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="relative overflow-hidden bg-gradient-to-br from-violet-600 to-indigo-700 dark:from-violet-600/20 dark:to-indigo-800/20 selection-inverted rounded-[2.5rem] p-6 text-white dark:text-violet-100 shadow-xl border border-white/10 dark:border-white/5">
-                <div className="absolute top-0 right-0 -mr-8 -mt-8 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 bg-cyan-400/10 rounded-full blur-2xl" />
-                
+                className="relative overflow-hidden bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-6 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10">
                 <div className="relative flex justify-between items-start mb-6">
                     <div>
-                        <h2 className="text-white/70 dark:text-violet-300/60 text-[10px] font-black uppercase tracking-widest mb-1 font-display">
+                        <h2 className="text-gray-500 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1 font-display">
                             {t('stats_portfolio_overview')}
                         </h2>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-4xl font-black tracking-tight text-white dark:text-white font-display drop-shadow-md">
+                            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white font-display">
                                 <Amount value={cashFlow} />
                             </span>
-                            <span className="text-xs font-medium text-white/60 dark:text-violet-300/40">
+                            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                                 {t('net_flow')}
                             </span>
                         </div>
                     </div>
-                    <div className="w-12 h-12 rounded-2xl bg-white/15 dark:bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 dark:border-white/10">
-                        <Activity className="text-white dark:text-violet-200" size={24} />
-                    </div>
+                    <Activity className="text-gray-900 dark:text-white shrink-0" size={24} />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 relative">
-                    <div className="bg-white/10 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-3 border border-white/10 dark:border-white/5">
-                        <p className="text-[10px] font-bold text-white/60 dark:text-violet-300/40 uppercase mb-1">{t('stats_income')}</p>
-                        <div className="flex items-center gap-1.5 text-emerald-300 dark:text-emerald-400 font-bold">
-                            <TrendingUp size={14} />
+                <div className="grid grid-cols-2 gap-3 relative">
+                    <div className="bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-2xl p-3">
+                        <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">{t('stats_income')}</p>
+                        <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                            <TrendingUp size={16} />
                             <Amount value={totalIncome} />
                         </div>
                     </div>
-                    <div className="bg-white/10 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-3 border border-white/10 dark:border-white/5">
-                        <p className="text-[10px] font-bold text-white/60 dark:text-violet-300/40 uppercase mb-1">{t('stats_expense')}</p>
-                        <div className="flex items-center gap-1.5 text-rose-300 dark:text-rose-400 font-bold">
-                            <TrendingDown size={14} />
+                    <div className="bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-2xl p-3">
+                        <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">{t('stats_expense')}</p>
+                        <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-bold text-sm">
+                            <TrendingDown size={16} />
                             <Amount value={totalExpense} />
                         </div>
                     </div>
@@ -362,7 +357,7 @@ const StatsView = ({ transactions }) => {
 
             {/* ── Time Filter ── */}
             <div className="px-1">
-                <div className="bg-gray-100 dark:bg-black/40 backdrop-blur-xl rounded-2xl p-1.5 shadow-premium flex gap-1 border border-gray-200 dark:border-white/5 overflow-x-auto scrollbar-hide">
+                <div className="bg-gray-100/90 dark:bg-surface-dark2 rounded-xl p-1 flex gap-1 border border-gray-200 dark:border-white/10 overflow-x-auto scrollbar-hide">
                     {TIME_FILTERS.map(f => (
                         <TimeBtn key={f.value} value={f.value} label={f.label}
                             active={timeRange === f.value} onClick={handleTimeRangeChange} />
@@ -378,7 +373,7 @@ const StatsView = ({ transactions }) => {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="bg-white dark:bg-surface-dark3 p-5 rounded-[24px] space-y-4 overflow-hidden shadow-sm border border-gray-100/80 dark:border-white/5">
+                        className="bg-gray-100/90 dark:bg-surface-dark2 p-4 rounded-2xl space-y-4 overflow-hidden border border-gray-200 dark:border-white/10">
                     <div className="relative">
                         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide pr-10">
                             {availableYears.map(year => (
@@ -387,8 +382,8 @@ const StatsView = ({ transactions }) => {
                                     onClick={() => setSelectedYear(year)}
                                     className={`px-5 py-2 rounded-xl text-xs font-bold transition-all
                                                 ${selectedYear === year 
-                                                    ? 'bg-violet-600 text-white shadow-glow-sm' 
-                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400'}`}
+                                                    ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold shadow-sm' 
+                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
                                 >
                                     {year}
                                 </button>
@@ -403,8 +398,8 @@ const StatsView = ({ transactions }) => {
                             onClick={() => setSelectedMonth(null)}
                             className={`col-span-4 py-2.5 rounded-xl text-xs font-black transition-all border
                                         ${selectedMonth === null 
-                                            ? 'bg-violet-600 text-white border-transparent shadow-glow-sm' 
-                                            : 'bg-transparent border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400'}`}
+                                                ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold shadow-sm' 
+                                                : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
                         >
                             {t('stats_year')} {selectedYear}
                         </button>
@@ -414,8 +409,8 @@ const StatsView = ({ transactions }) => {
                                 onClick={() => setSelectedMonth(m.id)}
                                 className={`py-2 rounded-xl text-[10px] font-bold transition-all
                                             ${selectedMonth === m.id 
-                                                ? 'bg-violet-600 text-white shadow-glow-sm' 
-                                                : 'bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400'}`}
+                                                    ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold shadow-sm' 
+                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
                             >
                                 {m.name.substring(0, 3)}
                             </button>
@@ -435,11 +430,9 @@ const StatsView = ({ transactions }) => {
             />
 
             {/* ── Calendar Insights ── */}
-            <div className="bg-white dark:bg-surface-dark3 rounded-[24px] p-6 space-y-4 shadow-sm border border-gray-100/80 dark:border-white/5">
+            <div className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-5 sm:p-6 space-y-4 border border-gray-200 dark:border-white/10">
                 <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/20 flex items-center justify-center text-violet-600 dark:text-violet-400">
-                        <TrendingUp size={20} />
-                    </div>
+                    <TrendingUp size={22} className="text-gray-900 dark:text-white shrink-0" />
                     <div>
                         <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider">
                             {t('calendar_insights')}

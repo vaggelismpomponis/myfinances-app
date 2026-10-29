@@ -74,9 +74,9 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
     ];
 
     const filterColors = {
-        all: { active: 'bg-violet-600 text-white shadow-glow-sm', inactive: '' },
-        income: { active: 'bg-emerald-500 text-white shadow-[0_0_12px_rgba(16,185,129,0.4)]', inactive: '' },
-        expense: { active: 'bg-rose-500 text-white shadow-[0_0_12px_rgba(244,63,94,0.4)]', inactive: '' },
+        all: { active: 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold', inactive: '' },
+        income: { active: 'bg-emerald-600 text-white font-bold', inactive: '' },
+        expense: { active: 'bg-rose-600 text-white font-bold', inactive: '' },
     };
 
     return (
@@ -85,24 +85,24 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
             {/* ── Summary Strip ── */}
             {filteredTransactions.length > 0 && (
                 <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20
-                                    border border-emerald-100 dark:border-transparent
-                                    rounded-2xl p-3 flex items-center gap-2.5">
-                        <ArrowUpRight size={22} strokeWidth={2.5} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2
+                                    border border-gray-200 dark:border-white/10
+                                    rounded-2xl p-3 flex items-center gap-3">
+                        <ArrowUpRight size={22} strokeWidth={2.5} className="text-emerald-500 shrink-0" />
                         <div>
-                            <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">{t('stats_income')}</p>
-                            <p className="text-sm font-black text-emerald-800 dark:text-emerald-200">
+                            <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('stats_income')}</p>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">
                                 <Amount value={totalIncome} prefix="+" />
                             </p>
                         </div>
                     </div>
-                    <div className="bg-rose-50 dark:bg-rose-900/20
-                                    border border-rose-100 dark:border-transparent
-                                    rounded-2xl p-3 flex items-center gap-2.5">
-                        <ArrowDownRight size={22} strokeWidth={2.5} className="text-rose-600 dark:text-rose-400 shrink-0" />
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2
+                                    border border-gray-200 dark:border-white/10
+                                    rounded-2xl p-3 flex items-center gap-3">
+                        <ArrowDownRight size={22} strokeWidth={2.5} className="text-rose-500 shrink-0" />
                         <div>
-                            <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wide">{t('stats_expense')}</p>
-                            <p className="text-sm font-black text-rose-800 dark:text-rose-200">
+                            <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('stats_expense')}</p>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">
                                 <Amount value={totalExpense} prefix="−" />
                             </p>
                         </div>
@@ -122,12 +122,12 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                             aria-label={t('search_placeholder')}
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className="input-glow w-full pl-10 pr-10 py-3 rounded-xl text-sm
+                            className="w-full pl-10 pr-10 py-2.5 rounded-xl text-sm
                                     bg-white dark:bg-surface-dark3
-                                    border border-gray-150 dark:border-transparent
-                                    text-gray-800 dark:text-white
-                                    placeholder-gray-400 dark:placeholder-gray-600
-                                    transition-all duration-200 shadow-card dark:shadow-none"
+                                    border border-gray-200 dark:border-white/10
+                                    text-gray-900 dark:text-white
+                                    placeholder-gray-400 dark:placeholder-gray-500
+                                    focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all"
                         />
                         {searchTerm && (
                             <button
@@ -142,28 +142,28 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                     </div>
                     <button 
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all
+                        className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all
                                     ${showFilters 
-                                        ? 'bg-violet-600 text-white shadow-glow-violet' 
-                                        : 'bg-white dark:bg-surface-dark3 text-gray-500 dark:text-gray-400 border border-gray-150 dark:border-transparent shadow-card dark:shadow-none'}`}
+                                        ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 shadow-sm' 
+                                        : 'bg-white dark:bg-surface-dark3 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5'}`}
                     >
-                        <LayoutList size={20} />
+                        <LayoutList size={18} />
                     </button>
                 </div>
 
                 {/* Date Filter Picker */}
                 {showFilters && (
-                    <div className="bg-[#f5f5f5] dark:bg-white/[0.04] p-4 rounded-[20px] space-y-4 shadow-none animate-slide-down">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-200 dark:border-white/10 space-y-4 shadow-none animate-slide-down">
                         <div className="relative">
                             <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide pr-10">
                                 {availableYears.map(year => (
                                     <button
                                         key={year}
                                         onClick={() => setSelectedYear(year)}
-                                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all
+                                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all
                                                     ${selectedYear === year 
-                                                        ? 'bg-violet-600 text-white shadow-md shadow-violet-200 dark:shadow-none' 
-                                                        : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400'}`}
+                                                        ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 shadow-sm' 
+                                                        : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
                                     >
                                         {year}
                                     </button>
@@ -176,10 +176,10 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                         <div className="grid grid-cols-4 gap-2">
                             <button
                                 onClick={() => setSelectedMonth(null)}
-                                className={`col-span-4 py-2 rounded-xl text-xs font-bold transition-all
+                                className={`col-span-4 py-2 rounded-lg text-xs font-bold transition-all
                                             ${selectedMonth === null 
-                                                ? 'bg-violet-600 text-white shadow-md shadow-violet-200 dark:shadow-none' 
-                                                : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400'}`}
+                                                ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 shadow-sm' 
+                                                : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
                             >
                                 {t('all')} ({selectedYear})
                             </button>
@@ -187,10 +187,10 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                                 <button
                                     key={m.id}
                                     onClick={() => setSelectedMonth(m.id)}
-                                    className={`py-2 rounded-xl text-[10px] font-bold transition-all
+                                    className={`py-2 rounded-lg text-[10px] font-bold transition-all
                                                 ${selectedMonth === m.id 
-                                                    ? 'bg-violet-600 text-white shadow-md shadow-violet-200 dark:shadow-none' 
-                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400'}`}
+                                                    ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 shadow-sm' 
+                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
                                 >
                                     {m.name.substring(0, 3)}
                                 </button>
@@ -205,10 +205,10 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                         <button
                             key={f.value}
                             onClick={() => setFilterType(f.value)}
-                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200
+                            className={`px-4 py-1.5 rounded-lg text-xs transition-all duration-200
                                         ${filterType === f.value
                                     ? filterColors[f.value].active
-                                    : 'bg-gray-100 dark:bg-surface-dark3 text-gray-500 dark:text-gray-400'
+                                    : 'bg-gray-100 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                 }`}
                         >
                             {f.label}
@@ -236,7 +236,7 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                                 {/* Date group header */}
                                 <div className="flex items-center justify-between mb-2.5">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-1 h-4 rounded-full bg-gradient-to-b from-violet-500 to-violet-700" />
+                                        <div className="w-1 h-3.5 rounded-full bg-gray-400 dark:bg-gray-600 shrink-0" />
                                         <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                             {date.normalize('NFD').replace(/[\u0300-\u036f]/g, '')}
                                         </h3>

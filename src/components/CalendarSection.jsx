@@ -209,13 +209,11 @@ const CalendarSection = ({
     }, [viewYear, viewMonth, daysInMonth, startOffset, dailyExpensesMap]);
 
     return (
-        <div className="bg-white dark:bg-surface-dark3 rounded-[2.5rem] p-6 shadow-premium border border-gray-100 dark:border-white/5 space-y-6">
+        <div className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-white/10 space-y-6">
             {/* Header / Month Navigation */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/20 flex items-center justify-center text-violet-600 dark:text-violet-400">
-                        <CalendarIcon size={20} />
-                    </div>
+                    <CalendarIcon size={22} className="text-gray-900 dark:text-white shrink-0" />
                     <div>
                         <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider">
                             {t('calendar_title')}
@@ -435,8 +433,8 @@ const CalendarSection = ({
                                                          className="flex justify-between items-center bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-violet-200 dark:hover:border-violet-500/30 transition-all group"
                                                     >
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-white/5 shadow-sm group-hover:scale-105 transition-transform">
-                                                                <CategoryIcon category={tx.category} type="expense" size={20} />
+                                                            <div className="flex items-center justify-center shrink-0">
+                                                                <CategoryIcon category={tx.category} type="expense" size={22} />
                                                             </div>
                                                             <div>
                                                                 <p className="font-bold text-sm text-gray-800 dark:text-white capitalize">
