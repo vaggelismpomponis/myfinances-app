@@ -201,16 +201,25 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
             return;
         }
         try {
-            const { error: signInError } = await supabase.auth.signInWithPassword({
-                email: user.email,
-                password: currentPassword
-            });
-            if (signInError) throw new Error('wrong_password');
+            if (hasPassword) {
+                const { error: signInError } = await supabase.auth.signInWithPassword({
+                    email: user.email,
+                    password: currentPassword
+                });
+                if (signInError) throw new Error('wrong_password');
+            }
 
-            const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: newPassword,
+                data: { has_set_password: true, password_set_at: new Date().toISOString() }
+            });
             if (updateError) throw updateError;
 
-            setPasswordSuccess(translate('password_changed_success') || 'Password updated successfully!');
+            if (user?.id) localStorage.setItem(`sw_pwd_set_${user.id}`, 'true');
+            setHasPassword(true);
+            setPasswordSuccess(hasPassword
+                ? (translate('password_changed_success') || 'Password updated successfully!')
+                : (translate('set_password_success') || 'Ο κωδικός πρόσβασης ορίστηκε με επιτυχία!'));
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
@@ -235,7 +244,23 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
         return Monitor;
     };
 
-    const isPasswordUser = user?.app_metadata?.provider === 'email' || user?.identities?.some(i => i.provider === 'email');
+    const isGoogle = user?.app_metadata?.provider === 'google' ||
+        user?.app_metadata?.providers?.includes('google') ||
+        user?.identities?.some(i => i.provider === 'google');
+
+    const [hasPassword, setHasPassword] = useState(() => Boolean(
+        user?.user_metadata?.has_set_password ||
+        (typeof window !== 'undefined' && localStorage.getItem(`sw_pwd_set_${user?.id}`) === 'true') ||
+        (user?.app_metadata?.provider === 'email' && !isGoogle)
+    ));
+
+    useEffect(() => {
+        setHasPassword(Boolean(
+            user?.user_metadata?.has_set_password ||
+            (typeof window !== 'undefined' && localStorage.getItem(`sw_pwd_set_${user?.id}`) === 'true') ||
+            (user?.app_metadata?.provider === 'email' && !isGoogle)
+        ));
+    }, [user, isGoogle]);
 
     return (
         <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300 overflow-hidden">
@@ -321,25 +346,37 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                             </p>
 
                             <div className="space-y-3 pt-1">
-                                {/* Change Password — only for email users */}
-                                {isPasswordUser && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPasswordModal(true)}
-                                        className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-violet-50/60 dark:hover:bg-violet-500/[0.08] hover:border-violet-300 dark:hover:border-violet-500/30 active:scale-[0.99] transition-all text-left group"
-                                    >
-                                        <KeyRound size={20} className="text-gray-700 dark:text-gray-300 shrink-0" strokeWidth={2.2} />
-                                        <div className="flex-1 min-w-0">
+                                {/* Change / Set Password */}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setPasswordError('');
+                                        setPasswordSuccess('');
+                                        setCurrentPassword('');
+                                        setNewPassword('');
+                                        setConfirmPassword('');
+                                        setShowPasswordModal(true);
+                                    }}
+                                    className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-violet-50/60 dark:hover:bg-violet-500/[0.08] hover:border-violet-300 dark:hover:border-violet-500/30 active:scale-[0.99] transition-all text-left group"
+                                >
+                                    <KeyRound size={20} className="text-gray-700 dark:text-gray-300 shrink-0" strokeWidth={2.2} />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
                                             <span className="block font-bold text-sm text-gray-900 dark:text-white truncate">
-                                                {translate('change_password') || 'Change Password'}
+                                                {hasPassword ? (translate('change_password') || 'Change Password') : (translate('set_password_title') || 'Create Account Password')}
                                             </span>
-                                            <span className="text-[11px] text-gray-500 dark:text-gray-400">
-                                                {translate('change_password_desc') || 'Update your account password'}
-                                            </span>
+                                            {!hasPassword && (
+                                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 uppercase">
+                                                    {translate('set_password_badge') || 'Recommended'}
+                                                </span>
+                                            )}
                                         </div>
-                                        <ChevronRight size={16} className="text-gray-400 dark:text-white/40 group-hover:text-violet-600 dark:group-hover:text-violet-400 group-hover:translate-x-0.5 transition-all" />
-                                    </button>
-                                )}
+                                        <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                                            {hasPassword ? (translate('change_password_desc') || 'Update your account password') : (translate('set_password_desc') || 'Set a password to enable email login')}
+                                        </span>
+                                    </div>
+                                    <ChevronRight size={16} className="text-gray-400 dark:text-white/40 group-hover:text-violet-600 dark:group-hover:text-violet-400 group-hover:translate-x-0.5 transition-all" />
+                                </button>
 
                                 {/* PIN Toggle */}
                                 <div className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
@@ -594,8 +631,12 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     animate-slide-up">
                         <div className="flex items-center justify-between mb-5">
                             <div>
-                                <h3 className="text-[17px] font-bold text-gray-900 dark:text-white">{translate('change_password') || 'Change Password'}</h3>
-                                <p className="text-[12px] text-gray-400 dark:text-white/60">{translate('change_password_desc') || 'Update your account password'}</p>
+                                <h3 className="text-[17px] font-bold text-gray-900 dark:text-white">
+                                    {hasPassword ? (translate('change_password') || 'Change Password') : (translate('set_password_title') || 'Create Account Password')}
+                                </h3>
+                                <p className="text-[12px] text-gray-400 dark:text-white/60">
+                                    {hasPassword ? (translate('change_password_desc') || 'Update your account password') : (translate('set_password_desc') || 'Set a password to enable email login')}
+                                </p>
                             </div>
                             <button
                                 type="button"
@@ -624,15 +665,19 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                         {passwordError}
                                     </div>
                                 )}
-                                <PasswordInput
-                                    label={translate('current_password') || 'Current Password'}
-                                    value={currentPassword}
-                                    onChange={(e) => setCurrentPassword(e.target.value)}
-                                    placeholder={translate('current_password_placeholder') || '••••••••'}
-                                    autoComplete="current-password"
-                                    required
-                                />
-                                <div className="border-t border-gray-100 dark:border-white/10 my-1" />
+                                {hasPassword && (
+                                    <>
+                                        <PasswordInput
+                                            label={translate('current_password') || 'Current Password'}
+                                            value={currentPassword}
+                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                            placeholder={translate('current_password_placeholder') || '••••••••'}
+                                            autoComplete="current-password"
+                                            required
+                                        />
+                                        <div className="border-t border-gray-100 dark:border-white/10 my-1" />
+                                    </>
+                                )}
                                 <PasswordInput
                                     label={translate('new_password') || 'New Password'}
                                     value={newPassword}
@@ -692,7 +737,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                             {translate('updating') || 'Updating...'}
                                         </>
-                                    ) : (translate('change_password') || 'Change Password')}
+                                    ) : (hasPassword ? (translate('change_password') || 'Change Password') : (translate('set_password_btn') || 'Save Password'))}
                                 </button>
                             </form>
                         )}

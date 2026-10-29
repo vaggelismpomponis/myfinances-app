@@ -138,6 +138,52 @@ function MainContent() {
     const [showRegretModal, setShowRegretModal] = useState(false);
     const [activeRegretTxId, setActiveRegretTxId] = useState(null);
 
+    // Set Password Prompt (for Google users without a password)
+    const [showSetPasswordPrompt, setShowSetPasswordPrompt] = useState(false);
+
+    useEffect(() => {
+        if (!user || loading || isLocked) return;
+
+        const isGoogleUser = user.app_metadata?.provider === 'google' ||
+            user.app_metadata?.providers?.includes('google') ||
+            user.identities?.some(i => i.provider === 'google');
+
+        const hasPassword = Boolean(
+            user.user_metadata?.has_set_password ||
+            (typeof window !== 'undefined' && localStorage.getItem(`sw_pwd_set_${user.id}`) === 'true') ||
+            (user.app_metadata?.provider === 'email' && !isGoogleUser)
+        );
+
+        const isDismissedInSession = typeof window !== 'undefined' &&
+            sessionStorage.getItem(`sw_pwd_prompt_dismissed_${user.id}`) === 'true';
+
+        if (isGoogleUser && !hasPassword && !isDismissedInSession) {
+            const timer = setTimeout(() => {
+                setShowSetPasswordPrompt(true);
+            }, 600);
+            return () => clearTimeout(timer);
+        }
+    }, [user, loading, isLocked]);
+
+    const handleCloseSetPasswordPrompt = () => {
+        if (user?.id) {
+            sessionStorage.setItem(`sw_pwd_prompt_dismissed_${user.id}`, 'true');
+        }
+        setShowSetPasswordPrompt(false);
+    };
+
+    const handlePasswordPromptSuccess = (updatedUser) => {
+        if (user?.id) {
+            localStorage.setItem(`sw_pwd_set_${user.id}`, 'true');
+            sessionStorage.setItem(`sw_pwd_prompt_dismissed_${user.id}`, 'true');
+        }
+        if (updatedUser) {
+            setUser(updatedUser);
+        }
+        setShowSetPasswordPrompt(false);
+        showToast(translate('set_password_success') || 'Ο κωδικός πρόσβασης ορίστηκε με επιτυχία!', 'success');
+    };
+
     // ── Onboarding Tour
     const [tourKey, setTourKey] = useState(0);
     const [runTour, setRunTour] = useState(false);
@@ -161,7 +207,7 @@ function MainContent() {
         sessionStorage.removeItem('sw_is_new_signup');
         localStorage.removeItem('sw_is_new_signup');
 
-        if (isNewSignup && !hasSeenTour) {
+        if (isNewSignup && !hasSeenTour && !showSetPasswordPrompt) {
             // Auto-launch once for newly registered users after app finishes loading.
             // 900ms delay avoids conflicting with WhatsNew / Broadcast modals.
             const timer = setTimeout(() => {
@@ -481,6 +527,7 @@ function MainContent() {
                 setLoading(false);
                 clearTimeout(authTimeout);
                 sessionTracked.current = false;
+                setShowSetPasswordPrompt(false);
                 sessionStorage.removeItem('sw_is_new_signup');
                 localStorage.removeItem('sw_is_new_signup');
                 setActiveTab('home');
@@ -1555,6 +1602,9 @@ function MainContent() {
                                 setShowRegretModal={setShowRegretModal}
                                 activeRegretTxId={activeRegretTxId}
                                 setActiveRegretTxId={setActiveRegretTxId}
+                                showSetPasswordPrompt={showSetPasswordPrompt}
+                                onCloseSetPasswordPrompt={handleCloseSetPasswordPrompt}
+                                onSetPasswordSuccess={handlePasswordPromptSuccess}
                             />
 
                             {/* Onboarding Tour — renders globally on top of desktop and mobile via portal */}

@@ -7,6 +7,7 @@ import BroadcastModal from './BroadcastModal';
 import UpgradeModal from './UpgradeModal';
 import NotificationPanel from './NotificationPanel';
 import RegretCheckinModal from './RegretCheckinModal';
+import SetPasswordPromptModal from './SetPasswordPromptModal';
 
 export default function GlobalOverlays({
     // AddModal props
@@ -41,7 +42,12 @@ export default function GlobalOverlays({
     showRegretModal,
     setShowRegretModal,
     activeRegretTxId,
-    setActiveRegretTxId
+    setActiveRegretTxId,
+
+    // Set Password Prompt props
+    showSetPasswordPrompt,
+    onCloseSetPasswordPrompt,
+    onSetPasswordSuccess
 }) {
     return (
         <>
@@ -113,6 +119,14 @@ export default function GlobalOverlays({
             <NotificationPanel 
                 isOpen={showNotificationPanel} 
                 onClose={() => setShowNotificationPanel(false)} 
+            />
+
+            {/* Set Password Prompt for Google Users */}
+            <SetPasswordPromptModal
+                isOpen={showSetPasswordPrompt}
+                onClose={onCloseSetPasswordPrompt}
+                onSuccess={onSetPasswordSuccess}
+                user={user}
             />
         </>
     );
