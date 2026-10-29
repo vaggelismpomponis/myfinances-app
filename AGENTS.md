@@ -25,7 +25,7 @@ Single Source of Truth personal finance application powering Web (PWA) and Andro
 
 ## Git & Version Control Guidelines
 
-- **Commit & Push Policy**: Always commit and push changes upon successfully completing and verifying any task, feature, bug fix, or refactor.
+- **Commit Policy (Do Not Push)**: Always commit changes locally upon successfully completing and verifying any task, feature, bug fix, or refactor. Never push (git push); the user handles pushing manually.
 - **Commit Message Convention**: Follow the Conventional Commits standard with a professional, corporate, and easy-to-understand message format:
   - **Format**: `<type>(<scope>): <concise summary>`
   - **Types**:
@@ -41,7 +41,7 @@ Single Source of Truth personal finance application powering Web (PWA) and Andro
     - Keep commit titles clear, specific, and self-explanatory (avoid vague messages like "update files" or "fixes").
     - For non-trivial changes, include a concise body or bullet points detailing the business rationale and technical scope.
 - **Verification Before Commit**: Always verify the build succeeds (`npm run build`) and mobile assets sync (`npx cap sync` when web/native assets change) before committing.
-- **Remote Push**: Always push commits to the remote repository tracking branch (`git push`) immediately following the commit.
+- **No Remote Push**: Do NOT execute git push. All pushes to the remote tracking branch are handled manually by the user.
 
 ## Iconography & UI Design Guidelines
 

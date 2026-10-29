@@ -1,7 +1,7 @@
 # Git & Version Control Guidelines
 
 ## Policy
-Always commit and push changes upon successfully completing and verifying any task, feature, bug fix, or refactor.
+Always commit verified changes locally upon completing any task, feature, bug fix, or refactor. Do NOT push to remote; the user will push manually.
 
 ## Commit Message Convention
 Follow the Conventional Commits specification with a corporate, professional, and easily understandable structure:
@@ -32,5 +32,5 @@ Follow the Conventional Commits specification with a corporate, professional, an
 2. Run `npx cap sync` when web or native mobile assets change.
 3. Check `git status` and `git diff` to ensure only intended files are staged.
 
-## Push
-Always run `git push origin <branch>` (or `git push`) to ensure the remote repository is completely synchronized.
+## Push Policy (Do Not Push)
+Do NOT execute `git push`. All pushes to the remote tracking branch are handled manually by the user.
