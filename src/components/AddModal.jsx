@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     X, Camera, Layers, Mic, Delete, Check, Plus, Search,
-    MessageSquare, MoreHorizontal, AlertCircle, ShieldCheck
+    MessageSquare, MoreHorizontal, AlertCircle, ShieldCheck, Shapes
 } from 'lucide-react';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 import { Capacitor } from '@capacitor/core';
