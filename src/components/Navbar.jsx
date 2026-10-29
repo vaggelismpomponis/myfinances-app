@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Home, BarChart, History, Settings, ShieldCheck } from 'lucide-react';
+import { Home, BarChart3, History, Settings, ShieldCheck } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
 const NAV_ITEMS_LEFT = [
     { id: 'home', Icon: Home, labelKey: 'nav_home' },
-    { id: 'stats', Icon: BarChart, labelKey: 'nav_stats' },
+    { id: 'stats', Icon: BarChart3, labelKey: 'nav_stats' },
 ];
 
 const NAV_ITEMS_RIGHT = [

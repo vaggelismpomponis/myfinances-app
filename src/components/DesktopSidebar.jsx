@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Home, BarChart2, History, Settings, Target,
+    Home, BarChart3, History, Settings, Target,
     RefreshCw, Lightbulb, LogOut, Moon, Sun, Eye, EyeOff,
     PiggyBank, User, ShieldCheck, ArrowRight
 } from 'lucide-react';
@@ -131,7 +131,7 @@ const DesktopSidebar = ({
                 <SectionLabel label={t('nav_main') || 'Main'} />
 
                 <NavItem id="nav-home" icon={Home} label={t('nav_home')} active={activeTab === 'home'} onClick={() => navTo('home')} />
-                <NavItem id="nav-stats" icon={BarChart2} label={t('nav_stats')} active={activeTab === 'stats'} onClick={() => navTo('stats')} showCrown={!isPro} />
+                <NavItem id="nav-stats" icon={BarChart3} label={t('nav_stats')} active={activeTab === 'stats'} onClick={() => navTo('stats')} showCrown={!isPro} />
                 <NavItem id="nav-history" icon={History} label={t('nav_history')} active={activeTab === 'history'} onClick={() => navTo('history')} />
 
                 <SectionLabel label={t('quick_access') || 'Tools'} />
