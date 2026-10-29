@@ -39,7 +39,7 @@ const CircularGauge = ({ pct }) => {
 
     return (
         <svg width="100%" height="100%" viewBox="0 0 160 160" className="transform -rotate-90">
-            <circle cx="80" cy="80" r={r} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={stroke} />
+            <circle cx="80" cy="80" r={r} fill="none" className="stroke-gray-300 dark:stroke-white/10" strokeWidth={stroke} />
             <circle
                 cx="80" cy="80" r={r} fill="none"
                 stroke={color} strokeWidth={stroke}
@@ -102,7 +102,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                             {pct.toFixed(0)}%
                         </span>
                     </div>
-                    <div className="w-full h-2 bg-gray-100 dark:bg-white/[0.06] rounded-full overflow-hidden shadow-inner">
+                    <div className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
                         <div
                             className="h-full rounded-full transition-all duration-700 relative"
                             style={{ 
@@ -130,10 +130,10 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
 
             {/* Expanded detail panel */}
             {expanded && (
-                <div className="px-4 pb-4 border-t border-gray-50 dark:border-white/5 animate-fade-in">
+                <div className="px-4 pb-4 border-t border-gray-200 dark:border-white/10 animate-fade-in">
                     <div className="grid grid-cols-3 gap-2 mt-3 mb-3">
                         {/* Remaining */}
-                        <div className={`rounded-xl p-2.5 text-center ${isOver ? 'bg-red-50 dark:bg-red-900/20' : 'bg-emerald-50 dark:bg-emerald-900/20'}`}>
+                        <div className={`rounded-xl p-2.5 text-center ${isOver ? 'bg-rose-500/10 border border-rose-500/20' : 'bg-emerald-500/10 border border-emerald-500/20'}`}>
                             <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
                                 {isOver ? t('over_budget_short') : t('remaining_short')}
                             </p>
@@ -142,7 +142,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                             </p>
                         </div>
                         {/* Days left */}
-                        <div className="bg-violet-50 dark:bg-violet-900/20 rounded-xl p-2.5 text-center">
+                        <div className="bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl p-2.5 text-center">
                             <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
                                 {t('budget_projection')}
                             </p>
@@ -151,7 +151,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                             </p>
                         </div>
                         {/* Alert threshold */}
-                        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-2.5 text-center">
+                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5 text-center">
                             <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
                                 <Bell size={8} className="inline mr-0.5" />{t('alert_label')}
                             </p>
@@ -170,7 +170,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                                     {projectedPct > 100 ? t('budget_proj_over') : t('budget_proj_on_track')} ({projectedPct}%)
                                 </span>
                             </div>
-                            <div className="w-full h-1.5 bg-gray-100 dark:bg-white/[0.07] rounded-full overflow-hidden">
+                            <div className="w-full h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
                                 <div
                                     className="h-full rounded-full transition-all duration-700 opacity-60"
                                     style={{
@@ -186,13 +186,13 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                     <div className="flex gap-2">
                         <button
                             onClick={() => onEdit(budget)}
-                            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors active:scale-95"
+                            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-200/60 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] border border-gray-300/60 dark:border-white/[0.1] transition-all active:scale-95"
                         >
                             <Pencil size={13} /> {t('edit')}
                         </button>
                         <button
                             onClick={() => onDelete(budget)}
-                            className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors active:scale-95"
+                            className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all active:scale-95"
                         >
                             <Trash2 size={13} />
                         </button>

@@ -570,10 +570,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 </span>
                                 {stats.diffPct > 0 && (
                                     <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black backdrop-blur-md ${stats.trend === 'below'
-                                        ? 'bg-emerald-400/20 text-emerald-200 border border-emerald-400/30'
+                                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
                                         : stats.trend === 'above'
-                                            ? 'bg-rose-400/25 text-rose-100 border border-rose-400/30'
-                                            : 'bg-white/10 text-white/80'
+                                            ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20'
+                                            : 'bg-gray-200/60 text-gray-700 dark:text-gray-300 border border-gray-300/60 dark:border-white/10'
                                         }`}>
                                         {stats.trend === 'below' && <TrendingDown size={13} />}
                                         {stats.trend === 'above' && <TrendingUp size={13} />}
@@ -596,9 +596,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             </div>
 
                             {stats.lastSpent > 0 && (
-                                <p className="text-xs text-white/70 font-semibold mt-2">
-                                    {t('prev_month') || 'Προηγούμενος'}: <span className="text-white font-bold"><Amount value={stats.lastSpent} /></span>
-                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-2">{t('prev_month') || 'Προηγούμενος'}: <span className="text-gray-900 dark:text-white font-bold"><Amount value={stats.lastSpent} /></span></p>
                             )}
                         </div>
 
@@ -625,10 +623,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     <TrendingDown size={18} className="text-rose-500 shrink-0" strokeWidth={2.5} />
                                 )}
                                 <div className="min-w-0">
-                                    <p className="text-[10px] font-black uppercase tracking-wider text-white/70 truncate">
+                                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
                                         {t('month_net') || 'Ισοζύγιο Μήνα'}
                                     </p>
-                                    <p className={`text-sm font-black truncate tabular-nums ${isCurMonthNetPositive ? 'text-emerald-200' : 'text-rose-200'
+                                    <p className={`text-sm font-black truncate tabular-nums ${isCurMonthNetPositive ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-rose-600 dark:text-rose-400 font-bold'
                                         }`}>
                                         {isCurMonthNetPositive ? '+' : '−'}<Amount value={Math.abs(curMonthNet)} showSign={false} />
                                     </p>
@@ -840,7 +838,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                                     <div
                                                         key={cat.category}
                                                         onClick={() => setActiveTab('stats')}
-                                                        className="p-3.5 rounded-2xl bg-gray-50/70 dark:bg-white/[0.03] hover:bg-white dark:hover:bg-white/[0.06] border border-gray-100 dark:border-white/[0.06] hover:border-violet-300/50 dark:hover:border-violet-500/30 hover:shadow-sm transition-all duration-200 flex flex-col justify-between group cursor-pointer"
+                                                        className="p-3.5 rounded-xl bg-gray-200/60 dark:bg-white/[0.04] hover:bg-gray-200 dark:hover:bg-white/[0.08] border border-gray-300/60 dark:border-white/[0.08] transition-all duration-200 flex flex-col justify-between group cursor-pointer"
                                                     >
                                                         {/* Top: Icon + Percentage Badge */}
                                                         <div className="flex items-center justify-between gap-2">
@@ -910,7 +908,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
 
                                 <div className="flex items-center gap-2 flex-wrap">
                                     {/* Filter Pills */}
-                                    <div className="flex items-center bg-gray-100/80 dark:bg-white/[0.06] p-0.5 rounded-xl text-[11px] font-bold">
+                                    <div className="flex items-center bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] p-0.5 rounded-lg text-[11px] font-bold">
                                         <button
                                             onClick={() => setDesktopFilter('all')}
                                             className={`px-2.5 py-1 rounded-lg transition-all ${desktopFilter === 'all'

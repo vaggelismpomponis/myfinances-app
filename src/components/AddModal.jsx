@@ -501,9 +501,8 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                             className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-surface-dark backdrop-blur-md p-6 text-center"
                         >
                             <div className="relative mb-8">
-                                <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20"></div>
-                                <div className="relative bg-gradient-to-tr from-red-500 to-pink-500 p-6 rounded-full shadow-xl shadow-red-200 dark:shadow-red-900/30">
-                                    <Mic size={40} className="text-white" />
+                                <div className="p-5 rounded-2xl bg-rose-600 text-white shadow-lg">
+                                    <Mic size={36} />
                                 </div>
                             </div>
                             <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">{t('listening')}</h3>
@@ -555,7 +554,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                         onClick={handleSubmit}
                         disabled={!amount || !category || isSubmitting}
                         className={`text-sm lg:text-base font-bold px-4 lg:px-5 py-1.5 lg:py-2 rounded-full transition-all ${!amount || !category
-                            ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                            ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
                             : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
                             }`}
                     >
@@ -642,13 +641,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 const accentHex = CATEGORY_ACCENT[category.toLowerCase()] || (type === 'income' ? '#10b981' : '#f43f5e');
                                 return (
                                     <>
-                                        <div
-                                            className="w-8 h-8 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center relative overflow-hidden flex-shrink-0"
-                                            style={{ backgroundColor: `${accentHex}20` }}
-                                        >
-                                            <div className="absolute inset-0 opacity-30 blur-md" style={{ backgroundColor: accentHex }} />
-                                            <Icon size={16} className="relative z-10" style={{ color: accentHex }} />
-                                        </div>
+                                        <Icon size={20} className="shrink-0" style={{ color: accentHex }} />
                                         <span className="flex-1 text-left text-sm lg:text-base font-semibold" style={{ color: accentHex }}>
                                             {getCategoryTranslation(category, t)}
                                         </span>
@@ -659,9 +652,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 );
                             })() : (
                                 <>
-                                    <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center bg-gray-200 dark:bg-white/10 flex-shrink-0">
-                                        <Shapes size={16} className="text-gray-400 dark:text-gray-500" />
-                                    </div>
+                                    <Shapes size={20} className="shrink-0 text-gray-400 dark:text-gray-500" />
                                     <span className="flex-1 text-left text-sm lg:text-base font-medium text-gray-400 dark:text-gray-500">
                                         {t('select_category') || 'Επιλογή κατηγορίας…'}
                                     </span>
@@ -971,7 +962,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 whileTap={{ scale: 0.95 }}
                                 type="button"
                                 onClick={startListening}
-                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-full text-white bg-gradient-to-r from-red-500 to-pink-500 shadow-md shadow-red-200/50 dark:shadow-red-900/30"
+                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl text-rose-700 dark:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-all"
                             >
                                 <Mic size={15} />
                                 {t('voice')}
@@ -987,7 +978,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                     }
                                     setShowScanner(true);
                                 }}
-                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-full text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/20"
+                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl text-gray-700 dark:text-gray-200 bg-gray-200/60 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] border border-gray-300/60 dark:border-white/[0.1] transition-all"
                             >
                                 <Camera size={15} />
                                 {t('scan')}
@@ -1004,7 +995,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                     }
                                     setShowBulkScanner(true);
                                 }}
-                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-full text-violet-600 dark:text-violet-300 bg-violet-50 dark:bg-violet-500/20"
+                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl text-gray-700 dark:text-gray-200 bg-gray-200/60 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] border border-gray-300/60 dark:border-white/[0.1] transition-all"
                             >
                                 <Layers size={15} />
                                 {t('bulk')}
@@ -1030,7 +1021,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
                 {/* ── Numpad ── */}
                 {!isNoteFocused && (
-                    <div className="bg-gray-50 dark:bg-surface-dark border-t border-gray-200 dark:border-transparent p-3 lg:p-6 lg:pb-8 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] flex-shrink-0">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark border-t border-gray-200 dark:border-white/10 p-3 lg:p-6 lg:pb-8 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] flex-shrink-0">
                         {/* Digits 1-9 */}
                         <div className="grid grid-cols-3 gap-2 lg:gap-3.5 max-w-xs lg:max-w-lg mx-auto">
                             {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(key => (

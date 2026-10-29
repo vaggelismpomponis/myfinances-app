@@ -274,7 +274,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                         <p className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${net >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                                             <Amount value={net} prefix={net >= 0 ? '+' : ''} />
                                         </p>
-                                        <p className="text-violet-200 text-xs mt-1">
+                                        <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
                                             {translate('net_cash_flow') || 'Net cash flow / month'}
                                         </p>
                                     </div>

@@ -35,22 +35,19 @@ const SafeToBurnCard = ({
             animate={{ opacity: 1, scale: 1 }}
             whileTap={{ scale: 0.96 }}
             transition={{ duration: 0.45, type: 'spring' }}
-            className="relative overflow-hidden rounded-[2.5rem]
-                        bg-white/80 dark:bg-surface-dark3/90 backdrop-blur-xl
-                        p-6 pt-8 pb-6 text-center shadow-premium border border-slate-200/80 dark:border-white/10
-                        transition-all duration-300 cursor-pointer"
+            className="relative overflow-hidden rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 p-6 pt-8 pb-6 text-center shadow-sm border border-gray-200 dark:border-white/10 transition-all duration-300 cursor-pointer"
         >
             {/* Subtle top glow */}
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-violet-500/20 dark:bg-violet-500/10 blur-[80px] pointer-events-none rounded-full" />
+            
 
             {/* Streak Indicator */}
             {streak > 0 && !isGlideActive && (
                 <motion.div 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute top-5 right-5 flex items-center gap-1 bg-gradient-to-r from-orange-400 to-rose-400 text-white px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-black shadow-md z-20"
+                    className="absolute top-5 right-5 flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider font-bold z-20 flex items-center gap-1"
                 >
-                    <span>🔥 {streak} Streak</span>
+                    <span>{streak} Streak</span>
                 </motion.div>
             )}
 

@@ -45,7 +45,7 @@ const GaugeRing = ({ score, size = 140, stroke = 10 }) => {
             {/* Track */}
             <circle
                 cx={size / 2} cy={size / 2} r={radius}
-                fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={stroke}
+                fill="none" className="stroke-gray-300 dark:stroke-white/10" strokeWidth={stroke}
             />
             {/* Progress */}
             <circle
@@ -56,7 +56,6 @@ const GaugeRing = ({ score, size = 140, stroke = 10 }) => {
                 strokeLinecap="round"
                 style={{
                     transition: 'stroke-dasharray 1.2s cubic-bezier(0.34,1.56,0.64,1)',
-                    filter: `drop-shadow(0 0 8px ${color}99)`
                 }}
             />
         </svg>
@@ -535,10 +534,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                         className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1"
                     >
                         <div>
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 font-bold text-xs border border-violet-200/50 dark:border-violet-900/40 mb-2">
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <span>{t('advisor_header_badge') || 'AI Financial Intelligence'}</span>
-                                <span className="text-violet-300 dark:text-violet-700">•</span>
-                                <span className="uppercase text-[10px] tracking-wider text-violet-600 dark:text-violet-400 font-black">Pro</span>
+                                <span className="opacity-40">•</span>
+                                <span className="uppercase text-[10px] tracking-wider text-gray-900 dark:text-white font-extrabold">Pro</span>
                             </div>
                             <h1 className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white font-display tracking-tight">
                                 {t('advisor_title')}
@@ -598,10 +597,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                     {prevMonthScore !== null && (
                                         <div className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-black backdrop-blur-md border shrink-0 ${
                                             scoreTrend > 0
-                                                ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
+                                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20'
                                                 : scoreTrend < 0
-                                                    ? 'bg-rose-400/25 text-rose-100 border-rose-400/30'
-                                                    : 'bg-white/10 text-violet-200 border-white/10'
+                                                    ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20'
+                                                    : 'bg-gray-200/60 text-gray-700 dark:text-gray-300 border-gray-300/60 dark:border-white/10'
                                         }`}>
                                             {scoreTrend > 0 ? <TrendingUp size={13} className="shrink-0" /> : scoreTrend < 0 ? <TrendingDown size={13} className="shrink-0" /> : null}
                                             <span className="lg:hidden">
@@ -664,8 +663,8 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     {t('needs_label')}
                                                 </span>
                                                 {stats.needsPct <= 50
-                                                    ? <CheckCircle2 size={12} className="text-emerald-300 shrink-0" />
-                                                    : <AlertTriangle size={12} className="text-rose-300 shrink-0" />}
+                                                    ? <CheckCircle2 size={12} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                                    : <AlertTriangle size={12} className="text-rose-600 dark:text-rose-400 shrink-0" />}
                                             </div>
                                             <div className="flex items-baseline justify-between gap-1">
                                                 <span className="text-sm sm:text-base font-black text-gray-900 dark:text-white leading-tight">
@@ -676,7 +675,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                 </span>
                                             </div>
                                             <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${
-                                                stats.needsPct <= 50 ? 'text-emerald-300' : 'text-rose-300'
+                                                stats.needsPct <= 50 ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
                                             }`}>
                                                 {stats.needsPct <= 50 ? t('breakdown_on_track') : t('breakdown_over_target')}
                                             </p>
@@ -691,8 +690,8 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     {t('wants_label')}
                                                 </span>
                                                 {stats.wantsPct <= 30
-                                                    ? <CheckCircle2 size={12} className="text-emerald-300 shrink-0" />
-                                                    : <AlertTriangle size={12} className="text-rose-300 shrink-0" />}
+                                                    ? <CheckCircle2 size={12} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                                    : <AlertTriangle size={12} className="text-rose-600 dark:text-rose-400 shrink-0" />}
                                             </div>
                                             <div className="flex items-baseline justify-between gap-1">
                                                 <span className="text-sm sm:text-base font-black text-gray-900 dark:text-white leading-tight">
@@ -703,7 +702,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                 </span>
                                             </div>
                                             <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${
-                                                stats.wantsPct <= 30 ? 'text-emerald-300' : 'text-rose-300'
+                                                stats.wantsPct <= 30 ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
                                             }`}>
                                                 {stats.wantsPct <= 30 ? t('breakdown_on_track') : t('breakdown_over_target')}
                                             </p>
@@ -711,17 +710,15 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
 
                                         {/* Savings */}
                                         <div className={`rounded-2xl p-2 sm:p-3.5 backdrop-blur-md border transition-all ${
-                                            stats.savingsPct >= 20
-                                                ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-100'
-                                                : 'bg-rose-500/15 border-rose-400/25 text-rose-100'
+                                            stats.savingsPct >= 20 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-300'
                                         }`}>
                                             <div className="flex items-center justify-between gap-1 mb-1">
                                                 <span className="text-[11px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 capitalize truncate">
                                                     {t('savings_label')}
                                                 </span>
                                                 {stats.savingsPct >= 20
-                                                    ? <CheckCircle2 size={12} className="text-emerald-300 shrink-0" />
-                                                    : <AlertTriangle size={12} className="text-rose-300 shrink-0" />}
+                                                    ? <CheckCircle2 size={12} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                                    : <AlertTriangle size={12} className="text-rose-600 dark:text-rose-400 shrink-0" />}
                                             </div>
                                             <div className="flex items-baseline justify-between gap-1">
                                                 <span className="text-sm sm:text-base font-black text-gray-900 dark:text-white leading-tight">
@@ -732,7 +729,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                 </span>
                                             </div>
                                             <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${
-                                                stats.savingsPct >= 20 ? 'text-emerald-300' : 'text-rose-300'
+                                                stats.savingsPct >= 20 ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
                                             }`}>
                                                 {stats.savingsPct >= 20 ? t('breakdown_on_track') : t('breakdown_under_target')}
                                             </p>
@@ -743,13 +740,11 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                         </motion.div>
 
                         {/* ─── SECTION C: Spending Breakdown (50/30/20 Rule) ─── */}
-                        <div className="bg-white dark:bg-surface-dark3 rounded-[2.25rem] p-6 lg:p-7 shadow-card border border-gray-100/80 dark:border-white/5">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-6 lg:p-7 border border-gray-200 dark:border-white/10 shadow-sm">
                             {/* Card Header */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
                                 <div className="flex items-center gap-3">
-                                    <span className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900/30">
-                                        <TrendingUp size={18} />
-                                    </span>
+                                    <TrendingUp size={22} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
                                     <div>
                                         <h3 className="font-bold text-gray-900 dark:text-white text-base leading-tight">
                                             {t('spending_breakdown_title')}
@@ -759,7 +754,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                         </p>
                                     </div>
                                 </div>
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-gray-400 text-[11px] font-medium self-start sm:self-auto">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-600 dark:text-gray-300 text-[11px] font-medium self-start sm:self-auto">
                                     <Info size={12} className="shrink-0" />
                                     {t('breakdown_tap_hint')}
                                 </span>
@@ -901,7 +896,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                         exit={{ opacity: 0, height: 0 }}
                                         className="overflow-hidden"
                                     >
-                                        <div className="mt-5 p-4 rounded-2xl bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-3 text-center sm:text-left">
+                                        <div className="mt-5 p-4 rounded-xl bg-gray-200/60 dark:bg-white/[0.04] border border-gray-300/60 dark:border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-3 text-center sm:text-left">
                                             <div>
                                                 <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">
                                                     {selectedCategory.isSavings ? (t('allocation_amount_saved') || 'Saved') : t('allocation_amount_spent')}
@@ -951,11 +946,9 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                         </div>
 
                         {/* ─── SECTION F: Monthly Progress (Month-over-Month) ─── */}
-                        <div className="bg-white dark:bg-surface-dark3 rounded-[2.25rem] p-6 lg:p-7 shadow-card border border-gray-100/80 dark:border-white/5">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-6 lg:p-7 border border-gray-200 dark:border-white/10 shadow-sm">
                             <div className="flex items-center gap-3 mb-5">
-                                <span className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-900/30">
-                                    <Award size={18} />
-                                </span>
+                                <Award size={22} className="text-amber-600 dark:text-amber-400 shrink-0" />
                                 <div>
                                     <h3 className="font-bold text-gray-900 dark:text-white text-base">
                                         {t('monthly_progress_title')}
@@ -979,11 +972,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                             : 'bg-rose-50/80 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30'
                                     }`}>
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0 ${
-                                                monthlyProgress.improved ? 'bg-emerald-500' : 'bg-rose-500'
-                                            }`}>
-                                                {monthlyProgress.improved ? <TrendingDown size={18} /> : <TrendingUp size={18} />}
-                                            </div>
+                                            {monthlyProgress.improved ? <TrendingDown size={20} className="text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2.2} /> : <TrendingUp size={20} className="text-rose-600 dark:text-rose-400 shrink-0" strokeWidth={2.2} />}
                                             <div>
                                                 <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
                                                     {monthlyProgress.improved ? t('monthly_improved') : t('monthly_increased')}
@@ -1039,7 +1028,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                     <div className="xl:col-span-5 space-y-6">
 
                         {/* ─── SECTION A: Daily Insights Feed ─── */}
-                        <div className="bg-white dark:bg-surface-dark3 rounded-[2.25rem] p-6 lg:p-7 shadow-card border border-gray-100/80 dark:border-white/5">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-6 lg:p-7 border border-gray-200 dark:border-white/10 shadow-sm">
                             <div className="flex items-center justify-between gap-2 mb-5">
                                 <div>
                                     <h3 className="font-bold text-gray-900 dark:text-white text-base">
@@ -1049,7 +1038,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                         {t('daily_insights_subtitle')}
                                     </p>
                                 </div>
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 font-bold text-xs border border-violet-200/50 dark:border-violet-900/30">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 font-bold text-xs">
                                     <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
                                     {t('daily_insights_live')}
                                 </span>
@@ -1064,9 +1053,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                             className={`rounded-2xl border p-4 transition-all duration-300 ${insight.bg} ${insight.border} hover:scale-[1.01]`}
                                         >
                                             <div className="flex items-start gap-3.5">
-                                                <div className={`w-9 h-9 rounded-xl ${insight.iconBg} flex items-center justify-center shrink-0 shadow-xs border`}>
-                                                    <Icon size={16} />
-                                                </div>
+                                                <Icon size={20} className="text-gray-700 dark:text-gray-300 shrink-0 mt-0.5" />
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between gap-2 mb-1">
                                                         <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${insight.badgeStyle}`}>
@@ -1088,12 +1075,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                         </div>
 
                         {/* ─── SECTION D: Weekly Challenges ─── */}
-                        <div className="bg-white dark:bg-surface-dark3 rounded-[2.25rem] p-6 lg:p-7 shadow-card border border-gray-100/80 dark:border-white/5">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-6 lg:p-7 border border-gray-200 dark:border-white/10 shadow-sm">
                             <div className="flex items-center justify-between gap-2 mb-5">
                                 <div className="flex items-center gap-3">
-                                    <span className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-900/30">
-                                        <Trophy size={18} />
-                                    </span>
+                                    <Trophy size={22} className="text-amber-600 dark:text-amber-400 shrink-0" />
                                     <div>
                                         <h3 className="font-bold text-gray-900 dark:text-white text-base">
                                             {t('challenges_title')}
@@ -1103,7 +1088,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                         </p>
                                     </div>
                                 </div>
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 font-bold text-xs border border-amber-200/50 dark:border-amber-900/30">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 font-bold text-xs">
                                     <Clock size={12} className="shrink-0" />
                                     {t('challenge_days_left').replace('{days}', daysLeftInWeek)}
                                 </span>
@@ -1119,9 +1104,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                             className={`rounded-2xl border p-4 transition-all duration-300 ${ch.light} ${ch.border} ${done ? 'opacity-75' : ''}`}
                                         >
                                             <div className="flex items-start gap-3">
-                                                <div className={`w-9 h-9 rounded-xl ${ch.color} flex items-center justify-center shrink-0 shadow-sm text-white`}>
-                                                    <Icon size={16} />
-                                                </div>
+                                                <Icon size={20} className="text-gray-700 dark:text-gray-300 shrink-0 mt-0.5" />
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between gap-2">
                                                         <h4 className={`text-sm font-bold ${ch.textColor} ${done ? 'line-through' : ''}`}>
@@ -1150,7 +1133,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                         </span>
                                                         <button
                                                             onClick={() => toggleChallenge(ch.id)}
-                                                            className={`text-xs font-bold ${ch.textColor} hover:underline transition-all flex items-center gap-1`}
+                                                            className={`text-xs font-bold px-2.5 py-1 rounded-md border transition-all ${done ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' : 'bg-white dark:bg-white/[0.08] text-gray-800 dark:text-white border-gray-300 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/15 shadow-2xs'}`}
                                                         >
                                                             {done ? t('challenge_completed').replace(' 🎉', '') : t('challenge_complete_btn')}
                                                         </button>
@@ -1164,7 +1147,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                         </div>
 
                         {/* ─── SECTION E: Personalized Tips ─── */}
-                        <div className="bg-white dark:bg-surface-dark3 rounded-[2.25rem] p-6 lg:p-7 shadow-card border border-gray-100/80 dark:border-white/5">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-6 lg:p-7 border border-gray-200 dark:border-white/10 shadow-sm">
                             <div className="mb-5">
                                 <h3 className="font-bold text-gray-900 dark:text-white text-base">
                                     {t('tips_personalized_title')}

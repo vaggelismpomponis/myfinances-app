@@ -156,9 +156,7 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
                             }`}
             >
                 {/* Icon */}
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg}`}>
-                    <IconComp size={16} className={cfg.color} />
-                </div>
+                <IconComp size={20} className={`${cfg.color} shrink-0 mt-0.5`} />
 
                 {/* Body */}
                 <div className="flex-1 min-w-0 pt-0.5 space-y-1.5">
@@ -291,12 +289,9 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between px-5 py-4
-                                        border-b border-gray-100 dark:border-white/[0.06]">
+                                        border-b border-gray-200 dark:border-white/[0.08]">
                             <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-xl bg-violet-100 dark:bg-violet-900/40
-                                                flex items-center justify-center">
-                                    <Bell size={16} className="text-violet-600 dark:text-violet-400" />
-                                </div>
+                                <Bell size={18} className="text-violet-600 dark:text-violet-400 shrink-0" />
                                 <h3 className="text-[15px] font-bold text-gray-900 dark:text-white">
                                     {t("notifications") || "Notifications"}
                                 </h3>

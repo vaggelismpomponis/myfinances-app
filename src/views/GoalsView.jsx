@@ -57,7 +57,7 @@ const Ring = ({ pct, color, size = 72, stroke = 7, children }) => {
                     cx={size / 2} cy={size / 2} r={r}
                     fill="none" stroke="currentColor"
                     strokeWidth={stroke}
-                    className="text-gray-100 dark:text-white/8"
+                    className="text-gray-200 dark:text-white/10"
                 />
                 <circle
                     cx={size / 2} cy={size / 2} r={r}
@@ -302,7 +302,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                 {/* Top row: gauge left + main savings right */}
                                 <div className="flex items-center gap-4 mb-4">
                                     {/* Circular progress */}
-                                    <Ring pct={totalPct} color="#c4b5fd" size={110} stroke={10}>
+                                    <Ring pct={totalPct} color="#6366f1" size={110} stroke={10}>
                                         <div className="text-center">
                                             <span className="block text-2xl font-black leading-none">{Math.round(totalPct)}%</span>
                                             <span className="block text-[9px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wide mt-0.5">{t('progress')}</span>
@@ -324,23 +324,23 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                 </div>
 
                                 {/* Divider */}
-                                <div className="border-t border-white/10 mb-3" />
+                                <div className="border-t border-gray-200 dark:border-white/10 mb-3" />
 
                                 {/* Bottom stats row */}
                                 <div className="grid grid-cols-3 gap-2">
-                                    <div className="bg-white/10 rounded-xl py-2.5 px-3">
-                                        <p className="text-violet-200 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('goals')}</p>
-                                        <p className="text-white font-black text-base">{goals.length}</p>
+                                    <div className="bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl py-2.5 px-3">
+                                        <p className="text-gray-500 dark:text-gray-400 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('goals')}</p>
+                                        <p className="text-gray-900 dark:text-white font-black text-base">{goals.length}</p>
                                     </div>
-                                    <div className="bg-white/10 rounded-xl py-2.5 px-3">
-                                        <p className="text-violet-200 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('completed_short')}</p>
-                                        <p className={`font-black text-base ${completedCnt > 0 ? 'text-emerald-300' : 'text-white'}`}>
+                                    <div className="bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl py-2.5 px-3">
+                                        <p className="text-gray-500 dark:text-gray-400 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('completed_short')}</p>
+                                        <p className={`font-black text-base ${completedCnt > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-900 dark:text-white'}`}>
                                             {completedCnt > 0 ? <span className="flex items-center gap-1"><Trophy size={13} />{completedCnt}</span> : '—'}
                                         </p>
                                     </div>
-                                    <div className="bg-white/10 rounded-xl py-2.5 px-3">
-                                        <p className="text-violet-200 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('remaining_short')}</p>
-                                        <p className="text-white font-black text-base">
+                                    <div className="bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl py-2.5 px-3">
+                                        <p className="text-gray-500 dark:text-gray-400 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('remaining_short')}</p>
+                                        <p className="text-gray-900 dark:text-white font-black text-base truncate">
                                             <Amount value={Math.max(0, totalTarget - totalSaved)} maximumFractionDigits={0} />
                                         </p>
                                     </div>
@@ -414,8 +414,8 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                                         </h3>
                                                         <span className={`ml-2 flex-shrink-0 text-xs font-bold px-2.5 py-0.5 rounded-lg
                                                             ${done
-                                                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
-                                                                : 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400'
+                                                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
+                                                                : 'bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-500/20'
                                                             }`}>
                                                             {pct.toFixed(0)}%
                                                         </span>
@@ -444,7 +444,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                             </div>
 
                                             {/* Progress bar */}
-                                            <div className="w-full h-1.5 bg-gray-100 dark:bg-white/8 rounded-full overflow-hidden mb-3">
+                                            <div className="w-full h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden mb-3">
                                                 <div
                                                     className="h-full rounded-full transition-all duration-700"
                                                     style={{
@@ -455,15 +455,16 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                             </div>
 
                                             {/* Action Row */}
-                                            <div className="flex gap-2 pt-3 border-t border-gray-50 dark:border-transparent">
+                                            <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-white/10">
                                                 <button
                                                     onClick={() => openEdit(goal)}
                                                     className="flex-1 flex items-center justify-center gap-1.5 py-2
-                                                               rounded-xl text-xs font-semibold
-                                                               text-indigo-600 dark:text-indigo-400
-                                                               bg-indigo-50 dark:bg-indigo-900/20
-                                                               hover:bg-indigo-100 dark:hover:bg-indigo-900/40
-                                                               transition-colors active:scale-95"
+                                                               rounded-xl text-xs font-bold
+                                                               text-gray-700 dark:text-gray-200
+                                                               bg-gray-200/60 hover:bg-gray-200
+                                                               dark:bg-white/[0.06] dark:hover:bg-white/[0.1]
+                                                               border border-gray-300/60 dark:border-white/[0.1]
+                                                               transition-all active:scale-95"
                                                 >
                                                     <Pencil size={12} /> {t('edit')}
                                                 </button>
@@ -471,11 +472,11 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                                     <button
                                                         onClick={() => { setSelectedGoal(goal); setShowMoneyModal(true); }}
                                                         className="flex-1 flex items-center justify-center gap-1.5 py-2
-                                                                   rounded-xl text-xs font-semibold
-                                                                   text-emerald-600 dark:text-emerald-400
-                                                                   bg-emerald-50 dark:bg-emerald-900/20
-                                                                   hover:bg-emerald-100 dark:hover:bg-emerald-900/40
-                                                                   transition-colors active:scale-95"
+                                                                   rounded-xl text-xs font-bold
+                                                                   text-emerald-700 dark:text-emerald-400
+                                                                   bg-emerald-500/10 hover:bg-emerald-500/20
+                                                                   border border-emerald-500/30
+                                                                   transition-all active:scale-95"
                                                     >
                                                         <PiggyBank size={12} /> {t('deposit')}
                                                     </button>
@@ -483,10 +484,11 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                                 <button
                                                     onClick={() => setDeletingGoal(goal)}
                                                     className="flex items-center justify-center gap-1.5 px-4 py-2
-                                                               rounded-xl text-xs font-semibold
-                                                               text-red-500 bg-red-50 dark:bg-red-900/20
-                                                               hover:bg-red-100 dark:hover:bg-red-900/40
-                                                               transition-colors active:scale-95"
+                                                               rounded-xl text-xs font-bold
+                                                               text-rose-600 dark:text-rose-400
+                                                               bg-rose-500/10 hover:bg-rose-500/20
+                                                               border border-rose-500/30
+                                                               transition-all active:scale-95"
                                                 >
                                                     <Trash2 size={12} />
                                                 </button>
