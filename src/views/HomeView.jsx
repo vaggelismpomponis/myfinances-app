@@ -1211,9 +1211,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="relative overflow-hidden rounded-2xl
-                           bg-white dark:bg-surface-dark2
+                           bg-gray-100/90 dark:bg-surface-dark2
                            text-gray-900 dark:text-white p-5 sm:p-6
-                           border border-gray-200/80 dark:border-white/10
+                           border border-gray-200 dark:border-white/10
                            shadow-sm dark:shadow-lg dark:shadow-gray-950/20"
             >
                 {/* Subtle top edge metallic highlight in dark mode */}
@@ -1256,10 +1256,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     <div className="mt-2.5">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border ${
                             stats.trend === 'below'
-                                ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20'
+                                ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-100/70 dark:bg-emerald-500/10 border-emerald-300/70 dark:border-emerald-500/20'
                                 : stats.trend === 'above'
-                                    ? 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20'
-                                    : 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10'
+                                    ? 'text-rose-700 dark:text-rose-400 bg-rose-100/70 dark:bg-rose-500/10 border-rose-300/70 dark:border-rose-500/20'
+                                    : 'text-gray-700 dark:text-gray-400 bg-gray-200/60 dark:bg-white/5 border-gray-300/60 dark:border-white/10'
                         }`}>
                             {stats.trend === 'below' && <TrendingDown size={13} className="shrink-0" />}
                             {stats.trend === 'above' && <TrendingUp size={13} className="shrink-0" />}
@@ -1271,8 +1271,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     </div>
 
                     {/* Cashflow Summary Cards */}
-                    <div className="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-gray-100 dark:border-white/[0.08]">
-                        <div className="bg-gray-50/80 hover:bg-gray-100/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.09] border border-gray-200/70 dark:border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
+                    <div className="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-gray-200 dark:border-white/[0.08]">
+                        <div className="bg-gray-200/60 hover:bg-gray-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.09] border border-gray-300/60 dark:border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
                             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
                                 <ArrowUpRight size={15} strokeWidth={2.5} />
                             </div>
@@ -1284,7 +1284,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             </div>
                         </div>
 
-                        <div className="bg-gray-50/80 hover:bg-gray-100/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.09] border border-gray-200/70 dark:border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
+                        <div className="bg-gray-200/60 hover:bg-gray-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.09] border border-gray-300/60 dark:border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
                             <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
                                 <ArrowDownRight size={15} strokeWidth={2.5} />
                             </div>
@@ -1309,12 +1309,12 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     if (!isPro) { openUpgradeModal('advisor'); }
                     else { setActiveTab('advisor'); }
                 }}
-                className="w-full relative overflow-hidden bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10
+                className="w-full relative overflow-hidden bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10
                            p-3.5 sm:p-4 rounded-xl
                            shadow-sm hover:border-gray-300 dark:hover:border-white/20
                            flex items-center gap-3.5 group transition-all text-left"
             >
-                <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/[0.08] text-gray-800 dark:text-gray-100 flex items-center justify-center shrink-0 border border-gray-200/80 dark:border-white/10 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/[0.08] text-gray-800 dark:text-gray-100 flex items-center justify-center shrink-0 border border-gray-200 dark:border-white/10 shadow-sm">
                     <Bot size={18} strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0 pr-1">
@@ -1357,12 +1357,12 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 transition={{ delay: parseFloat(action.delay) / 1000 }}
                                 onClick={action.onClick}
                                 className="w-full min-w-0 flex flex-col items-center justify-center gap-2 py-3 px-1.5 rounded-xl
-                                           bg-white dark:bg-surface-dark2
-                                           border border-gray-200/80 dark:border-white/10
+                                           bg-gray-100/90 dark:bg-surface-dark2
+                                           border border-gray-200 dark:border-white/10
                                            shadow-sm hover:border-gray-300 dark:hover:border-white/20
                                            transition-all relative group"
                             >
-                                <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/[0.05] border border-gray-100 dark:border-white/5 flex items-center justify-center text-gray-700 dark:text-gray-200 group-hover:text-gray-950 dark:group-hover:text-white transition-colors relative">
+                                <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/[0.05] border border-gray-200/80 dark:border-white/5 flex items-center justify-center text-gray-700 dark:text-gray-200 group-hover:text-gray-950 dark:group-hover:text-white transition-colors relative">
                                     <ActionIcon size={18} strokeWidth={2} className="shrink-0" />
                                     {action.isPro && !action.userIsPro && (
                                         <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/30 flex items-center justify-center">

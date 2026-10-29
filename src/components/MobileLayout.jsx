@@ -35,7 +35,7 @@ export default function MobileLayout({
                         flex justify-center items-start transition-colors duration-300">
 
             {/* Mobile container */}
-            <div className="w-full max-w-md bg-gray-50 dark:bg-surface-dark
+            <div className="w-full max-w-md bg-white dark:bg-surface-dark
                             h-full overflow-hidden
                             shadow-2xl relative flex flex-col
                             transition-colors duration-300">
@@ -66,8 +66,8 @@ export default function MobileLayout({
                 <div className="flex-1 overflow-y-auto overflow-x-hidden px-4">
                     {/* ── Top Bar ── */}
                     <div className="shrink-0 sticky top-0 z-50
-                                    bg-gray-50 dark:bg-surface-dark backdrop-blur-md
-                                    border-b border-gray-100 dark:border-white/5
+                                    bg-white/90 dark:bg-surface-dark backdrop-blur-md
+                                    border-b border-gray-200/60 dark:border-white/5
                                     px-4 pb-3 -mx-4 transition-all duration-300"
                         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
 
@@ -126,7 +126,7 @@ export default function MobileLayout({
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => setShowNotificationPanel(prev => !prev)}
                                 className="relative w-9 h-9 rounded-xl flex-shrink-0
-                                        bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10
+                                        bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10
                                         shadow-sm
                                         flex items-center justify-center
                                         text-gray-700 dark:text-gray-300

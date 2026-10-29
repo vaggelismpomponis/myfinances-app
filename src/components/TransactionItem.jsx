@@ -26,10 +26,10 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
             whileTap={{ scale: 0.99 }}
             onClick={() => setShowActions(!showActions)}
             className="group relative flex items-center gap-3
-                        bg-white dark:bg-surface-dark2
+                        bg-gray-100/90 dark:bg-surface-dark2
                         rounded-xl p-3 sm:p-3.5
                         cursor-pointer shadow-sm
-                        border border-gray-200/80 dark:border-white/[0.08]
+                        border border-gray-200 dark:border-white/[0.08]
                         hover:border-gray-300 dark:hover:border-white/20
                         transition-all duration-200"
         >
