@@ -2,7 +2,7 @@ import React from 'react';
 import { AlertTriangle, CheckCircle2, X } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirmText, type = 'danger' }) => {
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirmText, type = 'danger', zIndex = 'z-[150]' }) => {
     const { t } = useSettings();
     const resolvedConfirmText = confirmText || t('confirm_default');
     if (!isOpen) return null;
@@ -11,7 +11,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
 
     return (
         <div
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in"
+            className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 animate-fade-in`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="confirm-modal-title"

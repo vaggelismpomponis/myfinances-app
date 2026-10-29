@@ -4,6 +4,7 @@ import { Bell, X, CheckCheck, Trash2, Plus, Pencil, Minus, Info } from "lucide-r
 import { useNotifications } from "../contexts/NotificationContext";
 import { useSettings } from "../contexts/SettingsContext";
 import { getCategoryTranslation } from '../utils/categoryTranslations';
+import ConfirmationModal from './ConfirmationModal';
 import CategoryIcon from './CategoryIcon';
 
 const TYPE_CONFIG = {
@@ -233,6 +234,8 @@ const NotificationPanel = ({ isOpen, onClose }) => {
     const { notifications, markAllRead, clearAll, deleteNotification, unreadCount, refetchNotifications } = useNotifications();
     const { t } = useSettings();
     const [swipedId, setSwipedId] = React.useState(null);
+    const [notifToDelete, setNotifToDelete] = React.useState(null);
+    const [showClearAllConfirm, setShowClearAllConfirm] = React.useState(false);
 
     const handleOpen = () => {
         if (refetchNotifications) {
@@ -255,7 +258,8 @@ const NotificationPanel = ({ isOpen, onClose }) => {
     };
 
     return (
-        <AnimatePresence>
+        <>
+            <AnimatePresence>
             {isOpen && (
                 <motion.div
                     key="notif-modal-wrapper"
@@ -303,7 +307,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                             <div className="flex items-center gap-1">
                                 {notifications.length > 0 && (
                                     <button
-                                        onClick={clearAll}
+                                        onClick={() => setShowClearAllConfirm(true)}
                                         className="w-8 h-8 rounded-xl flex items-center justify-center
                                                    text-gray-400 hover:text-rose-500
                                                    hover:bg-rose-50 dark:hover:bg-rose-900/20
@@ -434,7 +438,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                                 isOpen={swipedId === notif.id}
                                                 onOpen={() => setSwipedId(notif.id)}
                                                 onClose={() => setSwipedId(prev => prev === notif.id ? null : prev)}
-                                                onDelete={handleDelete}
+                                                onDelete={(id) => setNotifToDelete(id)}
                                                 t={t}
                                             />
                                         ))}
@@ -445,7 +449,40 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                     </motion.div>
                 </motion.div>
             )}
-        </AnimatePresence>
+            </AnimatePresence>
+
+            {/* Delete Single Notification Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={Boolean(notifToDelete)}
+                onClose={() => setNotifToDelete(null)}
+                onConfirm={() => {
+                    if (notifToDelete) {
+                        handleDelete(notifToDelete);
+                        setNotifToDelete(null);
+                    }
+                }}
+                title={t('delete_notification') || 'Διαγραφή Ειδοποίησης'}
+                message={t('delete_notification_confirm') || 'Θέλεις σίγουρα να διαγράψεις αυτή την ειδοποίηση;'}
+                confirmText={t('delete') || 'Διαγραφή'}
+                type="danger"
+                zIndex="z-[150]"
+            />
+
+            {/* Clear All Notifications Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={showClearAllConfirm}
+                onClose={() => setShowClearAllConfirm(false)}
+                onConfirm={() => {
+                    clearAll();
+                    setShowClearAllConfirm(false);
+                }}
+                title={t('clear_all_notifications') || 'Εκκαθάριση Ειδοποιήσεων'}
+                message={t('clear_all_notifications_confirm') || 'Θέλεις σίγουρα να διαγράψεις όλες τις ειδοποιήσεις;'}
+                confirmText={t('clear_all') || 'Εκκαθάριση'}
+                type="danger"
+                zIndex="z-[150]"
+            />
+        </>
     );
 };
 

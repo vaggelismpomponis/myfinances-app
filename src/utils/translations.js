@@ -500,6 +500,10 @@ export const translations = {
         active: 'Ενεργοί',
         delete_recurring_title: 'Διαγραφή Κανόνα',
         delete_recurring_confirm: 'Θέλεις να διαγράψεις αυτόν τον κανόνα; Η ενέργεια δεν μπορεί να αναιρεθεί.',
+        delete_notification: 'Διαγραφή Ειδοποίησης',
+        delete_notification_confirm: 'Θέλεις σίγουρα να διαγράψεις αυτή την ειδοποίηση;',
+        clear_all_notifications: 'Εκκαθάριση Ειδοποιήσεων',
+        clear_all_notifications_confirm: 'Θέλεις σίγουρα να διαγράψεις όλες τις ειδοποιήσεις;',
 
         // Home View
         total_balance: 'Συνολικό Υπόλοιπο',
@@ -1593,6 +1597,10 @@ export const translations = {
         active: 'Active',
         delete_recurring_title: 'Delete Rule',
         delete_recurring_confirm: 'Delete this recurring rule? This cannot be undone.',
+        delete_notification: 'Delete Notification',
+        delete_notification_confirm: 'Are you sure you want to delete this notification?',
+        clear_all_notifications: 'Clear All Notifications',
+        clear_all_notifications_confirm: 'Are you sure you want to delete all notifications?',
 
         // Home View
         total_balance: 'Total Balance',
