@@ -1314,8 +1314,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                            shadow-sm hover:border-gray-300 dark:hover:border-white/20
                            flex items-center gap-3.5 group transition-all text-left"
             >
-                <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/[0.08] text-gray-800 dark:text-gray-100 flex items-center justify-center shrink-0 border border-gray-200 dark:border-white/10 shadow-sm">
-                    <Bot size={18} strokeWidth={2} />
+                <div className="text-gray-800 dark:text-gray-100 flex items-center justify-center shrink-0 pl-1">
+                    <Bot size={22} strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0 pr-1">
                     <div className="flex items-center gap-1.5">
@@ -1362,10 +1362,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                            shadow-sm hover:border-gray-300 dark:hover:border-white/20
                                            transition-all relative group"
                             >
-                                <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/[0.05] border border-gray-200/80 dark:border-white/5 flex items-center justify-center text-gray-700 dark:text-gray-200 group-hover:text-gray-950 dark:group-hover:text-white transition-colors relative">
-                                    <ActionIcon size={18} strokeWidth={2} className="shrink-0" />
+                                <div className="relative flex items-center justify-center text-gray-700 dark:text-gray-200 group-hover:text-gray-950 dark:group-hover:text-white transition-colors py-1">
+                                    <ActionIcon size={22} strokeWidth={2} className="shrink-0" />
                                     {action.isPro && !action.userIsPro && (
-                                        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/30 flex items-center justify-center">
+                                        <span className="absolute -top-1 -right-2 w-3.5 h-3.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/30 flex items-center justify-center">
                                             <ShieldCheck size={8} />
                                         </span>
                                     )}
