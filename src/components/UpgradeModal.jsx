@@ -243,7 +243,7 @@ const UpgradeModal = () => {
                             </button>
 
                             <p className="text-[11px] text-center text-gray-500 dark:text-gray-400 font-medium">
-                                {t('cancel_anytime') || 'Ακυρώνεις όποτε θες'} · {t('vat_included') || 'Τιμή με ΦΠΑ'} · Stripe
+                                {t('cancel_anytime') || 'Ακυρώνεις όποτε θες · Τιμή με ΦΠΑ'} · Stripe
                             </p>
                         </div>
                     </motion.div>
