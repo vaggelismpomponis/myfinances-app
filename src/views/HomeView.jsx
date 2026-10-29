@@ -1205,32 +1205,32 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
     return (
         <div className="space-y-4 sm:space-y-5 pb-28">
 
-            {/* ── Executive Midnight Hero Card ── */}
+            {/* ── Executive Hero Card ── */}
             <motion.div
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="relative overflow-hidden rounded-2xl
-                           bg-gray-950 dark:bg-surface-dark2
-                           text-white p-5 sm:p-6
-                           border border-gray-800/90 dark:border-white/10
-                           shadow-lg shadow-gray-950/10"
+                           bg-white dark:bg-surface-dark2
+                           text-gray-900 dark:text-white p-5 sm:p-6
+                           border border-gray-200/80 dark:border-white/10
+                           shadow-sm dark:shadow-lg dark:shadow-gray-950/20"
             >
-                {/* Subtle top edge metallic highlight */}
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+                {/* Subtle top edge metallic highlight in dark mode */}
+                <div className="hidden dark:block absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
                 <div className="relative z-10">
                     {/* Header Row: Status & Privacy Toggle */}
                     <div className="flex items-center justify-between mb-3">
-                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest font-sans">
-                                {t('this_month_spend')}
-                            </p>
+                        <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-sans">
+                            {t('this_month_spend')}
+                        </p>
 
                         <button
                             type="button"
                             onClick={togglePrivacyMode}
                             aria-label={privacyMode ? 'Disable Privacy Mode' : 'Enable Privacy Mode'}
-                            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 active:scale-95 transition-all"
                             title={privacyMode ? 'Show amounts' : 'Hide amounts'}
                         >
                             {privacyMode ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -1240,9 +1240,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     {/* Main Balance Display */}
                     <div className="flex items-baseline gap-1.5 my-2">
                         {!privacyMode && (
-                            <span className="text-2xl sm:text-3xl font-extrabold text-gray-400 font-sans">€</span>
+                            <span className="text-2xl sm:text-3xl font-extrabold text-gray-400 dark:text-gray-500 font-sans">€</span>
                         )}
-                        <h1 className="text-4xl sm:text-[42px] font-black text-white tracking-tight leading-none tabular-nums font-sans">
+                        <h1 className="text-4xl sm:text-[42px] font-black text-gray-900 dark:text-white tracking-tight leading-none tabular-nums font-sans">
                             <Amount
                                 value={stats.curSpent}
                                 showCurrency={false}
@@ -1256,10 +1256,10 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     <div className="mt-2.5">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border ${
                             stats.trend === 'below'
-                                ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                                ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20'
                                 : stats.trend === 'above'
-                                    ? 'text-rose-400 bg-rose-500/10 border-rose-500/20'
-                                    : 'text-gray-400 bg-white/5 border-white/10'
+                                    ? 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20'
+                                    : 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10'
                         }`}>
                             {stats.trend === 'below' && <TrendingDown size={13} className="shrink-0" />}
                             {stats.trend === 'above' && <TrendingUp size={13} className="shrink-0" />}
@@ -1271,26 +1271,26 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     </div>
 
                     {/* Cashflow Summary Cards */}
-                    <div className="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-white/[0.08]">
-                        <div className="bg-white/[0.06] hover:bg-white/[0.09] border border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                    <div className="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-gray-100 dark:border-white/[0.08]">
+                        <div className="bg-gray-50/80 hover:bg-gray-100/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.09] border border-gray-200/70 dark:border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
                                 <ArrowUpRight size={15} strokeWidth={2.5} />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{t('stats_income')}</p>
-                                <p className="text-xs sm:text-sm font-bold text-white truncate tabular-nums">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('stats_income')}</p>
+                                <p className="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate tabular-nums">
                                     <Amount value={totalIncome} />
                                 </p>
                             </div>
                         </div>
 
-                        <div className="bg-white/[0.06] hover:bg-white/[0.09] border border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
-                            <div className="w-8 h-8 rounded-lg bg-rose-500/15 text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+                        <div className="bg-gray-50/80 hover:bg-gray-100/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.09] border border-gray-200/70 dark:border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
+                            <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
                                 <ArrowDownRight size={15} strokeWidth={2.5} />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{t('stats_expense')}</p>
-                                <p className="text-xs sm:text-sm font-bold text-white truncate tabular-nums">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('stats_expense')}</p>
+                                <p className="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate tabular-nums">
                                     <Amount value={totalExpense} />
                                 </p>
                             </div>
