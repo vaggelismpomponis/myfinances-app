@@ -169,16 +169,16 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                 <SlidersHorizontal size={13} />
                                 <span>{isEL ? 'Κέντρο Ρυθμίσεων' : 'Configuration Hub'}</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
                                 {translate('general_settings') || translate('general') || (isEL ? 'Γενικές Ρυθμίσεις' : 'General Settings')}
                             </h2>
-                            <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
+                            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                 {translate('general_desc') || (isEL ? 'Προσαρμόστε τη γλώσσα εμφάνισης, ρυθμίστε τον αυτόματο εντοπισμό συναλλαγών και διαχειριστείτε την κυριαρχία των δεδομένων σας.' : 'Customize display language, configure automatic transaction detection, and manage account data sovereignty.')}
                             </p>
 
                             {/* Live Preference Chips */}
                             <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold">
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-violet-100/90 flex items-center gap-1.5">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                                     <Languages size={12} strokeWidth={2.5} />
                                     <span>{language === 'el' ? 'Ελληνικά (EL)' : 'English (EN)'}</span>
                                 </span>
@@ -192,7 +192,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                     <span>{isEL ? 'Αυτοματισμοί' : 'Automations'}: {isSmsEnabled ? (isEL ? 'Ενεργοί' : 'Active') : (isEL ? 'Ανενεργοί' : 'Off')}</span>
                                 </span>
 
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-violet-100/90 flex items-center gap-1.5">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                                     <Database size={12} strokeWidth={2.5} />
                                     <span>{isEL ? 'Άμεση Αποθήκευση Cloud' : 'Direct Cloud Storage'}</span>
                                 </span>
@@ -204,12 +204,10 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
 
                         {/* ── Card 1: App Preferences & Automations ── */}
-                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col justify-between">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col justify-between">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-500/20 flex items-center justify-center shrink-0">
-                                        <SlidersHorizontal size={20} strokeWidth={2.3} />
-                                    </div>
+                                    <SlidersHorizontal size={24} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.3} />
                                     <div>
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
                                             {isEL ? 'Προτιμήσεις' : 'Preferences'}
@@ -227,9 +225,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                 <div className="space-y-3 pt-1">
                                     {/* Language Selector */}
                                     <div className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
-                                        <div className="w-10 h-10 rounded-xl bg-indigo-100/70 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-                                            <Languages size={18} strokeWidth={2.2} />
-                                        </div>
+                                        <Languages size={20} className="text-gray-700 dark:text-gray-300 shrink-0" strokeWidth={2.2} />
                                         <div className="flex-1 min-w-0">
                                             <span className="block font-bold text-sm text-gray-900 dark:text-white">
                                                 {translate('language') || 'Language'}
@@ -267,9 +263,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                         className="flex items-center justify-between gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-gray-100/60 dark:hover:bg-white/[0.05] transition-all cursor-pointer"
                                     >
                                         <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                                            <div className="w-10 h-10 rounded-xl bg-amber-100/70 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                                                <Bell size={18} strokeWidth={2.2} />
-                                            </div>
+                                            <Bell size={20} className="text-gray-700 dark:text-gray-300 shrink-0" strokeWidth={2.2} />
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center gap-2">
                                                     <span className="block font-bold text-sm text-gray-900 dark:text-white leading-tight">
@@ -292,9 +286,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                         className="w-full flex items-center justify-between gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-violet-50/60 dark:hover:bg-violet-500/[0.08] hover:border-violet-300 dark:hover:border-violet-500/30 active:scale-[0.99] transition-all text-left group"
                                     >
                                         <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                                            <div className="w-10 h-10 rounded-xl bg-violet-100/70 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                                                <Tag size={18} strokeWidth={2.2} />
-                                            </div>
+                                            <Tag size={20} className="text-gray-700 dark:text-gray-300 shrink-0" strokeWidth={2.2} />
                                             <div className="flex-1 min-w-0">
                                                 <span className="block font-bold text-sm text-gray-900 dark:text-white">
                                                     {translate('custom_categories') || (isEL ? 'Προσαρμοσμένες Κατηγορίες' : 'Custom Categories')}
@@ -339,9 +331,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                         <div className="bg-white dark:bg-surface-dark2 border border-rose-200/80 dark:border-rose-900/30 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col justify-between">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-11 h-11 rounded-2xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
-                                        <AlertTriangle size={20} strokeWidth={2.3} />
-                                    </div>
+                                    <AlertTriangle size={24} className="text-rose-500 shrink-0" strokeWidth={2.3} />
                                     <div>
                                         <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200/60 dark:border-rose-500/20">
                                             {isEL ? 'Ζώνη Κινδύνου' : 'Danger Zone'}
@@ -406,7 +396,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                     </div>
 
                     {/* ─────── Bottom Bento: Trust & Safety ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 shadow-sm">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
                                 <Shield size={20} strokeWidth={2.3} />

@@ -40,17 +40,7 @@ const RestoreModeButton = ({ active, onClick, icon: Icon, label, sublabel, color
             }`}
         >
             <div className="flex items-center gap-2.5">
-                <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                        active
-                            ? isRose
-                                ? 'bg-rose-500 text-white'
-                                : 'bg-violet-600 text-white'
-                            : 'bg-gray-100 dark:bg-white/[0.06] text-gray-400 dark:text-white/60'
-                    }`}
-                >
-                    <Icon size={18} strokeWidth={2.2} />
-                </div>
+                <Icon size={20} strokeWidth={2.2} className="shrink-0" />
                 <div>
                     <p
                         className={`text-xs font-bold leading-tight ${
@@ -273,32 +263,28 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                     />
 
                     {/* ─────── Hero Hub ─────── */}
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-indigo-800 dark:from-violet-950 dark:via-indigo-950 dark:to-surface-dark3 border border-violet-400/30 dark:border-white/10 shadow-xl shadow-violet-500/15 text-white p-6 sm:p-8">
-                        {/* Ambient decorative glowing backdrop lights */}
-                        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-violet-400/20 blur-3xl pointer-events-none" />
-                        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-indigo-400/20 blur-3xl pointer-events-none" />
-
-                        <div className="relative z-10 max-w-2xl space-y-3">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
+                    <div className="rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white p-6 sm:p-8 space-y-3">
+                        <div className="max-w-2xl space-y-3">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-gray-200/70 dark:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-300 tracking-wide uppercase">
                                 <ShieldCheck size={13} />
                                 <span>{isEL ? 'Ασφαλής Θυρίδα Δεδομένων' : 'Secure Data Vault'}</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
                                 {translate('backup_restore') || (isEL ? 'Αντίγραφο & Επαναφορά' : 'Backup & Restore')}
                             </h2>
-                            <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
+                            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                 {translate('backup_info') || (isEL ? 'Το αντίγραφο ασφαλείας περιέχει όλες τις συναλλαγές, στόχους, προϋπολογισμούς, επαναλαμβανόμενες εγγραφές και ρυθμίσεις. Μπορείς να το επαναφέρεις σε οποιοδήποτε λογαριασμό SpendWise.' : 'A backup includes all your transactions, goals, budgets, recurring rules, and app settings. You can restore it to any SpendWise account.')}
                             </p>
 
                             {/* Attribute Chips */}
                             <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-violet-100/90">
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
                                     {isEL ? 'Πλήρης Φορητότητα Δεδομένων' : 'Full Data Portability'}
                                 </span>
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
                                     {isEL ? 'Τοπικό Αρχείο JSON' : 'Client-Side JSON'}
                                 </span>
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
                                     {isEL ? 'Χωρίς Περιορισμούς' : 'Zero Lock-In'}
                                 </span>
                             </div>
@@ -310,7 +296,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
                             {/* Export Card */}
-                            <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm flex flex-col justify-between space-y-6">
+                            <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between space-y-6">
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-500/20 flex items-center justify-center shrink-0">
@@ -387,7 +373,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                             </div>
 
                             {/* Restore Card */}
-                            <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm flex flex-col justify-between space-y-6">
+                            <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between space-y-6">
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 border border-cyan-500/20 flex items-center justify-center shrink-0">
@@ -453,7 +439,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
 
                     {/* ─────── Preview Step Card ─────── */}
                     {importStep === 'preview' && meta && (
-                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
                             <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/[0.06] pb-4">
                                 <div className="flex items-center gap-3">
                                     <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 border border-cyan-500/20 flex items-center justify-center shrink-0">
@@ -562,7 +548,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
 
                     {/* ─────── Importing Progress State ─────── */}
                     {importStep === 'importing' && (
-                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-10 text-center space-y-4">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-10 text-center space-y-4">
                             <div className="w-14 h-14 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 flex items-center justify-center mx-auto">
                                 <div className="w-7 h-7 border-3 border-violet-500 border-t-transparent rounded-full animate-spin" />
                             </div>
@@ -579,7 +565,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
 
                     {/* ─────── Done State ─────── */}
                     {importStep === 'done' && (
-                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-8 sm:p-10 text-center space-y-5">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-8 sm:p-10 text-center space-y-5">
                             <div className="w-16 h-16 rounded-3xl bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/25 dark:text-emerald-400 flex items-center justify-center mx-auto">
                                 <ShieldCheck size={34} strokeWidth={2.2} />
                             </div>
@@ -602,7 +588,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                     )}
 
                     {/* ─────── Bottom Bento: Trust & Safety ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 shadow-sm">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
                                 <Lock size={20} strokeWidth={2.3} />

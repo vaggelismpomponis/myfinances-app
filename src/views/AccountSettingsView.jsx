@@ -87,7 +87,7 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
                 </div>
 
                 {/* Name Edit */}
-                <div className="bg-[#f5f5f5] dark:bg-white/[0.04] p-5 rounded-[20px] mb-3">
+                <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-5 rounded-2xl mb-3">
                     <label className="block text-[13px] font-bold text-gray-500 dark:text-white/50 mb-2">Όνομα Χρήστη / Username</label>
                     {editingName ? (
                         <div className="flex flex-col gap-3 w-full">
@@ -123,7 +123,7 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
                 </div>
 
                 {/* Readonly details */}
-                <div className="bg-[#f5f5f5] dark:bg-white/[0.04] p-5 rounded-[20px] space-y-4">
+                <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-5 rounded-2xl space-y-4">
                     <div>
                         <span className="block text-[12px] font-bold text-gray-400 dark:text-white/40 mb-1">{translate('email') || 'Email'}</span>
                         <span className="block text-[15px] font-semibold text-gray-800 dark:text-white/90">{user?.email || '—'}</span>
