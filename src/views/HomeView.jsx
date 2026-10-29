@@ -1273,9 +1273,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     {/* Cashflow Summary Cards */}
                     <div className="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-gray-200 dark:border-white/[0.08]">
                         <div className="bg-gray-200/60 hover:bg-gray-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.09] border border-gray-300/60 dark:border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                                <ArrowUpRight size={15} strokeWidth={2.5} />
-                            </div>
+                            <ArrowUpRight size={22} strokeWidth={2.5} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                             <div className="min-w-0">
                                 <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('stats_income')}</p>
                                 <p className="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate tabular-nums">
@@ -1285,9 +1283,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         </div>
 
                         <div className="bg-gray-200/60 hover:bg-gray-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.09] border border-gray-300/60 dark:border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
-                            <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
-                                <ArrowDownRight size={15} strokeWidth={2.5} />
-                            </div>
+                            <ArrowDownRight size={22} strokeWidth={2.5} className="text-rose-600 dark:text-rose-400 shrink-0" />
                             <div className="min-w-0">
                                 <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('stats_expense')}</p>
                                 <p className="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate tabular-nums">

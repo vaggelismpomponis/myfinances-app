@@ -37,7 +37,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
 
             {/* Category icon */}
             <div className="shrink-0">
-                <CategoryIcon category={transaction?.category} type={transaction?.type} size={18} className="w-10 h-10 rounded-xl" />
+                <CategoryIcon category={transaction?.category} type={transaction?.type} size={22} className="" />
             </div>
 
             {/* Title & Metadata */}

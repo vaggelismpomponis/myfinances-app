@@ -542,8 +542,8 @@ const StatsView = ({ transactions }) => {
                                                transition-all duration-300 group"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center transition-transform group-hover:scale-110">
-                                            <CategoryIcon category={cat.name} type="expense" size={24} />
+                                        <div className="flex items-center justify-center shrink-0 transition-transform group-hover:scale-110">
+                                            <CategoryIcon category={cat.name} type="expense" size={26} />
                                         </div>
                                         <div className="flex-1 min-w-0 text-left">
                                             <div className="flex justify-between items-baseline mb-1.5">
@@ -740,8 +740,8 @@ const StatsView = ({ transactions }) => {
                     <div className="space-y-3 relative z-10">
                         {antiPersona.map((ap, i) => (
                             <div key={ap.category} className="flex items-center gap-4 bg-white dark:bg-surface-dark3 rounded-2xl p-4 border border-rose-100 dark:border-rose-500/10 shadow-sm">
-                                <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center flex-shrink-0">
-                                    <CategoryIcon category={ap.category} type="expense" size={20} />
+                                <div className="flex items-center justify-center flex-shrink-0">
+                                    <CategoryIcon category={ap.category} type="expense" size={24} />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h4 className="font-bold text-gray-900 dark:text-white capitalize text-sm mb-1">
@@ -808,9 +808,8 @@ const StatsView = ({ transactions }) => {
                                 {/* Header */}
                                 <div className={`px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-white/5 ${!isDesktop ? 'mt-2' : ''}`}>
                                     <div className="flex items-center gap-3.5 min-w-0">
-                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm shrink-0"
-                                            style={{ backgroundColor: (COLORS[categoryData.findIndex(c => c.name === selectedCategory) % COLORS.length] || '#7c3aed') + '15' }}>
-                                            <CategoryIcon category={selectedCategory} type="expense" size={24} />
+                                        <div className="flex items-center justify-center shrink-0">
+                                            <CategoryIcon category={selectedCategory} type="expense" size={28} />
                                         </div>
                                         <div className="min-w-0">
                                             <h3 className="font-black text-lg sm:text-xl text-gray-900 dark:text-white capitalize truncate">

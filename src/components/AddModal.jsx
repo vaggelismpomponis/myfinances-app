@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     X, Camera, Layers, Mic, Delete, Check, Plus, Search,
     MessageSquare, MoreHorizontal, AlertCircle, ShieldCheck, Shapes
@@ -760,12 +760,9 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                                             borderColor: `${accentHex}40`,
                                                         } : {}}
                                                     >
-                                                        <div
-                                            className="relative w-10 h-10 rounded-xl flex items-center justify-center"
-                                            style={{ backgroundColor: `${accentHex}18`, border: `1px solid ${accentHex}30` }}
-                                        >
-                                            <Icon size={18} style={{ color: accentHex }} />
-                                            {isSelected && (
+                                                        <div className="relative flex items-center justify-center py-1">
+                                                            <Icon size={24} style={{ color: accentHex }} className="shrink-0" />
+                                                            {isSelected && (
                                                                 <motion.div
                                                                     initial={{ scale: 0 }}
                                                                     animate={{ scale: 1 }}
@@ -804,8 +801,8 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                                 }}
                                                 className="flex flex-col items-center gap-1.5 p-3 rounded-2xl border border-dashed border-gray-300 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:border-indigo-400 dark:hover:border-indigo-500/50 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all bg-transparent"
                                             >
-                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400">
-                                                    <Plus size={18} />
+                                                <div className="flex items-center justify-center py-1 text-gray-500 dark:text-gray-400">
+                                                    <Plus size={24} />
                                                 </div>
                                                 <span className="text-[11px] font-semibold text-center leading-tight text-gray-700 dark:text-gray-300">
                                                     {t('new_category') || 'Νέα'}

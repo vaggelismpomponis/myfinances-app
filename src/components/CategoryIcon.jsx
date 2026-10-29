@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {
     Coffee,
     ShoppingCart,
@@ -402,21 +402,14 @@ const getFuzzyIcon = (key) => {
     return null;
 };
 
-const CategoryIcon = ({ category, type, size = 20, className = "p-2.5 md:p-3 rounded-2xl" }) => {
+const CategoryIcon = ({ category, type, size = 20, className = "" }) => {
     const key = category?.trim()?.toLowerCase() || '';
     const IconComponent = CATEGORY_ICONS[key] || getFuzzyIcon(key) || MoreHorizontal;
     const accentHex = CATEGORY_ACCENT[key] || (type === 'income' ? '#10b981' : '#f43f5e');
 
     return (
-        <div 
-            className={`flex items-center justify-center transition-all duration-200 ${className}`}
-            style={{
-                backgroundColor: `${accentHex}18`,
-                color: accentHex,
-                border: `1px solid ${accentHex}30`,
-            }}
-        >
-            <IconComponent size={size} className="shrink-0" />
+        <div className={`flex items-center justify-center shrink-0 ${className}`}>
+            <IconComponent size={size} className="shrink-0" style={{ color: accentHex }} />
         </div>
     );
 };

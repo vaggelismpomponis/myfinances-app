@@ -88,10 +88,7 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                     <div className="bg-emerald-50 dark:bg-emerald-900/20
                                     border border-emerald-100 dark:border-transparent
                                     rounded-2xl p-3 flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/40
-                                        flex items-center justify-center">
-                            <ArrowUpRight size={15} className="text-emerald-600 dark:text-emerald-400" />
-                        </div>
+                        <ArrowUpRight size={22} strokeWidth={2.5} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                         <div>
                             <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">{t('stats_income')}</p>
                             <p className="text-sm font-black text-emerald-800 dark:text-emerald-200">
@@ -102,10 +99,7 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                     <div className="bg-rose-50 dark:bg-rose-900/20
                                     border border-rose-100 dark:border-transparent
                                     rounded-2xl p-3 flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-900/40
-                                        flex items-center justify-center">
-                            <ArrowDownRight size={15} className="text-rose-600 dark:text-rose-400" />
-                        </div>
+                        <ArrowDownRight size={22} strokeWidth={2.5} className="text-rose-600 dark:text-rose-400 shrink-0" />
                         <div>
                             <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wide">{t('stats_expense')}</p>
                             <p className="text-sm font-black text-rose-800 dark:text-rose-200">
