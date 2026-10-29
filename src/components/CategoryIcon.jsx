@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import {
     Coffee,
     ShoppingCart,
@@ -409,15 +409,14 @@ const CategoryIcon = ({ category, type, size = 20, className = "p-2.5 md:p-3 rou
 
     return (
         <div 
-            className={`flex items-center justify-center relative overflow-hidden transition-all duration-300 shadow-sm ${className}`}
-            style={{ 
-                backgroundColor: `${accentHex}15`, 
+            className={`flex items-center justify-center transition-all duration-200 ${className}`}
+            style={{
+                backgroundColor: `${accentHex}18`,
                 color: accentHex,
-                border: `1px solid ${accentHex}25` 
+                border: `1px solid ${accentHex}30`,
             }}
         >
-            <div className="absolute inset-0 opacity-20 blur-xl" style={{ backgroundColor: accentHex }} />
-            <IconComponent size={size} className="relative z-10 shrink-0" />
+            <IconComponent size={size} className="shrink-0" />
         </div>
     );
 };

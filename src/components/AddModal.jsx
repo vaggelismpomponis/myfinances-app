@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import {
     X, Camera, Layers, Mic, Delete, Check, Plus, Search,
     MessageSquare, MoreHorizontal, AlertCircle, ShieldCheck, Shapes
@@ -710,7 +710,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                         whileTap={{ scale: 0.9 }}
                                         type="button"
                                         onClick={() => { setShowCategoryPicker(false); setIsAddingCategory(false); setCategorySearch(''); }}
-                                        className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                                        className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                                     >
                                         <X size={18} />
                                     </motion.button>
@@ -761,12 +761,11 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                                         } : {}}
                                                     >
                                                         <div
-                                                            className="w-10 h-10 rounded-xl flex items-center justify-center relative overflow-hidden"
-                                                            style={{ backgroundColor: `${accentHex}20` }}
-                                                        >
-                                                            <div className="absolute inset-0 opacity-30 blur-md" style={{ backgroundColor: accentHex }} />
-                                                            <Icon size={18} className="relative z-10" style={{ color: accentHex }} />
-                                                            {isSelected && (
+                                            className="relative w-10 h-10 rounded-xl flex items-center justify-center"
+                                            style={{ backgroundColor: `${accentHex}18`, border: `1px solid ${accentHex}30` }}
+                                        >
+                                            <Icon size={18} style={{ color: accentHex }} />
+                                            {isSelected && (
                                                                 <motion.div
                                                                     initial={{ scale: 0 }}
                                                                     animate={{ scale: 1 }}
