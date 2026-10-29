@@ -296,9 +296,8 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                     id="tour-add-button"
                     onClick={() => onAdd?.()}
                     className="flex items-center gap-2 px-4 py-2.5
-                               bg-gray-950 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100
-                               text-white dark:text-gray-950 text-sm font-bold
-                               rounded-xl shadow-sm
+                               bg-violet-500 hover:bg-violet-600 text-white text-sm font-bold
+                               rounded-xl shadow-sm shadow-violet-500/20 border border-violet-400/30
                                active:scale-95 transition-all duration-200"
                 >
                     <Plus size={16} strokeWidth={2.5} />

@@ -230,7 +230,7 @@ export default function MobileLayout({
                                         clearTimeout(fabLongPressRef.current);
                                     }}
                                     aria-label="Add transaction"
-                                    className="relative w-12 h-12 rounded-2xl bg-gray-950 text-white dark:bg-white dark:text-gray-950 flex items-center justify-center shadow-lg shadow-black/25 dark:shadow-black/40 border border-gray-800 dark:border-gray-200 outline-none focus:outline-none focus-visible:outline-none select-none active:scale-95 transition-all"
+                                    className="relative w-12 h-12 rounded-2xl bg-violet-500 hover:bg-violet-600 text-white flex items-center justify-center shadow-md shadow-violet-500/25 border border-violet-400/40 outline-none focus:outline-none focus-visible:outline-none select-none active:scale-95 transition-all"
                                     style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                                 >
                                     <motion.div
