@@ -37,8 +37,8 @@ const SettingRow = ({
     <div
         onClick={onClick}
         role={onClick ? 'button' : undefined}
-        className={`group flex items-center gap-4 px-5 py-4 mb-3 rounded-[20px]
-                    bg-[#f5f5f5] dark:bg-white/[0.04]
+        className={`group flex items-center gap-4 px-5 py-4 mb-3 rounded-2xl
+                    bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10
                     ${onClick ? 'cursor-pointer active:scale-[0.98]' : ''}
                     transition-all duration-200`}
     >
@@ -59,7 +59,7 @@ const SettingRow = ({
 );
 
 const InfoRow = ({ icon: Icon, label, value, last = false }) => (
-    <div className={`flex items-center gap-4 px-5 py-4 mb-3 rounded-[20px] bg-[#f5f5f5] dark:bg-white/[0.04]`}>
+    <div className={`flex items-center gap-4 px-5 py-4 mb-3 rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10`}>
         <Icon size={22} className="text-gray-800 dark:text-white/90" strokeWidth={1.75} />
         <div className="flex-1 min-w-0">
             <p className="text-[12px] font-medium text-gray-500 dark:text-white/60 mb-0.5">{label}</p>
@@ -265,10 +265,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2, duration: 0.3 }}
-                            className="inline-flex items-center px-5 py-2 rounded-full
-                                       border border-gray-200 dark:border-white/10
-                                       bg-white dark:bg-white/5
-                                       text-[13px] font-bold text-gray-700 dark:text-white/80
+                            className="inline-flex items-center px-5 py-2 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-100/90 dark:bg-surface-dark2 text-[13px] font-bold text-gray-900 dark:text-white
                                        shadow-sm hover:bg-gray-50 dark:hover:bg-white/10
                                        active:scale-95 transition-all"
                         >
@@ -281,31 +278,24 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         {/* Card 1: Subscription */}
                         <div
                             onClick={() => isPro ? openBillingPortal() : openUpgradeModal('profile')}
-                            className={`min-w-0 h-[75px] rounded-[20px] p-2 sm:p-3 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center gap-1 ${
-                                isPro ? 'bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5' : 'border border-violet-400/30'
-                            }`}
-                            style={!isPro ? {
-                                background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-                                boxShadow: '0 4px 16px rgba(124, 58, 237, 0.35)',
-                            } : undefined}
+                            className="min-w-0 h-[75px] rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform text-center gap-1 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10"
                         >
-                            {!isPro
-                                ? (
-                                    <div className="flex items-center justify-center gap-1">
-                                        <ShieldCheck size={14} strokeWidth={2.2} className="text-white shrink-0" />
-                                        <p className="text-[11px] sm:text-[12px] font-extrabold text-white leading-tight">{translate('become_pro') || translate('go_pro') || 'Become Pro'}</p>
-                                    </div>
-                                )
-                                : <p className={`text-[12px] sm:text-[13px] font-extrabold text-violet-600 dark:text-violet-400 leading-tight`}>{translate('manage') || 'Manage Pro'}</p>
-                            }
+                            {!isPro ? (
+                                <div className="flex items-center justify-center gap-1">
+                                    <ShieldCheck size={14} strokeWidth={2.2} className="text-gray-900 dark:text-white shrink-0" />
+                                    <p className="text-[11px] sm:text-[12px] font-extrabold text-gray-900 dark:text-white leading-tight">{translate('become_pro') || translate('go_pro') || 'Become Pro'}</p>
+                                </div>
+                            ) : (
+                                <p className="text-[12px] sm:text-[13px] font-extrabold text-gray-900 dark:text-white leading-tight">{translate('manage') || 'Manage Pro'}</p>
+                            )}
                         </div>
 
                         {/* Card 2: Guide */}
                         <div
                             onClick={onGuide}
-                            className="min-w-0 h-[75px] rounded-[20px] bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5 p-2 sm:p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center"
+                            className="min-w-0 h-[75px] rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-2 sm:p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform text-center"
                         >
-                            <p className="text-[12px] sm:text-[14px] font-extrabold text-blue-600 dark:text-blue-400 leading-tight">
+                            <p className="text-[12px] sm:text-[14px] font-extrabold text-gray-900 dark:text-white leading-tight">
                                 {translate('user_guide') || 'Οδηγός'}
                             </p>
                         </div>
@@ -313,7 +303,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         {/* Card 3: Feedback */}
                         <div
                             onClick={onFeedback}
-                            className="min-w-0 h-[75px] rounded-[20px] bg-white dark:bg-surface-dark2 border border-gray-100 dark:border-white/5 p-2 sm:p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform shadow-sm text-center"
+                            className="min-w-0 h-[75px] rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-2 sm:p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform text-center"
                         >
                             <p className="text-[12px] sm:text-[14px] font-extrabold text-gray-900 dark:text-white leading-tight">
                                 {translate('feedback') || 'Support'}
@@ -412,8 +402,8 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                 <Card>
                                     <button
                                         onClick={() => setShowDeleteModal(true)}
-                                        className="w-full flex items-center gap-4 px-5 py-4 rounded-[20px] mb-3 text-left
-                                                   bg-rose-50 dark:bg-rose-500/10
+                                        className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl mb-3 text-left
+                                                   bg-rose-50 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-900/30
                                                    active:scale-[0.98] transition-all duration-150"
                                     >
                                         <Trash2 size={22} className="text-rose-500 flex-shrink-0" strokeWidth={1.75} />

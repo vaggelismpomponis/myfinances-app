@@ -550,19 +550,15 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
 
                         {/* Executive Status Pills */}
                         <div className="flex items-center gap-3 flex-wrap">
-                            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/5 shadow-sm">
-                                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-500 shrink-0">
-                                    <ShieldCheck size={18} />
-                                </div>
+                            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10">
+                                <ShieldCheck size={20} className="text-emerald-500 shrink-0" />
                                 <div>
                                     <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Wellness Score</p>
                                     <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">{wellnessScore} <span className="text-xs text-gray-400 font-medium">/ 100</span></p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white dark:bg-surface-dark3 border border-gray-100 dark:border-white/5 shadow-sm">
-                                <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-950/40 flex items-center justify-center text-violet-500 shrink-0">
-                                    <Target size={18} />
-                                </div>
+                            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10">
+                                <Target size={20} className="text-gray-900 dark:text-white shrink-0" />
                                 <div>
                                     <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Savings Rate</p>
                                     <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">{Math.round(stats.savingsPct)}%</p>
@@ -632,20 +628,18 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                         <div className="relative shrink-0 w-[125px] h-[125px] sm:w-[135px] sm:h-[135px] flex items-center justify-center">
                                             <GaugeRing score={wellnessScore} size={isDesktop ? 135 : 125} />
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-3xl sm:text-4xl font-black font-display leading-none text-white tracking-tight">
+                                                <span className="text-3xl sm:text-4xl font-extrabold font-display leading-none text-gray-900 dark:text-white tracking-tight">
                                                     {wellnessScore}
                                                 </span>
-                                                <span className="text-[10px] text-violet-200 font-bold uppercase tracking-wider mt-0.5">
+                                                <span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">
                                                     / 100
                                                 </span>
                                             </div>
                                         </div>
 
                                         {/* AI Recommendation Message */}
-                                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 border border-white/15 text-xs text-white/95 leading-relaxed font-medium flex items-start gap-2.5 shadow-xs flex-1 w-full">
-                                            <div className="w-6 h-6 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
-                                                <Lightbulb size={13} />
-                                            </div>
+                                        <div className="bg-gray-200/60 dark:bg-white/[0.06] rounded-xl p-3.5 sm:p-4 border border-gray-300/60 dark:border-white/[0.1] text-xs text-gray-800 dark:text-gray-200 leading-relaxed font-medium flex items-start gap-2.5 flex-1 w-full">
+                                            <Lightbulb size={18} className="text-amber-500 shrink-0 mt-0.5" />
                                             <p className="flex-1">
                                                 {wellnessScore >= 80 ? (
                                                     t('advisor_good_job')

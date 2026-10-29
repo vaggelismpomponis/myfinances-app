@@ -209,29 +209,26 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                     />
 
                     {/* Executive Hero Hub */}
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-indigo-800 dark:from-violet-950 dark:via-indigo-950 dark:to-surface-dark3 border border-violet-400/30 dark:border-white/10 shadow-xl shadow-violet-500/15 text-white p-6 sm:p-8">
-                        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-violet-400/20 blur-3xl pointer-events-none" />
-                        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-indigo-400/20 blur-3xl pointer-events-none" />
-
-                        <div className="relative z-10 max-w-2xl space-y-3">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
+                    <div className="rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white p-6 sm:p-8 space-y-3">
+                        <div className="max-w-2xl space-y-3">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-gray-200/70 dark:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-300 tracking-wide uppercase">
                                 <Tag size={13} strokeWidth={2.3} />
                                 <span>{isEL ? 'Διαχείριση Κατηγοριών' : 'Categories Management'}</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
                                 {translate('custom_categories') || (isEL ? 'Προσαρμοσμένες Κατηγορίες' : 'Custom Categories')}
                             </h2>
-                            <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
+                            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                 {translate('custom_categories_desc') || (isEL ? 'Επεξεργαστείτε, μετονομάστε ή διαγράψτε τις δικές σας κατηγορίες. Οι αλλαγές συγχρονίζονται άμεσα σε όλες τις συσκευές σας.' : 'Edit, rename, or delete your custom categories. Changes synchronize across all your devices instantly.')}
                             </p>
 
                             {/* Stats Chips */}
                             <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold">
-                                <span className="px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-violet-100 flex items-center gap-1.5">
+                                <span className="px-3 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                                     <Tag size={12} strokeWidth={2.5} />
                                     <span>{translate('categories_expense_tab') || 'Έξοδα'}: {expenseCustom.length}</span>
                                 </span>
-                                <span className="px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-violet-100 flex items-center gap-1.5">
+                                <span className="px-3 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                                     <Tag size={12} strokeWidth={2.5} />
                                     <span>{translate('categories_income_tab') || 'Έσοδα'}: {incomeCustom.length}</span>
                                 </span>
@@ -240,7 +237,7 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                     </div>
 
                     {/* Type Toggle & Add Bar */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-5 sm:p-6 shadow-sm space-y-5">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 sm:p-6 space-y-5">
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                             {/* Segmented Type Toggle */}
                             <div className="flex bg-gray-100 dark:bg-white/[0.06] p-1.5 rounded-2xl shrink-0">
@@ -294,7 +291,7 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                                         }
                                         setIsAdding(true);
                                     }}
-                                    className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-sm shadow-violet-600/20 active:scale-95 transition-all cursor-pointer"
+                                    className="px-4 py-2.5 rounded-xl bg-gray-950 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-950 text-xs font-extrabold flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all cursor-pointer"
                                 >
                                     <Plus size={16} strokeWidth={2.5} />
                                     <span>{translate('add_category') || 'Προσθήκη Κατηγορίας'}</span>
@@ -351,7 +348,7 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                     </div>
 
                     {/* Custom Categories List */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 sm:p-6 space-y-4">
                         <div className="flex items-center justify-between pb-1">
                             <div>
                                 <h3 className="text-base font-extrabold text-gray-900 dark:text-white">
@@ -427,7 +424,7 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                                             ) : (
                                                 <>
                                                     <div className="flex items-center gap-3.5 min-w-0">
-                                                        <CategoryIcon category={catName} type={activeType} size={18} className="w-10 h-10 rounded-xl" />
+                                                        <CategoryIcon category={catName} type={activeType} size={22} className="shrink-0" />
                                                         <div className="min-w-0">
                                                             <span className="block font-bold text-sm text-gray-900 dark:text-white truncate">
                                                                 {catName}
@@ -470,16 +467,14 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                     </div>
 
                     {/* System Built-in Categories Reference Card */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 sm:p-6 space-y-4">
                         <button
                             type="button"
                             onClick={() => setShowBaseCategories(!showBaseCategories)}
                             className="w-full flex items-center justify-between text-left group"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-400 flex items-center justify-center shrink-0">
-                                    <Info size={18} />
-                                </div>
+                                <Info size={20} className="text-gray-500 dark:text-gray-400 shrink-0" />
                                 <div>
                                     <h4 className="text-sm font-extrabold text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                                         {translate('system_base_categories') || 'Βασικές Κατηγορίες Συστήματος'}
@@ -507,7 +502,7 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                                             key={baseCat}
                                             className="px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.05] text-xs font-bold text-gray-700 dark:text-gray-300 border border-gray-200/60 dark:border-white/[0.06] flex items-center gap-1.5"
                                         >
-                                            <CategoryIcon category={baseCat} type={activeType} size={13} className="!p-1 !rounded-md" />
+                                            <CategoryIcon category={baseCat} type={activeType} size={15} className="shrink-0" />
                                             <span>{baseCat}</span>
                                         </span>
                                     ))}
