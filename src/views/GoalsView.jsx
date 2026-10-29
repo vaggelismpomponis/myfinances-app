@@ -88,12 +88,7 @@ const Field = ({ label, ...props }) => {
             <input
                 id={id}
                 {...props}
-                className="w-full p-3.5 bg-white dark:bg-white/5
-                           border border-slate-200/60 dark:border-transparent
-                           rounded-2xl text-sm font-medium text-gray-900 dark:text-white
-                           placeholder:text-gray-400 dark:placeholder:text-gray-500
-                           focus:outline-none focus:ring-2 focus:ring-violet-500
-                           dark:focus:ring-violet-400 transition-all shadow-premium placeholder:font-medium"
+                className="w-full py-3 px-3.5 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
             />
         </div>
     );
@@ -509,8 +504,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-5 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
                          onClick={closeAdd} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-3xl w-full max-w-sm
-                                    relative z-10 shadow-2xl overflow-hidden animate-pop">
+                    <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-pop border border-gray-300 dark:border-white/10">
 
                         {/* Accent stripe */}
 
@@ -528,7 +522,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                 </div>
                                 <button
                                     onClick={closeAdd}
-                                    className="p-2 text-gray-400 dark:text-black rounded-xl bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 transition-colors"
+                                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
                                 >
                                     <X size={18} />
                                 </button>
@@ -538,7 +532,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                 <Field
                                     label={t('goal_title')}
                                     type="text"
-                                    placeholder="π.χ. Ταξίδι στο Παρίσι ✈️"
+                                    placeholder="π.χ. Ταξίδι στο Παρίσι"
                                     value={formTitle}
                                     onChange={e => setFormTitle(e.target.value)}
                                     required
@@ -566,10 +560,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                     <button
                                         type="button"
                                         onClick={closeAdd}
-                                        className="flex-1 py-3.5 bg-gray-100 dark:bg-white
-                                                   text-gray-600 dark:text-black font-bold
-                                                   rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-100
-                                                   transition-colors active:scale-95 text-sm"
+                                        className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm"
                                     >
                                         {t('cancel')}
                                     </button>
@@ -598,15 +589,11 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                 <div className="fixed inset-0 z-[200] flex items-end justify-center p-5 pb-8 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
                          onClick={() => setDeletingGoal(null)} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-t-[2rem] w-full max-w-sm lg:max-w-[1000px]
-                                    relative z-10 shadow-2xl overflow-hidden animate-slide-up">
+                    <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-t-2xl sm:rounded-2xl w-full max-w-sm lg:max-w-[1000px] relative z-10 shadow-2xl overflow-hidden animate-slide-up border border-gray-300 dark:border-white/10">
 
                         <div className="p-6">
                             <div className="flex flex-col items-center text-center mb-6">
-                                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-3xl
-                                                flex items-center justify-center text-red-500 dark:text-red-400 mb-4">
-                                    <Trash2 size={28} />
-                                </div>
+                                <Trash2 size={36} className="text-rose-500 shrink-0 mb-4" />
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                                     {t('delete_goal')}
                                 </h3>
@@ -617,19 +604,13 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setDeletingGoal(null)}
-                                    className="flex-1 py-3.5 bg-gray-100 dark:bg-white
-                                               text-gray-700 dark:text-black font-bold
-                                               rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-100
-                                               transition-colors active:scale-95 text-sm"
+                                    className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm"
                                 >
                                     {t('cancel')}
                                 </button>
                                 <button
                                     onClick={handleDelete}
-                                    className="flex-1 py-3.5 bg-red-500 hover:bg-red-600 text-white
-                                               font-bold rounded-2xl shadow-lg shadow-red-500/25
-                                               transition-all active:scale-95
-                                               flex items-center justify-center gap-2 text-sm"
+                                    className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
                                 >
                                     <Trash2 size={15} /> {t('delete')}
                                 </button>
@@ -647,8 +628,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                 <div className="fixed inset-0 z-[200] flex items-end justify-center animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
                          onClick={closeMoney} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-t-[2rem] w-full max-w-sm lg:max-w-[1000px]
-                                    relative z-10 shadow-2xl overflow-hidden animate-slide-up">
+                    <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-t-2xl sm:rounded-2xl w-full max-w-sm lg:max-w-[1000px] relative z-10 shadow-2xl overflow-hidden animate-slide-up border border-gray-300 dark:border-white/10">
 
                         {/* Handle */}
                         <div className="flex justify-center pt-3 pb-1">
@@ -657,10 +637,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
 
                         {/* Modal Header */}
                         <div className="flex items-center gap-3 px-6 py-3">
-                            <div className="p-2.5 bg-violet-100 dark:bg-violet-900/30
-                                            text-violet-600 dark:text-violet-400 rounded-2xl">
-                                <PiggyBank size={20} />
-                            </div>
+                            <PiggyBank size={24} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                             <div>
                                 <h3 className="font-bold text-gray-900 dark:text-white">{t('deposit')}</h3>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
@@ -681,7 +658,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                             const newPct = (newCur / selectedGoal.target_amount) * 100;
                             const preset = getPreset(selectedGoal.title);
                             return (
-                                <div className="mx-6 mb-3 p-3 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                                <div className="mx-6 mb-3 p-3 bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl">
                                     <div className="flex justify-between text-xs font-semibold mb-1.5">
                                         <span className="text-gray-500 dark:text-gray-400">
                                             <Amount value={cur} /> → <span className="text-violet-600 dark:text-violet-400"><Amount value={newCur} /></span>

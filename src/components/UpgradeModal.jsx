@@ -21,10 +21,10 @@ const UpgradeModal = () => {
     const dk = theme === 'dark';
 
     const tok = {
-        sheetBg   : dk ? '#111118' : '#ffffff',
-        cardFree  : dk ? '#1c1c26' : '#f8f8f8',
+        sheetBg   : dk ? '#111118' : '#f3f4f6',
+        cardFree  : dk ? '#1c1c26' : '#e5e7eb',
         cardPro   : dk ? '#1c1c26' : '#ffffff',
-        cardBorder: dk ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)',
+        cardBorder: dk ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.12)',
         drag      : dk ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.13)',
         closeBg   : dk ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)',
         closeIco  : dk ? 'rgba(255,255,255,0.4)'  : 'rgba(0,0,0,0.35)',
@@ -109,8 +109,8 @@ const UpgradeModal = () => {
                     transition={{ type: 'spring', stiffness: 340, damping: 38, mass: 0.9 }}
                     style={{
                         background: tok.sheetBg,
-                        borderTopLeftRadius: 32,
-                        borderTopRightRadius: 32,
+                        borderTopLeftRadius: 20,
+                        borderTopRightRadius: 20,
                         borderTop: `1px solid ${tok.cardBorder}`,
                         boxShadow: dk
                             ? '0 -16px 80px rgba(0,0,0,0.8)'
@@ -150,8 +150,7 @@ const UpgradeModal = () => {
                             style={{
                                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                                 width: 60, height: 60, borderRadius: 18, marginBottom: 16,
-                                background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-                                boxShadow: '0 8px 28px rgba(245,158,11,0.4)',
+                                background: dk ? 'rgba(245,158,11,0.15)' : 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)',
                             }}
                         >
                             <ShieldCheck size={32} color="#fff" strokeWidth={2.2} />

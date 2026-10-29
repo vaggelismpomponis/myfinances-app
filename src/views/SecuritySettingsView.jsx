@@ -589,8 +589,8 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                 <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPasswordModal(false)} />
                     <div className="relative z-10 w-full max-w-sm mx-4 mb-4 sm:mb-0
-                                    bg-white dark:bg-surface-dark2 rounded-3xl p-6
-                                    shadow-2xl border border-gray-100 dark:border-white/10
+                                    bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl p-6
+                                    shadow-2xl border border-gray-300 dark:border-white/10
                                     animate-slide-up">
                         <div className="flex items-center justify-between mb-5">
                             <div>
@@ -683,7 +683,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     disabled={loading}
                                     className="w-full py-3.5 mt-2 bg-violet-600 hover:bg-violet-700
                                                text-white font-bold rounded-xl text-[14px]
-                                               shadow-[0_4px_16px_rgba(124,58,237,0.35)]
+                                               shadow-sm
                                                active:scale-95 transition-all disabled:opacity-50
                                                flex items-center justify-center gap-2 cursor-pointer"
                                 >
@@ -705,14 +705,10 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                 <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPinModal(false)} />
                     <div className="relative z-10 w-full max-w-sm mx-4 mb-4 sm:mb-0
-                                    bg-white dark:bg-surface-dark2 rounded-3xl p-6
-                                    shadow-2xl border border-gray-100 dark:border-white/10
+                                    bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl p-6
+                                    shadow-2xl border border-gray-300 dark:border-white/10
                                     animate-slide-up text-center">
-                        <div className="w-14 h-14 bg-violet-50 dark:bg-violet-500/15 rounded-2xl
-                                        flex items-center justify-center mx-auto mb-4
-                                        shadow-[0_0_24px_rgba(124,58,237,0.15)]">
-                            <Lock size={24} className="text-violet-600 dark:text-violet-400" strokeWidth={1.5} />
-                        </div>
+                        <Lock size={32} className="text-violet-600 dark:text-violet-400 mx-auto mb-3" strokeWidth={1.5} />
                         <h3 className="text-[18px] font-bold text-gray-900 dark:text-white mb-1">{translate('pin_setup') || 'Set PIN'}</h3>
                         <p className="text-[13px] text-gray-500 dark:text-white/60 mb-6">{translate('pin_instruction') || 'Enter a 4-digit code to lock the app.'}</p>
 
@@ -761,7 +757,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     type="submit"
                                     disabled={pinInput.length !== 4}
                                     className="flex-1 py-3.5 bg-violet-600 text-white font-bold rounded-xl
-                                               shadow-[0_4px_16px_rgba(124,58,237,0.35)]
+                                               shadow-sm
                                                active:scale-95 transition-all disabled:opacity-40 text-[14px]"
                                 >
                                     {translate('save') || 'Save'}
@@ -780,15 +776,11 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                         onClick={() => setShowPinBlockedModal(false)}
                     />
                     <div className="relative z-10 w-full max-w-sm
-                                    bg-white dark:bg-surface-dark2 rounded-3xl p-6
-                                    shadow-2xl border border-gray-100 dark:border-white/10
+                                    bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl p-6
+                                    shadow-2xl border border-gray-300 dark:border-white/10
                                     animate-slide-in-up">
 
-                        <div className="w-14 h-14 bg-amber-50 dark:bg-amber-500/15 rounded-2xl
-                                        flex items-center justify-center mx-auto mb-4
-                                        shadow-[0_0_24px_rgba(245,158,11,0.15)]">
-                            <AlertTriangle size={26} className="text-amber-500 dark:text-amber-400" strokeWidth={1.8} />
-                        </div>
+                        <AlertTriangle size={32} className="text-amber-500 dark:text-amber-400 mx-auto mb-3" strokeWidth={1.8} />
 
                         <h3 className="text-[17px] font-bold text-gray-900 dark:text-white text-center mb-2">
                             {translate('cannot_disable_pin_title') || (isEL ? 'Δεν επιτρέπεται' : 'Not Allowed')}
@@ -802,7 +794,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                             onClick={() => setShowPinBlockedModal(false)}
                             className="w-full py-3.5 bg-amber-500 hover:bg-amber-400
                                        text-white font-bold rounded-xl text-[14px]
-                                       shadow-[0_4px_16px_rgba(245,158,11,0.35)]
+                                       shadow-sm
                                        active:scale-95 transition-all duration-200"
                         >
                             {translate('got_it') || (isEL ? 'Κατάλαβα' : 'Got it')}
@@ -819,15 +811,11 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                         onClick={() => setShowNoPinModal(false)}
                     />
                     <div className="relative z-10 w-full max-w-sm
-                                    bg-white dark:bg-surface-dark2 rounded-3xl p-6
-                                    shadow-2xl border border-gray-100 dark:border-white/10
+                                    bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl p-6
+                                    shadow-2xl border border-gray-300 dark:border-white/10
                                     animate-slide-in-up">
 
-                        <div className="w-14 h-14 bg-amber-50 dark:bg-amber-500/15 rounded-2xl
-                                        flex items-center justify-center mx-auto mb-4
-                                        shadow-[0_0_24px_rgba(245,158,11,0.15)]">
-                            <AlertTriangle size={26} className="text-amber-500 dark:text-amber-400" strokeWidth={1.8} />
-                        </div>
+                        <AlertTriangle size={32} className="text-amber-500 dark:text-amber-400 mx-auto mb-3" strokeWidth={1.8} />
 
                         <h3 className="text-[17px] font-bold text-gray-900 dark:text-white text-center mb-2">
                             {translate('pin_required_title') || (isEL ? 'Απαιτείται PIN' : 'PIN Required')}
@@ -851,7 +839,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                 onClick={() => { setShowNoPinModal(false); setPinInput(''); setShowPinModal(true); }}
                                 className="flex-1 py-3.5 bg-amber-500 hover:bg-amber-400
                                            text-white font-bold rounded-xl text-[14px]
-                                           shadow-[0_4px_16px_rgba(245,158,11,0.35)]
+                                           shadow-sm
                                            active:scale-95 transition-all duration-200"
                             >
                                 {translate('set_pin') || (isEL ? 'Ορισμός PIN' : 'Set PIN')}
@@ -869,15 +857,11 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                         onClick={() => setShowBioUnavailableModal(false)}
                     />
                     <div className="relative z-10 w-full max-w-sm
-                                    bg-white dark:bg-surface-dark2 rounded-3xl p-6
-                                    shadow-2xl border border-gray-100 dark:border-white/10
+                                    bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl p-6
+                                    shadow-2xl border border-gray-300 dark:border-white/10
                                     animate-slide-in-up">
 
-                        <div className="w-14 h-14 bg-rose-50 dark:bg-rose-500/15 rounded-2xl
-                                        flex items-center justify-center mx-auto mb-4
-                                        shadow-[0_0_24px_rgba(244,63,94,0.15)]">
-                            <AlertTriangle size={26} className="text-rose-500 dark:text-rose-400" strokeWidth={1.8} />
-                        </div>
+                        <AlertTriangle size={32} className="text-rose-500 dark:text-rose-400 mx-auto mb-3" strokeWidth={1.8} />
 
                         <h3 className="text-[17px] font-bold text-gray-900 dark:text-white text-center mb-2">
                             {translate('biometric_unavailable_title') || (isEL ? 'Μη Διαθέσιμα Βιομετρικά' : 'Biometrics Unavailable')}
@@ -891,7 +875,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                             onClick={() => setShowBioUnavailableModal(false)}
                             className="w-full py-3.5 bg-rose-500 hover:bg-rose-400
                                        text-white font-bold rounded-xl text-[14px]
-                                       shadow-[0_4px_16px_rgba(244,63,94,0.35)]
+                                       shadow-sm
                                        active:scale-95 transition-all duration-200"
                         >
                             {translate('got_it') || (isEL ? 'Κατάλαβα' : 'Got it')}

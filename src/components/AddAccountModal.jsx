@@ -52,7 +52,7 @@ const AddAccountModal = ({ onClose, user }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
-            <div className="w-full max-w-sm lg:max-w-[1000px] bg-white dark:bg-surface-dark2 rounded-t-[2rem] p-6 shadow-2xl transform transition-all animate-slide-up">
+            <div className="w-full max-w-sm lg:max-w-[1000px] bg-gray-100/95 dark:bg-surface-dark2 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl border border-gray-300 dark:border-white/10 transform transition-all animate-slide-up">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">Νέος Λογαριασμός</h2>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
@@ -69,7 +69,7 @@ const AddAccountModal = ({ onClose, user }) => {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="π.χ. Τράπεζα Πειραιώς"
-                            className="w-full p-4 bg-gray-50 dark:bg-surface-dark3/50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-lg placeholder-gray-400"
+                            className="w-full p-3 bg-white dark:bg-surface-dark3 rounded-xl border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-base placeholder-gray-400"
                             required
                         />
                     </div>
@@ -84,7 +84,7 @@ const AddAccountModal = ({ onClose, user }) => {
                                 onChange={(e) => setBalance(e.target.value)}
                                 placeholder="0.00"
                                 step="0.01"
-                                className="w-full p-4 bg-gray-50 dark:bg-surface-dark3/50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-2xl font-bold placeholder-gray-400"
+                                className="w-full p-3 bg-white dark:bg-surface-dark3 rounded-xl border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-xl font-bold placeholder-gray-400"
                                 required
                             />
                              {!privacyMode && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">€</span>}
@@ -133,7 +133,7 @@ const AddAccountModal = ({ onClose, user }) => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-200 dark:shadow-indigo-900/50 transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                        className="w-full py-3 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-xl font-bold text-sm shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100"
                     >
                         {loading ? 'Αποθήκευση...' : 'Δημιουργία'}
                     </button>

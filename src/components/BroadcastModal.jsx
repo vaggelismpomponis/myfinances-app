@@ -18,7 +18,7 @@ const BroadcastModal = ({ isOpen, onClose, data }) => {
             />
             
             {/* Modal */}
-            <div className="relative w-full max-w-sm bg-white dark:bg-surface-dark2 rounded-2xl overflow-hidden shadow-xl animate-scale-in border border-gray-200 dark:border-white/10">
+            <div className="relative w-full max-w-sm bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl overflow-hidden shadow-xl animate-scale-in border border-gray-300 dark:border-white/10">
                 
                 {/* Executive Header */}
                 <div className="h-24 bg-gray-100/90 dark:bg-surface-dark2 border-b border-gray-200 dark:border-white/10 relative overflow-hidden flex items-center justify-center">
@@ -41,7 +41,7 @@ const BroadcastModal = ({ isOpen, onClose, data }) => {
                         </h3>
                     </div>
                     
-                    <div className="bg-gray-50 dark:bg-white/[0.03] p-5 rounded-2xl border border-gray-100 dark:border-transparent">
+                    <div className="bg-white dark:bg-surface-dark3 p-4 rounded-xl border border-gray-200 dark:border-white/10">
                         <p className="text-[13px] text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
                             {data.message}
                         </p>
@@ -49,7 +49,7 @@ const BroadcastModal = ({ isOpen, onClose, data }) => {
 
                     <button 
                         onClick={onClose}
-                        className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-black rounded-2xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 group"
+                        className="w-full py-3 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm"
                     >
                         <CheckCircle2 size={18} className="text-violet-500" />
                         Κατάλαβα

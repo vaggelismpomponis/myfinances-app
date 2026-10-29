@@ -37,7 +37,7 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
             />
 
             {/* Content */}
-            <div className="relative w-full max-w-md lg:max-w-[1000px] bg-white dark:bg-surface-dark2 rounded-t-[2.5rem] overflow-hidden shadow-2xl border-t border-gray-100 dark:border-transparent animate-slide-up flex flex-col max-h-[90vh]">
+            <div className="relative w-full max-w-md lg:max-w-[1000px] bg-gray-100/95 dark:bg-surface-dark2 rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl border border-gray-300 dark:border-white/10 animate-slide-up flex flex-col max-h-[90vh]">
                 
                 {/* Handle */}
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
@@ -73,9 +73,7 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
                             const Icon = iconMap[feature.icon] || Star;
                             return (
                                 <div key={i} className="flex gap-4 p-3 rounded-2xl bg-gray-50/50 dark:bg-white/[0.02] border border-transparent dark:border-white/[0.02]">
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${feature.bg || 'bg-violet-50 dark:bg-violet-500/10'}`}>
-                                        <Icon size={20} className={feature.color || 'text-violet-500'} strokeWidth={2} />
-                                    </div>
+                                    <Icon size={22} className={`${feature.color || 'text-violet-500'} shrink-0 mt-0.5`} strokeWidth={2} />
                                     <div className="flex-1 pt-0.5">
                                         <h3 className="text-[14px] font-bold text-gray-900 dark:text-white mb-1 leading-none">
                                             {isEL ? feature.title_el : feature.title_en}
@@ -101,7 +99,7 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
                 <div className="p-4 pt-2 shrink-0 bg-white dark:bg-surface-dark2">
                     <button
                         onClick={onClose}
-                        className="w-full py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl text-[15px] shadow-[0_4px_16px_rgba(124,58,237,0.35)] active:scale-95 transition-all text-center"
+                        className="w-full py-3 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl text-sm shadow-sm active:scale-95 transition-all text-center"
                     >
                         {isEL ? 'Συνέχεια στο app' : 'Continue to App'}
                     </button>

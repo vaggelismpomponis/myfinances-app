@@ -469,17 +469,17 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                     </div>
 
                                     {/* Divider */}
-                                    <div className="border-t border-white/10 mb-3" />
+                                    <div className="border-t border-gray-200 dark:border-white/10 mb-3" />
 
                                     {/* Bottom stats row */}
                                     <div className="grid grid-cols-2 gap-2">
-                                        <div className="bg-white/10 rounded-xl py-2.5 px-3">
-                                            <p className="text-indigo-200 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('remaining_short')}</p>
-                                            <p className="text-white font-black text-base"><Amount value={remaining} maximumFractionDigits={0} /></p>
+                                        <div className="bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl py-2.5 px-3">
+                                            <p className="text-gray-500 dark:text-gray-400 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('remaining_short')}</p>
+                                            <p className="text-gray-900 dark:text-white font-black text-base"><Amount value={remaining} maximumFractionDigits={0} /></p>
                                         </div>
-                                        <div className="bg-white/10 rounded-xl py-2.5 px-3">
-                                            <p className="text-indigo-200 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('over_budget_short')}</p>
-                                            <p className={`font-black text-base ${overCount > 0 ? 'text-red-300' : 'text-emerald-300'}`}>
+                                        <div className="bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl py-2.5 px-3">
+                                            <p className="text-gray-500 dark:text-gray-400 text-[9px] font-bold uppercase tracking-wide mb-0.5">{t('over_budget_short')}</p>
+                                            <p className={`font-black text-base ${overCount > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                                 {overCount > 0
                                                     ? <span className="flex items-center gap-1"><AlertCircle size={13} />{overCount}</span>
                                                     : '—'
@@ -531,16 +531,16 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                     const pct = b.amount > 0 ? Math.min(100, (sp / b.amount) * 100) : 0;
                                     const { icon: Icon } = CATEGORY_META[b.category] || { icon: Package };
                                     const badgeCls = pct >= 100
-                                        ? 'bg-red-500/15 text-red-500 ring-red-200 dark:ring-red-800/40'
+                                        ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20'
                                         : pct >= 80
-                                            ? 'bg-orange-500/15 text-orange-500 ring-orange-200 dark:ring-orange-800/40'
-                                            : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-emerald-200 dark:ring-emerald-800/40';
+                                            ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20'
+                                            : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20';
                                     return (
                                         <div
                                             key={b.id}
-                                            className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold ring-1 ring-inset ${badgeCls}`}
+                                            className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${badgeCls}`}
                                         >
-                                            <Icon size={11} />
+                                            <Icon size={12} className="shrink-0" />
                                             <span>{getCategoryTranslation(b.category, t)}</span>
                                             <span className="opacity-70">{pct.toFixed(0)}%</span>
                                         </div>
@@ -629,7 +629,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
             {showModal && createPortal(
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-5 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={closeModal} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-3xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-pop">
+                    <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-pop border border-gray-300 dark:border-white/10">
                         {/* Gradient top accent */}
 
 
@@ -646,7 +646,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                 </div>
                                 <button
                                     onClick={closeModal}
-                                    className="p-2 text-gray-400 dark:text-white/50 hover:text-gray-600 dark:hover:text-white/80 rounded-xl bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
+                                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
                                 >
                                     <X size={18} />
                                 </button>
@@ -662,7 +662,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             value={formCategory}
                                             onChange={(e) => setFormCategory(e.target.value)}
                                             disabled={!!editingBudget}
-                                            className={`w-full py-3.5 pr-3.5 ${formCategory ? 'pl-10' : 'pl-3.5'} bg-white dark:bg-surface-dark2 border border-slate-200/60 dark:border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white shadow-premium disabled:opacity-50 appearance-none text-sm font-medium`}
+                                            className={`w-full py-3 pr-3.5 ${formCategory ? 'pl-10' : 'pl-3.5'} bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white disabled:opacity-50 appearance-none text-sm font-medium`}
                                             required
                                         >
                                             <option value="" disabled>{t('select_category')}</option>
@@ -700,7 +700,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             placeholder="300"
                                             value={formAmount}
                                             onChange={(e) => setFormAmount(e.target.value)}
-                                            className={`w-full ${!privacyMode ? 'pl-10' : 'pl-4'} pr-4 py-3.5 bg-white dark:bg-surface-dark2 border border-slate-200/60 dark:border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-sm font-medium shadow-premium placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:font-medium`}
+                                            className={`w-full ${!privacyMode ? 'pl-10' : 'pl-4'} pr-4 py-3 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-sm font-medium placeholder:text-gray-400 dark:placeholder:text-gray-500`}
                                             required
                                             min="1"
                                         />
@@ -711,7 +711,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
                                         <label htmlFor="budget-threshold" className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">{t('alert_label')}</label>
-                                        <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-0.5 rounded-lg">
+                                        <span className="text-sm font-bold text-gray-700 dark:text-gray-200 bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] px-2.5 py-0.5 rounded-lg">
                                             {formThreshold}%
                                         </span>
                                     </div>
@@ -738,13 +738,13 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                     <button
                                         type="button"
                                         onClick={closeModal}
-                                        className="flex-1 py-3.5 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/80 font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-white/15 transition-colors active:scale-95 text-sm"
+                                        className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm"
                                     >
                                         {t('cancel')}
                                     </button>
                                     <button
                                         type="submit"
-                                        className="flex-1 py-3.5 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/25 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
+                                        className="flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
                                     >
                                         <Check size={16} />
                                         {editingBudget ? t('update') : t('save')}
@@ -761,13 +761,11 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
             {deletingBudget && createPortal(
                 <div className="fixed inset-0 z-[200] flex items-end justify-center p-5 pb-8 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setDeletingBudget(null)} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-t-[2rem] w-full max-w-sm lg:max-w-[1000px] relative z-10 shadow-2xl overflow-hidden animate-slide-up">
+                    <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-t-2xl sm:rounded-2xl w-full max-w-sm lg:max-w-[1000px] relative z-10 shadow-2xl overflow-hidden animate-slide-up border border-gray-300 dark:border-white/10">
 
                         <div className="p-6">
                             <div className="flex flex-col items-center text-center mb-6">
-                                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-3xl flex items-center justify-center text-red-500 dark:text-red-400 mb-4">
-                                    <Trash2 size={28} />
-                                </div>
+                                <Trash2 size={36} className="text-rose-500 shrink-0 mb-4" />
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('delete_budget')}</h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
                                     {t('delete_budget_confirm')}
@@ -776,13 +774,13 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setDeletingBudget(null)}
-                                    className="flex-1 py-3.5 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80 font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-white/15 transition-colors active:scale-95 text-sm"
+                                    className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm"
                                 >
                                     {t('cancel')}
                                 </button>
                                 <button
                                     onClick={confirmDelete}
-                                    className="flex-1 py-3.5 bg-red-500 hover:bg-red-600 text-white font-bold rounded-2xl shadow-lg shadow-red-500/25 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
+                                    className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
                                 >
                                     <Trash2 size={15} /> {t('delete')}
                                 </button>

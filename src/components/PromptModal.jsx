@@ -99,7 +99,7 @@ const PromptModal = ({
                         )}
                     </div>
                     <button type="submit" disabled={isLoading}
-                            className="w-full py-3.5 rounded-xl font-bold text-sm text-white
+                            className="w-full py-2.5 rounded-xl font-bold text-sm text-white
                                        bg-gray-950 text-white dark:bg-white dark:text-gray-950 hover:bg-gray-900 dark:hover:bg-gray-100 shadow-sm
                                        active:scale-[0.98] disabled:opacity-60
                                        transition-all duration-200">

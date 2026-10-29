@@ -23,11 +23,9 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
             />
 
             {/* Modal */}
-            <div className="bg-white dark:bg-surface-dark2 rounded-2xl shadow-2xl w-full max-w-sm relative z-10 overflow-hidden animate-scale-in border border-gray-100">
+            <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl shadow-2xl w-full max-w-sm relative z-10 overflow-hidden animate-scale-in border border-gray-300 dark:border-white/10">
                 <div className="p-6 text-center">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isDanger ? 'bg-red-50 dark:bg-red-900/20 text-red-500' : 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500'}`}>
-                        {isDanger ? <AlertTriangle size={32} /> : <CheckCircle2 size={32} />}
-                    </div>
+                    <div className="flex justify-center mb-4">{isDanger ? <AlertTriangle size={36} className="text-rose-500 shrink-0" /> : <CheckCircle2 size={36} className="text-emerald-500 shrink-0" />}</div>
 
                     <h3 id="confirm-modal-title" className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                         {title}
@@ -39,7 +37,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
                     <div className="flex gap-3">
                         <button
                             onClick={onClose}
-                            className="flex-1 py-3 px-4 bg-gray-100 dark:bg-white text-gray-700 dark:text-black rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-gray-100 transition-colors"
+                            className="flex-1 py-2.5 px-4 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] rounded-xl font-bold transition-all active:scale-95 text-sm"
                         >
                             {t('cancel')}
                         </button>
@@ -48,9 +46,9 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
                                 onConfirm();
                                 onClose();
                             }}
-                            className={`flex-1 py-3 px-4 text-white rounded-xl font-bold shadow-lg transition-transform active:scale-95 ${isDanger
-                                ? 'bg-red-500 hover:bg-red-600 shadow-red-200 dark:shadow-none'
-                                : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200 dark:shadow-none'
+                            className={`flex-1 py-2.5 px-4 font-bold rounded-xl shadow-sm transition-all active:scale-95 text-sm ${isDanger
+                                ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                                : 'bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900'
                                 }`}
                         >
                             {resolvedConfirmText}

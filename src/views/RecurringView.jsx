@@ -44,12 +44,7 @@ const Field = ({ label, ...props }) => {
             <input
                 id={id}
                 {...props}
-                className="w-full p-3.5 bg-white dark:bg-white/5
-                           border border-slate-200/60 dark:border-transparent
-                           rounded-2xl text-sm font-medium text-gray-900 dark:text-white
-                           placeholder:text-gray-400 dark:placeholder:text-gray-500
-                           focus:outline-none focus:ring-2 focus:ring-violet-500
-                           dark:focus:ring-violet-400 transition-all shadow-premium placeholder:font-medium"
+                className="w-full py-3 px-3.5 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
             />
         </div>
     );
@@ -429,7 +424,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
             {showModal && createPortal(
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-5 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={closeModal} />
-                    <div className="bg-white dark:bg-surface-dark3 rounded-3xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-pop">
+                    <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-pop border border-gray-300 dark:border-white/10">
 
                         {/* Accent stripe */}
 
@@ -447,7 +442,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                 </div>
                                 <button
                                     onClick={closeModal}
-                                    className="p-2 text-gray-400 dark:text-black rounded-xl bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 transition-colors"
+                                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
                                 >
                                     <X size={18} />
                                 </button>
@@ -481,12 +476,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                             step="0.01"
                                             min="0"
                                             required
-                                            className="w-full pl-10 pr-4 p-3.5 bg-white dark:bg-white/5
-                                                       border border-slate-200/60 dark:border-transparent
-                                                       rounded-2xl text-sm font-medium text-gray-900 dark:text-white
-                                                       placeholder:text-gray-400 dark:placeholder:text-gray-600
-                                                       focus:outline-none focus:ring-2 focus:ring-violet-500
-                                                       dark:focus:ring-violet-400 transition-all shadow-premium placeholder:font-medium"
+                                            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
                                         />
                                     </div>
                                 </div>
@@ -541,19 +531,13 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                     <button
                                         type="button"
                                         onClick={closeModal}
-                                        className="flex-1 py-3.5 bg-gray-100 dark:bg-white
-                                                   text-gray-600 dark:text-black font-bold
-                                                   rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-100
-                                                   transition-colors active:scale-95 text-sm"
+                                        className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm"
                                     >
                                         {translate('cancel') || 'Cancel'}
                                     </button>
                                     <button
                                         type="submit"
-                                        className="flex-1 py-3.5 bg-violet-600 text-white font-bold
-                                                   rounded-2xl shadow-lg shadow-violet-500/25
-                                                   hover:bg-violet-700 transition-all active:scale-95
-                                                   flex items-center justify-center gap-2 text-sm"
+                                        className="flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
                                     >
                                         <Check size={16} />
                                         {editingRule ? (translate('update') || 'Update') : (translate('save') || 'Save')}

@@ -463,16 +463,12 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                 <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDeleteModal(false)} />
                     <div className="relative z-10 w-full max-w-sm mx-4 mb-4 sm:mb-0
-                                    bg-white dark:bg-surface-dark2 rounded-3xl p-6
-                                    shadow-2xl border border-gray-100 dark:border-white/10
+                                    bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl p-6
+                                    shadow-2xl border border-gray-300 dark:border-white/10
                                     animate-slide-up">
                         {/* Icon */}
                         <div className="flex flex-col items-center mb-6 text-center">
-                            <div className="w-16 h-16 bg-rose-100 dark:bg-rose-500/15 rounded-2xl
-                                            flex items-center justify-center mb-4
-                                            shadow-[0_0_24px_rgba(239,68,68,0.15)]">
-                                <AlertTriangle size={28} className="text-rose-500" strokeWidth={1.8} />
-                            </div>
+                            <AlertTriangle size={36} className="text-rose-500 shrink-0 mb-4" strokeWidth={1.8} />
                             <h3 className="text-[18px] font-bold text-gray-900 dark:text-white mb-2">
                                 {translate('delete_account') || 'Delete Account'}
                             </h3>
@@ -513,9 +509,9 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                 <button
                                     type="submit"
                                     disabled={isDeleting}
-                                    className="flex-1 py-3.5 bg-rose-600 hover:bg-rose-700
+                                    className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700
                                                text-white font-bold rounded-xl
-                                               shadow-[0_4px_16px_rgba(239,68,68,0.35)]
+                                               shadow-sm
                                                active:scale-95 transition-all disabled:opacity-50 text-[14px] cursor-pointer"
                                 >
                                     {isDeleting ? (

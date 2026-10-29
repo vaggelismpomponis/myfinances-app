@@ -93,8 +93,8 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
         ? 'text-rose-600 dark:text-rose-400'
         : 'text-emerald-600 dark:text-emerald-400';
     const amountBg = isExpense
-        ? 'bg-rose-50 dark:bg-rose-900/25 border-rose-200/60 dark:border-rose-700/40'
-        : 'bg-emerald-50 dark:bg-emerald-900/25 border-emerald-200/60 dark:border-emerald-700/40';
+        ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20'
+        : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20';
 
     return (
         <motion.div
@@ -281,9 +281,9 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                         transition={{ type: "spring", damping: 24, stiffness: 280 }}
                         className="pointer-events-auto relative z-10 w-full max-w-sm
                                    lg:fixed lg:top-[72px] lg:right-6 lg:left-auto lg:z-[105]
-                                   bg-white dark:bg-surface-dark3
-                                   rounded-[1.75rem] shadow-2xl shadow-black/20
-                                   border border-gray-100 dark:border-white/[0.07]
+                                   bg-gray-100/95 dark:bg-surface-dark2
+                                   rounded-2xl shadow-2xl
+                                   border border-gray-300 dark:border-white/10
                                    overflow-hidden flex flex-col"
                         style={{ maxHeight: "70vh" }}
                     >

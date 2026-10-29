@@ -34,11 +34,10 @@ const RegretCheckinModal = ({ isOpen, onClose, transactionId }) => {
                     animate={{ y: 0 }}
                     exit={{ y: '100%' }}
                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                    className="relative w-full max-w-sm bg-white dark:bg-surface-dark3 rounded-[2rem] p-6 shadow-2xl border border-gray-100 dark:border-white/[0.05] overflow-hidden"
+                    className="relative w-full max-w-sm bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl p-6 shadow-2xl border border-gray-300 dark:border-white/10 overflow-hidden"
                 >
                     {/* Background Glow */}
-                    <div className="absolute -top-24 -left-12 w-48 h-48 bg-rose-500/10 dark:bg-rose-500/20 blur-[60px] rounded-full pointer-events-none" />
-                    <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-orange-500/10 dark:bg-orange-500/20 blur-[60px] rounded-full pointer-events-none" />
+                    
 
                     {/* Header */}
                     <div className="flex justify-between items-center mb-6 relative z-10">
@@ -63,7 +62,7 @@ const RegretCheckinModal = ({ isOpen, onClose, transactionId }) => {
                         <motion.button
                             whileTap={{ scale: 0.96 }}
                             onClick={() => handleRate('worth_it')}
-                            className="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-400 to-rose-400 text-white font-black text-lg tracking-wide shadow-[0_4px_14px_rgba(251,113,133,0.4)] flex items-center justify-center gap-2"
+                            className="w-full py-3 rounded-xl bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold text-sm shadow-sm flex items-center justify-center gap-2"
                         >
                             <Flame size={20} />
                             WORTH IT
@@ -72,7 +71,7 @@ const RegretCheckinModal = ({ isOpen, onClose, transactionId }) => {
                         <motion.button
                             whileTap={{ scale: 0.96 }}
                             onClick={() => handleRate('regret')}
-                            className="w-full py-4 rounded-2xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-bold text-lg tracking-wide border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+                            className="w-full py-3 rounded-xl bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold text-sm transition-all flex items-center justify-center gap-2"
                         >
                             <ThumbsDown size={20} />
                             REGRET IT

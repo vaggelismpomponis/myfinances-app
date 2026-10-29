@@ -518,11 +518,9 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
             {deleteTarget && (
                 <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !isDeleting && setDeleteTarget(null)} />
-                    <div className="relative z-10 w-full max-w-md bg-white dark:bg-surface-dark2 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-5 border border-gray-100 dark:border-white/10 m-0 sm:m-4">
+                    <div className="relative z-10 w-full max-w-md bg-gray-100/95 dark:bg-surface-dark2 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl space-y-5 border border-gray-300 dark:border-white/10 m-0 sm:m-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-2xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 flex items-center justify-center shrink-0">
-                                <Trash2 size={20} strokeWidth={2.3} />
-                            </div>
+                            <Trash2 size={24} className="text-rose-600 dark:text-rose-400 shrink-0" strokeWidth={2.3} />
                             <div>
                                 <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight">
                                     {translate('delete_category') || 'Διαγραφή Κατηγορίας'}

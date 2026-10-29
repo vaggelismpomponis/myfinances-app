@@ -735,7 +735,7 @@ const LoginView = ({
                             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
                             className="relative z-10 w-full max-w-md
                                      bg-[#161424] text-white
-                                     rounded-t-[32px] sm:rounded-[32px] p-6 sm:p-7
+                                     rounded-t-2xl sm:rounded-2xl p-6 sm:p-7
                                      border-t sm:border border-white/10
                                      shadow-2xl"
                         >
@@ -744,9 +744,7 @@ const LoginView = ({
 
                             <div className="flex justify-between items-center mb-4">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="w-9 h-9 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400">
-                                        <KeyRound size={18} />
-                                    </div>
+                                    <KeyRound size={20} className="text-violet-400 shrink-0" />
                                     <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
                                         {t('reset_password') || 'Επαναφορά Κωδικού'}
                                     </h3>
@@ -762,9 +760,7 @@ const LoginView = ({
 
                             {resetStatus.success ? (
                                 <div className="text-center py-6 space-y-2">
-                                    <div className="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 mb-3 shadow-[0_0_20px_rgba(16,185,129,0.25)]">
-                                        <Check size={28} />
-                                    </div>
+                                    <Check size={32} className="text-emerald-400 mx-auto mb-3" />
                                     <p className="font-bold text-white text-base">
                                         {t('email_sent_title') || 'Στάλθηκε!'}
                                     </p>
