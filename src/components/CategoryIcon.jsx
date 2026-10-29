@@ -198,6 +198,41 @@ export const CATEGORY_ACCENT = {
     'μαθηματα':          '#6366f1',
     'κηπουρική':         '#22c55e',
     'κηπουρικη':         '#22c55e',
+    // English equivalents
+    'coffee':            '#f59e0b',
+    'supermarket':       '#ec4899',
+    'home':              '#8b5cf6',
+    'car':               '#3b82f6',
+    'receipt':           '#8b5cf6',
+    'gas':               '#ef4444',
+    'investments':       '#10b981',
+    'other_income':      '#9ca3af',
+    'cigarettes':        '#78716c',
+    'haircut':           '#a78bfa',
+    'gym':               '#f97316',
+    'fitness':           '#f97316',
+    'pharmacy':          '#0ea5e9',
+    'travel':            '#0ea5e9',
+    'vacation':          '#0ea5e9',
+    'pets':              '#f59e0b',
+    'subscriptions':     '#06b6d4',
+    'clothes':           '#ec4899',
+    'clothing':          '#ec4899',
+    'baby':              '#fb923c',
+    'repairs':           '#78716c',
+    'maintenance':       '#78716c',
+    'technology':        '#6366f1',
+    'flowers':           '#f43f5e',
+    'gifts':             '#ec4899',
+    'furniture':         '#8b5cf6',
+    'rent':              '#8b5cf6',
+    'restaurant':        '#f59e0b',
+    'bus':               '#3b82f6',
+    'train':             '#3b82f6',
+    'bicycle':           '#22c55e',
+    'loan':              '#f43f5e',
+    'insurance':         '#10b981',
+    'tax':               '#9ca3af',
 };
 
 export const CATEGORY_ICONS = {
@@ -402,14 +437,31 @@ const getFuzzyIcon = (key) => {
     return null;
 };
 
-const CategoryIcon = ({ category, type, size = 20, className = "" }) => {
-    const key = category?.trim()?.toLowerCase() || '';
-    const IconComponent = CATEGORY_ICONS[key] || getFuzzyIcon(key) || MoreHorizontal;
-    const accentHex = CATEGORY_ACCENT[key] || (type === 'income' ? '#10b981' : '#f43f5e');
+export const getCategoryIcon = (category) => {
+    if (!category || typeof category !== 'string') return MoreHorizontal;
+    const key = category.trim().toLowerCase();
+    return CATEGORY_ICONS[key] || getFuzzyIcon(key) || MoreHorizontal;
+};
+
+export const getCategoryAccent = (category, type = 'expense') => {
+    if (!category || typeof category !== 'string') return type === 'income' ? '#10b981' : '#f43f5e';
+    const key = category.trim().toLowerCase();
+    if (CATEGORY_ACCENT[key]) return CATEGORY_ACCENT[key];
+    const keywords = Object.keys(CATEGORY_ACCENT);
+    const prefixMatch = keywords.find(k => k.length >= 4 && key.startsWith(k));
+    if (prefixMatch) return CATEGORY_ACCENT[prefixMatch];
+    const subMatch = keywords.find(k => k.length >= 4 && key.includes(k));
+    if (subMatch) return CATEGORY_ACCENT[subMatch];
+    return type === 'income' ? '#10b981' : '#f43f5e';
+};
+
+const CategoryIcon = ({ category, type, size = 20, className = "", color, style = {} }) => {
+    const IconComponent = getCategoryIcon(category);
+    const accentHex = color || getCategoryAccent(category, type);
 
     return (
         <div className={`flex items-center justify-center shrink-0 ${className}`}>
-            <IconComponent size={size} className="shrink-0" style={{ color: accentHex }} />
+            <IconComponent size={size} className="shrink-0" style={{ color: accentHex, ...style }} />
         </div>
     );
 };

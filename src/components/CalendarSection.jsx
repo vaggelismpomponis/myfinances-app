@@ -397,9 +397,12 @@ const CalendarSection = ({
                                                     return (
                                                         <div key={cat.name} className="space-y-1">
                                                             <div className="flex justify-between items-baseline text-xs font-bold text-gray-700 dark:text-gray-300">
-                                                                <span className="capitalize">
-                                                                    {getCategoryTranslation(cat.name, t)}
-                                                                </span>
+                                                                <div className="flex items-center gap-1.5 min-w-0">
+                                                                    <CategoryIcon category={cat.name} type="expense" size={14} className="shrink-0" />
+                                                                    <span className="capitalize truncate">
+                                                                        {getCategoryTranslation(cat.name, t)}
+                                                                    </span>
+                                                                </div>
                                                                 <span>
                                                                     <Amount value={cat.value} /> ({pct.toFixed(0)}%)
                                                                 </span>

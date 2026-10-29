@@ -845,7 +845,7 @@ const StatsView = ({ transactions }) => {
                                                         hover:border-violet-200 dark:hover:border-violet-500/30 transition-colors group">
                                             <div className="flex items-center gap-3.5 min-w-0">
                                                 <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-white/5 shadow-sm group-hover:scale-105 transition-transform shrink-0">
-                                                    <ArrowDownLeft size={16} className="text-rose-500" />
+                                                    <CategoryIcon category={tx.category} type="expense" size={20} />
                                                 </div>
                                                 <div className="min-w-0">
                                                     <p className="font-bold text-sm text-gray-800 dark:text-white capitalize truncate">

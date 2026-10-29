@@ -11,7 +11,7 @@ import BulkScannerModal from './BulkScannerModal';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import ProBadge from '../components/ProBadge';
-import { CATEGORY_ACCENT, CATEGORY_ICONS } from '../components/CategoryIcon';
+import { CATEGORY_ACCENT, CATEGORY_ICONS, getCategoryIcon, getCategoryAccent } from '../components/CategoryIcon';
 import logger from '../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
 import useIsDesktop from '../hooks/useIsDesktop';
@@ -359,11 +359,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
     // Category icon mapping — use centralized map from CategoryIcon.jsx
     const categoryIcons = new Proxy({}, {
-        get: (_, cat) => {
-            if (typeof cat !== 'string') return MoreHorizontal;
-            const key = cat.trim().toLowerCase();
-            return CATEGORY_ICONS[key] || MoreHorizontal;
-        }
+        get: (_, cat) => getCategoryIcon(cat)
     });
 
     // Numpad handler
@@ -637,8 +633,8 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 group"
                         >
                             {category ? (() => {
-                                const Icon = categoryIcons[category] || MoreHorizontal;
-                                const accentHex = CATEGORY_ACCENT[category.toLowerCase()] || (type === 'income' ? '#10b981' : '#f43f5e');
+                                const Icon = getCategoryIcon(category);
+                                const accentHex = getCategoryAccent(category, type);
                                 return (
                                     <>
                                         <Icon size={20} className="shrink-0" style={{ color: accentHex }} />
@@ -728,9 +724,9 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                         {categories
                                             .filter(cat => !categorySearch || getCategoryTranslation(cat, t).toLowerCase().includes(categorySearch.toLowerCase()) || cat.toLowerCase().includes(categorySearch.toLowerCase()))
                                             .map(cat => {
-                                                const Icon = categoryIcons[cat] || MoreHorizontal;
+                                                const Icon = getCategoryIcon(cat);
                                                 const isSelected = category === cat;
-                                                const accentHex = CATEGORY_ACCENT[cat.toLowerCase()] || (type === 'income' ? '#10b981' : '#f43f5e');
+                                                const accentHex = getCategoryAccent(cat, type);
                                                 return (
                                                     <motion.button
                                                         whileTap={{ scale: 0.93 }}

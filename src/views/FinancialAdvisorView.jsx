@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSettings } from '../contexts/SettingsContext';
 import useIsDesktop from '../hooks/useIsDesktop';
 import Amount from '../components/Amount';
+import CategoryIcon, { getCategoryIcon } from '../components/CategoryIcon';
 
 /* ──────────────────────────────────────────────────────────
    CATEGORY → 50-30-20 BUCKET MAP
@@ -282,9 +283,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
             });
         }
         if (stats.topCat) {
+            const TopCatIcon = getCategoryIcon(stats.topCat[0]);
             list.push({
                 id: 'top_cat',
-                icon: PieIcon,
+                icon: TopCatIcon,
                 badge: t('insight_badge_top_cat') || 'Top Expense',
                 timeframe: t('insight_timeframe_month') || 'This Month',
                 text: t('insight_top_category').replace('{category}', stats.topCat[0]),
@@ -996,9 +998,12 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                 <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                                                     {t('monthly_best_category')}
                                                 </p>
-                                                <p className="text-sm font-black text-gray-900 dark:text-white mt-1 capitalize truncate">
-                                                    {monthlyProgress.bestCat}
-                                                </p>
+                                                <div className="flex items-center gap-2 mt-1 min-w-0">
+                                                    <CategoryIcon category={monthlyProgress.bestCat} type="expense" size={18} className="shrink-0" />
+                                                    <p className="text-sm font-black text-gray-900 dark:text-white capitalize truncate">
+                                                        {getCategoryTranslation(monthlyProgress.bestCat, t)}
+                                                    </p>
+                                                </div>
                                                 <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
                                                     ↓ {t('monthly_improved')}
                                                 </p>
@@ -1009,9 +1014,12 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                 <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
                                                     {t('monthly_watch_out')}
                                                 </p>
-                                                <p className="text-sm font-black text-gray-900 dark:text-white mt-1 capitalize truncate">
-                                                    {monthlyProgress.worstCat}
-                                                </p>
+                                                <div className="flex items-center gap-2 mt-1 min-w-0">
+                                                    <CategoryIcon category={monthlyProgress.worstCat} type="expense" size={18} className="shrink-0" />
+                                                    <p className="text-sm font-black text-gray-900 dark:text-white capitalize truncate">
+                                                        {getCategoryTranslation(monthlyProgress.worstCat, t)}
+                                                    </p>
+                                                </div>
                                                 <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-0.5">
                                                     ↑ {t('monthly_increased')}
                                                 </p>

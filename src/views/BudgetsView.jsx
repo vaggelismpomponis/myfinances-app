@@ -3,9 +3,9 @@ import { createPortal } from 'react-dom';
 import {
     Plus, Trash2, AlertCircle, Bell, Pencil,
     Check, X, ArrowLeft, Target, Wallet, ChevronRight, ChevronDown, ChevronUp,
-    ShoppingCart, Utensils, Coffee, Home as HomeIcon, Receipt, Martini, Shapes, Package,
-    TrendingUp, TrendingDown, ShieldCheck, Lightbulb, Flame, Fuel, HeartPulse
+    Shapes, TrendingUp, TrendingDown, ShieldCheck, Lightbulb, Flame
 } from 'lucide-react';
+import CategoryIcon, { getCategoryIcon } from '../components/CategoryIcon';
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
 import { getCategoryTranslation } from '../utils/categoryTranslations';
@@ -15,17 +15,7 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 // These MUST match the categories in AddModal.jsx exactly
 const EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Βενζίνη', 'Υγεία', 'Άλλο'];
 
-const CATEGORY_META = {
-    'Σούπερ Μάρκετ': { icon: ShoppingCart, color: 'from-green-500 to-emerald-600', solid: '#10b981' },
-    'Φαγητό':        { icon: Utensils,     color: 'from-orange-500 to-amber-600',  solid: '#f97316' },
-    'Καφές':         { icon: Coffee,       color: 'from-amber-600 to-yellow-700',  solid: '#d97706' },
-    'Σπίτι':         { icon: HomeIcon,     color: 'from-blue-500 to-indigo-600',   solid: '#6366f1' },
-    'Λογαριασμοί':   { icon: Receipt,      color: 'from-yellow-500 to-orange-500', solid: '#eab308' },
-    'Διασκέδαση':    { icon: Martini,      color: 'from-purple-500 to-violet-600', solid: '#8b5cf6' },
-    'Βενζίνη':       { icon: Fuel,         color: 'from-red-500 to-rose-600',      solid: '#ef4444' },
-    'Υγεία':         { icon: HeartPulse,   color: 'from-sky-400 to-blue-500',      solid: '#0ea5e9' },
-    'Άλλο':          { icon: Shapes,       color: 'from-gray-500 to-slate-600',    solid: '#6b7280' },
-};
+
 
 /* ──────────────────────────────────────────────────────────
    CIRCULAR GAUGE (SVG)
@@ -63,9 +53,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
     const isOver = spent > budget.amount;
     const isWarn = pct >= (budget.notification_threshold || 80) && !isOver;
     const leftover = Math.max(0, budget.amount - spent);
-    const meta = CATEGORY_META[budget.category] || { icon: Package, color: 'from-gray-500 to-slate-600', solid: '#6b7280' };
-    const Icon = meta.icon;
-
+    
     // Projected end-of-month spend
     const now = new Date();
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
@@ -90,7 +78,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                 className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors active:scale-[0.99]"
             >
                 {/* Icon */}
-                <Icon size={24} style={{ color: meta.solid }} className="shrink-0" />
+                <CategoryIcon category={budget.category} type="expense" size={24} className="shrink-0" />
 
                 {/* Name + progress bar */}
                 <div className="flex-1 min-w-0">
@@ -529,7 +517,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                 {budgets.map(b => {
                                     const sp = calculateSpent(b.category);
                                     const pct = b.amount > 0 ? Math.min(100, (sp / b.amount) * 100) : 0;
-                                    const { icon: Icon } = CATEGORY_META[b.category] || { icon: Package };
+                                    const Icon = getCategoryIcon(b.category);
                                     const badgeCls = pct >= 100
                                         ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20'
                                         : pct >= 80
@@ -672,9 +660,9 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                                 </option>
                                             ))}
                                         </select>
-                                        {formCategory && CATEGORY_META[formCategory] && (
-                                            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                                                {React.createElement(CATEGORY_META[formCategory].icon, { size: 18 })}
+                                        {formCategory && (
+                                            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                <CategoryIcon category={formCategory} type="expense" size={18} />
                                             </div>
                                         )}
                                     </div>

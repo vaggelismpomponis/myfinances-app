@@ -50,9 +50,7 @@ const BudgetMiniBar = ({ budget, transactions }) => {
                 <div className="flex items-center gap-2">
                     <CategoryIcon category={budget.category} type="expense" size={18} className="shrink-0" />
                     <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 capitalize">
-                        {t('cat_' + budget.category?.toLowerCase()) === 'cat_' + budget.category?.toLowerCase()
-                            ? budget.category
-                            : t('cat_' + budget.category?.toLowerCase())}
+                        {getCategoryTranslation(budget.category, t)}
                     </span>
                 </div>
                 <span className={`text-[10px] font-black ${isDanger ? 'text-rose-500' : isWarning ? 'text-amber-500' : 'text-gray-400 dark:text-gray-500'}`}>

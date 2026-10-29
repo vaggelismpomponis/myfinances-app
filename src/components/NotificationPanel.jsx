@@ -4,6 +4,7 @@ import { Bell, X, CheckCheck, Trash2, Plus, Pencil, Minus, Info } from "lucide-r
 import { useNotifications } from "../contexts/NotificationContext";
 import { useSettings } from "../contexts/SettingsContext";
 import { getCategoryTranslation } from '../utils/categoryTranslations';
+import CategoryIcon from './CategoryIcon';
 
 const TYPE_CONFIG = {
     add:    { icon: Plus,   bg: "bg-emerald-100 dark:bg-emerald-900/40",  color: "text-emerald-600 dark:text-emerald-400" },
@@ -196,7 +197,8 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
                             {meta.category && (
                                 <span className="text-[11px] font-medium px-2 py-0.5 rounded-md
                                                 bg-gray-100 dark:bg-white/[0.08]
-                                                text-gray-600 dark:text-gray-300">
+                                                text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
+                                    <CategoryIcon category={meta.category} size={13} className="shrink-0" />
                                     {getCategoryTranslation(meta.category, t)}
                                 </span>
                             )}

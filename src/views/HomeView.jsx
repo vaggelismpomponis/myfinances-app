@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 import Amount from '../components/Amount';
-import CategoryIcon, { CATEGORY_ACCENT } from '../components/CategoryIcon';
+import CategoryIcon, { CATEGORY_ACCENT, getCategoryAccent } from '../components/CategoryIcon';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -468,7 +468,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 category,
                 amount,
                 percentage: totalMonthSpent > 0 ? Math.round((amount / totalMonthSpent) * 100) : 0,
-                accent: CATEGORY_ACCENT[category.toLowerCase()] || '#8b5cf6'
+                accent: getCategoryAccent(category, 'expense')
             }))
             .sort((a, b) => b.amount - a.amount);
 
