@@ -110,33 +110,29 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
                 transition: { duration: 0.22, ease: "easeInOut" }
             }}
             transition={{ delay: idx * 0.03 }}
-            className="relative overflow-hidden rounded-2xl mb-1.5 select-none bg-transparent"
+            className="relative overflow-hidden rounded-xl mb-1.5 select-none bg-rose-600 dark:bg-rose-700"
         >
-            {/* Delete Action (Revealed on Swipe Left only) */}
-            <motion.div
-                style={{ opacity: deleteOpacity }}
-                className="absolute inset-y-0 right-0 w-28 bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 rounded-r-2xl flex items-center justify-end z-0 transition-colors"
-            >
+            {/* Delete Action (Revealed on Swipe Left) */}
+            <div className="absolute inset-y-0 right-0 w-[72px] flex items-center justify-center z-0">
                 <button
                     type="button"
+                    style={{ opacity: deleteOpacity }}
                     onClick={(e) => {
                         e.stopPropagation();
                         onDelete(notif.id);
                     }}
-                    className={`w-[72px] h-full flex flex-col items-center justify-center gap-1 text-white active:scale-90 transition-transform ${
+                    className={`w-full h-full flex flex-col items-center justify-center gap-1 text-white active:scale-90 transition-transform ${
                         isOpen ? "pointer-events-auto" : "pointer-events-none"
                     }`}
                     aria-label={t("delete") || "Διαγραφή"}
                     title={t("delete") || "Διαγραφή"}
                 >
-                    <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shadow-sm">
-                        <Trash2 size={16} className="text-white stroke-[2.2]" />
-                    </div>
+                    <Trash2 size={18} className="text-white stroke-[2.2]" />
                     <span className="text-[10px] font-bold text-white tracking-tight">
                         {t("delete") || "Διαγραφή"}
                     </span>
                 </button>
-            </motion.div>
+            </div>
 
             {/* Foreground Swipeable Card */}
             <motion.div
@@ -144,16 +140,17 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
                 drag="x"
                 dragDirectionLock
                 dragConstraints={{ left: -72, right: 0 }}
-                dragElastic={{ left: 0.12, right: 0 }}
+                dragElastic={{ left: 0.08, right: 0 }}
                 animate={controls}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
                 onClick={handleCardClick}
-                className={`relative z-10 flex items-start gap-3 px-3 py-3 rounded-2xl
+                className={`relative z-10 w-full flex items-start gap-3 px-3 py-3
                             touch-pan-y cursor-grab active:cursor-grabbing
-                            border border-black/[0.04] dark:border-white/[0.06]
                             transition-colors duration-150
-                            ${!notif.read ? "bg-gray-100/90 dark:bg-surface-dark2 border-gray-300/80 dark:border-white/10" : "bg-transparent border-gray-200/60 dark:border-white/[0.05] hover:bg-gray-100/50 dark:hover:bg-white/[0.03]"
+                            ${!notif.read
+                                ? "bg-white dark:bg-surface-dark3 border border-gray-200/90 dark:border-white/10 shadow-xs"
+                                : "bg-gray-50 dark:bg-surface-dark2 border border-gray-200/60 dark:border-white/[0.06] hover:bg-gray-100/80 dark:hover:bg-white/[0.03]"
                             }`}
             >
                 {/* Icon */}
@@ -330,7 +327,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
 
                         {/* List */}
                         <div
-                            className="overflow-y-auto"
+                            className="overflow-y-auto custom-scrollbar"
                             style={{ maxHeight: "calc(70vh - 68px)" }}
                             onClick={() => {
                                 if (swipedId) setSwipedId(null);
