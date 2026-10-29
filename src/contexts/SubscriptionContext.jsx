@@ -141,13 +141,7 @@ export const SubscriptionProvider = ({ user, children }) => {
 
   const openUpgradeModal = (featureKey) => {
     setUpgradeFeatureKey(featureKey);
-    if (upgradeNavigatorRef.current) {
-      // Navigate to the upgrade page instead of opening a modal
-      upgradeNavigatorRef.current(featureKey);
-    } else {
-      // Fallback: legacy modal behaviour
-      setIsUpgradeModalOpen(true);
-    }
+    setIsUpgradeModalOpen(true);
   };
 
   const closeUpgradeModal = () => {

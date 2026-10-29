@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { X, Check, ShieldCheck, Crown, ArrowLeft, Star } from 'lucide-react';
+import {
+    X, Check, ShieldCheck, CheckCircle2,
+    Infinity, Bell, TrendingUp, ScanLine, Tags,
+    Fingerprint, Download, Headphones, Repeat
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -7,65 +11,69 @@ import { supabase } from '../supabase';
 import { isNative } from '../utils/platform';
 import { Browser } from '@capacitor/browser';
 
-const YEARLY_SAVINGS_PERCENT = 16;
 const MONTHLY_PRICE = 2.99;
-const YEARLY_PRICE  = 29.99;
+const YEARLY_PRICE = 29.99;
+const YEARLY_SAVINGS_PERCENT = 16;
 const YEARLY_PER_MO = (YEARLY_PRICE / 12).toFixed(2);
 
+const getFeatures = (t) => [
+    {
+        icon: Infinity,
+        title: t('pro_feature_1') || 'Απεριόριστα budgets & στόχοι',
+        desc: t('pro_feature_1_desc') || 'Χωρίς όρια στις κατηγορίες και τους στόχους σου',
+    },
+    {
+        icon: Bell,
+        title: t('pro_feature_bank_sms') || t('auto_bank_sms') || 'Αυτόματη καταγραφή SMS & Τραπεζών',
+        desc: t('pro_feature_bank_sms_desc') || t('auto_bank_sms_desc') || 'Google Pay, Revolut, Winbank, Alpha κ.α.',
+    },
+    {
+        icon: TrendingUp,
+        title: t('pro_feature_2') || 'Πλήρης ανάλυση & ετήσιες τάσεις',
+        desc: t('pro_feature_2_desc') || 'Λεπτομερή γραφήματα και τάσεις ανά έτος',
+    },
+    {
+        icon: ScanLine,
+        title: t('pro_feature_3') || 'Μαζική σάρωση αποδείξεων (AI)',
+        desc: t('pro_feature_3_desc') || 'Σκάναρε πολλές αποδείξεις με AI αυτόματα',
+    },
+    {
+        icon: Tags,
+        title: t('pro_feature_4') || 'Προσαρμοσμένες κατηγορίες',
+        desc: t('pro_feature_4_desc') || 'Δημιούργησε τις δικές σου κατηγορίες',
+    },
+    {
+        icon: Fingerprint,
+        title: t('pro_feature_5') || 'Βιομετρικό κλείδωμα',
+        desc: t('pro_feature_5_desc') || 'Face ID & Touch ID για πλήρη ασφάλεια',
+    },
+    {
+        icon: Download,
+        title: t('pro_feature_6') || 'Εξαγωγή δεδομένων (CSV/JSON)',
+        desc: t('pro_feature_6_desc') || 'Κατέβασε CSV / JSON για Excel ή λογιστή',
+    },
+    {
+        icon: Headphones,
+        title: t('pro_feature_7') || 'Priority υποστήριξη',
+        desc: t('pro_feature_7_desc') || 'Άμεση βοήθεια μέσω email',
+    },
+    {
+        icon: Repeat,
+        title: t('pro_feature_8') || 'Επαναλαμβανόμενες Συναλλαγές',
+        desc: t('pro_feature_8_desc') || 'Αυτόματη καταχώρηση πάγιων εξόδων',
+    },
+];
+
 const UpgradeModal = () => {
-    const { t, theme } = useSettings();
+    const { t } = useSettings();
     const { isUpgradeModalOpen, closeUpgradeModal } = useSubscription();
-    const [billing, setBilling]     = useState('monthly');
-    const [loadingPlan, setLoading] = useState(null);
+    const [billing, setBilling] = useState('yearly');
+    const [loading, setLoading] = useState(false);
 
-    const dk = theme === 'dark';
-
-    const tok = {
-        sheetBg   : dk ? '#111118' : '#f3f4f6',
-        cardFree  : dk ? '#1c1c26' : '#e5e7eb',
-        cardPro   : dk ? '#1c1c26' : '#ffffff',
-        cardBorder: dk ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.12)',
-        drag      : dk ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.13)',
-        closeBg   : dk ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)',
-        closeIco  : dk ? 'rgba(255,255,255,0.4)'  : 'rgba(0,0,0,0.35)',
-        toggleBg  : dk ? 'rgba(255,255,255,0.05)' : '#f0ebff',
-        toggleBdr : dk ? 'rgba(255,255,255,0.08)' : 'rgba(124,58,237,0.2)',
-        txtH      : dk ? '#f0f0f0'                : '#0d0d0d',
-        txtB      : dk ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
-        txtD      : dk ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.3)',
-        divider   : dk ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-        badgeBg   : dk ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
-        badgeTxt  : dk ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)',
-        backHov   : dk ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
-    };
-
-    const freeFeatures = [
-        t('free_feature_1', 'Μέχρι 3 ενεργά budgets'),
-        t('free_feature_2', 'Μέχρι 2 ενεργούς στόχους'),
-        t('free_feature_3', 'Βασική ανάλυση (μήνας)'),
-        t('free_feature_4', 'Απλή σάρωση αποδείξεων'),
-        t('free_feature_5', 'PIN κλείδωμα εφαρμογής'),
-    ];
-
-    const proFeatures = [
-        t('pro_feature_1', 'Απεριόριστα budgets & στόχοι'),
-        t('pro_feature_2', 'Πλήρης ανάλυση & ετήσιες τάσεις'),
-        t('pro_feature_3', 'Μαζική σάρωση αποδείξεων (AI)'),
-        t('pro_feature_4', 'Προσαρμοσμένες κατηγορίες'),
-        t('pro_feature_5', 'Βιομετρικό κλείδωμα'),
-        t('pro_feature_6', 'Εξαγωγή δεδομένων (CSV/JSON)'),
-        t('pro_feature_7', 'Priority υποστήριξη'),
-        t('pro_feature_8', 'Επαναλαμβανόμενες Συναλλαγές'),
-    ];
-
-    const proPrice  = billing === 'monthly' ? `€${MONTHLY_PRICE}` : `€${YEARLY_PRICE}`;
-    const proPeriod = billing === 'monthly' ? `/ ${t('monthly', 'μήνα')}` : `/ ${t('yearly', 'έτος')}`;
-    const proSubline = billing === 'yearly'
-        ? `≈ €${YEARLY_PER_MO}/μήνα · Κέρδος ${YEARLY_SAVINGS_PERCENT}%`
-        : null;
+    const features = getFeatures(t);
 
     const handleSubscribe = async () => {
-        setLoading(billing);
+        setLoading(true);
         try {
             const { data } = await supabase.auth.getUser();
             const user = data?.user;
@@ -84,363 +92,162 @@ const UpgradeModal = () => {
         } catch (e) {
             console.error('Error opening checkout:', e);
         } finally {
-            setLoading(null);
+            setLoading(false);
         }
     };
 
     return (
         <AnimatePresence>
             {isUpgradeModalOpen && (
-                <motion.div
-                    key="upgrade-modal-backdrop"
-                    className="fixed inset-0 z-[200] flex flex-col justify-end items-center"
-                style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(12px)' }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={e => { if (e.target === e.currentTarget) closeUpgradeModal(); }}
-            >
-                {/* ═══ Bottom Sheet ═══ */}
-                <motion.div
-                    className="w-full lg:max-w-[1000px] scrollbar-hide"
-                    initial={{ y: '100%' }}
-                    animate={{ y: 0 }}
-                    exit={{ y: '100%' }}
-                    transition={{ type: 'spring', stiffness: 340, damping: 38, mass: 0.9 }}
-                    style={{
-                        background: tok.sheetBg,
-                        borderTopLeftRadius: 20,
-                        borderTopRightRadius: 20,
-                        borderTop: `1px solid ${tok.cardBorder}`,
-                        boxShadow: dk
-                            ? '0 -16px 80px rgba(0,0,0,0.8)'
-                            : '0 -16px 80px rgba(124,58,237,0.12)',
-                        maxHeight: '93dvh',
-                        overflowY: 'auto',
-                        WebkitOverflowScrolling: 'touch',
-                        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 24px)',
+                <div
+                    className="fixed inset-0 z-[250] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md animate-fade-in"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) closeUpgradeModal();
                     }}
                 >
-                    {/* Drag handle */}
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '14px 0 0' }}>
-                        <div style={{ width: 40, height: 4, borderRadius: 99, background: tok.drag }} />
-                    </div>
-
-                    {/* ── Header ── */}
-                    <div style={{ position: 'relative', padding: '24px 24px 0', textAlign: 'center' }}>
-                        {/* Close */}
-                        <button
-                            onClick={closeUpgradeModal}
-                            style={{
-                                position: 'absolute', top: 16, right: 18,
-                                background: tok.closeBg, border: 'none', borderRadius: '50%',
-                                width: 34, height: 34, cursor: 'pointer',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                color: tok.closeIco, transition: 'background 0.15s',
-                            }}
-                        >
-                            <X size={16} strokeWidth={2.5} />
-                        </button>
-
-                        {/* Icon — amber/orange gradient matching CTA */}
-                        <motion.div
-                            initial={{ scale: 0.6, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: 'spring', stiffness: 320, damping: 22, delay: 0.1 }}
-                            style={{
-                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                width: 60, height: 60, borderRadius: 18, marginBottom: 16,
-                                background: dk ? 'rgba(245,158,11,0.15)' : 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)',
-                            }}
-                        >
-                            <ShieldCheck size={32} color="#fff" strokeWidth={2.2} />
-                        </motion.div>
-
-                        <motion.h2
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.15, duration: 0.3 }}
-                            style={{
-                                fontSize: 24, fontWeight: 800, color: tok.txtH,
-                                margin: '0 0 8px', letterSpacing: '-0.8px',
-                            }}
-                        >
-                            {t('upgrade_sheet_title', 'Διάλεξε πλάνο')}
-                        </motion.h2>
-                        <motion.p
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2, duration: 0.3 }}
-                            style={{
-                                fontSize: 14, color: tok.txtB, margin: '0 0 24px',
-                                lineHeight: 1.6, maxWidth: 300, marginLeft: 'auto', marginRight: 'auto',
-                            }}
-                        >
-                            {t('upgrade_sheet_sub', 'Ξεκίνα δωρεάν. Αναβαθμίζεις όποτε θες, χωρίς δέσμευση.')}
-                        </motion.p>
-
-                        {/* ── Billing toggle ── */}
-                        <div style={{
-                            display: 'inline-flex', alignItems: 'center',
-                            background: tok.toggleBg,
-                            border: `1.5px solid ${tok.toggleBdr}`,
-                            borderRadius: 99, padding: 4,
-                            marginBottom: 10,
-                        }}>
-                            {[
-                                { key: 'monthly', label: t('monthly', 'Μηνιαία') },
-                                { key: 'yearly',  label: t('yearly',  'Ετήσια') },
-                            ].map(({ key, label }) => {
-                                const active = billing === key;
-                                return (
-                                    <button
-                                        key={key}
-                                        onClick={() => setBilling(key)}
-                                        style={{
-                                            padding: '9px 22px',
-                                            borderRadius: 99, border: 'none', cursor: 'pointer',
-                                            fontSize: 14, fontWeight: 700,
-                                            background: active
-                                                ? 'linear-gradient(135deg, #7c3aed, #5b21b6)'
-                                                : 'transparent',
-                                            color: active ? '#fff' : tok.txtB,
-                                            boxShadow: active ? '0 2px 14px rgba(124,58,237,0.45)' : 'none',
-                                            transition: 'all 0.22s',
-                                            display: 'flex', alignItems: 'center', gap: 8,
-                                        }}
-                                    >
-                                        {label}
-                                        {key === 'yearly' && (
-                                            <span style={{
-                                                background: active ? 'rgba(255,255,255,0.22)' : 'rgba(124,58,237,0.14)',
-                                                color: active ? '#fff' : '#7c3aed',
-                                                borderRadius: 99, fontSize: 11, fontWeight: 800,
-                                                padding: '2px 8px', transition: 'all 0.22s',
-                                            }}>
-                                                -{YEARLY_SAVINGS_PERCENT}%
-                                            </span>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* ═══ Plan Cards ═══ */}
-                    <div className="flex flex-col md:flex-row gap-4 md:gap-6 p-5 md:p-10 items-stretch">
-
-                        {/* ─── FREE card ─── */}
-                        <div className="flex-1" style={{
-                            background: tok.cardFree,
-                            borderRadius: 24,
-                            border: `1px solid ${tok.cardBorder}`,
-                            display: 'flex', flexDirection: 'column', overflow: 'hidden',
-                        }}>
-                            <div style={{ height: 3, background: 'linear-gradient(90deg, rgba(124,58,237,0.35), rgba(109,40,217,0.15))' }} />
-                            <div className="flex-1 flex flex-col" style={{ padding: 28 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                                    <span style={{
-                                        fontSize: 11, fontWeight: 800, letterSpacing: '1.2px',
-                                        textTransform: 'uppercase', color: tok.txtD,
-                                    }}>Freemium</span>
-                                    <span style={{
-                                        fontSize: 11, fontWeight: 700,
-                                        background: tok.badgeBg, color: tok.badgeTxt,
-                                        borderRadius: 99, padding: '4px 12px',
-                                        border: `1px solid ${tok.cardBorder}`,
-                                    }}>
-                                        {t('current_plan_badge', 'Τρέχον πλάνο')}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 20, scale: 0.98 }}
+                        transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+                        className="w-full max-w-xl max-h-[92dvh] sm:max-h-[88dvh] bg-gray-100/95 dark:bg-surface-dark2 rounded-t-2xl sm:rounded-2xl border border-gray-300 dark:border-white/10 shadow-2xl flex flex-col overflow-hidden text-gray-900 dark:text-white"
+                    >
+                        {/* ── Modal Header ── */}
+                        <div className="px-5 py-4 border-b border-gray-200 dark:border-white/10 flex items-center justify-between shrink-0 bg-white/60 dark:bg-surface-dark2/60">
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <ShieldCheck size={18} strokeWidth={2.4} className="text-amber-500 shrink-0" />
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                                        SpendWise Pro
+                                    </h3>
+                                    <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 shrink-0">
+                                        PRO
                                     </span>
                                 </div>
-
-                                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
-                                    <span style={{ fontSize: 46, fontWeight: 800, color: tok.txtH, lineHeight: 1, letterSpacing: '-2px' }}>€0</span>
-                                    <span style={{ fontSize: 13, color: tok.txtD, fontWeight: 500 }}>/ {t('monthly', 'μήνα')}</span>
-                                </div>
-                                <p style={{ fontSize: 13, color: tok.txtD, margin: '0 0 18px', lineHeight: 1.6 }}>
-                                    {t('free_plan_desc', 'Δωρεάν για πάντα, χωρίς κάρτα.')}
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium">
+                                    {t('upgrade_sheet_sub') || 'Πλήρης οικονομικός έλεγχος χωρίς περιορισμούς'}
                                 </p>
+                            </div>
 
-                                <div style={{ height: 1, background: tok.divider, margin: '0 0 18px' }} />
+                            <button
+                                type="button"
+                                onClick={closeUpgradeModal}
+                                aria-label="Close"
+                                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors shrink-0"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
 
-                                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
-                                    {freeFeatures.map((f, i) => (
-                                        <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: tok.txtB }}>
-                                            <span style={{
-                                                width: 20, height: 20, borderRadius: '50%',
-                                                background: 'rgba(124,58,237,0.1)',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                                            }}>
-                                                <Check size={11} strokeWidth={3} color="#7c3aed" />
-                                            </span>
-                                            {f}
-                                        </li>
-                                    ))}
-                                </ul>
+                        {/* ── Scrollable Body ── */}
+                        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 custom-scrollbar">
 
+                            {/* Billing Switcher */}
+                            <div className="p-1 rounded-xl bg-gray-200/70 dark:bg-white/[0.08] flex gap-1 border border-gray-300/50 dark:border-white/10">
                                 <button
-                                    onClick={closeUpgradeModal}
-                                    style={{
-                                        marginTop: 24, width: '100%', padding: '13px 0',
-                                        border: `1px solid ${tok.cardBorder}`, borderRadius: 14,
-                                        background: 'transparent',
-                                        fontSize: 14, fontWeight: 700, color: tok.txtD,
-                                        cursor: 'pointer',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                                        transition: 'all 0.2s',
-                                    }}
-                                    onMouseEnter={e => { e.currentTarget.style.background = tok.backHov; }}
-                                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                                    type="button"
+                                    onClick={() => setBilling('monthly')}
+                                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                                        billing === 'monthly'
+                                            ? 'bg-white dark:bg-surface-dark3 text-gray-950 dark:text-white shadow-xs'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
                                 >
-                                    <ArrowLeft size={14} strokeWidth={2.5} />
-                                    {t('back_to_dashboard', 'Πίσω στο dashboard')}
+                                    {t('monthly', 'Μηνιαία')} (€{MONTHLY_PRICE})
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setBilling('yearly')}
+                                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                        billing === 'yearly'
+                                            ? 'bg-white dark:bg-surface-dark3 text-gray-950 dark:text-white shadow-xs'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                                >
+                                    <span>{t('yearly', 'Ετήσια')} (€{YEARLY_PRICE})</span>
+                                    <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                        -{YEARLY_SAVINGS_PERCENT}%
+                                    </span>
                                 </button>
                             </div>
-                        </div>
 
-                        {/* ─── PRO card ─── */}
-                        <div className="flex-1" style={{ position: 'relative', marginTop: 0 }}>
-                            {billing === 'yearly' && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: -6 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    style={{
-                                        position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
-                                        background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-                                        color: '#fff', fontSize: 12, fontWeight: 800,
-                                        borderRadius: 99, padding: '5px 18px',
-                                        whiteSpace: 'nowrap',
-                                        boxShadow: '0 6px 20px rgba(245,158,11,0.45)',
-                                        display: 'flex', alignItems: 'center', gap: 6, zIndex: 1,
-                                    }}
-                                >
-                                    <Star size={11} fill="#fff" strokeWidth={0} />
-                                    {t('most_popular_badge', 'Πιο δημοφιλές')}
-                                </motion.div>
-                            )}
-
-                            <div style={{
-                                background: dk
-                                    ? 'linear-gradient(160deg, #1a1526 0%, #1c1c26 60%)'
-                                    : 'linear-gradient(160deg, #fdf6ff 0%, #ffffff 60%)',
-                                borderRadius: 24,
-                                border: '2px solid #7c3aed',
-                                boxShadow: '0 20px 60px rgba(124,58,237,0.22)',
-                                height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden',
-                            }}>
-                                {/* Top gradient bar */}
-                                <div style={{ height: 3, background: 'linear-gradient(90deg, #f59e0b, #ea580c, #7c3aed)' }} />
-
-                                <div className="flex-1 flex flex-col" style={{ padding: 28 }}>
-                                    {/* PRO label with ⚡ icon */}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                                        <div style={{
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            width: 30, height: 30, borderRadius: 9,
-                                            background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-                                            boxShadow: '0 4px 12px rgba(245,158,11,0.4)',
-                                        }}>
-                                            <ShieldCheck size={18} color="#fff" strokeWidth={2.2} />
-                                        </div>
-                                        <span style={{
-                                            fontSize: 12, fontWeight: 800, letterSpacing: '1.4px',
-                                            textTransform: 'uppercase', color: '#f59e0b',
-                                        }}>
-                                            PRO
+                            {/* Selected Plan Summary Card */}
+                            <div className="bg-white dark:bg-surface-dark3 rounded-xl p-4 border border-gray-200 dark:border-white/10 flex items-center justify-between gap-3 shadow-xs">
+                                <div>
+                                    <div className="flex items-baseline gap-1.5">
+                                        <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                                            {billing === 'yearly' ? `€${YEARLY_PRICE}` : `€${MONTHLY_PRICE}`}
+                                        </span>
+                                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            {billing === 'yearly' ? `/ ${t('yearly', 'έτος')}` : `/ ${t('monthly', 'μήνα')}`}
                                         </span>
                                     </div>
-
-                                    {/* Price */}
-                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: proSubline ? 4 : 6 }}>
-                                        <span style={{ fontSize: 50, fontWeight: 800, color: tok.txtH, lineHeight: 1, letterSpacing: '-2.5px' }}>{proPrice}</span>
-                                        <span style={{ fontSize: 13, color: tok.txtB, fontWeight: 500 }}>{proPeriod}</span>
-                                    </div>
-
-                                    {proSubline && (
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            style={{
-                                                display: 'inline-flex', alignItems: 'center', gap: 6,
-                                                background: 'rgba(245,158,11,0.12)',
-                                                border: '1px solid rgba(245,158,11,0.28)',
-                                                borderRadius: 99, padding: '4px 12px', marginBottom: 10,
-                                            }}
-                                        >
-                                            <span style={{ fontSize: 12, color: '#d97706', fontWeight: 700 }}>{proSubline}</span>
-                                        </motion.div>
-                                    )}
-
-                                    <p style={{ fontSize: 13, color: tok.txtB, margin: '0 0 18px', lineHeight: 1.6 }}>
-                                        {t('pro_plan_desc', '7 ημέρες δωρεάν δοκιμή. Για όσους θέλουν πλήρη έλεγχο των οικονομικών τους.')}
-                                    </p>
-
-                                    <div style={{ height: 1, background: dk ? 'rgba(124,58,237,0.12)' : 'rgba(124,58,237,0.08)', margin: '0 0 18px' }} />
-
-                                    <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28, flex: 1 }}>
-                                        {proFeatures.map((f, i) => (
-                                            <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: tok.txtH, fontWeight: 600 }}>
-                                                <span style={{
-                                                    width: 20, height: 20, borderRadius: '50%',
-                                                    background: 'rgba(245,158,11,0.15)',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                                                }}>
-                                                    <Check size={11} strokeWidth={3} color="#d97706" />
-                                                </span>
-                                                {f}
-                                            </li>
-                                        ))}
-                                    </ul>
-
-                                    {/* CTA — amber-orange gradient matching the header button */}
-                                    <motion.button
-                                        onClick={handleSubscribe}
-                                        disabled={!!loadingPlan}
-                                        whileHover={!loadingPlan ? { scale: 1.02, y: -2 } : {}}
-                                        whileTap={!loadingPlan ? { scale: 0.97 } : {}}
-                                        style={{
-                                            width: '100%', padding: '17px 0',
-                                            border: 'none', borderRadius: 16,
-                                            background: loadingPlan
-                                                ? 'rgba(245,158,11,0.5)'
-                                                : 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-                                            color: '#fff',
-                                            fontSize: 16, fontWeight: 800,
-                                            cursor: loadingPlan ? 'not-allowed' : 'pointer',
-                                            boxShadow: loadingPlan ? 'none' : '0 10px 32px rgba(245,158,11,0.45)',
-                                            letterSpacing: '-0.1px',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                                        }}
-                                    >
-                                        {loadingPlan ? (
-                                            <>
-                                                <span style={{
-                                                    width: 18, height: 18, border: '3px solid rgba(255,255,255,0.3)',
-                                                    borderTopColor: '#fff', borderRadius: '50%',
-                                                    display: 'inline-block', animation: 'spin 0.7s linear infinite',
-                                                }} />
-                                                {t('loading', 'Φόρτωση...')}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <ShieldCheck size={18} strokeWidth={2.2} />
-                                                {t('upgrade_cta_checkout', 'Δωρεάν δοκιμή 7 ημερών')}
-                                            </>
-                                        )}
-                                    </motion.button>
-
-                                    <p style={{
-                                        textAlign: 'center', fontSize: 12,
-                                        color: tok.txtD, marginTop: 10, lineHeight: 1.5,
-                                    }}>
-                                        {t('cancel_anytime', 'Ακυρώνεις όποτε θες · Τιμή με ΦΠΑ')}
+                                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium mt-0.5">
+                                        {billing === 'yearly'
+                                            ? `≈ €${YEARLY_PER_MO}/μήνα · Κέρδος ${YEARLY_SAVINGS_PERCENT}%`
+                                            : t('cancel_anytime') || 'Ακυρώνεις όποτε θες'}
                                     </p>
                                 </div>
+
+                                <div className="text-right shrink-0">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                                        <CheckCircle2 size={13} className="shrink-0" />
+                                        <span>7 ημέρες δωρεάν</span>
+                                    </span>
+                                </div>
                             </div>
+
+                            {/* Pro Features Included */}
+                            <div className="space-y-1">
+                                <p className="text-[11px] font-bold text-gray-500 dark:text-white/60 uppercase tracking-widest px-1 mb-1.5">
+                                    {t('what_included') || 'Τι περιλαμβάνει το Pro'}
+                                </p>
+                                <div className="bg-white dark:bg-surface-dark3 rounded-xl border border-gray-200 dark:border-white/10 divide-y divide-gray-100 dark:divide-white/[0.06] overflow-hidden shadow-xs">
+                                    {features.map((feat) => {
+                                        const Icon = feat.icon;
+                                        return (
+                                            <div key={feat.title} className="flex items-start gap-3 p-3 transition-colors">
+                                                <Icon size={16} strokeWidth={2.2} className="text-gray-700 dark:text-gray-300 shrink-0 mt-0.5" />
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs font-bold text-gray-900 dark:text-white leading-snug">
+                                                        {feat.title}
+                                                    </p>
+                                                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed mt-0.5">
+                                                        {feat.desc}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
                         </div>
-                    </div>
-                </motion.div>
-            </motion.div>
+
+                        {/* ── Modal Footer ── */}
+                        <div className="p-4 sm:p-5 border-t border-gray-200 dark:border-white/10 bg-gray-50/90 dark:bg-surface-dark2 space-y-2 shrink-0">
+                            <button
+                                type="button"
+                                onClick={handleSubscribe}
+                                disabled={loading}
+                                className="w-full py-3 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                            >
+                                {loading ? (
+                                    <div className="w-4 h-4 border-2 border-gray-400 border-t-white dark:border-t-black rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        <ShieldCheck size={16} strokeWidth={2.2} />
+                                        <span>{t('upgrade_cta_checkout') || 'Δωρεάν δοκιμή 7 ημερών'}</span>
+                                    </>
+                                )}
+                            </button>
+
+                            <p className="text-[11px] text-center text-gray-500 dark:text-gray-400 font-medium">
+                                {t('cancel_anytime') || 'Ακυρώνεις όποτε θες'} · {t('vat_included') || 'Τιμή με ΦΠΑ'} · Stripe
+                            </p>
+                        </div>
+                    </motion.div>
+                </div>
             )}
         </AnimatePresence>
     );
