@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, KeyRound, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { X, KeyRound, CheckCircle2 } from 'lucide-react';
 import PasswordInput from './PasswordInput';
 import { useSettings } from '../contexts/SettingsContext';
 import { supabase } from '../supabase';
@@ -79,11 +79,7 @@ export default function SetPasswordPromptModal({ isOpen, onClose, onSuccess, use
                             <KeyRound size={20} strokeWidth={2.2} />
                         </div>
                         <div>
-                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 uppercase tracking-wide">
-                                <ShieldCheck size={12} />
-                                {translate('set_password_badge') || 'Recommended'}
-                            </div>
-                            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mt-1 leading-tight">
+                            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight">
                                 {translate('set_password_title') || 'Create Account Password'}
                             </h3>
                         </div>
@@ -178,3 +174,4 @@ export default function SetPasswordPromptModal({ isOpen, onClose, onSuccess, use
         </div>
     );
 }
+
