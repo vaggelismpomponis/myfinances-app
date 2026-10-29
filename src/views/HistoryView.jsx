@@ -74,7 +74,7 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
     ];
 
     const filterColors = {
-        all: { active: 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold', inactive: '' },
+        all: { active: 'bg-violet-600 text-white font-bold shadow-xs', inactive: '' },
         income: { active: 'bg-emerald-600 text-white font-bold', inactive: '' },
         expense: { active: 'bg-rose-600 text-white font-bold', inactive: '' },
     };
@@ -144,7 +144,7 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                         onClick={() => setShowFilters(!showFilters)}
                         className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all
                                     ${showFilters 
-                                        ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 shadow-sm' 
+                                        ? 'bg-violet-600 text-white shadow-xs' 
                                         : 'bg-white dark:bg-surface-dark3 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5'}`}
                     >
                         <LayoutList size={18} />
@@ -162,8 +162,8 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                                         onClick={() => setSelectedYear(year)}
                                         className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all
                                                     ${selectedYear === year 
-                                                        ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 shadow-sm' 
-                                                        : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
+                                                        ? 'bg-violet-600 text-white font-bold shadow-xs' 
+                                                        : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
                                     >
                                         {year}
                                     </button>
@@ -178,8 +178,8 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                                 onClick={() => setSelectedMonth(null)}
                                 className={`col-span-4 py-2 rounded-lg text-xs font-bold transition-all
                                             ${selectedMonth === null 
-                                                ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 shadow-sm' 
-                                                : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
+                                                ? 'bg-violet-600 text-white font-bold shadow-xs' 
+                                                : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
                             >
                                 {t('all')} ({selectedYear})
                             </button>
@@ -189,8 +189,8 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
                                     onClick={() => setSelectedMonth(m.id)}
                                     className={`py-2 rounded-lg text-[10px] font-bold transition-all
                                                 ${selectedMonth === m.id 
-                                                    ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 shadow-sm' 
-                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
+                                                    ? 'bg-violet-600 text-white font-bold shadow-xs' 
+                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
                                 >
                                     {m.name.substring(0, 3)}
                                 </button>

@@ -27,22 +27,22 @@ const SidebarTab = ({ tab, isActive, onClick }) => {
             onClick={onClick}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all duration-150 group border ${
                 isActive
-                    ? 'bg-gray-950 text-white dark:bg-white dark:text-gray-950 font-bold border-transparent shadow-xs'
+                    ? 'bg-violet-50 dark:bg-violet-500/15 text-violet-900 dark:text-violet-100 font-bold border-violet-200/80 dark:border-violet-500/30 shadow-xs'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white font-medium border-transparent'
             }`}
         >
-            <Icon size={17} strokeWidth={2.2} className="shrink-0" />
+            <Icon size={17} strokeWidth={2.2} className={`shrink-0 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-gray-500 dark:text-gray-400'}`} />
             <span className="text-xs flex-1 truncate">{tab.label}</span>
             {tab.badge !== undefined && tab.badge !== null && (
                 <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 ${
                     isActive
-                        ? 'bg-white/20 text-white dark:bg-gray-950/20 dark:text-gray-950'
+                        ? 'bg-violet-200/70 text-violet-800 dark:bg-violet-500/30 dark:text-violet-200'
                         : 'bg-gray-200/60 dark:bg-white/[0.08] text-gray-500 dark:text-gray-400'
                 }`}>
                     {tab.badge}
                 </span>
             )}
-            {isActive && <ChevronRight size={13} className="shrink-0 opacity-70" />}
+            {isActive && <ChevronRight size={13} className="shrink-0 text-violet-600 dark:text-violet-400" />}
         </button>
     );
 };
@@ -597,7 +597,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                                         key={tab.id}
                                         onClick={() => { setActiveSection(tab.id); if (tab.id !== 'users') setSelectedProfile(null); }}
                                         className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap
-                                            ${isActive ? 'bg-gray-950 text-white dark:bg-white dark:text-gray-950 shadow-xs' : 'bg-gray-200/60 dark:bg-white/[0.05] text-gray-600 dark:text-gray-400'}`}
+                                            ${isActive ? 'bg-violet-600 text-white font-bold shadow-xs' : 'bg-gray-200/60 dark:bg-white/[0.05] text-gray-600 dark:text-gray-400'}`}
                                     >
                                         <Icon size={13} />
                                         <span>{tab.label}</span>

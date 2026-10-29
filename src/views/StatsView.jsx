@@ -67,7 +67,7 @@ const TimeBtn = ({ value, label, active, onClick }) => (
         onClick={() => onClick(value)}
         className={`flex-1 py-2 px-3 rounded-xl text-xs font-black whitespace-nowrap transition-all duration-300
                     ${active
-                ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold shadow-sm'
+                ? 'bg-white dark:bg-surface-dark3 text-violet-700 dark:text-violet-300 font-bold shadow-xs border border-gray-200/90 dark:border-white/10'
                 : 'text-gray-600 dark:text-gray-400 font-semibold hover:text-gray-900 dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-white/5'
             }`}
     >
@@ -382,8 +382,8 @@ const StatsView = ({ transactions }) => {
                                     onClick={() => setSelectedYear(year)}
                                     className={`px-5 py-2 rounded-xl text-xs font-bold transition-all
                                                 ${selectedYear === year 
-                                                    ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold shadow-sm' 
-                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
+                                                    ? 'bg-violet-600 text-white font-bold shadow-xs' 
+                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
                                 >
                                     {year}
                                 </button>
@@ -398,8 +398,8 @@ const StatsView = ({ transactions }) => {
                             onClick={() => setSelectedMonth(null)}
                             className={`col-span-4 py-2.5 rounded-xl text-xs font-black transition-all border
                                         ${selectedMonth === null 
-                                                ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold shadow-sm' 
-                                                : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
+                                                ? 'bg-violet-600 text-white font-bold shadow-xs' 
+                                                : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
                         >
                             {t('stats_year')} {selectedYear}
                         </button>
@@ -409,8 +409,8 @@ const StatsView = ({ transactions }) => {
                                 onClick={() => setSelectedMonth(m.id)}
                                 className={`py-2 rounded-xl text-[10px] font-bold transition-all
                                             ${selectedMonth === m.id 
-                                                    ? 'bg-gray-950 dark:bg-white text-white dark:text-gray-950 font-bold shadow-sm' 
-                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10'}`}
+                                                    ? 'bg-violet-600 text-white font-bold shadow-xs' 
+                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
                             >
                                 {m.name.substring(0, 3)}
                             </button>

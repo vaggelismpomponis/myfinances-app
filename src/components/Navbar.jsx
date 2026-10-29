@@ -49,9 +49,9 @@ const Navbar = ({ activeTab, setActiveTab }) => {
         const isProLocked = id === 'stats' && !isPro;
         const label = translate(labelKey);
 
-        const iconActiveClass = isDark ? 'text-white' : 'text-gray-950';
+        const iconActiveClass = isDark ? 'text-violet-400' : 'text-violet-600';
         const iconInactiveClass = isDark ? 'text-gray-400' : 'text-gray-500';
-        const labelActiveClass = isDark ? 'text-white font-bold' : 'text-gray-950 font-bold';
+        const labelActiveClass = isDark ? 'text-violet-400 font-bold' : 'text-violet-600 font-bold';
         const labelInactiveClass = isDark ? 'text-gray-400 font-medium' : 'text-gray-500 font-medium';
 
         return (

@@ -16,7 +16,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
                     outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0
                     transition-all duration-200 group relative select-none border
                     ${active
-                        ? 'bg-gray-950 text-white dark:bg-white dark:text-gray-950 font-bold border-transparent shadow-sm'
+                        ? 'bg-violet-50 dark:bg-violet-500/15 text-violet-950 dark:text-white font-bold border-violet-200/80 dark:border-violet-500/30 shadow-xs'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/90 dark:hover:bg-white/[0.06] hover:text-gray-950 dark:hover:text-white font-medium border-transparent'
                     }`}
     >
@@ -223,7 +223,7 @@ const DesktopSidebar = ({
                                 className="w-8 h-8 rounded-full object-cover ring-2 ring-violet-500/30"
                             />
                         ) : (
-                            <div className="w-8 h-8 rounded-full bg-gray-950 text-white dark:bg-white dark:text-gray-950 font-bold text-xs flex items-center justify-center shadow-xs">
+                            <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300 border border-violet-200/60 dark:border-violet-800/40 font-bold text-xs flex items-center justify-center shadow-xs">
                                 {effectiveName.charAt(0).toUpperCase() || 'U'}
                             </div>
                         )}

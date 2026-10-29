@@ -287,7 +287,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                     {unreadCount > 0 && (
                         <span className="absolute -top-0.5 -right-0.5
                                          w-4 h-4 rounded-full
-                                         bg-gray-950 dark:bg-white text-white dark:text-gray-950 text-[9px] font-bold flex items-center justify-center shadow-sm">
+                                         bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center shadow-sm">
                             {unreadCount > 9 ? '9+' : unreadCount}
                         </span>
                     )}

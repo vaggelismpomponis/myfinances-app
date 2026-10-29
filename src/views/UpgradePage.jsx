@@ -132,7 +132,7 @@ const PricingCard = ({ label, price, sub, badge, selected, onSelect }) => (
                 )}
             </div>
             <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center transition-all border ${
-                selected ? 'bg-gray-950 border-gray-950 text-white dark:bg-white dark:border-white dark:text-gray-950 shadow-xs' : 'border-gray-300 dark:border-white/25 bg-transparent'
+                selected ? 'bg-violet-600 border-violet-600 text-white shadow-xs' : 'border-gray-300 dark:border-white/25 bg-transparent'
             }`}>
                 {selected && <Check size={13} strokeWidth={3} className="text-white" />}
             </div>
