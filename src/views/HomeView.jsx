@@ -1222,12 +1222,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 <div className="relative z-10">
                     {/* Header Row: Status & Privacy Toggle */}
                     <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest font-sans">
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest font-sans">
                                 {t('this_month_spend')}
                             </p>
-                        </div>
 
                         <button
                             type="button"
