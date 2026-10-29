@@ -49,9 +49,9 @@ const Navbar = ({ activeTab, setActiveTab }) => {
         const isProLocked = id === 'stats' && !isPro;
         const label = translate(labelKey);
 
-        const iconActiveClass = isDark ? 'text-violet-400' : 'text-violet-600';
+        const iconActiveClass = isDark ? 'text-white' : 'text-gray-950';
         const iconInactiveClass = isDark ? 'text-gray-400' : 'text-gray-500';
-        const labelActiveClass = isDark ? 'text-violet-400 font-semibold' : 'text-violet-600 font-semibold';
+        const labelActiveClass = isDark ? 'text-white font-bold' : 'text-gray-950 font-bold';
         const labelInactiveClass = isDark ? 'text-gray-400 font-medium' : 'text-gray-500 font-medium';
 
         return (
@@ -110,17 +110,17 @@ const Navbar = ({ activeTab, setActiveTab }) => {
 
     const barStyle = isDark
         ? {
-              background: 'rgba(28, 26, 46, 0.70)',
+              background: 'rgba(15, 17, 23, 0.85)',
               backdropFilter: 'blur(20px) saturate(180%)',
               WebkitBackdropFilter: 'blur(20px) saturate(180%)',
               borderTop: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 -4px 32px rgba(0,0,0,0.2)',
+              boxShadow: '0 -4px 32px rgba(0,0,0,0.3)',
           }
         : {
-              background: 'rgba(255, 255, 255, 0.85)',
+              background: 'rgba(255, 255, 255, 0.92)',
               backdropFilter: 'blur(20px) saturate(180%)',
               WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              borderTop: '1px solid rgba(0,0,0,0.07)',
+              borderTop: '1px solid rgba(0,0,0,0.06)',
               boxShadow: '0 -4px 32px rgba(0,0,0,0.05)',
           };
 

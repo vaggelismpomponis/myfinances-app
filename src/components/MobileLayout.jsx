@@ -31,7 +31,7 @@ export default function MobileLayout({
     return (
         <main className="h-full w-full bg-surface-light dark:bg-surface-dark
                         font-sans text-gray-900 dark:text-white
-                        selection:bg-violet-600 selection:text-white dark:selection:bg-violet-500 dark:selection:text-white
+                        selection:bg-gray-900 selection:text-white dark:selection:bg-white dark:selection:text-gray-900
                         flex justify-center items-start transition-colors duration-300">
 
             {/* Mobile container */}
@@ -105,8 +105,8 @@ export default function MobileLayout({
                             {/* CENTER — App Name */}
                             {activeTab === 'home' ? (
                                 <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 select-none pointer-events-none">
-                                    <span className="w-2 h-2 rounded-full bg-violet-600 dark:bg-violet-400 shrink-0" />
-                                    <h1 className="text-[17px] font-black tracking-tight text-gray-900 dark:text-white">
+                                    <span className="w-1.5 h-4 rounded-sm bg-gray-900 dark:bg-white shrink-0" />
+                                    <h1 className="text-[17px] font-black tracking-tight text-gray-900 dark:text-white font-sans">
                                         SpendWise
                                     </h1>
                                 </div>
@@ -125,27 +125,27 @@ export default function MobileLayout({
 
                             {/* RIGHT — Notification Bell */}
                             <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={() => setShowNotificationPanel(prev => !prev)}
-                                className="relative w-9 h-9 rounded-full flex-shrink-0
+                                className="relative w-9 h-9 rounded-xl flex-shrink-0
                                         bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10
                                         shadow-sm
                                         flex items-center justify-center
-                                        text-gray-600 dark:text-gray-300
-                                        hover:text-gray-900 dark:hover:text-white
+                                        text-gray-700 dark:text-gray-300
+                                        hover:text-gray-950 dark:hover:text-white
                                         transition-all duration-200 outline-none focus:outline-none focus-visible:outline-none select-none"
                                 style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                                 aria-label="Notifications"
                             >
-                                <Bell size={18} />
+                                <Bell size={18} strokeWidth={2} />
                                 {unreadCount > 0 && (
-                                    <span className="absolute -top-0.5 -right-0.5
-                                                        w-4 h-4 rounded-full
-                                                        bg-violet-600 text-white
+                                    <span className="absolute -top-1 -right-1
+                                                        min-w-[18px] h-[18px] px-1 rounded-full
+                                                        bg-gray-900 text-white dark:bg-white dark:text-gray-950
                                                         text-[9px] font-black
                                                         flex items-center justify-center
-                                                        shadow-sm">
+                                                        shadow-sm border border-white dark:border-gray-900">
                                         {unreadCount > 9 ? '9+' : unreadCount}
                                     </span>
                                 )}
@@ -188,31 +188,31 @@ export default function MobileLayout({
                                             <motion.button
                                                 whileTap={{ scale: 0.93 }}
                                                 onClick={() => { setShowFabMenu(false); openAddModal('income'); }}
-                                                className="flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-emerald-500 text-white text-sm font-bold shadow-lg shadow-emerald-500/40 whitespace-nowrap"
+                                                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-black/15 border border-emerald-400/30 whitespace-nowrap transition-colors"
                                             >
-                                                <TrendingUp size={15} />
+                                                <TrendingUp size={14} strokeWidth={2.5} />
                                                 <span>Έσοδο</span>
                                             </motion.button>
                                             {/* Expense pill */}
                                             <motion.button
                                                 whileTap={{ scale: 0.93 }}
                                                 onClick={() => { setShowFabMenu(false); openAddModal('expense'); }}
-                                                className="flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-rose-500 text-white text-sm font-bold shadow-lg shadow-rose-500/40 whitespace-nowrap"
+                                                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-lg shadow-black/15 border border-rose-400/30 whitespace-nowrap transition-colors"
                                             >
-                                                <TrendingDown size={15} />
+                                                <TrendingDown size={14} strokeWidth={2.5} />
                                                 <span>Έξοδο</span>
                                             </motion.button>
                                             {/* Connector dot */}
-                                            <div className="w-1.5 h-1.5 rounded-full bg-violet-400 opacity-60" />
+                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 opacity-60" />
                                         </motion.div>
                                     ]}
                                 </AnimatePresence>
 
                                 {/* FAB */}
                                 <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    animate={showFabMenu ? { scale: 1.08, boxShadow: '0 0 0 6px rgba(124,58,237,0.25)' } : { scale: 1, boxShadow: '0 8px 20px rgba(124,58,237,0.4)' }}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    animate={showFabMenu ? { scale: 1.05 } : { scale: 1 }}
                                     onClick={() => {
                                         if (showFabMenu) { setShowFabMenu(false); return; }
                                         openAddModal();
@@ -233,7 +233,7 @@ export default function MobileLayout({
                                         clearTimeout(fabLongPressRef.current);
                                     }}
                                     aria-label="Add transaction"
-                                    className="relative w-12 h-12 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-md shadow-violet-600/30 border border-violet-500/30 outline-none focus:outline-none focus-visible:outline-none select-none active:scale-95 transition-all"
+                                    className="relative w-12 h-12 rounded-2xl bg-gray-950 text-white dark:bg-white dark:text-gray-950 flex items-center justify-center shadow-lg shadow-black/25 dark:shadow-black/40 border border-gray-800 dark:border-gray-200 outline-none focus:outline-none focus-visible:outline-none select-none active:scale-95 transition-all"
                                     style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                                 >
                                     <motion.div

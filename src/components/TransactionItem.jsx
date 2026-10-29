@@ -33,15 +33,11 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                         hover:border-gray-300 dark:hover:border-white/20
                         transition-all duration-200"
         >
-            {/* Minimal Category Color Pillar */}
-            <div
-                className="w-1 h-8 rounded-full shrink-0 transition-opacity duration-200"
-                style={{ backgroundColor: accent }}
-            />
+
 
             {/* Category icon */}
             <div className="shrink-0">
-                <CategoryIcon category={transaction?.category} type={transaction?.type} size={18} className="p-2 rounded-xl" />
+                <CategoryIcon category={transaction?.category} type={transaction?.type} size={18} className="w-10 h-10 rounded-xl" />
             </div>
 
             {/* Title & Metadata */}
@@ -105,7 +101,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                                 setShowActions(false);
                             }}
                             title={t('edit_tooltip')}
-                            className="p-1.5 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-white/5 rounded-md transition-colors"
+                            className="p-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-md transition-colors"
                         >
                             <Pencil size={15} />
                         </button>

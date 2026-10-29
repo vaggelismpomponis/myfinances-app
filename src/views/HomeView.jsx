@@ -1275,7 +1275,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
 
                     {/* Cashflow Summary Cards */}
                     <div className="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-white/[0.08]">
-                        <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-3 flex items-center gap-2.5">
+                        <div className="bg-white/[0.06] hover:bg-white/[0.09] border border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
                             <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
                                 <ArrowUpRight size={15} strokeWidth={2.5} />
                             </div>
@@ -1287,7 +1287,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             </div>
                         </div>
 
-                        <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-3 flex items-center gap-2.5">
+                        <div className="bg-white/[0.06] hover:bg-white/[0.09] border border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
                             <div className="w-8 h-8 rounded-lg bg-rose-500/15 text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
                                 <ArrowDownRight size={15} strokeWidth={2.5} />
                             </div>
@@ -1317,12 +1317,12 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                            shadow-sm hover:border-gray-300 dark:hover:border-white/20
                            flex items-center gap-3.5 group transition-all text-left"
             >
-                <div className="w-10 h-10 rounded-xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 flex items-center justify-center shrink-0 border border-gray-800 dark:border-gray-200 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/[0.08] text-gray-800 dark:text-gray-100 flex items-center justify-center shrink-0 border border-gray-200/80 dark:border-white/10 shadow-sm">
                     <Bot size={18} strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0 pr-1">
                     <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                             SpendWise AI
                         </span>
                         {!isPro && (
@@ -1365,7 +1365,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                            shadow-sm hover:border-gray-300 dark:hover:border-white/20
                                            transition-all relative group"
                             >
-                                <div className="w-9 h-9 rounded-lg bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/5 flex items-center justify-center text-gray-700 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors relative">
+                                <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/[0.05] border border-gray-100 dark:border-white/5 flex items-center justify-center text-gray-700 dark:text-gray-200 group-hover:text-gray-950 dark:group-hover:text-white transition-colors relative">
                                     <ActionIcon size={18} strokeWidth={2} className="shrink-0" />
                                     {action.isPro && !action.userIsPro && (
                                         <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/30 flex items-center justify-center">
@@ -1373,7 +1373,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                         </span>
                                     )}
                                 </div>
-                                <span className="text-[11px] font-semibold text-gray-800 dark:text-gray-200 tracking-tight text-center leading-tight truncate w-full px-0.5">
+                                <span className="text-[11px] font-bold text-gray-700 dark:text-gray-300 tracking-tight text-center leading-tight truncate w-full px-0.5">
                                     {action.label}
                                 </span>
                             </motion.button>
