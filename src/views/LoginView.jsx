@@ -10,8 +10,7 @@ import {
     Check,
     ShieldCheck,
     KeyRound,
-    HelpCircle,
-    CheckCircle2
+    HelpCircle
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useSettings } from '../contexts/SettingsContext';
@@ -528,21 +527,6 @@ const LoginView = ({
                                         <Mail size={18} className="text-violet-400" />
                                         <span>{isLogin ? 'Σύνδεση με Email' : 'Εγγραφή με Email'}</span>
                                     </motion.button>
-
-                                    {/* Trust features row for Sign Up */}
-                                    {!isLogin && (
-                                        <div className="mt-5 pt-4 border-t border-white/[0.08] flex items-center justify-around text-[11px] text-gray-400">
-                                            <span className="flex items-center gap-1.5">
-                                                <CheckCircle2 size={13} className="text-emerald-400" /> 100% Δωρεάν
-                                            </span>
-                                            <span className="flex items-center gap-1.5">
-                                                <CheckCircle2 size={13} className="text-emerald-400" /> Χωρίς κάρτα
-                                            </span>
-                                            <span className="flex items-center gap-1.5">
-                                                <CheckCircle2 size={13} className="text-emerald-400" /> Ασφαλές
-                                            </span>
-                                        </div>
-                                    )}
                                 </div>
                                 {/* ── View B: Email & Password Form ── */}
                                 <div className={!showEmailForm ? 'hidden' : 'space-y-4 animate-fade-in'}>
