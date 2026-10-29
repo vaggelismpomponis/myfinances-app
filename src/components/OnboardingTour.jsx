@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Joyride, ACTIONS, EVENTS, STATUS } from 'react-joyride';
 import TourBubble from './TourBubble';
-import { Wallet, Plus, Home, ShieldCheck } from 'lucide-react';
+import { Wallet, History, Plus, Home, ShieldCheck } from 'lucide-react';
 
 // Inject spotlight styles via CSS to avoid react-joyride spreading them onto SVG elements
 const SPOTLIGHT_STYLE = `
@@ -79,7 +79,7 @@ export const getTourSteps = (isDesktop = false) => [
         data: {
             titleKey: 'tour_step4_title',
             descKey:  'tour_step4_desc',
-            Icon:     Wallet,
+            Icon:     History,
             gradient: 'from-amber-500 via-orange-500 to-rose-500',
             orbColor: 'bg-amber-400',
             iconBg:   'bg-white/20',

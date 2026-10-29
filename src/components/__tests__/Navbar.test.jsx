@@ -36,7 +36,7 @@ describe('Navbar', () => {
     });
   });
 
-  it('renders all 4 navigation items with correct labels including Settings', () => {
+  it('renders all 4 navigation items with correct labels including Settings and History', () => {
     render(<Navbar activeTab="home" setActiveTab={mockSetActiveTab} />);
 
     expect(screen.getByText('Αρχική')).toBeInTheDocument();
@@ -44,6 +44,15 @@ describe('Navbar', () => {
     expect(screen.getByText('Ιστορικό')).toBeInTheDocument();
     expect(screen.getByText('Ρυθμίσεις')).toBeInTheDocument();
     expect(screen.queryByText('Προφίλ')).not.toBeInTheDocument();
+  });
+
+  it('navigates to history tab when history button is clicked', () => {
+    render(<Navbar activeTab="home" setActiveTab={mockSetActiveTab} />);
+
+    const historyBtn = screen.getByRole('button', { name: 'Ιστορικό' });
+    fireEvent.click(historyBtn);
+
+    expect(mockSetActiveTab).toHaveBeenCalledWith('history');
   });
 
   it('navigates to settings/profile tab when settings button is clicked', () => {
