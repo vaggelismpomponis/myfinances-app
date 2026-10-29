@@ -73,16 +73,8 @@ const getFeatures = (t) => [
    SUB-COMPONENTS
 ───────────────────────────────────────────────────────────── */
 
-const IconBadge = ({ Icon, isAmber }) => (
-    <div
-        className={`w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center transition-colors ${
-            isAmber
-                ? 'bg-amber-50 text-amber-600 border border-amber-200/80 dark:bg-amber-400/10 dark:text-amber-400 dark:border-amber-400/20'
-                : 'bg-violet-50 text-violet-600 border border-violet-200/80 dark:bg-violet-400/10 dark:text-violet-400 dark:border-violet-400/20'
-        }`}
-    >
-        <Icon size={19} strokeWidth={1.9} />
-    </div>
+const IconBadge = ({ Icon }) => (
+    <Icon size={22} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2} />
 );
 
 const FeatureRow = ({ feature, index }) => (
@@ -110,9 +102,7 @@ const PricingCard = ({ label, price, sub, badge, selected, onSelect }) => (
         onClick={onSelect}
         whileTap={{ scale: 0.985 }}
         className={`w-full text-left rounded-2xl p-4 transition-all duration-200 cursor-pointer border ${
-            selected
-                ? 'bg-violet-50/80 dark:bg-[#1e1e32] border-violet-600 dark:border-violet-500 shadow-md shadow-violet-500/10 dark:shadow-violet-500/20 ring-1 ring-violet-500'
-                : 'bg-white hover:bg-gray-50/80 dark:bg-[#151522] dark:hover:bg-[#1a1a2b] border-gray-200/90 dark:border-white/[0.08] shadow-xs'
+            selected ? 'bg-gray-100/90 dark:bg-surface-dark2 border-gray-950 dark:border-white shadow-xs' : 'bg-gray-100/40 dark:bg-surface-dark2/40 border-gray-200 dark:border-white/10'
         }`}
     >
         <div className="flex items-center justify-between gap-3">
@@ -142,9 +132,7 @@ const PricingCard = ({ label, price, sub, badge, selected, onSelect }) => (
                 )}
             </div>
             <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center transition-all border ${
-                selected
-                    ? 'bg-violet-600 border-violet-600 text-white shadow-xs'
-                    : 'border-gray-300 dark:border-white/25 bg-transparent'
+                selected ? 'bg-gray-950 border-gray-950 text-white dark:bg-white dark:border-white dark:text-gray-950 shadow-xs' : 'border-gray-300 dark:border-white/25 bg-transparent'
             }`}>
                 {selected && <Check size={13} strokeWidth={3} className="text-white" />}
             </div>
@@ -257,9 +245,7 @@ const UpgradePage = ({ onBack }) => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ type: 'spring', stiffness: 260, damping: 28 }}
                             className={`rounded-3xl overflow-hidden relative border transition-all duration-300 ${
-                                isDark
-                                    ? 'bg-gradient-to-br from-[#16122c] via-[#201540] to-[#0f0d1e] border-violet-500/25 shadow-2xl shadow-violet-950/50 text-white'
-                                    : 'bg-gradient-to-br from-[#4f46e5] via-[#5b50e6] to-[#7c3aed] border-white/20 shadow-xl shadow-indigo-500/25 text-white'
+                                'bg-gray-100/90 dark:bg-surface-dark2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white shadow-sm'
                             }`}
                         >
                             {/* Ambient lighting glows */}
@@ -287,7 +273,7 @@ const UpgradePage = ({ onBack }) => {
                             <div className="relative z-10 p-5 sm:p-7 flex flex-col justify-between min-h-[200px] gap-5">
                                 {/* Top row: Brand pills */}
                                 <div className="flex items-center justify-between gap-3">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wider uppercase backdrop-blur-md bg-white/10 dark:bg-white/[0.08] border border-white/15 text-white shadow-xs">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wider uppercase backdrop-blur-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
                                         <ShieldCheck size={13} className="text-amber-400 shrink-0" strokeWidth={2.5} />
                                         {t('hero_card_badge') || 'SPENDWISE PRO'}
                                     </span>
@@ -299,25 +285,25 @@ const UpgradePage = ({ onBack }) => {
                                 {/* Middle row: Headline & Feature Highlights */}
                                 <div className="space-y-3">
                                     <div>
-                                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight font-display">
+                                        <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight font-display">
                                             {t('hero_card_title') || 'SpendWise Pro'}
                                         </h2>
-                                        <p className="text-[13px] sm:text-[14px] text-white/80 font-normal leading-relaxed max-w-xl mt-1">
+                                        <p className="text-[13px] sm:text-[14px] text-gray-600 dark:text-gray-400 font-normal leading-relaxed max-w-xl mt-1">
                                             {t('hero_card_tagline') || 'Πλήρης οικονομικός έλεγχος με απεριόριστα εργαλεία & αυτόματη καταγραφή'}
                                         </p>
                                     </div>
 
                                     {/* 3 Frosted Quick-Pills */}
                                     <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-white/10 dark:bg-white/[0.06] border border-white/10 backdrop-blur-md text-white/95">
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
                                             <Infinity size={13} className="text-amber-300 shrink-0" strokeWidth={2.5} />
                                             <span>{t('hero_chip_unlimited') || 'Απεριόριστα Budgets'}</span>
                                         </div>
-                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-white/10 dark:bg-white/[0.06] border border-white/10 backdrop-blur-md text-white/95">
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
                                             <Bell size={13} className="text-emerald-300 shrink-0" strokeWidth={2.4} />
                                             <span>{t('hero_chip_automation') || 'Αυτόματα SMS & Τράπεζες'}</span>
                                         </div>
-                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-white/10 dark:bg-white/[0.06] border border-white/10 backdrop-blur-md text-white/95">
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
                                             <ScanLine size={13} className="text-indigo-200 shrink-0" strokeWidth={2.4} />
                                             <span>{t('hero_chip_ai') || 'AI Σάρωση & Insights'}</span>
                                         </div>
@@ -327,10 +313,10 @@ const UpgradePage = ({ onBack }) => {
                                 {/* Bottom row: Price display + Trial reassurance */}
                                 <div className="pt-3 border-t border-white/15 flex items-center justify-between gap-3">
                                     <div className="flex items-baseline gap-1.5">
-                                        <span className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none font-display">
+                                        <span className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none font-display">
                                             €{MONTHLY_PRICE}
                                         </span>
-                                        <span className="text-[13px] font-semibold text-white/75">
+                                        <span className="text-[13px] font-semibold text-gray-500 dark:text-gray-400">
                                             {t('per_month') || '/μήνα'}
                                         </span>
                                     </div>
@@ -411,7 +397,7 @@ const UpgradePage = ({ onBack }) => {
                                 ? 'opacity-70 cursor-not-allowed'
                                 : isDark
                                     ? 'bg-white hover:bg-gray-100 text-slate-950 shadow-black/50'
-                                    : 'bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-700 hover:from-violet-700 hover:to-indigo-700 text-white shadow-violet-500/30'
+                                    : 'bg-gray-950 hover:bg-gray-900 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 shadow-sm'
                         }`}
                     >
                         {loading ? (

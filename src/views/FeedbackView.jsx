@@ -137,32 +137,28 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                     />
 
                     {/* ─────── Hero Hub ─────── */}
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-indigo-800 dark:from-violet-950 dark:via-indigo-950 dark:to-surface-dark3 border border-violet-400/30 dark:border-white/10 shadow-xl shadow-violet-500/15 text-white p-6 sm:p-8">
-                        {/* Ambient decorative glowing backdrop lights */}
-                        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-violet-400/20 blur-3xl pointer-events-none" />
-                        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-indigo-400/20 blur-3xl pointer-events-none" />
-
+                    <div className="relative overflow-hidden rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-6 sm:p-8">
                         <div className="relative z-10 max-w-2xl space-y-3">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
+                            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide uppercase">
                                 <MessageSquare size={13} />
                                 <span>We Are Listening</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
                                 {translate('feedback_title') || 'Your Opinion Matters'}
                             </h2>
-                            <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
+                            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                 {translate('feedback_subtitle') || 'Send us your ideas or report a bug to help us build the best finance app.'}
                             </p>
 
                             {/* Attribute Chips */}
-                            <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-violet-100/90">
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                            <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1]">
                                     Direct Dev Review
                                 </span>
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1]">
                                     Feature Roadmaps
                                 </span>
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1]">
                                     100% Privacy Protected
                                 </span>
                             </div>
@@ -170,7 +166,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                     </div>
 
                     {/* ─────── Feedback Form Card ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
 
                             {/* Type Selection */}
@@ -284,7 +280,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                             <button
                                 type="submit"
                                 disabled={isSending || !message.trim()}
-                                className="w-full py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold text-sm shadow-lg shadow-violet-500/25 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full py-4 rounded-2xl bg-gray-950 hover:bg-gray-900 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 font-bold text-sm shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {isSending ? (
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -299,7 +295,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                     </div>
 
                     {/* ─────── Bottom Bento: Trust & Process Card ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 shadow-sm">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
                                 <ShieldCheck size={20} strokeWidth={2.3} />

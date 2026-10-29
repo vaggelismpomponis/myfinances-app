@@ -81,11 +81,10 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.94, y: 16 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 320 }}
-                        className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[28px] shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-10 max-h-[90vh] flex flex-col"
+                        className="relative w-full max-w-md bg-white dark:bg-surface-dark2 rounded-2xl shadow-xl border border-gray-200 dark:border-white/10 overflow-hidden z-10 max-h-[90vh] flex flex-col"
                     >
                         {/* Ambient decorative glow */}
-                        <div className="absolute -top-24 -right-24 w-52 h-52 bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-                        <div className="absolute -bottom-24 -left-24 w-52 h-52 bg-gradient-to-tr from-violet-500/15 via-blue-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+                        
 
                         {/* Top close button */}
                         <button

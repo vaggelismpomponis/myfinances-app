@@ -231,36 +231,32 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                     />
 
                     {/* ─────── Hero Hub ─────── */}
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-indigo-800 dark:from-violet-950 dark:via-indigo-950 dark:to-surface-dark3 border border-violet-400/30 dark:border-white/10 shadow-xl shadow-violet-500/15 text-white p-6 sm:p-8 lg:p-10">
-                        {/* Ambient decorative glowing backdrop lights */}
-                        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-violet-400/20 blur-3xl pointer-events-none" />
-                        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-indigo-400/20 blur-3xl pointer-events-none" />
-
+                    <div className="relative overflow-hidden rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-6 sm:p-8 lg:p-10">
                         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                             <div className="max-w-2xl space-y-3">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
+                                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide uppercase">
                                     <BookOpen size={13} />
                                     <span>SpendWise Manual</span>
                                 </div>
-                                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white leading-tight">
+                                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
                                     {translate('guide_intro_title') || 'Master your finances'}
                                 </h2>
-                                <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
+                                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                     {translate('guide_intro_desc') || 'This guide covers all the powerful features of SpendWise to help you achieve financial freedom.'}
                                 </p>
 
                                 {/* Quick Attribute Chips */}
-                                <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-violet-100/90">
-                                    <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                    <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1]">
                                         7 Feature Modules
                                     </span>
-                                    <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                    <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1]">
                                         AI OCR Scanning
                                     </span>
-                                    <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                    <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1]">
                                         50-30-20 Advisor
                                     </span>
-                                    <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                                    <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1]">
                                         Bank-Grade Privacy
                                     </span>
                                 </div>
@@ -361,7 +357,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                 return (
                                     <div
                                         key={section.id}
-                                        className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-lg dark:hover:border-violet-500/30 transition-all duration-200 flex flex-col justify-between group"
+                                        className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 sm:p-6 shadow-sm transition-all duration-200 flex flex-col justify-between group"
                                     >
                                         {/* Card Top: Icon, Badge, and Action */}
                                         <div>
@@ -412,7 +408,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                         </div>
 
                                         {/* Pro Tip Callout */}
-                                        <div className={`p-3 rounded-2xl border flex items-start gap-2.5 ${section.theme.proTipBg}`}>
+                                        <div className="p-3 rounded-xl border bg-gray-200/60 dark:bg-white/[0.06] border-gray-300/60 dark:border-white/[0.1] flex items-start gap-2.5">
                                             <Lightbulb size={15} strokeWidth={2.2} className={`shrink-0 mt-0.5 ${section.theme.text}`} />
                                             <div>
                                                 <p className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400">

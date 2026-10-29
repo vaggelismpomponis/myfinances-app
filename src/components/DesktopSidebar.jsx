@@ -176,14 +176,14 @@ const DesktopSidebar = ({
                                    }`}
                     >
                         {/* Soft ambient background glow */}
-                        <div className="absolute -right-5 -top-5 w-20 h-20 rounded-full bg-white/10 blur-xl pointer-events-none" />
+                        
 
                         <div className="relative z-10 flex items-center justify-between gap-2 mb-1.5">
                             <div className="flex items-center gap-1.5 min-w-0">
                                 <div className="w-6 h-6 rounded-lg bg-white/15 backdrop-blur-sm flex items-center justify-center text-amber-300 shadow-xs border border-white/20 shrink-0">
                                     <ShieldCheck size={14} strokeWidth={2.2} />
                                 </div>
-                                <span className="text-xs font-black tracking-tight text-white truncate">
+                                <span className="text-xs font-extrabold tracking-tight text-gray-900 dark:text-white truncate">
                                     {t('become_pro') || t('go_pro') || 'Become Pro'}
                                 </span>
                             </div>
@@ -192,11 +192,11 @@ const DesktopSidebar = ({
                             </span>
                         </div>
 
-                        <p className="relative z-10 text-[11px] text-white/80 font-medium leading-snug line-clamp-2">
+                        <p className="relative z-10 text-[11px] text-gray-600 dark:text-gray-400 font-medium leading-snug line-clamp-2">
                             {t('go_pro_subtitle') || 'Unlock all features'}
                         </p>
 
-                        <div className="relative z-10 mt-2.5 pt-2 border-t border-white/15 flex items-center justify-between text-[11px] font-bold text-white group-hover:text-amber-200 transition-colors">
+                        <div className="relative z-10 mt-2.5 pt-2 border-t border-gray-200 dark:border-white/10 flex items-center justify-between text-[11px] font-bold text-gray-900 dark:text-white group-hover:text-amber-500 transition-colors">
                             <span>{t('upgrade_to_pro') || t('upgrade') || 'Upgrade'}</span>
                             <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform shrink-0" />
                         </div>
@@ -223,7 +223,7 @@ const DesktopSidebar = ({
                                 className="w-8 h-8 rounded-full object-cover ring-2 ring-violet-500/30"
                             />
                         ) : (
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                            <div className="w-8 h-8 rounded-full bg-gray-950 text-white dark:bg-white dark:text-gray-950 font-bold text-xs flex items-center justify-center shadow-xs">
                                 {effectiveName.charAt(0).toUpperCase() || 'U'}
                             </div>
                         )}

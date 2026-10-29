@@ -25,25 +25,24 @@ const SidebarTab = ({ tab, isActive, onClick }) => {
     return (
         <button
             onClick={onClick}
-            className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-left transition-all duration-200 group relative border
-                ${isActive
-                    ? 'bg-violet-50/90 dark:bg-violet-500/15 text-violet-700 dark:text-violet-300 font-bold border-violet-200/90 dark:border-violet-500/30 shadow-xs shadow-violet-500/5'
-                    : 'text-gray-600 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white font-semibold border-transparent'}`}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all duration-150 group border ${
+                isActive
+                    ? 'bg-gray-950 text-white dark:bg-white dark:text-gray-950 font-bold border-transparent shadow-xs'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white font-medium border-transparent'
+            }`}
         >
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors
-                ${isActive ? 'bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400' : 'bg-gray-100 dark:bg-white/[0.06] text-gray-400 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400'}`}>
-                <Icon size={16} strokeWidth={2.2} />
-            </div>
-            <span className="text-[13px] flex-1 truncate">{tab.label}</span>
+            <Icon size={17} strokeWidth={2.2} className="shrink-0" />
+            <span className="text-xs flex-1 truncate">{tab.label}</span>
             {tab.badge !== undefined && tab.badge !== null && (
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 transition-colors
-                    ${isActive
-                        ? 'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-700/50'
-                        : 'bg-gray-100 dark:bg-white/[0.08] text-gray-500 dark:text-gray-400 group-hover:bg-violet-50 dark:group-hover:bg-violet-500/10 group-hover:text-violet-600 dark:group-hover:text-violet-400'}`}>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 ${
+                    isActive
+                        ? 'bg-white/20 text-white dark:bg-gray-950/20 dark:text-gray-950'
+                        : 'bg-gray-200/60 dark:bg-white/[0.08] text-gray-500 dark:text-gray-400'
+                }`}>
                     {tab.badge}
                 </span>
             )}
-            {isActive && <ChevronRight size={14} className="text-violet-500/80 ml-1 shrink-0" />}
+            {isActive && <ChevronRight size={13} className="shrink-0 opacity-70" />}
         </button>
     );
 };
@@ -598,9 +597,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                                         key={tab.id}
                                         onClick={() => { setActiveSection(tab.id); if (tab.id !== 'users') setSelectedProfile(null); }}
                                         className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap
-                                            ${isActive
-                                                ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
-                                                : 'bg-white dark:bg-white/[0.05] text-gray-600 dark:text-white/60 border border-gray-100 dark:border-transparent'}`}
+                                            ${isActive ? 'bg-gray-950 text-white dark:bg-white dark:text-gray-950 shadow-xs' : 'bg-gray-200/60 dark:bg-white/[0.05] text-gray-600 dark:text-gray-400'}`}
                                     >
                                         <Icon size={13} />
                                         <span>{tab.label}</span>
@@ -681,7 +678,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                             <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-indigo-400/25 blur-3xl pointer-events-none" />
 
                             <div className="relative z-10 max-w-3xl space-y-3">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
+                                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide uppercase">
                                     <Activity size={13} />
                                     <span>System Command Center</span>
                                 </div>
@@ -697,15 +694,15 @@ const AdminView = ({ onBack, hideHeader }) => {
 
                                 {/* Live Telemetry Pills (2x2 grid on mobile, flex row on tablet/desktop) */}
                                 <div className="pt-2 grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 text-[11px] sm:text-xs font-semibold">
-                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-white flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
                                         <Users size={13} className="shrink-0" />
                                         <span className="truncate">{stats.users} Total Accounts</span>
                                     </span>
-                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-white flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
                                         <Activity size={13} className="shrink-0" />
                                         <span className="truncate">{metrics.proUsers} Pro Subscribers</span>
                                     </span>
-                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-white flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
                                         <CheckCircle2 size={13} className="shrink-0" />
                                         <span className="truncate">{stats.transactions} Ledger Entries</span>
                                     </span>

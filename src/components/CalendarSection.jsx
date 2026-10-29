@@ -353,7 +353,7 @@ const CalendarSection = ({
                                     {/* Stats Cards */}
                                     <div className="grid grid-cols-2 gap-4">
                                         {/* Total spent today */}
-                                        <div className="bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5 rounded-2xl p-4 flex flex-col justify-between">
+                                        <div className="bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl p-4 flex flex-col justify-between">
                                             <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                                                 {t('total_spent_today')}
                                             </span>
@@ -363,7 +363,7 @@ const CalendarSection = ({
                                         </div>
 
                                         {/* Comparison to daily average */}
-                                        <div className="bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5 rounded-2xl p-4 flex flex-col justify-between">
+                                        <div className="bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] rounded-xl p-4 flex flex-col justify-between">
                                             <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                                                 {t('comparison')}
                                             </span>

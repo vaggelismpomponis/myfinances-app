@@ -280,18 +280,14 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                             {/* Live Security Status Badges */}
                             <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold">
                                 <span className={`px-2.5 py-1 rounded-lg backdrop-blur-sm border flex items-center gap-1.5 ${
-                                    isPinEnabled
-                                        ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-200'
-                                        : 'bg-white/10 border-white/15 text-violet-100/80'
+                                    isPinEnabled ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-gray-200/60 dark:bg-white/[0.06] border-gray-300/60 dark:border-white/[0.1] text-gray-600 dark:text-gray-400'
                                 }`}>
                                     <Lock size={12} strokeWidth={2.5} />
                                     <span>PIN: {isPinEnabled ? (isEL ? 'Ενεργό' : 'Active') : (isEL ? 'Μη ορισμένο' : 'Not Set')}</span>
                                 </span>
 
                                 <span className={`px-2.5 py-1 rounded-lg backdrop-blur-sm border flex items-center gap-1.5 ${
-                                    isBiometricsEnabled
-                                        ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-200'
-                                        : 'bg-white/10 border-white/15 text-violet-100/80'
+                                    isBiometricsEnabled ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-gray-200/60 dark:bg-white/[0.06] border-gray-300/60 dark:border-white/[0.1] text-gray-600 dark:text-gray-400'
                                 }`}>
                                     <Smartphone size={12} strokeWidth={2.5} />
                                     <span>{isEL ? 'Βιομετρικά' : 'Biometrics'}: {isBiometricsEnabled ? (isEL ? 'Ενεργά' : 'Enabled') : (isEL ? 'Ανενεργά' : 'Off')}</span>
@@ -315,7 +311,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     <Lock size={20} strokeWidth={2.3} />
                                 </div>
                                 <div>
-                                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
+                                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-gray-200/60 dark:bg-white/[0.06] text-gray-700 dark:text-gray-300 border border-gray-300/60 dark:border-white/[0.1]">
                                         {isEL ? 'Προστασία' : 'Protection'}
                                     </span>
                                     <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
@@ -412,7 +408,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                     <div className="flex items-center gap-3">
                                         <Laptop size={24} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.3} />
                                         <div>
-                                            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-500/20">
+                                            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-gray-200/60 dark:bg-white/[0.06] text-gray-700 dark:text-gray-300 border border-gray-300/60 dark:border-white/[0.1]">
                                                 {isEL ? 'Συνεδρίες' : 'Sessions'}
                                             </span>
                                             <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">

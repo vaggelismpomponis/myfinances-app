@@ -45,28 +45,22 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
                 </div>
                 
                 {/* Header Decoration */}
-                <div className="relative h-28 bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-700 dark:from-[#2a1060] dark:via-[#1e0d45] dark:to-[#0d1a3a] flex items-center justify-center flex-shrink-0">
+                <div className="relative h-24 bg-gray-100/90 dark:bg-surface-dark2 border-b border-gray-200 dark:border-white/10 flex items-center justify-center flex-shrink-0">
                     <button 
                         onClick={onClose}
                         aria-label="Close"
-                        className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/20 text-white/80 hover:bg-black/40 hover:text-white flex items-center justify-center transition-colors"
+                        className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-gray-200/60 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center justify-center transition-colors"
                     >
                         <X size={16} />
                     </button>
-                    
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 blur-xl"></div>
-                        <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-cyan-400/20 blur-xl"></div>
-                    </div>
-
                     <div className="relative z-10 flex flex-col items-center">
                         <div className="flex items-center gap-2 mb-1 text-center px-4">
                             <Star size={20} className="text-amber-300 flex-shrink-0" />
-                            <h2 id="whatsnew-modal-title" className="text-xl font-black text-white leading-tight">
+                            <h2 id="whatsnew-modal-title" className="text-xl font-extrabold text-gray-900 dark:text-white leading-tight">
                                 {title || (isEL ? 'Τι νέο υπάρχει;' : "What's New?")}
                             </h2>
                         </div>
-                        <div className="inline-flex items-center px-2 py-0.5 rounded-full bg-white/20 border border-white/10 text-white/90 text-xs font-bold tracking-wider">
+                        <div className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 text-xs font-bold tracking-wider">
                             V {data.version}
                         </div>
                     </div>

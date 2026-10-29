@@ -152,9 +152,7 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
                             touch-pan-y cursor-grab active:cursor-grabbing
                             border border-black/[0.04] dark:border-white/[0.06]
                             transition-colors duration-150
-                            ${!notif.read
-                                ? "bg-[#f5f3ff] dark:bg-[#201a38]"
-                                : "bg-white dark:bg-surface-dark3 hover:bg-gray-50 dark:hover:bg-white/[0.04]"
+                            ${!notif.read ? "bg-gray-100/90 dark:bg-surface-dark2 border-gray-300/80 dark:border-white/10" : "bg-transparent border-gray-200/60 dark:border-white/[0.05] hover:bg-gray-100/50 dark:hover:bg-white/[0.03]"
                             }`}
             >
                 {/* Icon */}
@@ -303,8 +301,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                     {t("notifications") || "Notifications"}
                                 </h3>
                                 {unreadCount > 0 && (
-                                    <span className="bg-violet-600 text-white text-[10px] font-black
-                                                     px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                                    <span className="bg-gray-950 text-white dark:bg-white dark:text-gray-950 text-[10px] font-black px-1.5 py-0.5 rounded-md min-w-[18px] text-center">
                                         {unreadCount}
                                     </span>
                                 )}

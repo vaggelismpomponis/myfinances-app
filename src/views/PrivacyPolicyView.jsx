@@ -43,20 +43,16 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                     />
 
                     {/* ─────── Executive Hero Hub ─────── */}
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-indigo-800 dark:from-violet-950 dark:via-indigo-950 dark:to-surface-dark3 border border-violet-400/30 dark:border-white/10 shadow-xl shadow-violet-500/15 text-white p-6 sm:p-8">
-                        {/* Ambient decorative glowing backdrops */}
-                        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-violet-400/20 blur-3xl pointer-events-none" />
-                        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-indigo-400/20 blur-3xl pointer-events-none" />
-
+                    <div className="relative overflow-hidden rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-6 sm:p-8">
                         <div className="relative z-10 max-w-2xl space-y-3">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-violet-100 tracking-wide uppercase">
+                            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide uppercase">
                                 <Shield size={13} />
                                 <span>{isEL ? 'Χάρτης Εμπιστοσύνης & Απορρήτου' : 'Privacy & Trust Charter'}</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
                                 {isEL ? 'Το Απόρρητό σας είναι Προτεραιότητα' : 'Your Privacy is Our Priority'}
                             </h2>
-                            <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
+                            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                 {isEL
                                     ? 'Κατανοούμε απόλυτα ότι τα οικονομικά σας δεδομένα είναι ευαίσθητα. Δείτε με διαφάνεια πώς τα συλλέγουμε, πώς τα προστατεύουμε και γιατί δεν τα διαμοιραζόμαστε ποτέ με διαφημιστές.'
                                     : 'We understand that your financial records are sensitive. Here is complete transparency on how we protect your records, enforce encryption, and never share data with advertisers.'}
@@ -64,17 +60,17 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
 
                             {/* Trust Commitments */}
                             <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold">
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-violet-100/90 flex items-center gap-1.5">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                                     <CheckCircle2 size={12} strokeWidth={2.5} className="text-emerald-300" />
                                     <span>{isEL ? 'Μηδενικές Διαφημίσεις' : 'Zero Ad Tracking'}</span>
                                 </span>
 
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-violet-100/90 flex items-center gap-1.5">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                                     <Lock size={12} strokeWidth={2.5} className="text-emerald-300" />
                                     <span>{isEL ? 'Κρυπτογραφημένο Cloud Vault' : 'Encrypted Cloud Vault'}</span>
                                 </span>
 
-                                <span className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-violet-100/90 flex items-center gap-1.5">
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                                     <ShieldCheck size={12} strokeWidth={2.5} className="text-violet-300" />
                                     <span>{isEL ? 'Πλήρης Κυριαρχία Δεδομένων' : 'Full Data Sovereignty'}</span>
                                 </span>
@@ -83,7 +79,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                     </div>
 
                     {/* ─────── Bento Card 1: What Data We Collect ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
                         <div className="flex items-center gap-3">
                             <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-500/20 flex items-center justify-center shrink-0">
                                 <Eye size={20} strokeWidth={2.3} />
@@ -150,7 +146,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                     </div>
 
                     {/* ─────── Bento Card 2: How We Use Data & Zero-Ad Pledge ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
                         <div className="flex items-center gap-3">
                             <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300 border border-indigo-500/20 flex items-center justify-center shrink-0">
                                 <Database size={20} strokeWidth={2.3} />
@@ -210,7 +206,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                     </div>
 
                     {/* ─────── Bento Card 3: Storage & Cryptography ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
                         <div className="flex items-center gap-3">
                             <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-500/20 flex items-center justify-center shrink-0">
                                 <Lock size={20} strokeWidth={2.3} />
@@ -277,7 +273,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                     </div>
 
                     {/* ─────── Bento Card 4: Your Rights & Sovereignty ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
                         <div className="flex items-center gap-3">
                             <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-500/20 flex items-center justify-center shrink-0">
                                 <FileText size={20} strokeWidth={2.3} />
@@ -338,7 +334,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                     </div>
 
                     {/* ─────── Contact & Inquiries Card ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-sm">
+                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3.5">
                                 <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-500/20 flex items-center justify-center shrink-0">
