@@ -16,8 +16,8 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
                     outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0
                     transition-all duration-200 group relative select-none border
                     ${active
-                        ? 'bg-violet-50 dark:bg-violet-500/15 text-violet-950 dark:text-white font-bold border-violet-200/80 dark:border-violet-500/30 shadow-xs'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/90 dark:hover:bg-white/[0.06] hover:text-gray-950 dark:hover:text-white font-medium border-transparent'
+                        ? 'bg-gray-100 dark:bg-surface-dark3 text-gray-950 dark:text-white font-bold border-gray-200 dark:border-white/10 shadow-xs'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-white/[0.06] hover:text-gray-950 dark:hover:text-white font-medium border-transparent'
                     }`}
     >
         <Icon
@@ -41,7 +41,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
             </span>
         )}
         {showCrown && !active && (
-            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/40 flex items-center gap-0.5 shrink-0">
+            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 flex items-center gap-0.5 shrink-0">
                 <ShieldCheck size={10} className="shrink-0" />
                 <span>PRO</span>
             </span>
@@ -166,39 +166,36 @@ const DesktopSidebar = ({
                             openUpgradeModal('sidebar');
                         }}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                        className={`w-full text-left relative overflow-hidden p-3 rounded-2xl cursor-pointer group transition-all duration-300
-                                   bg-gradient-to-br from-violet-600 via-indigo-600 to-violet-800
-                                   text-white shadow-md shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/35
-                                   border border-violet-400/30 hover:scale-[1.01] active:scale-[0.99] block select-none ${
+                        className={`w-full text-left p-3.5 rounded-2xl cursor-pointer group transition-all duration-200
+                                   bg-gray-100/90 dark:bg-surface-dark2
+                                   border border-gray-200 dark:border-white/10
+                                   hover:border-gray-300 dark:hover:border-white/20
+                                   hover:bg-gray-200/60 dark:hover:bg-white/[0.04]
+                                   active:scale-[0.99] block select-none ${
                                        activeTab === 'upgrade'
-                                           ? 'ring-2 ring-violet-300 dark:ring-violet-400 shadow-xl'
+                                           ? 'ring-1 ring-gray-950 dark:ring-white'
                                            : ''
                                    }`}
                     >
-                        {/* Soft ambient background glow */}
-                        
-
-                        <div className="relative z-10 flex items-center justify-between gap-2 mb-1.5">
+                        <div className="flex items-center justify-between gap-2 mb-1">
                             <div className="flex items-center gap-1.5 min-w-0">
-                                <div className="w-6 h-6 rounded-lg bg-white/15 backdrop-blur-sm flex items-center justify-center text-amber-300 shadow-xs border border-white/20 shrink-0">
-                                    <ShieldCheck size={14} strokeWidth={2.2} />
-                                </div>
-                                <span className="text-xs font-extrabold tracking-tight text-gray-900 dark:text-white truncate">
+                                <ShieldCheck size={16} strokeWidth={2.2} className="text-amber-500 shrink-0" />
+                                <span className="text-xs font-bold text-gray-900 dark:text-white truncate">
                                     {t('become_pro') || t('go_pro') || 'Become Pro'}
                                 </span>
                             </div>
-                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 shadow-xs shrink-0 font-display">
+                            <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 shrink-0">
                                 PRO
                             </span>
                         </div>
 
-                        <p className="relative z-10 text-[11px] text-gray-600 dark:text-gray-400 font-medium leading-snug line-clamp-2">
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
                             {t('go_pro_subtitle') || 'Unlock all features'}
                         </p>
 
-                        <div className="relative z-10 mt-2.5 pt-2 border-t border-gray-200 dark:border-white/10 flex items-center justify-between text-[11px] font-bold text-gray-900 dark:text-white group-hover:text-amber-500 transition-colors">
+                        <div className="mt-2.5 pt-2 border-t border-gray-200 dark:border-white/10 flex items-center justify-between text-xs font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             <span>{t('upgrade_to_pro') || t('upgrade') || 'Upgrade'}</span>
-                            <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform shrink-0" />
+                            <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform shrink-0" />
                         </div>
                     </button>
                 )}
@@ -208,22 +205,22 @@ const DesktopSidebar = ({
                     onClick={() => navTo('profile')}
                     className={`flex items-center gap-2.5 p-2.5 rounded-xl transition-all cursor-pointer group border ${
                         activeTab === 'profile'
-                            ? 'bg-violet-50 dark:bg-violet-950/30 border-violet-200 dark:border-violet-800/40'
-                            : 'bg-white dark:bg-surface-dark3 border-gray-200/70 dark:border-white/5 hover:border-violet-200 dark:hover:border-violet-800/30 hover:shadow-xs'
+                            ? 'bg-gray-200/80 dark:bg-surface-dark border-gray-300 dark:border-white/20'
+                            : 'bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
                     }`}
                 >
                     <div className="relative shrink-0">
                         {effectivePhoto && imgRetries < MAX_IMG_RETRIES ? (
                             <img
-                                src={imgRetries > 0 ? `${effectivePhoto}${effectivePhoto.includes('?') ? '&' : '?'}retry=${imgRetries}` : effectivePhoto}
+                                src={imgRetries > 0 ? `${effectivePhoto}${effectivePhoto.includes('?') ? '&' : '?'}` + 'retry=' + imgRetries : effectivePhoto}
                                 alt={effectiveName}
                                 referrerPolicy="no-referrer"
                                 crossOrigin="anonymous"
                                 onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
-                                className="w-8 h-8 rounded-full object-cover ring-2 ring-violet-500/30"
+                                className="w-8 h-8 rounded-full object-cover ring-1 ring-gray-200 dark:ring-white/10"
                             />
                         ) : (
-                            <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300 border border-violet-200/60 dark:border-violet-800/40 font-bold text-xs flex items-center justify-center shadow-xs">
+                            <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-800 dark:bg-white/10 dark:text-white border border-gray-300/60 dark:border-white/10 font-bold text-xs flex items-center justify-center shadow-xs">
                                 {effectiveName.charAt(0).toUpperCase() || 'U'}
                             </div>
                         )}
@@ -234,7 +231,7 @@ const DesktopSidebar = ({
                         )}
                     </div>
                     <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
                             {effectiveName}
                         </p>
                         <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 truncate">
@@ -248,7 +245,7 @@ const DesktopSidebar = ({
                     <button
                         onClick={toggleTheme}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-surface-dark3 border border-gray-200/70 dark:border-white/10 hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-200 dark:hover:border-violet-800/40 outline-none focus:outline-none active:scale-95 transition-all shadow-2xs"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-gray-200/70 dark:hover:bg-white/[0.08] hover:text-gray-950 dark:hover:text-white outline-none focus:outline-none active:scale-95 transition-all shadow-2xs"
                         title={theme === 'dark' ? t('switch_to_light') || 'Light mode' : t('switch_to_dark') || 'Dark mode'}
                     >
                         {theme === 'dark' ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} />}
@@ -260,8 +257,8 @@ const DesktopSidebar = ({
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                         className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold outline-none focus:outline-none active:scale-95 transition-all border ${
                             privacyMode
-                                ? 'bg-violet-600 text-white border-violet-600 shadow-xs font-bold'
-                                : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-surface-dark3 border-gray-200/70 dark:border-white/10 hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-200 dark:hover:border-violet-800/40 shadow-2xs'
+                                ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-gray-900 dark:border-white shadow-xs font-bold'
+                                : 'text-gray-700 dark:text-gray-300 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-gray-200/70 dark:hover:bg-white/[0.08] hover:text-gray-950 dark:hover:text-white shadow-2xs'
                         }`}
                         title={privacyMode ? t('show_amounts') || 'Show amounts' : t('hide_amounts') || 'Hide amounts'}
                     >
@@ -272,7 +269,7 @@ const DesktopSidebar = ({
                     <button
                         onClick={onSignOut}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                        className="p-2 rounded-xl text-rose-500 hover:text-rose-600 bg-white dark:bg-surface-dark3 border border-gray-200/70 dark:border-white/10 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-900/40 outline-none focus:outline-none active:scale-95 transition-all shrink-0 shadow-2xs"
+                        className="p-2 rounded-xl text-rose-500 hover:text-rose-600 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-900/40 outline-none focus:outline-none active:scale-95 transition-all shrink-0 shadow-2xs"
                         title={t('sign_out') || 'Sign out'}
                         aria-label="Sign out"
                     >
