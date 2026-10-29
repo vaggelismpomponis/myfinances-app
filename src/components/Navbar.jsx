@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Home, BarChart, Wallet, User, ShieldCheck } from 'lucide-react';
+import { Home, BarChart, Wallet, Settings, ShieldCheck } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
@@ -10,7 +10,7 @@ const NAV_ITEMS_LEFT = [
 
 const NAV_ITEMS_RIGHT = [
     { id: 'history', Icon: Wallet, labelKey: 'nav_history' },
-    { id: 'profile', Icon: User, labelKey: 'nav_profile' },
+    { id: 'profile', Icon: Settings, labelKey: 'settings' },
 ];
 
 /** Watches the `dark` class on <html> and returns a boolean. */
