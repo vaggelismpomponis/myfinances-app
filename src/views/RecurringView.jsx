@@ -329,9 +329,9 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                         </p>
                         <button
                             onClick={openAdd}
-                            className="flex items-center gap-2 px-6 py-3
+                            className="flex items-center gap-2 px-5 py-2.5
                                        bg-violet-600 hover:bg-violet-700 text-white
-                                       font-bold rounded-2xl shadow-lg shadow-violet-500/25
+                                       font-bold rounded-xl shadow-sm
                                        transition-all active:scale-95"
                         >
                             <Plus size={18} /> {translate('add_recurring') || 'Add Rule'}

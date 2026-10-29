@@ -179,10 +179,10 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                     <span>{language === 'el' ? 'Ελληνικά (EL)' : 'English (EN)'}</span>
                                 </span>
 
-                                <span className={`px-2.5 py-1 rounded-lg backdrop-blur-sm border flex items-center gap-1.5 ${
+                                <span className={`px-2.5 py-1 rounded-lg border flex items-center gap-1.5 ${
                                     isSmsEnabled
-                                        ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-200'
-                                        : 'bg-white/10 border-white/15 text-violet-100/80'
+                                        ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300'
+                                        : 'bg-gray-200/60 dark:bg-white/[0.06] border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300'
                                 }`}>
                                     <Bell size={12} strokeWidth={2.5} />
                                     <span>{isEL ? 'Αυτοματισμοί' : 'Automations'}: {isSmsEnabled ? (isEL ? 'Ενεργοί' : 'Active') : (isEL ? 'Ανενεργοί' : 'Off')}</span>
@@ -243,7 +243,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                                     onClick={() => updateLanguage(key)}
                                                     className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all ${
                                                         language === key
-                                                            ? 'bg-white dark:bg-surface-dark text-violet-600 dark:text-violet-400 shadow-sm'
+                                                            ? 'bg-white dark:bg-surface-dark3 text-violet-700 dark:text-violet-300 font-bold shadow-xs border border-gray-200/80 dark:border-white/10'
                                                             : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                                     }`}
                                                 >
@@ -306,9 +306,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                         onClick={onPrivacy}
                                         className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-teal-50/60 dark:hover:bg-teal-500/[0.08] hover:border-teal-300 dark:hover:border-teal-500/30 active:scale-[0.99] transition-all text-left group"
                                     >
-                                        <div className="w-10 h-10 rounded-xl bg-teal-100/70 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                                            <Shield size={18} strokeWidth={2.2} />
-                                        </div>
+                                        <Shield size={20} className="text-gray-700 dark:text-gray-300 shrink-0" strokeWidth={2.2} />
                                         <div className="flex-1 min-w-0">
                                             <span className="block font-bold text-sm text-gray-900 dark:text-white">
                                                 {translate('privacy_policy') || 'Privacy Policy'}
@@ -324,7 +322,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                         </div>
 
                         {/* ── Card 2: Danger Zone ── */}
-                        <div className="bg-white dark:bg-surface-dark2 border border-rose-200/80 dark:border-rose-900/30 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col justify-between">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-rose-200/80 dark:border-rose-900/40 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col justify-between">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
                                     <AlertTriangle size={24} className="text-rose-500 shrink-0" strokeWidth={2.3} />
@@ -394,9 +392,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                     {/* ─────── Bottom Bento: Trust & Safety ─────── */}
                     <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                                <Shield size={20} strokeWidth={2.3} />
-                            </div>
+                            <Shield size={22} className="text-violet-600 dark:text-violet-400 shrink-0" strokeWidth={2.3} />
                             <div>
                                 <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
                                     {isEL ? 'Αυτονομία Δεδομένων & Διαφάνεια' : 'Data Autonomy & Transparency'}
@@ -409,27 +405,21 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
                             <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
+                                <CheckCircle2 size={16} strokeWidth={2.5} className="text-violet-600 dark:text-violet-400 shrink-0 mt-0.5" />
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
                                     {isEL ? 'Όλα τα αντίγραφα και οι εξαγωγές JSON αποθηκεύονται απευθείας στη συσκευή σας.' : 'All backups and JSON exports download directly onto your device.'}
                                 </p>
                             </div>
 
                             <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
+                                <CheckCircle2 size={16} strokeWidth={2.5} className="text-violet-600 dark:text-violet-400 shrink-0 mt-0.5" />
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
                                     {isEL ? 'Η ανάγνωση ειδοποιήσεων πραγματοποιείται αποκλειστικά τοπικά στη συσκευή σας.' : 'Notification readers only scan incoming financial receipts locally.'}
                                 </p>
                             </div>
 
                             <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
+                                <CheckCircle2 size={16} strokeWidth={2.5} className="text-violet-600 dark:text-violet-400 shrink-0 mt-0.5" />
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
                                     {isEL ? 'Η διαγραφή λογαριασμού εξαλείφει οριστικά όλες τις εγγραφές και το ιστορικό χρήστη.' : 'Account deletion purges database rows and auth identity completely.'}
                                 </p>
@@ -499,10 +489,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                     type="button"
                                     onClick={() => setShowDeleteModal(false)}
                                     disabled={isDeleting}
-                                    className="flex-1 py-3.5 bg-gray-100 dark:bg-white/[0.08]
-                                               text-gray-700 dark:text-white font-bold rounded-xl
-                                               hover:bg-gray-200 dark:hover:bg-white/[0.1]
-                                               active:scale-95 transition-all text-[14px] cursor-pointer"
+                                    className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-[14px] cursor-pointer"
                                 >
                                     {translate('cancel') || 'Cancel'}
                                 </button>

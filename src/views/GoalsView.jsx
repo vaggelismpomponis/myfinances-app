@@ -82,13 +82,13 @@ const Field = ({ label, ...props }) => {
     const id = React.useId();
     return (
         <div>
-            <label htmlFor={id} className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
+            <label htmlFor={id} className="block text-[11px] font-bold text-gray-500 dark:text-white/60 mb-1.5 uppercase tracking-widest">
                 {label}
             </label>
             <input
                 id={id}
                 {...props}
-                className="w-full py-3 px-3.5 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                className="w-full py-2.5 px-3.5 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all"
             />
         </div>
     );
@@ -516,8 +516,8 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                                         {editingGoal ? t('edit_goal') : t('new_goal')}
                                     </h3>
-                                    <p className="text-xs text-gray-400 mt-0.5">
-                                        {editingGoal ? t('edit_rule_desc') : t('new_rule_desc')}
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                        {editingGoal ? (t('edit_goal_desc') || 'Τροποποίησε τα στοιχεία παρακάτω') : (t('new_goal_desc') || 'Όρισε τα στοιχεία του νέου αποταμιευτικού στόχου')}
                                     </p>
                                 </div>
                                 <button
@@ -566,10 +566,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                     </button>
                                     <button
                                         type="submit"
-                                        className="flex-1 py-3.5 bg-violet-600 text-white font-bold
-                                                   rounded-2xl shadow-lg shadow-violet-500/25
-                                                   hover:bg-violet-700 transition-all active:scale-95
-                                                   flex items-center justify-center gap-2 text-sm"
+                                        className="flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
                                     >
                                         <Check size={16} />
                                         {editingGoal ? t('update') : t('save')}
@@ -645,7 +642,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                 </p>
                             </div>
                             <button onClick={closeMoney}
-                                    className="ml-auto p-2 text-gray-400 dark:text-black rounded-xl bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-100 transition-colors">
+                                    className="ml-auto p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors">
                                 <X size={18} />
                             </button>
                         </div>
@@ -706,16 +703,16 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                         <div className="flex gap-3 p-4 pb-8">
                             <button
                                 onClick={closeMoney}
-                                className="flex-1 py-3.5 bg-gray-100 dark:bg-white text-gray-700 dark:text-black font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-100 transition-colors active:scale-95 text-sm"
+                                className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm"
                             >
                                 {t('cancel')}
                             </button>
                             <button
                                 onClick={handleAddMoney}
                                 disabled={!addMoneyAmount || addMoneyAmount === '0'}
-                                className="flex-1 py-3.5 bg-emerald-500 hover:bg-emerald-600
+                                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700
                                            disabled:opacity-40 text-white font-bold
-                                           rounded-2xl shadow-lg shadow-emerald-500/25
+                                           rounded-xl shadow-sm
                                            transition-all active:scale-95
                                            flex items-center justify-center gap-2 text-sm"
                             >
