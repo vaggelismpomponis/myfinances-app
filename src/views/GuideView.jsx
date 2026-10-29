@@ -268,21 +268,21 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                     <button
                                         id="guide-start-tour-btn"
                                         onClick={onStartTour}
-                                        className="w-full text-left p-5 rounded-2xl bg-white/15 hover:bg-white/20 dark:bg-white/10 dark:hover:bg-white/15 backdrop-blur-md border border-white/25 active:scale-[0.98] transition-all duration-200 group shadow-lg"
+                                        className="w-full text-left p-5 rounded-2xl bg-white dark:bg-surface-dark3 hover:bg-gray-50 dark:hover:bg-white/[0.08] border border-gray-200 dark:border-white/10 active:scale-[0.98] transition-all duration-200 group shadow-sm"
                                     >
                                         <div className="flex items-center justify-between mb-3">
-                                            <div className="w-10 h-10 rounded-xl bg-white text-violet-700 flex items-center justify-center font-bold shadow-md shadow-black/10 group-hover:scale-105 transition-transform">
-                                                <Rocket size={20} />
+                                            <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 flex items-center justify-center font-bold">
+                                                <Rocket size={18} strokeWidth={2.2} />
                                             </div>
-                                            <div className="flex items-center gap-1 text-xs font-bold text-violet-100 group-hover:text-white transition-colors">
+                                            <div className="flex items-center gap-1 text-xs font-bold text-violet-600 dark:text-violet-400 group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors">
                                                 <span>{translate('guide_explore_feature') || 'Launch'}</span>
                                                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                             </div>
                                         </div>
-                                        <p className="text-[15px] font-extrabold text-white leading-tight">
+                                        <p className="text-[15px] font-extrabold text-gray-900 dark:text-white leading-tight">
                                             {translate('tour_start_interactive') || 'Start the Interactive Tour'}
                                         </p>
-                                        <p className="text-xs text-violet-100/80 mt-1 font-medium">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">
                                             60 sec &bull; 5 steps &bull; guided walkthrough
                                         </p>
                                     </button>
@@ -302,7 +302,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder={translate('guide_search_placeholder') || 'Search guides, features, or tips...'}
-                                    className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 shadow-sm transition-all"
+                                    className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-white dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white shadow-xs transition-all"
                                 />
                                 {searchQuery && (
                                     <button
@@ -331,8 +331,8 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                         onClick={() => setSelectedCategory(cat.id)}
                                         className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-150 flex items-center gap-1.5 ${
                                             isActive
-                                                ? 'bg-violet-600 text-white shadow-sm shadow-violet-500/25'
-                                                : 'bg-white dark:bg-surface-dark2 text-gray-600 dark:text-gray-300 border border-gray-200/70 dark:border-white/[0.06] hover:bg-gray-100 dark:hover:bg-white/[0.05]'
+                                                ? 'bg-violet-600 text-white shadow-xs font-bold'
+                                                : 'bg-white dark:bg-surface-dark3 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'
                                         }`}
                                     >
                                         <span>{cat.label}</span>
@@ -363,9 +363,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                         <div>
                                             <div className="flex items-start justify-between gap-3 mb-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${section.theme.iconBox}`}>
-                                                        <Icon size={22} strokeWidth={2.2} />
-                                                    </div>
+                                                    <Icon size={24} strokeWidth={2.3} className={`${section.theme.text} shrink-0`} />
                                                     <div>
                                                         <span className={`inline-block text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border ${section.theme.badgeBg}`}>
                                                             {section.badge}
@@ -379,7 +377,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                                 {onNavigate && (
                                                     <button
                                                         onClick={() => onNavigate(section.tab)}
-                                                        className={`p-2 rounded-xl transition-all duration-150 shrink-0 ${section.theme.button}`}
+                                                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-white/10 transition-colors shrink-0"
                                                         title={`${translate('guide_explore_feature') || 'Open'} ${section.title}`}
                                                     >
                                                         <ArrowUpRight size={17} strokeWidth={2.3} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -396,9 +394,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                             <div className="space-y-2.5 mb-5">
                                                 {section.items.map((item, idx) => (
                                                     <div key={idx} className="flex items-start gap-2.5">
-                                                        <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-gray-600 dark:text-gray-300">
-                                                            <CheckCircle2 size={12} strokeWidth={2.5} className={section.theme.text} />
-                                                        </div>
+                                                        <CheckCircle2 size={15} strokeWidth={2.5} className={`${section.theme.text} shrink-0 mt-0.5`} />
                                                         <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-snug">
                                                             {item}
                                                         </p>
@@ -425,7 +421,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                         </div>
                     ) : (
                         /* Empty State when Search has no matches */
-                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-10 text-center space-y-4">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-10 text-center space-y-4">
                             <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center mx-auto text-gray-400">
                                 <SearchX size={28} />
                             </div>
@@ -452,12 +448,10 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                     {/* ─────── Bottom Bento: Productivity Tips & Help ─────── */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
                         {/* Productivity Shortcuts Card */}
-                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
                             <div>
                                 <div className="flex items-center gap-3 mb-3">
-                                    <div className="w-10 h-10 rounded-2xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                                        <Lightbulb size={20} strokeWidth={2.3} />
-                                    </div>
+                                    <Lightbulb size={24} strokeWidth={2.3} className="text-amber-600 dark:text-amber-400 shrink-0" />
                                     <div>
                                         <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
                                             {translate('guide_shortcuts_title') || 'Quick Productivity Tips'}
@@ -491,12 +485,10 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                         </div>
 
                         {/* Feedback & Assistance Card */}
-                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/[0.08] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
                             <div>
                                 <div className="flex items-center gap-3 mb-3">
-                                    <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                                        <MessageSquare size={20} strokeWidth={2.3} />
-                                    </div>
+                                    <MessageSquare size={24} strokeWidth={2.3} className="text-violet-600 dark:text-violet-400 shrink-0" />
                                     <div>
                                         <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
                                             {translate('guide_feedback_box_title') || 'Need help or have suggestions?'}
@@ -524,7 +516,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                 {onStartTour && (
                                     <button
                                         onClick={onStartTour}
-                                        className="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.14] text-gray-700 dark:text-gray-200 text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all"
+                                        className="px-4 py-2.5 rounded-xl bg-gray-200/70 hover:bg-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-200 text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all"
                                         title={translate('guide_restart_tour') || 'Restart Tour'}
                                     >
                                         <RotateCcw size={14} />
