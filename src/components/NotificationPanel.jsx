@@ -25,7 +25,7 @@ function timeAgo(isoString, t) {
 const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) => {
     const controls = useAnimationControls();
     const x = useMotionValue(0);
-    const deleteOpacity = useTransform(x, [0, -12], [0, 1]);
+    const deleteOpacity = useTransform(x, [-50, -16], [1, 0]);
     const isDraggingRef = React.useRef(false);
     const hasMountedRef = React.useRef(false);
 
@@ -111,20 +111,22 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
                 transition: { duration: 0.22, ease: "easeInOut" }
             }}
             transition={{ delay: idx * 0.03 }}
-            className="relative overflow-hidden rounded-xl mb-1.5 select-none bg-rose-600 dark:bg-rose-700"
+            className="relative overflow-hidden rounded-xl mb-1.5 select-none bg-transparent"
         >
             {/* Delete Action (Revealed on Swipe Left) */}
-            <div className="absolute inset-y-0 right-0 w-[72px] flex items-center justify-center z-0">
+            <motion.div
+                style={{ opacity: deleteOpacity }}
+                className={`absolute inset-y-0 right-0 w-[80px] bg-rose-600 dark:bg-rose-700 flex items-center justify-center z-0 transition-colors ${
+                    isOpen ? "pointer-events-auto" : "pointer-events-none"
+                }`}
+            >
                 <button
                     type="button"
-                    style={{ opacity: deleteOpacity }}
                     onClick={(e) => {
                         e.stopPropagation();
                         onDelete(notif.id);
                     }}
-                    className={`w-full h-full flex flex-col items-center justify-center gap-1 text-white active:scale-90 transition-transform ${
-                        isOpen ? "pointer-events-auto" : "pointer-events-none"
-                    }`}
+                    className="w-full h-full flex flex-col items-center justify-center gap-1 text-white active:scale-90 transition-transform"
                     aria-label={t("delete") || "Διαγραφή"}
                     title={t("delete") || "Διαγραφή"}
                 >
@@ -133,7 +135,7 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
                         {t("delete") || "Διαγραφή"}
                     </span>
                 </button>
-            </div>
+            </motion.div>
 
             {/* Foreground Swipeable Card */}
             <motion.div
@@ -150,8 +152,8 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t }) 
                             touch-pan-y cursor-grab active:cursor-grabbing
                             transition-colors duration-150
                             ${!notif.read
-                                ? "bg-white dark:bg-surface-dark3 border border-gray-200/90 dark:border-white/10 shadow-xs"
-                                : "bg-gray-50 dark:bg-surface-dark2 border border-gray-200/60 dark:border-white/[0.06] hover:bg-gray-100/80 dark:hover:bg-white/[0.03]"
+                                ? "bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 shadow-xs"
+                                : "bg-gray-50 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark"
                             }`}
             >
                 {/* Icon */}
