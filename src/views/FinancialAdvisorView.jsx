@@ -13,6 +13,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import useIsDesktop from '../hooks/useIsDesktop';
 import Amount from '../components/Amount';
 import CategoryIcon, { getCategoryIcon } from '../components/CategoryIcon';
+import { getCategoryTranslation } from '../utils/categoryTranslations';
 
 /* ──────────────────────────────────────────────────────────
    CATEGORY → 50-30-20 BUCKET MAP
