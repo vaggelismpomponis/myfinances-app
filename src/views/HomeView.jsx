@@ -377,46 +377,6 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
         return t('advisor_subtitle');
     }, [transactions, t]);
 
-    const advisorCta = (
-        <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => {
-                if (!isPro) { openUpgradeModal('advisor'); }
-                else { setActiveTab('advisor'); }
-            }}
-            className="w-full relative overflow-hidden bg-gradient-to-br from-violet-50 to-indigo-50 dark:bg-surface-dark3 dark:from-transparent dark:to-transparent
-                       p-4 rounded-[2rem] border border-violet-200/60 dark:border-violet-900/30
-                       shadow-sm hover:shadow-md flex items-center gap-4 group transition-all duration-200"
-        >
-            {!isPro && (
-                <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white dark:bg-surface-dark shadow-md flex items-center justify-center border border-gray-100 dark:border-white/10 z-10">
-                    <ShieldCheck size={14} className="text-amber-500" />
-                </div>
-            )}
-            {/* Gentle pulse animation for the whole card */}
-            <motion.div
-                className="absolute inset-0 rounded-[2rem] pointer-events-none"
-                animate={{ opacity: [0, 1, 0] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                style={{ boxShadow: 'inset 0 0 20px rgba(139,92,246,0.15)' }}
-            />
-
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white
-                            shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
-                <Lightbulb size={22} />
-            </div>
-            <div className="flex-1 text-left min-w-0 pr-6">
-                <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{t('advisor_title')}</h4>
-                <p className="text-[11px] text-violet-600 dark:text-violet-300 font-semibold truncate mt-0.5 leading-snug">
-                    {advisorLiveInsight}
-                </p>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 group-hover:translate-x-1 transition-transform flex-shrink-0">
-                <ArrowRight size={16} />
-            </div>
-        </motion.button>
-    );
 
 
     // ── Recent Transactions (shared) ──

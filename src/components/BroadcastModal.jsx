@@ -18,26 +18,18 @@ const BroadcastModal = ({ isOpen, onClose, data }) => {
             />
             
             {/* Modal */}
-            <div className="relative w-full max-w-sm bg-white dark:bg-surface-dark2 rounded-[2.5rem] overflow-hidden shadow-2xl animate-scale-in border border-gray-100 dark:border-white/5">
+            <div className="relative w-full max-w-sm bg-white dark:bg-surface-dark2 rounded-2xl overflow-hidden shadow-xl animate-scale-in border border-gray-200 dark:border-white/10">
                 
-                {/* Decorative Top */}
-                <div className="h-32 bg-gradient-to-br from-violet-600 to-indigo-600 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
-                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-400/20 rounded-full blur-3xl" />
-                    
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white shadow-lg border border-white/30 animate-float">
-                            <Radio size={32} strokeWidth={2.5} />
-                        </div>
-                    </div>
+                {/* Executive Header */}
+                <div className="h-24 bg-gray-100/90 dark:bg-surface-dark2 border-b border-gray-200 dark:border-white/10 relative overflow-hidden flex items-center justify-center">
+                    <Radio size={32} strokeWidth={2.2} className="text-gray-900 dark:text-white" />
                     
                     <button 
                         onClick={onClose}
                         aria-label="Close"
-                        className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors"
+                        className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-gray-200/60 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center justify-center transition-colors"
                     >
-                        <X size={18} />
+                        <X size={16} />
                     </button>
                 </div>
 

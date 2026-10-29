@@ -358,7 +358,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                         </div>
                     ) : goals.length === 0 ? (
                         /* Empty State */
-                        <div className="flex flex-col items-center justify-center py-24 text-center px-4 bg-white dark:bg-surface-dark3 rounded-[2.5rem] border border-gray-100/80 dark:border-white/5 shadow-sm mt-2">
+                        <div className="flex flex-col items-center justify-center py-24 text-center px-4 bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 shadow-sm mt-2">
                             <div className="w-24 h-24 bg-gradient-to-br from-violet-500/20 to-purple-500/20 dark:from-violet-900/40 dark:to-purple-900/40
                                             rounded-full flex items-center justify-center mb-6 relative overflow-hidden">
                                 <div className="absolute inset-0 bg-white/20 dark:bg-white/5 backdrop-blur-md" />
@@ -373,8 +373,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                             <button
                                 onClick={openAdd}
                                 className="flex items-center gap-2 px-6 py-3.5
-                                           bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white
-                                           font-bold rounded-2xl shadow-premium
+                                           bg-gray-950 hover:bg-gray-900 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 font-bold rounded-xl shadow-sm
                                            transition-all active:scale-95 group"
                             >
                                 <Plus size={18} className="transition-transform group-hover:rotate-90" /> {t('create_goal')}

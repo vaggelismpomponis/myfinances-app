@@ -188,11 +188,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         <motion.button
                             onClick={() => openUpgradeModal('profile_header')}
                             whileTap={{ scale: 0.93 }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                                       bg-gradient-to-r from-violet-600 to-indigo-600
-                                       text-white text-[11px] font-extrabold tracking-wide
-                                       shadow-[0_2px_12px_rgba(124,58,237,0.35)]
-                                       hover:shadow-[0_4px_20px_rgba(124,58,237,0.45)] transition-shadow"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-950 text-white dark:bg-white dark:text-gray-950 text-[11px] font-extrabold tracking-wide shadow-xs"
                         >
                             <ShieldCheck size={12} strokeWidth={2.5} className="shrink-0" />
                             {translate('become_pro') || translate('go_pro') || 'Become Pro'}

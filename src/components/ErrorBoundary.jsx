@@ -110,7 +110,7 @@ class ErrorBoundaryClass extends React.Component {
                             <button
                                 type="button"
                                 onClick={this.handleReload}
-                                className="w-full py-3.5 px-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-2xl transition-all duration-300 shadow-glow flex items-center justify-center gap-2.5 font-bold cursor-pointer active:scale-[0.98]"
+                                className="w-full py-3.5 px-4 bg-gray-950 hover:bg-gray-900 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 rounded-xl transition-all duration-200 shadow-sm flex items-center justify-center gap-2.5 font-bold cursor-pointer active:scale-[0.98]"
                             >
                                 <RefreshCw size={18} className={this.state.isReloading ? "animate-spin" : ""} strokeWidth={2.2} />
                                 {t('reload_app')}
